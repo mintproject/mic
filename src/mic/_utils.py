@@ -52,9 +52,14 @@ def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))
 
 
-def ask_simple_value(variable_name, resource_name, default_value=None):
+def ask_simple_value(variable_name, resource_name, default_value=""):
+    if variable_name.lower() == "name":
+        default_value = None
     value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
-    return [value]
+    if value:
+        return [value]
+    else:
+        return []
 
 
 def init_logger():

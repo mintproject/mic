@@ -15,7 +15,7 @@ mapping_parameter = {
 
 mapping_model = {
     'Name': 'label',
-    'Short Description': 'label',
+    'Description': 'description',
     'keywords': 'keywords',
     'website': 'website',
     'documentation': 'documentation',

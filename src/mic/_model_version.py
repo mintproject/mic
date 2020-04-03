@@ -25,7 +25,7 @@ def create():
     question_add = click.confirm('Do you want create a new configuration for the model?')
     while question_add:
         inputs, outputs, parameters = menu()
-        model_configurations.append(create_modelconfiguration(parameters, inputs, outputs))
+        model_configurations.append(create_modelconfiguration(parameters=parameters, inputs=inputs, outputs=outputs))
         if not click.confirm('Do you want create another configuration for the model?'):
             break
     request["hasConfiguration"] = model_configurations
