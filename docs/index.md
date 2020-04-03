@@ -31,3 +31,17 @@ pip install mic
 ```
 
 You did it!
+
+# Usage
+
+## Help functionality in the CLI
+
+mic --help
+
+## Login
+
+Use this command to configure username and password for the Model Catalog API
+
+```
+mic configure
+```
