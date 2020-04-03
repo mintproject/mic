@@ -10,7 +10,7 @@ import click
 import semver
 
 import mic
-from mic import _utils, _metadata_schema, _transform_data, _initialize, _push, _validate
+from mic import _utils
 from mic._modelconfiguration import create as modelconfiguration_create
 from mic._model import create as create_model
 
@@ -74,9 +74,21 @@ def configure(profile="default"):
         credentials.write(fh)
         click.secho(f"Success", fg="green")
 
+
+@cli.group()
+def model():
+    """Command to handle the Models"""
+
+@model.command(short_help="Add a model")
+def add(inputs=0, outputs=0, parameters=0, directory=""):
+    create_model()
+    click.secho(f"Success", fg="green")
+
+
+
 @cli.group()
 def modelconfiguration():
-    """Manages setups"""
+    """Command to handle the ModelConfiguration"""
 
 @modelconfiguration.command(short_help="Add a modelconfiguration")
 @click.option(
@@ -100,16 +112,6 @@ def modelconfiguration():
 def add(inputs=0, outputs=0, parameters=0, directory=""):
     modelconfiguration_create(inputs, outputs, parameters)
     click.secho(f"Success", fg="green")
-
-@cli.group()
-def model():
-    """Manages setups"""
-
-@model.command(short_help="Add a model")
-def add(inputs=0, outputs=0, parameters=0, directory=""):
-    create_model()
-    click.secho(f"Success", fg="green")
-
 
 
 
