@@ -190,15 +190,15 @@ def parse(value):
         return value
 
 
-def ask_value(request, variable_name, resource_name, mapping, default_value=""):
+def ask_value(request, variable_name, resource_name, mapping, default_value="", select=None):
     """
     Modifies the request
     """
-    value = None
     request_property = get_prop_mapping(mapping, variable_name)
-    if mapping[variable_name]["complex"] and select_enable(mapping[variable_name]):
-        request[request_property] = select_existing_resources(variable_name, resource_name, mapping)
-    elif mapping[variable_name]["complex"] and not value:
+    if select is None and mapping[variable_name]["complex"] and select_enable(mapping[variable_name]):
+        sub_resource = select_existing_resources(variable_name, resource_name, mapping)
+        request[request_property] = sub_resource if sub_resource else ask_complex_value(variable_name, resource_name, mapping)
+    elif mapping[variable_name]["complex"] and not request[request_property]:
         request[request_property] = ask_complex_value(variable_name, resource_name, mapping)
     else:
         request[request_property] = ask_simple_value(variable_name, resource_name, mapping[variable_name])
@@ -208,7 +208,6 @@ def get_prop_mapping(mapping, variable_selected):
     return mapping[variable_selected]["id"]
 
 def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
-    sub_resource = create_request(mapping_model_version.keys())
     if mapping[variable_name]["id"] == "has_version":
         return add_resource(mapping_model_version, SoftwareVersion)
     elif mapping[variable_name]["id"] == "author" or "contributor" or "has_contact_person":
@@ -217,17 +216,10 @@ def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
 
 
 def ask_simple_value(variable_name, resource_name, entry, default_value=""):
-    definition = entry['definition']
-    required = entry['required']
-    text_required = "[REQUIRED]"
     if variable_name.lower() == "name":
         default_value = None
-    if not required:
         text_required = "[OPTIONAL]"
-    #   value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
-    value = click.prompt('{} - {} [DEFINITION : {}]'.format(resource_name, variable_name,
-                                                            definition) + ' ' + text_required + '\n',
-                         default=default_value)
+    value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
     if value:
         return [value]
     else:
