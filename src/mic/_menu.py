@@ -197,7 +197,6 @@ def ask_value(request, variable_name, resource_name, mapping, default_value=""):
     """
     value = None
     request_property = get_prop_mapping(mapping, variable_name)
-    click.confirm(request)
     if mapping[variable_name]["complex"] and select_enable(mapping[variable_name]):
         request[variable_name] = select_existing_resources(variable_name, resource_name, mapping)
     elif mapping[variable_name]["complex"] and not value:

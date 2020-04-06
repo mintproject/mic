@@ -15,10 +15,6 @@ def create():
     click.clear()
     add_resource(mapping_model, RESOURCE)
 
-
-
-
-
 def push(request):
     configuration, username = get_api()
     api_instance = modelcatalog.ModelApi(modelcatalog.ApiClient(configuration=configuration))
