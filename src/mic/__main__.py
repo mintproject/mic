@@ -39,7 +39,7 @@ def version(debug=False):
     click.echo(f"{Path(sys.argv[0]).name} v{mic.__version__}")
 
 
-@cli.command(help="Configure Model Catalog API credentials")
+@cli.command(help="Configure your credentials to access the Model Catalog API ")
 @click.option(
     "--profile",
     "-p",
@@ -77,7 +77,7 @@ def configure(profile="default"):
 
 @cli.group()
 def model():
-    """Command to handle the Models"""
+    """Command to create and edit Models"""
 
 @model.command(short_help="Add a model")
 def add(inputs=0, outputs=0, parameters=0, directory=""):
@@ -88,9 +88,9 @@ def add(inputs=0, outputs=0, parameters=0, directory=""):
 
 @cli.group()
 def modelconfiguration():
-    """Command to handle the ModelConfiguration"""
+    """Command to create and edit ModelConfigurations"""
 
-@modelconfiguration.command(short_help="Add a modelconfiguration")
+@modelconfiguration.command(short_help="Create a modelconfiguration")
 @click.option(
     "--inputs",
     "-i",

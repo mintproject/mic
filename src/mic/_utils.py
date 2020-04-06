@@ -48,18 +48,23 @@ def login(username, password):
         quit()
     return configuration
 
+
 def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))
+    click.echo("The actual values are:")
 
 
-def ask_simple_value(variable_name, resource_name, default_value=""):
-    if variable_name.lower() == "name":
-        default_value = None
-    value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
-    if value:
-        return [value]
-    else:
-        return []
+def get_complex(mapping, resource):
+    for key, _property in mapping.items():
+        mapping[key]["complex"] = is_complex(resource, _property['id'])
+
+
+def is_complex(resource, _property):
+    builtin_types = ["int", "str", "bool", "float"]
+    for b in builtin_types:
+        if b in resource.openapi_types[_property]:
+            return False
+    return True
 
 
 def init_logger():

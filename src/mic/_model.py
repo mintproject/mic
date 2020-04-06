@@ -1,46 +1,20 @@
 import logging
 import modelcatalog
-from mic._utils import ask_simple_value, get_api_configuration, first_line_new
-from mic._person import add_person
-
-
-from mic._model_version import create as create_model_version
-from modelcatalog import ApiException
+from mic._utils import get_api_configuration, first_line_new, get_complex
+from mic._mappings import *
+from modelcatalog import ApiException, Model
 import click
 
-mapping_parameter = {
-    'Short Description': 'label',
-    'Value': 'hasFixedValue',
-}
-
-mapping_model = {
-    'Name': 'label',
-    'Description': 'description',
-    'keywords': 'keywords',
-    'website': 'website',
-    'documentation': 'documentation',
-}
+from mic._menu import default_menu, create_request, print_request, edit_menu, remove_menu, save_menu, push_menu, \
+    add_resource
 
 RESOURCE = "Model"
+
+
 def create():
-    model_versions = []
-    click.echo("Adding a new Model")
-    first_line_new(RESOURCE)
-    request = {}
-    for key in mapping_model:
-        value = ask_simple_value(key, RESOURCE)
-        request[mapping_model[key]] = value
+    click.clear()
+    add_resource(mapping_model, RESOURCE)
 
-    request["author"] = add_person("Author")
-    request["contributor"] = add_person("contributors")
-
-    first_line_new(RESOURCE)
-    while click.confirm('Do you want create a new version for the model?'):
-        model_versions.append(create_model_version())
-        if not click.confirm('Do you want create another version for the model?'):
-            break
-    request["hasVersion"] = model_versions
-    push(request)
 
 
 
