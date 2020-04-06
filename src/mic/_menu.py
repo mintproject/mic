@@ -8,8 +8,9 @@ import json
 
 
 def edit_menu(choice, request, resource_name, mapping):
-    var_selected = list(request.keys())[choice - 1]
-    click.echo('Current value for ' + var_selected + ' is: ' + str(request[var_selected]))
+    var_selected = list(mapping.keys())[choice - 1]
+    var_selected_mapping = get_prop_mapping(mapping, var_selected)
+    click.echo('Current value for ' + var_selected + ' is: ' + str(request[var_selected_mapping]))
     ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
 
 def get_label_from_response(response):
@@ -106,27 +107,25 @@ def handle_actions(request, action):
     return -1
 
 
-def create_request(keys):
+def create_request(values):
     """
     Create a dictionary to send the model catalog
-    @param keys: List with properties of the resource
+    @param values: List with properties of the resource
     @return: dict
     """
     request = {}
-    for key in keys:
-        request[key] = None
+    for value in values:
+        request[value["id"]] = None
     return request
 
 
 def print_request(request, mapping):
     table = []
-    headers = ["no.", "Property", "Value", "Complex"]
+    headers = ["no.", "Property", "Value"]
     i = 1
-    for key, value in request.items():
-        # value is a list, not a string. We truncate at 50 char
+    for key, value in mapping.items():
         short_value = (value if (value is None or len(str(value)) < 50) else str(value)[:50] + "...")
-        # print(len(str(value)))
-        table.append([i, key, short_value, mapping[key]["complex"]])
+        table.append([i, key, request[get_prop_mapping(mapping, key)]])
         i = i + 1
     print(tabulate(table, headers, tablefmt="grid"))
 
@@ -198,11 +197,11 @@ def ask_value(request, variable_name, resource_name, mapping, default_value=""):
     value = None
     request_property = get_prop_mapping(mapping, variable_name)
     if mapping[variable_name]["complex"] and select_enable(mapping[variable_name]):
-        request[variable_name] = select_existing_resources(variable_name, resource_name, mapping)
+        request[request_property] = select_existing_resources(variable_name, resource_name, mapping)
     elif mapping[variable_name]["complex"] and not value:
-        request[variable_name] = ask_complex_value(variable_name, resource_name, mapping)
+        request[request_property] = ask_complex_value(variable_name, resource_name, mapping)
     else:
-        request[variable_name] = ask_simple_value(variable_name, resource_name, mapping[variable_name])
+        request[request_property] = ask_simple_value(variable_name, resource_name, mapping[variable_name])
 
 
 def get_prop_mapping(mapping, variable_selected):
@@ -236,7 +235,7 @@ def ask_simple_value(variable_name, resource_name, entry, default_value=""):
 
 
 def add_resource(mapping, resource_name):
-    request = create_request(mapping.keys())
+    request = create_request(mapping.values())
     while True:
         click.clear()
         first_line_new(resource_name)
