@@ -1,19 +1,59 @@
 import click
+from mic._person import PersonCli
 from mic._utils import first_line_new
 from mic._mappings import *
+from modelcatalog import ApiException
 from tabulate import tabulate
 import json
 
 
 def edit_menu(choice, request, resource_name, mapping):
-    var_selected = list(request.keys())[choice - 1]
-    print('Current value for ' + var_selected + ' is: ' + str(request[var_selected]))
-    print('Insert new value (c to CANCEL)')
-    response = ask_value(var_selected, resource_name=resource_name, mapping=mapping)
-    if response != ["c"]:
-        print(response)
-        request[var_selected] = response
+    var_selected = list(mapping.keys())[choice - 1]
+    var_selected_mapping = get_prop_mapping(mapping, var_selected)
+    click.echo('Current value for ' + var_selected + ' is: ' + str(request[var_selected_mapping]))
+    ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
 
+def get_label_from_response(response):
+    labels = []
+    for resource in response:
+        resource_dict = resource.to_dict()
+        if "label" in resource_dict:
+            labels.append(resource_dict["label"][0])
+        elif "id" in resource_dict:
+            labels.append(resource_dict["id"])
+        else:
+            labels.append(None)
+    return labels
+
+
+def select_enable(mapping):
+    if SELECT in mapping and mapping[SELECT]:
+        return mapping[SELECT]
+    return False
+
+
+def get_existing_resources(resource_name):
+    if resource_name == "Author":
+        try:
+            return PersonCli().get()
+        except ApiException as e:
+            click.echo("Failing to get resources")
+
+def select_existing_resources(var_selected, resource_name, mapping):
+    click.clear()
+    click.echo("Available resources")
+    response = get_existing_resources(var_selected)
+    resources = get_label_from_response(response)
+    print_choices(resources)
+    if click.confirm("Did you find the {}?".format(var_selected), default=True):
+        choice = click.prompt("Select the {}".format(var_selected),
+                              default=1,
+                              show_choices=True,
+                              type=click.Choice(list(range(1, len(resources) + 1))),
+                              value_proc=parse
+                              )
+        return response[choice-1]
+    return None
 
 def show_menu(request):
     selection = click.prompt("Which property would you like to show?",
@@ -36,7 +76,6 @@ def default_menu(request, resource_name, mapping):
     properties_choices = list(request.keys())
     actions_choices = ["show", "save", "send", "load", "exit"]
     choices = properties_choices + actions_choices
-    # print_choices(properties_choices)
     action = click.prompt("Select the property to edit",
                           default=1,
                           show_choices=True,
@@ -68,27 +107,25 @@ def handle_actions(request, action):
     return -1
 
 
-def create_request(keys):
+def create_request(values):
     """
     Create a dictionary to send the model catalog
-    @param keys: List with properties of the resource
+    @param values: List with properties of the resource
     @return: dict
     """
     request = {}
-    for key in keys:
-        request[key] = None
+    for value in values:
+        request[value["id"]] = None
     return request
 
 
 def print_request(request, mapping):
     table = []
-    headers = ["no.", "Property", "Value", "Complex"]
+    headers = ["no.", "Property", "Value"]
     i = 1
-    for key, value in request.items():
-        # value is a list, not a string. We truncate at 50 char
+    for key, value in mapping.items():
         short_value = (value if (value is None or len(str(value)) < 50) else str(value)[:50] + "...")
-        # print(len(str(value)))
-        table.append([i, key, short_value, mapping[key]["complex"]])
+        table.append([i, key, request[get_prop_mapping(mapping, key)]])
         i = i + 1
     print(tabulate(table, headers, tablefmt="grid"))
 
@@ -153,35 +190,36 @@ def parse(value):
         return value
 
 
-def ask_value(variable_name, resource_name, mapping, default_value=""):
-    if mapping[variable_name]["complex"]:
-        value = ask_complex_value(variable_name, resource_name, mapping)
+def ask_value(request, variable_name, resource_name, mapping, default_value="", select=None):
+    """
+    Modifies the request
+    """
+    request_property = get_prop_mapping(mapping, variable_name)
+    if select is None and mapping[variable_name]["complex"] and select_enable(mapping[variable_name]):
+        sub_resource = select_existing_resources(variable_name, resource_name, mapping)
+        request[request_property] = sub_resource if sub_resource else ask_complex_value(variable_name, resource_name, mapping)
+    elif mapping[variable_name]["complex"] and not request[request_property]:
+        request[request_property] = ask_complex_value(variable_name, resource_name, mapping)
     else:
-        value = ask_simple_value(variable_name, resource_name, mapping[variable_name])
-    return value
+        request[request_property] = ask_simple_value(variable_name, resource_name, mapping[variable_name])
 
+
+def get_prop_mapping(mapping, variable_selected):
+    return mapping[variable_selected]["id"]
 
 def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
-    sub_resource = create_request(mapping_model_version.keys())
     if mapping[variable_name]["id"] == "has_version":
         return add_resource(mapping_model_version, SoftwareVersion)
     elif mapping[variable_name]["id"] == "author" or "contributor" or "has_contact_person":
-        return add_resource(mapping_model_version, Person)
+        return add_resource(mapping_person, Person)
     pass
 
 
 def ask_simple_value(variable_name, resource_name, entry, default_value=""):
-    definition = entry['definition']
-    required = entry['required']
-    text_required = "[REQUIRED]"
     if variable_name.lower() == "name":
         default_value = None
-    if not required:
         text_required = "[OPTIONAL]"
-    #   value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
-    value = click.prompt('{} - {} [DEFINITION : {}]'.format(resource_name, variable_name,
-                                                            definition) + ' ' + text_required + '\n',
-                         default=default_value)
+    value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
     if value:
         return [value]
     else:
@@ -189,10 +227,9 @@ def ask_simple_value(variable_name, resource_name, entry, default_value=""):
 
 
 def add_resource(mapping, resource_name):
-    request = create_request(mapping.keys())
+    request = create_request(mapping.values())
     while True:
         click.clear()
-        # print(mapping)
         first_line_new(resource_name)
         choice = default_menu(request, resource_name, mapping)
         if choice == 0:

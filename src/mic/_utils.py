@@ -18,7 +18,7 @@ def generate_new_uri():
     return "{}{}".format(MODEL_ID_URI, str(uuid.uuid4()))
 
 
-def get_api_configuration():
+def get_api():
     __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint_api/credentials"
     credentials_file = Path(
         os.getenv("MINT_API_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
@@ -31,7 +31,7 @@ def get_api_configuration():
     username = credentials[profile]["api_username"]
     password = credentials[profile]["api_password"]
     configuration = login(username, password)
-    return configuration, username
+    return modelcatalog.ApiClient(configuration=configuration), username
 
 
 def login(username, password):
