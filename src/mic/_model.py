@@ -1,6 +1,6 @@
 import logging
 import modelcatalog
-from mic._utils import get_api_configuration, first_line_new, get_complex
+from mic._utils import get_api, first_line_new, get_complex
 from mic._mappings import *
 from modelcatalog import ApiException, Model
 import click
@@ -20,7 +20,7 @@ def create():
 
 
 def push(request):
-    configuration, username = get_api_configuration()
+    configuration, username = get_api()
     api_instance = modelcatalog.ModelApi(modelcatalog.ApiClient(configuration=configuration))
     try:
         api_response = api_instance.models_post(username, model=request)

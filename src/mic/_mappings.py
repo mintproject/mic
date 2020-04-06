@@ -1,6 +1,8 @@
 from mic._utils import get_complex
 from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource
 
+SELECT = 'select'
+
 mapping_model = {
     'Name': {'id': 'label', 'definition': 'Name of the model', 'required': True},
     'Description': {"id": 'description', 'definition': 'Description of the model', 'required': False},
@@ -8,7 +10,7 @@ mapping_model = {
     'Website': {"id": 'website', 'definition': 'Website where more information about the model can be found', 'required': False},
     'Documentation': {"id": 'has_documentation', 'definition': 'URL where additional documentation of the model can be found', 'required': False},
     'Versions': {"id": 'has_version', 'definition': 'Available versions of a particular model', 'required': False},
-    'Author': {"id": 'author', 'definition': 'Person(s) who created the model', 'required': False},
+    'Author': {"id": 'author', 'definition': 'Person(s) who created the model', 'required': False, SELECT: True},
     'Contributor': {"id": 'contributor', 'definition': 'Person(s) who contributed to the development of the model', 'required': False},
     'Contact person': {"id": 'has_contact_person', 'definition': 'Contact person responsible for maintaining the model', 'required': False},
     'License': {"id": 'license', 'definition': 'License associated to the model (e.g., CC-BY)', 'required': False},
