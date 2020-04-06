@@ -215,10 +215,9 @@ def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
     pass
 
 
-def ask_simple_value(variable_name, resource_name, entry, default_value=""):
-    if variable_name.lower() == "name":
-        default_value = None
-        text_required = "[OPTIONAL]"
+def ask_simple_value(variable_name, resource_name, mapping, default_value=""):
+    get_definition(mapping, variable_name)
+
     value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
     if value:
         return [value]
