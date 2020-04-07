@@ -6,7 +6,7 @@ from modelcatalog import ApiException
 from tabulate import tabulate
 import json
 
-COMPLEX_CHOICES = ["select", "add", "edit", "delete"]
+COMPLEX_CHOICES = ["select", "add"]
 
 
 def edit_menu(choice, request, resource_name, mapping):
