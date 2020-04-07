@@ -1,14 +1,17 @@
 import click
-from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource
+from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource, Image, ModelConfiguration
 
 SELECT = 'select'
+
 
 def get_definition(mapping, variable_name):
     if "definition" in mapping:
         click.echo("Definition: {}".format(mapping['definition']))
 
+
 def is_complex(mapping, variable):
     return mapping[variable]['complex']
+
 
 def init_complex(resource, _property):
     builtin_types = ["int", "str", "bool", "float"]
@@ -27,36 +30,47 @@ mapping_model = {
     'Name': {'id': 'label', 'definition': 'Name of the model', 'required': True},
     'Description': {"id": 'description', 'definition': 'Description of the model', 'required': False},
     'Keywords': {"id": 'keywords', 'definition': 'Keywords that can be used to describe the model', 'required': False},
-    'Website': {"id": 'website', 'definition': 'Website where more information about the model can be found', 'required': False},
-    'Documentation': {"id": 'has_documentation', 'definition': 'URL where additional documentation of the model can be found', 'required': False},
+    'Website': {"id": 'website', 'definition': 'Website where more information about the model can be found',
+                'required': False},
+    'Documentation': {"id": 'has_documentation',
+                      'definition': 'URL where additional documentation of the model can be found', 'required': False},
     'Versions': {"id": 'has_version', 'definition': 'Available versions of a particular model', 'required': False},
     'Author': {"id": 'author', 'definition': 'Person(s) who created the model', 'required': False, SELECT: True},
-    'Contributor': {"id": 'contributor', 'definition': 'Person(s) who contributed to the development of the model', 'required': False},
-    'Contact person': {"id": 'has_contact_person', 'definition': 'Contact person responsible for maintaining the model', 'required': False},
+    'Contributor': {"id": 'contributor', 'definition': 'Person(s) who contributed to the development of the model',
+                    'required': False, SELECT: True},
+    'Contact person': {"id": 'has_contact_person', 'definition': 'Contact person responsible for maintaining the model',
+                       'required': False, SELECT: True},
     'License': {"id": 'license', 'definition': 'License associated to the model (e.g., CC-BY)', 'required': False},
-    'Category': {"id": 'has_model_category', 'definition': 'Category associated with the model (e.g., Hydrology)', 'required': False},
+    'Category': {"id": 'has_model_category', 'definition': 'Category associated with the model (e.g., Hydrology)',
+                 'required': False},
     'Creation date': {"id": 'date_created', 'definition': 'Date when the model was created', 'required': False},
-    'Assumptions': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model', 'required': False},
+    'Assumptions': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model',
+                    'required': False},
     # 'Publisher': {"id": 'publisher', 'definition': 'Organization responsible for publishing the model', 'required': False},
-    'Download URL': {"id": 'has_download_url', 'definition': 'URL available for downloading the model', 'required': False},
-    #'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
-    'Purpose': {"id": 'has_purpose', 'definition': 'Objective or main functionality that can be achieved by running this model', 'required': False},
+    'Download URL': {"id": 'has_download_url', 'definition': 'URL available for downloading the model',
+                     'required': False},
+    'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
+    'Purpose': {"id": 'has_purpose',
+                'definition': 'Objective or main functionality that can be achieved by running this model',
+                'required': False},
     'Citation': {"id": 'citation', 'definition': 'Reference publication for citing a model', 'required': False},
-    #publisher and logo commented until we define organization and Image
+    # publisher and logo commented until we define Organization and Image
 }
 mapping_model_version = {
     'Name': {"id": 'label'},
     'Description': {"id": 'description'},
-    'Version': {"id": 'has_version_id'},
+    'Version number': {"id": 'has_version_id'},
 }
+
 mapping_dataset_specification = {
-    'Name': {"id": 'label'},
-    'Format': {"id": 'has_format'},
+    'Name': {'id': 'label', 'definition': 'Name of the input/output', 'required': True},
+    'Description': {"id": 'description', 'definition': 'Description of the input/output', 'required': False},
+    'Format': {"id": 'has_format','definition': 'Format of the file (e.g., CSV, tiff, nc, etc.)', 'required': False},
 }
-#mapping_parameter = {
+# mapping_parameter = {
 #    'Name': {"id": 'label'},
 #    'Value': {"id": 'has_fixed_value'},
-#}
+# }
 
 mapping_parameter = {
     'Name': {'id': 'label', 'definition': 'Name of the parameter', 'required': True},
@@ -72,8 +86,39 @@ mapping_parameter = {
                                                                                  'have ', 'required': False},
 }
 
+mapping_image = {
+    'Name': {'id': 'label', 'definition': 'Name of the parameter', 'required': True},
+    'Description': {"id": 'description', 'definition': 'Description of the model', 'required': False},
+    'URL': {"id": 'value', 'definition': 'URL of the logo', 'required': False},
+    'Source': {"id": 'had_primary_source', 'definition': 'URL of the website where the logo comes from', 'required': False},
+}
 mapping_model_configuration = {
-    'Name': {"id": 'label'},
+    'Name': {'id': 'label', 'definition': 'Name of the model configuration', 'required': True},
+    'Description': {"id": 'description', 'definition': 'Description of the model configuration', 'required': False},
+    'Keywords': {"id": 'keywords', 'definition': 'Keywords that can be used to describe the model configuration', 'required': False},
+    'Documentation': {"id": 'has_documentation',
+                      'definition': 'URL where additional documentation of the model configuration can be found', 'required': False},
+    'Author': {"id": 'author', 'definition': 'Person(s) who created the model configuration', 'required': False, SELECT: True},
+    'Contributor': {"id": 'contributor', 'definition': 'Person(s) who contributed to the development of the model configuration',
+                    'required': False,SELECT: True},
+    # 'License': {"id": 'license', 'definition': 'License associated to the model (e.g., CC-BY)', 'required': False},
+    'Category': {"id": 'has_model_category', 'definition': 'Category associated with the model configuration (e.g., Hydrology)',
+                 'required': False},
+    'Creation date': {"id": 'date_created', 'definition': 'Date when the model configuration was created', 'required': False},
+    'Assumptions': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model configuration',
+                    'required': False},
+    'Inputs': {"id": 'has_input', 'definition': 'Input files used in the model configuration', 'required': False},
+    'Outputs': {"id": 'has_output', 'definition': 'Output files produced by the model configuration', 'required': False},
+    'Parameters': {"id": 'has_parameter', 'definition': 'Parameters (i.e., numerical values, strings or booleans) to '
+                                                        'required by the model configuration',
+                        'required': False},
+    'Executable URL': {"id": 'has_component_location', 'definition': 'URL where the executable for this configuration can be found',
+                        'required': False},
+#Commented until we add SoftwareImage and SourceCode
+#'Software Image': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model',
+#                    'required': False},
+#'Code Repository': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model',
+#                    'required': False},
 }
 mapping_person = {
     'name': {"id": 'label'},
@@ -84,10 +129,10 @@ mapping_sample_resource = {
     'URL': {"id": 'value'}
 }
 get_complex(mapping_model, Model)
+get_complex(mapping_model_configuration, ModelConfiguration)
 get_complex(mapping_model_version, SoftwareVersion)
 get_complex(mapping_dataset_specification, DatasetSpecification)
 get_complex(mapping_parameter, Parameter)
 get_complex(mapping_person, Person)
 get_complex(mapping_sample_resource, SampleResource)
-
-
+get_complex(mapping_image, Image)

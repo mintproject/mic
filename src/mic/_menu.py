@@ -10,9 +10,14 @@ COMPLEX_CHOICES = ["select", "add", "edit", "delete"]
 
 
 def edit_menu(choice, request, resource_name, mapping):
-    var_selected = list(mapping.keys())[choice - 1]
-    var_selected_mapping = get_prop_mapping(mapping, var_selected)
-    ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
+    try:
+        var_selected = list(mapping.keys())[choice - 1]
+        var_selected_mapping = get_prop_mapping(mapping, var_selected)
+        ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
+    except:
+        click.echo("The option chosen is not supported")
+        input("press any key to continue")
+
 
 
 def get_label_from_response(response):
@@ -35,11 +40,13 @@ def select_enable(mapping):
 
 
 def get_existing_resources(resource_name):
-    if resource_name == "Author":
+    # TO DO: clean up this, it's not too maintainable
+    if (resource_name == "Author") or (resource_name == "Contributor") or (resource_name == "Contact person"):
         try:
             return PersonCli().get()
         except ApiException as e:
-            click.echo("Failing to get resources")
+            click.echo("Failed to get person resources")
+
 
 
 def select_existing_resources(var_selected, resource_name, mapping):
@@ -79,7 +86,7 @@ def default_menu(request, resource_name, mapping):
     properties_choices = list(request.keys())
     actions_choices = ["show", "save", "send", "load", "exit"]
     choices = properties_choices + actions_choices
-    action = click.prompt("Select the property to edit [{}-{}]".format(1, len(properties_choices)),
+    action = click.prompt("Select the property to edit [{}-{}] or [show, save, send, load, exit]".format(1, len(properties_choices)),
                           default=1,
                           show_choices=False,
                           type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
@@ -298,10 +305,13 @@ def get_prop_mapping(mapping, variable_selected):
 
 
 def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
-    if mapping[variable_name]["id"] == "has_version":
+    prop = mapping[variable_name]["id"]
+    if prop == "has_version":
         resource = add_resource(mapping_model_version, SoftwareVersion)
-    elif mapping[variable_name]["id"] == "author" or "contributor" or "has_contact_person":
+    elif (prop == "author") or (prop == "contributor") or (prop == "has_contact_person"):
         resource = add_resource(mapping_person, Person)
+    elif prop == "logo":
+        resource = add_resource(mapping_image, Image)
     return resource
 
 
