@@ -39,11 +39,12 @@ def select_enable(mapping):
 
 
 def get_existing_resources(resource_name):
-    if resource_name == "Author":
+    # TO DO: clean up this, it's not too maintainable
+    if (resource_name == "Author") or (resource_name == "Contributor") or (resource_name == "Contact person"):
         try:
             return PersonCli().get()
         except ApiException as e:
-            click.echo("Failing to get resources")
+            click.echo("Failed to get person resources")
 
 
 def select_existing_resources(var_selected, resource_name, mapping):
