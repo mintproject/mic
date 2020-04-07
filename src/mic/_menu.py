@@ -10,9 +10,14 @@ COMPLEX_CHOICES = ["add", "create", "edit", "delete"]
 
 
 def edit_menu(choice, request, resource_name, mapping):
-    var_selected = list(mapping.keys())[choice - 1]
-    var_selected_mapping = get_prop_mapping(mapping, var_selected)
-    ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
+    try:
+        var_selected = list(mapping.keys())[choice - 1]
+        var_selected_mapping = get_prop_mapping(mapping, var_selected)
+        ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
+    except:
+        click.echo("The option chosen is not supported")
+        input("press any key to continue")
+
 
 def get_label_from_response(response):
     labels = []
@@ -40,6 +45,7 @@ def get_existing_resources(resource_name):
         except ApiException as e:
             click.echo("Failing to get resources")
 
+
 def select_existing_resources(var_selected, resource_name, mapping):
     click.echo("Available resources")
     response = get_existing_resources(var_selected)
@@ -52,8 +58,9 @@ def select_existing_resources(var_selected, resource_name, mapping):
                               type=click.Choice(list(range(1, len(resources) + 1))),
                               value_proc=parse
                               )
-        return response[choice-1].to_dict()
+        return response[choice - 1].to_dict()
     return None
+
 
 def show_menu(request):
     selection = click.prompt("Which property would you like to show?",
@@ -75,8 +82,8 @@ def default_menu(request, resource_name, mapping):
     print_request(request, mapping)
     properties_choices = list(request.keys())
     actions_choices = ["show", "save", "send", "load", "exit"]
-    choices = properties_choices + actions_choices
-    action = click.prompt("Select the property to edit [{}-{}]".format(1,len(properties_choices)),
+    # choices = properties_choices + actions_choices
+    action = click.prompt("Select the property to edit [{}-{}] or [show, save, send, load, exit]".format(1, len(properties_choices)),
                           default=1,
                           show_choices=False,
                           type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
@@ -126,9 +133,12 @@ def print_request(request, mapping):
     for key, value in mapping.items():
         request_value = request[get_prop_mapping(mapping, key)]
         if isinstance(request_value, list) and isinstance(request_value[0], dict):
-            short_value = ' '.join([str(elem["label"]) if "label" in elem else "Item without label" for elem in request_value])
+            short_value = ' '.join(
+                [str(elem["label"]) if "label" in elem else "Item without label" for elem in request_value])
         else:
-            short_value = (request_value if (request_value is None or len(str(request_value)) < 50) else str(request_value)[:50] + "...")
+            short_value = (
+                request_value if (request_value is None or len(str(request_value)) < 50) else str(request_value)[
+                                                                                              :50] + "...")
         table.append([i, key, short_value])
         i = i + 1
     print(tabulate(table, headers, tablefmt="grid"))
@@ -208,6 +218,7 @@ def ask_value(request, variable_name, resource_name, mapping, default_value="", 
         show_values(mapping, request, request_property, variable_name)
         set_value(mapping, request, request_property, resource_name, variable_name)
 
+
 def actions_complex(mapping, request, request_property, resource_name, select, variable_name):
     choice = click.prompt("Select action:",
                           default=1,
@@ -217,17 +228,18 @@ def actions_complex(mapping, request, request_property, resource_name, select, v
                           )
     if choice == COMPLEX_CHOICES[0]:
         add_value_complex(mapping, request, request_property, resource_name, variable_name)
-        #ADD
+        # ADD
     elif choice == COMPLEX_CHOICES[1]:
         create_value_complex(mapping, request, request_property, resource_name, variable_name)
-        #CREATE
+        # CREATE
     elif choice == COMPLEX_CHOICES[2]:
         pass
-        #edit
+        # edit
     elif choice == COMPLEX_CHOICES[3]:
-        #delete
+        # delete
         pass
     return choice
+
 
 def set_value(mapping, request, request_property, resource_name, variable_name):
     value = ask_simple_value(variable_name, resource_name, mapping[variable_name])
@@ -275,6 +287,7 @@ def show_values(mapping, request, request_property, variable_name):
     else:
         click.echo('No value for {}'.format(variable_name))
 
+
 def show_values_complex(mapping, request, request_property, variable_name):
     if request[request_property]:
         for resource in request[request_property]:
@@ -283,16 +296,18 @@ def show_values_complex(mapping, request, request_property, variable_name):
         click.echo('No value for {}'.format(variable_name))
 
 
-
 def get_prop_mapping(mapping, variable_selected):
     return mapping[variable_selected]["id"]
 
 
 def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
-    if mapping[variable_name]["id"] == "has_version":
+    prop = mapping[variable_name]["id"]
+    if prop == "has_version":
         resource = add_resource(mapping_model_version, SoftwareVersion)
-    elif mapping[variable_name]["id"] == "author" or "contributor" or "has_contact_person":
+    elif (prop == "author") or (prop == "contributor") or (prop == "has_contact_person"):
         resource = add_resource(mapping_person, Person)
+    elif prop == "logo":
+        resource = add_resource(mapping_image, Image)
     return resource
 
 
