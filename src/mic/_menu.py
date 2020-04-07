@@ -1,5 +1,6 @@
 import logging
 
+from mic.file import save_menu
 from mic.resources._person import PersonCli
 from mic._utils import first_line_new
 from mic._mappings import *
@@ -158,44 +159,7 @@ def remove_menu(request):
     pass
 
 
-def save_menu(request):
-    """
-    Function to save the current request as a JSON file
-    :param request: JSON to save
-    :return:
-    """
-    try:
-        # print_request(request)
-        file_name = click.prompt('Enter the file name to save: ')
-        file_name += '.json'
-        with open(file_name, 'w') as outfile:
-            json.dump(request, outfile)
-        print('File saved successfully')
-        # this will show status if saved.
-        # click.confirm('File saved successfully. Do you want to continue editing?', abort=True)
-    except:
-        print('An error occurred when saving the file')
-    pass
 
-
-def load_menu(request):
-    """
-    Method that loads a JSON file of a model
-    TO DO: Does not distinguish type at the moment (assumes it's a model)
-    :param request: Current JSON request (initialized)
-    :return: the JSON with the loaded file in request
-    """
-    try:
-        file = click.prompt("Please type the path if the file to load")
-        with open(file) as json_file:
-            loaded_file = json.load(json_file)
-        print('File loaded successfully')
-    except:
-        print('Error when loading the file')
-        # click.confirm('Error loading the file. Continue?', abort=True)
-    # print_request(request)
-    # click.prompt('Press enter to continue',default='a')
-    return loaded_file
 
 
 def push_menu(request):
