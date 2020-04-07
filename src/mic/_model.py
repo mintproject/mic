@@ -1,12 +1,11 @@
 import logging
 import modelcatalog
-from mic._utils import get_api, first_line_new, get_complex
+from mic._utils import get_api
 from mic._mappings import *
-from modelcatalog import ApiException, Model
+from modelcatalog import ApiException
 import click
 
-from mic._menu import default_menu, create_request, print_request, edit_menu, remove_menu, save_menu, push_menu, \
-    add_resource
+from mic._menu import add_resource
 
 RESOURCE = "Model"
 

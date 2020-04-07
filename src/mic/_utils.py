@@ -54,18 +54,6 @@ def first_line_new(resource, i=""):
     click.echo("The actual values are:")
 
 
-def get_complex(mapping, resource):
-    for key, _property in mapping.items():
-        mapping[key]["complex"] = is_complex(resource, _property['id'])
-
-
-def is_complex(resource, _property):
-    builtin_types = ["int", "str", "bool", "float"]
-    for b in builtin_types:
-        if b in resource.openapi_types[_property]:
-            return False
-    return True
-
 
 def init_logger():
     logger = logging.getLogger()

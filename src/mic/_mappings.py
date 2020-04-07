@@ -1,8 +1,27 @@
 import click
-from mic._utils import get_complex
 from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource
 
 SELECT = 'select'
+
+def get_definition(mapping, variable_name):
+    if "definition" in mapping:
+        click.echo("Definition: {}".format(mapping['definition']))
+
+def is_complex(mapping, variable):
+    return mapping[variable]['complex']
+
+def init_complex(resource, _property):
+    builtin_types = ["int", "str", "bool", "float"]
+    for b in builtin_types:
+        if b in resource.openapi_types[_property]:
+            return False
+    return True
+
+
+def get_complex(mapping, resource):
+    for key, _property in mapping.items():
+        mapping[key]["complex"] = init_complex(resource, _property['id'])
+
 
 mapping_model = {
     'Name': {'id': 'label', 'definition': 'Name of the model', 'required': True},
@@ -71,8 +90,4 @@ get_complex(mapping_parameter, Parameter)
 get_complex(mapping_person, Person)
 get_complex(mapping_sample_resource, SampleResource)
 
-
-def get_definition(mapping, variable_name):
-    if "definition" in mapping:
-        click.echo("Definition: {}".format(mapping['definition']))
 
