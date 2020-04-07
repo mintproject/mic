@@ -11,10 +11,9 @@ import json
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
 
 
-def edit_menu(choice, request, resource_name, mapping):
+def edit_menu(property_chosen, request, resource_name, mapping):
     try:
-        var_selected = list(mapping.keys())[choice - 1]
-        var_selected_mapping = get_prop_mapping(mapping, var_selected)
+        var_selected = list(mapping.keys())[property_chosen - 1]
         ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -85,24 +84,26 @@ def show_menu(request):
     input('Press any key to continue')
 
 
-def default_menu(request, resource_name, mapping):
+def select_property_menu(request, resource_name, mapping):
     """
-    First menu: Selection the action
+    Select the property to edit
     """
+    print(request)
+    print(mapping)
     print_request(request, mapping)
     properties_choices = list(request.keys())
     actions_choices = ["show", "save", "send", "load", "exit"]
     choices = properties_choices + actions_choices
-    action = click.prompt("Select the property to edit [{}-{}] or [show, save, send, load, exit]".format(1, len(properties_choices)),
+    select_property = click.prompt("Select the property to edit [{}-{}] or [show, save, send, load, exit]".format(1, len(properties_choices)),
                           default=1,
                           show_choices=False,
                           type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
                           value_proc=parse
                           )
     # TO DO: make sure selected action is within valid range!
-    if type(action) == str:
-        action = handle_actions(request, action)
-    return action
+    if type(select_property) == str:
+        select_property = handle_actions(request, select_property)
+    return select_property
 
 
 def handle_actions(request, action):
@@ -141,7 +142,11 @@ def print_request(request, mapping):
     headers = ["no.", "Property", "Value"]
     i = 1
     for key, value in mapping.items():
-        request_value = request[get_prop_mapping(mapping, key)]
+        prop_mapping = get_prop_mapping(mapping, key)
+        if prop_mapping in request:
+            request_value = request[prop_mapping]
+        else:
+            request_value = None
         # A complex property has multiple dict inside.
         if request_value and isinstance(request_value, list) and isinstance(request_value[0], dict):
             short_value = ' '.join(
@@ -233,7 +238,6 @@ def ask_value(request, variable_name, resource_name, mapping, default_value="", 
 def actions_complex(mapping, request, request_property, resource_name, select, variable_name):
     choices_new = COMPLEX_CHOICES.copy()
     if request[request_property] is None:
-        print("clean")
         choices_new.remove("edit")
         choices_new.remove("remove")
 
@@ -244,23 +248,26 @@ def actions_complex(mapping, request, request_property, resource_name, select, v
                           value_proc=parse
                           )
     if choice == COMPLEX_CHOICES[0]:
-        add_value_complex(mapping, request, request_property, resource_name, variable_name)
+        select_value_complex(mapping, request, request_property, resource_name, variable_name)
     elif choice == COMPLEX_CHOICES[1]:
         create_value_complex(mapping, request, request_property, resource_name, variable_name)
     elif choice == COMPLEX_CHOICES[2]:
-        edit_value_complex(request[request_property])
+        edit_value_complex(request[request_property], mapping, resource_name, variable_name)
     elif choice == COMPLEX_CHOICES[3]:
         delete_value_complex(request[request_property])
     return choice
 
 
 def set_value(mapping, request, request_property, resource_name, variable_name):
-    value = ask_simple_value(variable_name, resource_name, mapping[variable_name])
+    default_value = request[request_property] if request_property in request and request[request_property] else None
+    default_value = default_value[0] if isinstance(default_value,list) else default_value
+
+    value = ask_simple_value(variable_name, resource_name, mapping[variable_name], default_value=default_value)
     if value:
         request[request_property] = [value]
 
 
-def add_value_complex(mapping, request, request_property, resource_name, variable_name):
+def select_value_complex(mapping, request, request_property, resource_name, variable_name):
     value = None
     if select_enable(mapping[variable_name]):
         sub_resource = select_existing_resources(variable_name, resource_name, mapping)
@@ -280,8 +287,18 @@ def create_value_complex(mapping, request, request_property, resource_name, vari
     else:
         request[request_property].append(value)
 
-def edit_value_complex(resources):
-    pass
+def edit_value_complex(request, mapping, resource_name, variable_name):
+    labels = get_label_from_response(request)
+    print_choices(labels)
+    
+    choice = click.prompt("Select the resource to edit",
+                          default=1,
+                          show_choices=False,
+                          type=click.Choice(list(range(1, len(labels) + 1))),
+                          value_proc=parse
+                          )
+    request_var=get_prop_mapping(mapping, variable_name)
+    edit_resource(request, mapping, variable_name, request_var)
 
 def delete_value_complex(resources):
     labels = get_label_from_response(resources)
@@ -308,7 +325,7 @@ def set_value_complex(mapping, request, request_property, resource_name, select,
 
 
 def show_values(mapping, request, request_property, variable_name):
-    if request[request_property]:
+    if request_property in request and request[request_property]:
         click.echo('Current value for ' + variable_name + ' is: ' + str(request[request_property]))
     else:
         click.echo('No value for {}'.format(variable_name))
@@ -339,7 +356,6 @@ def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
 
 def ask_simple_value(variable_name, resource_name, mapping, default_value=""):
     get_definition(mapping, variable_name)
-
     value = click.prompt('{} - {} '.format(resource_name, variable_name), default=default_value)
     if value:
         return value
@@ -352,17 +368,18 @@ def add_resource(mapping, resource_name):
     while True:
         click.clear()
         first_line_new(resource_name)
-        choice = default_menu(request, resource_name, mapping)
-        if choice == 0:
-            # exit
-            break
-        elif choice == -1:
-            # Save, send, load (do not finish)
-            # click.confirm("Continue editing?", abort=True)
-            continue
-        elif choice == -2:
-            # Show a definition of the current resource
-            show_menu(request)
-        else:
-            edit_menu(choice, request, resource_name, mapping)
+        property_chosen = select_property_menu(request, resource_name, mapping)
+        property_mcat_selected = list(mapping.keys())[property_chosen - 1]
+        ask_value(request, property_mcat_selected, resource_name=resource_name, mapping=mapping)
     return request
+
+
+def edit_resource(request, mapping, resource_name, request_var):
+    if (request_var == "author") or (request_var == "contributor"):
+        mapping = mapping_person
+        resource_name = "Person"
+    property_chosen = select_property_menu(request[0], resource_name, mapping)
+    property_mcat_selected = list(mapping.keys())[property_chosen - 1]
+    ask_value(request[0], property_mcat_selected, resource_name=resource_name, mapping=mapping)
+
+
