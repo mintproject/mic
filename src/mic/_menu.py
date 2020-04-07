@@ -225,7 +225,7 @@ def ask_value(request, variable_name, resource_name, mapping, default_value="", 
 
 def actions_complex(mapping, request, request_property, resource_name, select, variable_name):
     choice = click.prompt("Select action:",
-                          default=1,
+                          default=COMPLEX_CHOICES[0],
                           show_choices=True,
                           type=click.Choice(COMPLEX_CHOICES),
                           value_proc=parse
