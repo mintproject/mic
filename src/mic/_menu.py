@@ -9,6 +9,7 @@ from tabulate import tabulate
 import json
 
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
+ACTION_CHOICES = ["save", "send", "exit"]
 
 
 def edit_menu(property_chosen, request, resource_name, mapping):
@@ -88,8 +89,6 @@ def select_property_menu(request, resource_name, mapping):
     """
     Select the property to edit
     """
-    print(request)
-    print(mapping)
     print_request(request, mapping)
     properties_choices = list(request.keys())
     actions_choices = ["show", "save", "send", "load", "exit"]
@@ -101,28 +100,19 @@ def select_property_menu(request, resource_name, mapping):
                           value_proc=parse
                           )
     # TO DO: make sure selected action is within valid range!
-    if type(select_property) == str:
-        select_property = handle_actions(request, select_property)
     return select_property
 
 
 def handle_actions(request, action):
-    if action == "exit":
-        return 0
-    if action == "show":
-        return -2
-    if action == "save":
+    if type(action) != str:
+        return False
+    if action == ACTION_CHOICES[0]:
         save_menu(request)
-    elif action == "send":
+    elif action == ACTION_CHOICES[1]:
         push_menu(request)
-    elif action == "load":
-        req_aux = load_menu(request)
-        # copy dictionary values (cannot assign to request directly)
-        for key in request:
-            request[key] = None
-            if key in req_aux:
-                request[key] = req_aux[key]
-    return -1
+    elif action == ACTION_CHOICES[2]:
+        pass
+    return True
 
 
 def create_request(values):
@@ -297,7 +287,7 @@ def edit_value_complex(request, mapping, resource_name, variable_name):
                           type=click.Choice(list(range(1, len(labels) + 1))),
                           value_proc=parse
                           )
-    request_var=get_prop_mapping(mapping, variable_name)
+    request_var = get_prop_mapping(mapping, variable_name)
     edit_resource(request, mapping, variable_name, request_var)
 
 def delete_value_complex(resources):
@@ -369,17 +359,21 @@ def add_resource(mapping, resource_name):
         click.clear()
         first_line_new(resource_name)
         property_chosen = select_property_menu(request, resource_name, mapping)
+        if handle_actions(request, property_chosen):
+            break
         property_mcat_selected = list(mapping.keys())[property_chosen - 1]
         ask_value(request, property_mcat_selected, resource_name=resource_name, mapping=mapping)
-    return request
 
 
 def edit_resource(request, mapping, resource_name, request_var):
-    if (request_var == "author") or (request_var == "contributor"):
-        mapping = mapping_person
-        resource_name = "Person"
-    property_chosen = select_property_menu(request[0], resource_name, mapping)
-    property_mcat_selected = list(mapping.keys())[property_chosen - 1]
-    ask_value(request[0], property_mcat_selected, resource_name=resource_name, mapping=mapping)
+    while True:
+        if (request_var == "author") or (request_var == "contributor"):
+            mapping = mapping_person
+            resource_name = "Person"
+        property_chosen = select_property_menu(request[0], resource_name, mapping)
+        if handle_actions(request, property_chosen):
+            break
+        property_mcat_selected = list(mapping.keys())[property_chosen - 1]
+        ask_value(request[0], property_mcat_selected, resource_name=resource_name, mapping=mapping)
 
 
