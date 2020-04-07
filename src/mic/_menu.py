@@ -1,7 +1,6 @@
 import logging
 
-import click
-from mic._person import PersonCli
+from mic.resources._person import PersonCli
 from mic._utils import first_line_new
 from mic._mappings import *
 from modelcatalog import ApiException

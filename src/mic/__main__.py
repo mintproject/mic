@@ -1,9 +1,7 @@
 import configparser
-import logging
 import os
 import sys
 from pathlib import Path
-import json
 
 import click
 
@@ -11,8 +9,8 @@ import semver
 
 import mic
 from mic import _utils
-from mic._modelconfiguration import create as modelconfiguration_create
-from mic._model import create as create_model
+from mic.resources._modelconfiguration import create as modelconfiguration_create
+from mic.resources._model import create as create_model
 
 
 __DEFAULT_CAPS_CLI_CREDENTIALS_FILE__ = "~/.mic/credentials"
