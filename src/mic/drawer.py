@@ -30,7 +30,7 @@ def print_choices(choices):
         click.echo("[{}] {}".format(index + 1, choice))
 
 
-def show_values_complex(mapping, request, request_property, variable_name):
+def show_values_complex(request, request_property, variable_name):
     if request[request_property]:
         for resource in request[request_property]:
             click.echo(resource["label"])
@@ -38,7 +38,7 @@ def show_values_complex(mapping, request, request_property, variable_name):
         click.echo('No value for {}'.format(variable_name))
 
 
-def show_values(mapping, request, request_property, variable_name):
+def show_values(request, request_property, variable_name):
     if request_property in request and request[request_property]:
         click.echo('Current value for ' + variable_name + ' is: ' + str(request[request_property]))
     else:
