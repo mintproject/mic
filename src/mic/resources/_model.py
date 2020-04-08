@@ -5,14 +5,14 @@ from mic._mappings import *
 from modelcatalog import ApiException
 import click
 
-from mic._menu import add_resource
+from mic._menu import call_menu_select_property
 
 RESOURCE = "Model"
 
 
 def create():
     click.clear()
-    add_resource(mapping_model, RESOURCE)
+    call_menu_select_property(mapping_model, RESOURCE)
 
 
 def push(request):
