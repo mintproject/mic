@@ -4,6 +4,13 @@ from mic.resources._person import PersonCli
 
 
 def get_label_from_response(response):
+    """
+    Get the response of ModelCatalog and return a list with the labels
+    @param response: Response of the ModelCatalog
+    @type response: List
+    @return: A list with the labels
+    @rtype: List
+    """
     labels = []
     for resource in response:
         if isinstance(resource, dict):
@@ -30,6 +37,13 @@ def create_request(values):
     return request
 
 def get_existing_resources(resource_name):
+    """
+    Get all the resources of a resource
+    @param resource_name: The name of the resource (mic spec, not modelcatalog)
+    @type resource_name:
+    @return: A list of resource
+    @rtype: List[]
+    """
     # TO DO: clean up this, it's not too maintainable
     if (resource_name == "Author") or (resource_name == "Contributor") or (resource_name == "Contact person"):
         try:
