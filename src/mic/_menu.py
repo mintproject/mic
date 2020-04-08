@@ -232,15 +232,17 @@ def call_menu_select_existing_resources(request, variable_selected, resource_nam
         request[request_property].append(value)
 
 
-def call_menu_select_property(mapping, resource_name):
+def call_menu_select_property(mapping, resource_name, request=None):
     """
     Method to call the menu to add resource
     @param mapping: Mapping of the resource
     @type mapping: dict
     @param resource_name: the resource_name to print it
     @type resource_name: string
+    :param request: request (optionally loaded from file)
     """
-    request = create_request(mapping.values())
+    if request is None:
+        request = create_request(mapping.values())
     while True:
         click.clear()
         first_line_new(resource_name)

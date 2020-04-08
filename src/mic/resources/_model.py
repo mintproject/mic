@@ -10,9 +10,10 @@ from mic._menu import call_menu_select_property
 RESOURCE = "Model"
 
 
-def create():
+def create(request=None):
     click.clear()
-    call_menu_select_property(mapping_model, RESOURCE)
+    call_menu_select_property(mapping_model, RESOURCE, request)
+
 
 
 def push(request):

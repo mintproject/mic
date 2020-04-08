@@ -26,7 +26,7 @@ def save(request):
     pass
 
 
-def load(request):
+def load():
     """
     Method that loads a JSON file of a model
     TO DO: Does not distinguish type at the moment (assumes it's a model)
@@ -41,6 +41,4 @@ def load(request):
     except:
         print('Error when loading the file')
         # click.confirm('Error loading the file. Continue?', abort=True)
-    # print_request(request)
-    # click.prompt('Press enter to continue',default='a')
     return loaded_file

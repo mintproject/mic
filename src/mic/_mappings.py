@@ -127,9 +127,9 @@ mapping_model_configuration = {
 #                    'required': False},
 }
 mapping_person = {
-    'name': {"id": 'label'},
-    'email': {"id": 'email'},
-    'website': {"id": 'website'}
+    'Name': {'id': 'label', 'definition': 'Name of the person', 'required': True},
+    'email': {"id": 'email','definition': 'Email of the person', 'required': False},
+    'website': {"id": 'website','definition': 'Website of the person', 'required': False},
 }
 mapping_sample_resource = {
     'URL': {"id": 'value'}
