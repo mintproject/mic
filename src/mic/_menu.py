@@ -231,13 +231,13 @@ def call_menu_select_existing_resources(request, variable_selected, resource_nam
         request[request_property].append(value)
 
 
-def call_menu_select_property(mapping, resource_name, full_request=None):
+def call_menu_select_property(mapping, resource_object, full_request=None):
     """
     Method to call the menu to add resource
     @param mapping: Mapping of the resource
     @type mapping: dict
-    @param resource_name: the resource_name to print it
-    @type resource_name: string
+    @param resource_object: the resource_object
+    @type resource_object: object
     @param request: request (optionally loaded from file)
     @type request: dict
     """
@@ -246,13 +246,13 @@ def call_menu_select_property(mapping, resource_name, full_request=None):
         full_request = request
     while True:
         click.clear()
-        first_line_new(resource_name)
+        first_line_new(resource_object.name)
         property_chosen = menu_select_property(request, mapping)
         if handle_actions(request, property_chosen, mapping, full_request=full_request):
             break
         if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()):
             property_model_catalog_selected = list(mapping.keys())[property_chosen - 1]
-            call_ask_value(request, property_model_catalog_selected, resource_name=resource_name, mapping=mapping)
+            call_ask_value(request, property_model_catalog_selected, resource_name=resource_object.name, mapping=mapping)
     return request
 
 def call_edit_resource(request, mapping, resource_name, request_property, full_request=None):
@@ -292,7 +292,7 @@ def mapping_resource_complex(variable_selected, mapping, full_request):
     """
     prop = mapping[variable_selected]["id"]
     if prop == "has_version":
-        return call_menu_select_property(mapping_model_version, SoftwareVersion, full_request)
+        return call_menu_select_property(mapping_model_version, SoftwareVersionCli, full_request)
     elif (prop == "author") or (prop == "contributor") or (prop == "has_contact_person"):
         return call_menu_select_property(mapping_person, Person, full_request)
     elif prop == "logo":

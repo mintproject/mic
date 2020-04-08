@@ -13,7 +13,7 @@ def create():
 
 
 
-class ModelVersionCli:
+class SoftwareVersionCli:
     name = RESOURCE
 
     def __init__(self):
