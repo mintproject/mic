@@ -8,12 +8,11 @@ import click
 import semver
 
 import mic
-from mic import _utils
+from mic import _utils, file
 from mic.resources._modelconfiguration import create as modelconfiguration_create
 from mic.resources._model import create as create_model
 
 
-__DEFAULT_CAPS_CLI_CREDENTIALS_FILE__ = "~/.mic/credentials"
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint_api/credentials"
 
 
@@ -77,16 +76,24 @@ def configure(profile="default"):
 def model():
     """Command to create and edit Models"""
 
+
 @model.command(short_help="Add a model")
 def add(inputs=0, outputs=0, parameters=0, directory=""):
     create_model()
     click.secho(f"Success", fg="green")
 
 
+@model.command(short_help="Load a model from file")
+def load(inputs=0, outputs=0, parameters=0, directory=""):
+    request = file.load()
+    create_model(request)
+    click.secho(f"Success", fg="green")
+
 
 @cli.group()
 def modelconfiguration():
     """Command to create and edit ModelConfigurations"""
+
 
 @modelconfiguration.command(short_help="Create a modelconfiguration")
 @click.option(
@@ -110,6 +117,3 @@ def modelconfiguration():
 def add(inputs=0, outputs=0, parameters=0, directory=""):
     modelconfiguration_create(inputs, outputs, parameters)
     click.secho(f"Success", fg="green")
-
-
-

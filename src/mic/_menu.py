@@ -7,7 +7,7 @@ from mic._utils import first_line_new
 from mic._mappings import *
 
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
-ACTION_CHOICES = ["save", "send", "exit"]
+ACTION_CHOICES = ["show", "save", "send", "exit"]
 
 
 def menu_select_existing_resources(variable_selected):
@@ -45,13 +45,12 @@ def menu_select_property(request, mapping):
     """
     print_request(request, mapping)
     properties_choices = list(request.keys())
-    actions_choices = ["show", "save", "send", "load", "exit"]
-    choices = properties_choices + actions_choices
+    choices = properties_choices + ACTION_CHOICES
     select_property = click.prompt(
-        "Select the property to edit [{}-{}] or [show, save, send, load, exit]".format(1, len(properties_choices)),
+        "Select the property to edit [{}-{}] or {}".format(1, len(properties_choices), ACTION_CHOICES),
         default=1,
         show_choices=False,
-        type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
+        type=click.Choice(list(range(1, len(properties_choices) + 1)) + ACTION_CHOICES),
         value_proc=parse
     )
     return select_property
@@ -176,10 +175,10 @@ def call_ask_value(request, variable_selected, resource_name, mapping):
     click.clear()
 
     if is_complex(mapping, variable_selected):
-        show_values_complex(mapping, request, request_property, variable_selected)
+        show_values_complex(request, request_property, variable_selected)
         menu_call_actions_complex(request, variable_selected, resource_name, mapping, request_property)
     else:
-        show_values(mapping, request, request_property, variable_selected)
+        show_values(request, request_property, variable_selected)
         call_ask_simple_value(request, variable_selected, resource_name, mapping, request_property)
 
 
@@ -232,23 +231,27 @@ def call_menu_select_existing_resources(request, variable_selected, resource_nam
         request[request_property].append(value)
 
 
-def call_menu_select_property(mapping, resource_name):
+def call_menu_select_property(mapping, resource_name, request=None):
     """
     Method to call the menu to add resource
     @param mapping: Mapping of the resource
     @type mapping: dict
     @param resource_name: the resource_name to print it
     @type resource_name: string
+    @param request: request (optionally loaded from file)
+    @type request: dict
     """
-    request = create_request(mapping.values())
+    if request is None:
+        request = create_request(mapping.values())
     while True:
         click.clear()
         first_line_new(resource_name)
         property_chosen = menu_select_property(request, mapping)
-        if handle_actions(request, property_chosen):
+        if handle_actions(request, property_chosen, mapping):
             break
-        property_model_catalog_selected = list(mapping.keys())[property_chosen - 1]
-        call_ask_value(request, property_model_catalog_selected, resource_name=resource_name, mapping=mapping)
+        if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()):
+            property_model_catalog_selected = list(mapping.keys())[property_chosen - 1]
+            call_ask_value(request, property_model_catalog_selected, resource_name=resource_name, mapping=mapping)
     return request
 
 def call_edit_resource(request, mapping, resource_name, request_property):
@@ -261,17 +264,19 @@ def call_edit_resource(request, mapping, resource_name, request_property):
     @param mapping: Mapping of the resource
     @type mapping: dict
     @param request_property: the property selected (model spec). For example: has_version
-    @type request_property: strin
+    @type request_property: string
     """
     while True:
         if (request_property == "author") or (request_property == "contributor"):
             mapping = mapping_person
             resource_name = "Person"
         property_chosen = menu_select_property(request[0], mapping)
-        if handle_actions(request, property_chosen):
+        if handle_actions(request, property_chosen, mapping):
             break
-        property_mcat_selected = list(mapping.keys())[property_chosen - 1]
-        call_ask_value(request[0], property_mcat_selected, resource_name=resource_name, mapping=mapping)
+        # Some special actions do not require exit.
+        if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()):
+            property_mcat_selected = list(mapping.keys())[property_chosen - 1]
+            call_ask_value(request[0], property_mcat_selected, resource_name=resource_name, mapping=mapping)
 
 
 def mapping_resource_complex(variable_selected, mapping):
@@ -310,23 +315,39 @@ def mapping_create_value_complex(request, variable_selected, mapping, request_pr
         request[request_property].append(value)
 
 
-def handle_actions(request, action):
+def handle_actions(request, action, mapping):
     """
-    Verify the choice (menu_select_property) and call the special actions (save, push and exists). If not return False
+    Verify the choice (menu_select_property) and call the special actions (show, save, push or exit). If not return False
     @param request: request (modelcatalog spec)
     @type request: dict
     @param action: The choice
     @type action: [str, int]
     @return: True: the special action is done. False: The user is selecting a property, handle the next action.
     @rtype: bool
+    @param mapping: mapping to be able to show properties
     """
     if type(action) != str:
         return False
     if action == ACTION_CHOICES[0]:
+        # SHOW
+        prop = parse(click.prompt('Select property to show'))
+        try:
+            property_mcat_selected = list(mapping.keys())[prop - 1]
+            show_values(request, mapping[property_mcat_selected]['id'], 'Resource')
+            input('Press ENTER to continue')
+        except:
+            click.echo('Property not in range')
+        return False
+    if action == ACTION_CHOICES[1]:
+        # SAVE
         save(request)
-    elif action == ACTION_CHOICES[1]:
-        menu_push(request)
+        return False
     elif action == ACTION_CHOICES[2]:
+        # PUSH
+        menu_push(request)
+        # TO DO: Print here that the request was submitted successfully and the ID/URI
+    elif action == ACTION_CHOICES[3]:
+        # EXIT
         pass
     return True
 

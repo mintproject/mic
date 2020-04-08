@@ -10,8 +10,12 @@ def save(request):
     """
     try:
         # print_request(request)
-        file_name = click.prompt('Enter the file name to save: ')
+        file_name = click.prompt('Enter the file name to save (without extension): ')
         file_name += '.json'
+        # Remove nulls
+        for key, value in list(request.items()):
+            if value is None:
+                request[key] = []
         with open(file_name, 'w') as outfile:
             json.dump(request, outfile)
         print('File saved successfully')
@@ -22,7 +26,7 @@ def save(request):
     pass
 
 
-def load(request):
+def load():
     """
     Method that loads a JSON file of a model
     TO DO: Does not distinguish type at the moment (assumes it's a model)
@@ -37,6 +41,4 @@ def load(request):
     except:
         print('Error when loading the file')
         # click.confirm('Error loading the file. Continue?', abort=True)
-    # print_request(request)
-    # click.prompt('Press enter to continue',default='a')
     return loaded_file
