@@ -33,8 +33,8 @@ class SoftwareVersionCli:
 
     @staticmethod
     def push(request):
-        configuration, username = get_api()
-        api_instance = modelcatalog.SoftwareVersionApi(modelcatalog.ApiClient(configuration=configuration))
+        api, username = get_api()
+        api_instance = modelcatalog.SoftwareVersionApi(api)
         try:
             api_response = api_instance.softwareversions_post(username, model=request)
         except ApiException as e:

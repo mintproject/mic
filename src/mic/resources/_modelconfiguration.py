@@ -36,8 +36,8 @@ class ModelConfigurationCli:
 
     @staticmethod
     def post(request):
-        configuration, username = get_api()
-        api_instance = modelcatalog.ModelConfigurationApi(modelcatalog.ApiClient(configuration=configuration))
+        api, username = get_api()
+        api_instance = modelcatalog.ModelConfigurationApi(api)
         try:
             api_response = api_instance.modelconfigurations_post(username, model=request)
         except ApiException as e:

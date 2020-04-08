@@ -49,7 +49,6 @@ def menu_select_property(request, mapping):
     """
     print_request(request, mapping)
     properties_choices = list(request.keys())
-    choices = properties_choices + ACTION_CHOICES
     select_property = click.prompt(
         "Select the property to edit [{}-{}] or {}".format(1, len(properties_choices), ACTION_CHOICES),
         default=1,
@@ -145,7 +144,6 @@ def menu_push(request, resource_object):
         click.secho(f"Success", fg="green")
     except ApiException:
         click.secho(f"An error occurred when sending the request", fg="red")
-    pass
 
 
 def menu_edit_resource_complex(request, variable_selected, mapping, resource_object, full_request=None):
@@ -237,9 +235,9 @@ def call_menu_select_existing_resources(request, variable_selected, resource_nam
     value = None
     if select_enable(mapping[variable_selected]):
         sub_resource = menu_select_existing_resources(variable_selected)
-        value = sub_resource if sub_resource else mapping_resource_complex(variable_selected, mapping, )
+        value = sub_resource if sub_resource else mapping_resource_complex(variable_selected, mapping, request)
     elif not request[request_property]:
-        value = mapping_resource_complex(variable_selected, mapping, )
+        value = mapping_resource_complex(variable_selected, mapping, request)
     if request[request_property] is None:
         request[request_property] = [value]
     else:
@@ -265,7 +263,7 @@ def call_menu_select_property(mapping, resource_object, full_request=None):
         property_chosen = menu_select_property(request, mapping)
         if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request):
             break
-        if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()):
+        if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()) + 1:
             property_model_catalog_selected = list(mapping.keys())[property_chosen - 1]
             call_ask_value(request, property_model_catalog_selected, resource_name=resource_object.name,
                            resource_object=resource_object, mapping=mapping)
@@ -293,7 +291,7 @@ def call_edit_resource(request, mapping, resource_name, request_property, resour
         if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request):
             break
         # Some special actions do not require exit.
-        if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()):
+        if isinstance(property_chosen, int) and 0 < property_chosen < (len(mapping.keys()) + 1):
             property_mcat_selected = list(mapping.keys())[property_chosen - 1]
             call_ask_value(request[0], property_mcat_selected, resource_name=resource_name, resource_object=resource_object,
                            mapping=mapping)
@@ -330,7 +328,7 @@ def mapping_create_value_complex(request, variable_selected, mapping, request_pr
     @param request_property: the property selected (model spec). For example: has_version
     @type request_property: string
     """
-    value = mapping_resource_complex(variable_selected, mapping, )
+    value = mapping_resource_complex(variable_selected, mapping, request)
     if request[request_property] is None:
         request[request_property] = [value]
     else:
@@ -372,7 +370,8 @@ def handle_actions(request, action, mapping, resource_object, full_request):
     elif action == ACTION_CHOICES[2]:
         # PUSH
         menu_push(full_request, resource_object)
-        click.confirm("Do you want to exit?", default=False)
+        if click.confirm("Do you want to see the resource on the browser", default=False):
+            click.launch(resource_object.url)
     elif action == ACTION_CHOICES[3]:
         # EXIT
         pass

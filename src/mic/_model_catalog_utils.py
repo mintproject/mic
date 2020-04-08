@@ -2,6 +2,7 @@ import click
 from modelcatalog import ApiException
 from mic.resources._person import PersonCli
 
+MODEL_CATALOG_URL = "https://w3id.org/okn/i/mint/"
 
 def get_label_from_response(response):
     """

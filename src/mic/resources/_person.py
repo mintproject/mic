@@ -23,15 +23,3 @@ class PersonCli:
             return api_response
         except ApiException as e:
             raise e
-    #
-    # @staticmethod
-    # def push(request):
-    #     configuration, username = get_api()
-    #     api_instance = modelcatalog.PersonApi(modelcatalog.ApiClient(configuration=configuration))
-    #     try:
-    #         api_response = api_instance.models_post(username, model=request)
-    #     except ApiException as e:
-    #         logging.error("Exception when calling PersonConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
-    #         raise e
-    #     return api_response
-
