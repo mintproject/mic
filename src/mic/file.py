@@ -10,8 +10,12 @@ def save(request):
     """
     try:
         # print_request(request)
-        file_name = click.prompt('Enter the file name to save: ')
+        file_name = click.prompt('Enter the file name to save (without extension): ')
         file_name += '.json'
+        # Remove nulls
+        for key, value in list(request.items()):
+            if value is None:
+                request[key] = []
         with open(file_name, 'w') as outfile:
             json.dump(request, outfile)
         print('File saved successfully')
