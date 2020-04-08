@@ -20,11 +20,17 @@ def init_complex(resource, _property):
             return False
     return True
 
+def get_prop_mapping(mapping, variable_selected):
+    return mapping[variable_selected]["id"]
 
 def get_complex(mapping, resource):
     for key, _property in mapping.items():
         mapping[key]["complex"] = init_complex(resource, _property['id'])
 
+def select_enable(mapping):
+    if SELECT in mapping and mapping[SELECT]:
+        return mapping[SELECT]
+    return False
 
 mapping_model = {
     'Name': {'id': 'label', 'definition': 'Name of the model', 'required': True},

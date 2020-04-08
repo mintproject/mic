@@ -2,7 +2,7 @@ import json
 import click
 
 
-def save_menu(request):
+def save(request):
     """
     Function to save the current request as a JSON file
     :param request: JSON to save
@@ -22,7 +22,7 @@ def save_menu(request):
     pass
 
 
-def load_menu(request):
+def load(request):
     """
     Method that loads a JSON file of a model
     TO DO: Does not distinguish type at the moment (assumes it's a model)

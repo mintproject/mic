@@ -1,12 +1,10 @@
 import logging
 
-from mic.file import save_menu
-from mic.resources._person import PersonCli
+from mic._model_catalog_utils import get_label_from_response, create_request, get_existing_resources
+from mic.drawer import print_request, print_choices, show_values_complex, show_values
+from mic.file import save
 from mic._utils import first_line_new
 from mic._mappings import *
-from modelcatalog import ApiException
-from tabulate import tabulate
-import json
 
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
 ACTION_CHOICES = ["save", "send", "exit"]
@@ -21,39 +19,6 @@ def edit_menu(property_chosen, request, resource_name, mapping):
     except click.Abort:
         click.echo("The option chosen is not supported")
         input("press any key to continue")
-
-
-
-def get_label_from_response(response):
-    labels = []
-    for resource in response:
-        if isinstance(resource, dict):
-            resource_dict = resource
-        else:
-            resource_dict = resource.to_dict()
-        if "label" in resource_dict:
-            labels.append(resource_dict["label"][0])
-        elif "id" in resource_dict:
-            labels.append(resource_dict["id"])
-        else:
-            labels.append(None)
-    return labels
-
-
-def select_enable(mapping):
-    if SELECT in mapping and mapping[SELECT]:
-        return mapping[SELECT]
-    return False
-
-
-def get_existing_resources(resource_name):
-    # TO DO: clean up this, it's not too maintainable
-    if (resource_name == "Author") or (resource_name == "Contributor") or (resource_name == "Contact person"):
-        try:
-            return PersonCli().get()
-        except ApiException as e:
-            click.echo("Failed to get person resources")
-
 
 
 def select_existing_resources(var_selected, resource_name, mapping):
@@ -93,77 +58,31 @@ def select_property_menu(request, resource_name, mapping):
     properties_choices = list(request.keys())
     actions_choices = ["show", "save", "send", "load", "exit"]
     choices = properties_choices + actions_choices
-    select_property = click.prompt("Select the property to edit [{}-{}] or [show, save, send, load, exit]".format(1, len(properties_choices)),
-                          default=1,
-                          show_choices=False,
-                          type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
-                          value_proc=parse
-                          )
+    select_property = click.prompt(
+        "Select the property to edit [{}-{}] or [show, save, send, load, exit]".format(1, len(properties_choices)),
+        default=1,
+        show_choices=False,
+        type=click.Choice(list(range(1, len(properties_choices) + 1)) + actions_choices),
+        value_proc=parse
+        )
     # TO DO: make sure selected action is within valid range!
     return select_property
+
+
+def push_menu(request):
+    pass
 
 
 def handle_actions(request, action):
     if type(action) != str:
         return False
     if action == ACTION_CHOICES[0]:
-        save_menu(request)
+        save(request)
     elif action == ACTION_CHOICES[1]:
         push_menu(request)
     elif action == ACTION_CHOICES[2]:
         pass
     return True
-
-
-def create_request(values):
-    """
-    Create a dictionary to send the model catalog
-    @param values: List with properties of the resource
-    @return: dict
-    """
-    request = {}
-    for value in values:
-        request[value["id"]] = None
-    return request
-
-
-def print_request(request, mapping):
-    table = []
-    headers = ["no.", "Property", "Value"]
-    i = 1
-    for key, value in mapping.items():
-        prop_mapping = get_prop_mapping(mapping, key)
-        if prop_mapping in request:
-            request_value = request[prop_mapping]
-        else:
-            request_value = None
-        # A complex property has multiple dict inside.
-        if request_value and isinstance(request_value, list) and isinstance(request_value[0], dict):
-            short_value = ' '.join(
-                [str(elem["label"]) if "label" in elem else "Item without label" for elem in request_value])
-        else:
-            short_value = (
-                request_value if (request_value is None or len(str(request_value)) < 50) else str(request_value)[
-                                                                                              :50] + "...")
-        table.append([i, key, short_value])
-        i = i + 1
-    print(tabulate(table, headers, tablefmt="grid"))
-
-
-def print_choices(choices):
-    for index, choice in enumerate(choices):
-        click.echo("[{}] {}".format(index + 1, choice))
-
-
-def remove_menu(request):
-    pass
-
-
-
-
-
-def push_menu(request):
-    pass
 
 
 def parse(value):
@@ -213,7 +132,7 @@ def actions_complex(mapping, request, request_property, resource_name, select, v
 
 def set_value(mapping, request, request_property, resource_name, variable_name):
     default_value = request[request_property] if request_property in request and request[request_property] else None
-    default_value = default_value[0] if isinstance(default_value,list) else default_value
+    default_value = default_value[0] if isinstance(default_value, list) else default_value
 
     value = ask_simple_value(variable_name, resource_name, mapping[variable_name], default_value=default_value)
     if value:
@@ -240,10 +159,11 @@ def create_value_complex(mapping, request, request_property, resource_name, vari
     else:
         request[request_property].append(value)
 
+
 def edit_value_complex(request, mapping, resource_name, variable_name):
     labels = get_label_from_response(request)
     print_choices(labels)
-    
+
     choice = click.prompt("Select the resource to edit",
                           default=1,
                           show_choices=False,
@@ -252,6 +172,7 @@ def edit_value_complex(request, mapping, resource_name, variable_name):
                           )
     request_var = get_prop_mapping(mapping, variable_name)
     edit_resource(request, mapping, variable_name, request_var)
+
 
 def delete_value_complex(resources):
     labels = get_label_from_response(resources)
@@ -262,7 +183,8 @@ def delete_value_complex(resources):
                           type=click.Choice(list(range(1, len(labels) + 1))),
                           value_proc=parse
                           )
-    resources.pop(choice-1)
+    resources.pop(choice - 1)
+
 
 def set_value_complex(mapping, request, request_property, resource_name, select, variable_name):
     value = None
@@ -275,25 +197,6 @@ def set_value_complex(mapping, request, request_property, resource_name, select,
         request[request_property] = [value]
     else:
         request[request_property].append(value)
-
-
-def show_values(mapping, request, request_property, variable_name):
-    if request_property in request and request[request_property]:
-        click.echo('Current value for ' + variable_name + ' is: ' + str(request[request_property]))
-    else:
-        click.echo('No value for {}'.format(variable_name))
-
-
-def show_values_complex(mapping, request, request_property, variable_name):
-    if request[request_property]:
-        for resource in request[request_property]:
-            click.echo(resource["label"])
-    else:
-        click.echo('No value for {}'.format(variable_name))
-
-
-def get_prop_mapping(mapping, variable_selected):
-    return mapping[variable_selected]["id"]
 
 
 def ask_complex_value(variable_name, resource_name, mapping, default_value=""):
@@ -338,5 +241,3 @@ def edit_resource(request, mapping, resource_name, request_var):
             break
         property_mcat_selected = list(mapping.keys())[property_chosen - 1]
         ask_value(request[0], property_mcat_selected, resource_name=resource_name, mapping=mapping)
-
-
