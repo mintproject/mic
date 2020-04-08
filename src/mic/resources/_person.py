@@ -1,13 +1,14 @@
+import logging
 import modelcatalog
-from mic._utils import get_api, first_line_new
-import click
+from mic._utils import get_api
+from mic._mappings import *
 from modelcatalog import ApiException
-
 RESOURCE = "Person"
-RESOURCE_AUTHOR = "Author"
 
 
 class PersonCli:
+    name = RESOURCE
+
     def __init__(self):
         pass
 
@@ -22,3 +23,15 @@ class PersonCli:
             return api_response
         except ApiException as e:
             raise e
+    #
+    # @staticmethod
+    # def push(request):
+    #     configuration, username = get_api()
+    #     api_instance = modelcatalog.PersonApi(modelcatalog.ApiClient(configuration=configuration))
+    #     try:
+    #         api_response = api_instance.models_post(username, model=request)
+    #     except ApiException as e:
+    #         logging.error("Exception when calling PersonConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
+    #         raise e
+    #     return api_response
+
