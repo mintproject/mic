@@ -249,7 +249,7 @@ def call_menu_select_property(mapping, resource_name):
             break
         property_model_catalog_selected = list(mapping.keys())[property_chosen - 1]
         call_ask_value(request, property_model_catalog_selected, resource_name=resource_name, mapping=mapping)
-
+    return request
 
 def call_edit_resource(request, mapping, resource_name, request_property):
     """
