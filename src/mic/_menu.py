@@ -10,18 +10,7 @@ COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
 ACTION_CHOICES = ["save", "send", "exit"]
 
 
-def edit_menu(property_chosen, request, resource_name, mapping):
-    try:
-        var_selected = list(mapping.keys())[property_chosen - 1]
-        ask_value(request, var_selected, resource_name=resource_name, mapping=mapping)
-    except Exception as e:
-        logging.error(e, exc_info=True)
-    except click.Abort:
-        click.echo("The option chosen is not supported")
-        input("press any key to continue")
-
-
-def select_existing_resources(var_selected, resource_name, mapping):
+def select_existing_resources(var_selected):
     click.echo("Available resources")
     response = get_existing_resources(var_selected)
     resources = get_label_from_response(response)
@@ -35,19 +24,6 @@ def select_existing_resources(var_selected, resource_name, mapping):
                               )
         return response[choice - 1].to_dict()
     return None
-
-
-def show_menu(request):
-    selection = click.prompt("Which property would you like to show?",
-                             default=1,
-                             show_choices=False,
-                             type=click.Choice(list(range(1, len(request.keys()) + 1))),
-                             value_proc=parse
-                             )
-    # TO DO: make sure selected variable is within range
-    var_selected = list(request.keys())[selection - 1]
-    print('Current value for ' + var_selected + ' is: ' + str(request[var_selected]))
-    input('Press any key to continue')
 
 
 def select_property_menu(request, resource_name, mapping):
@@ -142,7 +118,7 @@ def set_value(mapping, request, request_property, resource_name, variable_name):
 def select_value_complex(mapping, request, request_property, resource_name, variable_name):
     value = None
     if select_enable(mapping[variable_name]):
-        sub_resource = select_existing_resources(variable_name, resource_name, mapping)
+        sub_resource = select_existing_resources(variable_name)
         value = sub_resource if sub_resource else ask_complex_value(variable_name, resource_name, mapping)
     elif not request[request_property]:
         value = ask_complex_value(variable_name, resource_name, mapping)
@@ -189,7 +165,7 @@ def delete_value_complex(resources):
 def set_value_complex(mapping, request, request_property, resource_name, select, variable_name):
     value = None
     if select is None and select_enable(mapping[variable_name]):
-        sub_resource = select_existing_resources(variable_name, resource_name, mapping)
+        sub_resource = select_existing_resources(variable_name)
         value = sub_resource if sub_resource else ask_complex_value(variable_name, resource_name, mapping)
     elif not request[request_property]:
         value = ask_complex_value(variable_name, resource_name, mapping)
