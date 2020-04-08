@@ -33,7 +33,8 @@ def save(request):
         # click.confirm('File saved successfully. Do you want to continue editing?', abort=True)
     except Exception as err:
         logging.info(err, exc_info=True)
-        print('An error occurred when saving the file')
+        click.secho(f"An error occurred when saving the file", fg="red")
+    click.secho(f"Success", fg="green")
     return file_name
 
 

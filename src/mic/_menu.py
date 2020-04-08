@@ -346,7 +346,6 @@ def handle_actions(request, action, mapping, full_request):
     if action == ACTION_CHOICES[1]:
         # SAVE
         file_name = save(full_request)
-        click.secho(f"Success", fg="green")
         click.confirm("Do you want to exit?", default=False)
         return False
     elif action == ACTION_CHOICES[2]:
