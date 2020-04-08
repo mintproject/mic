@@ -1,5 +1,8 @@
 import click
-from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource, Image, ModelConfiguration
+from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource, Image, \
+    ModelConfiguration
+from mic.resources._person import PersonCli
+from mic.resources._software_version import SoftwareVersionCli
 
 SELECT = 'select'
 
@@ -20,17 +23,21 @@ def init_complex(resource, _property):
             return False
     return True
 
+
 def get_prop_mapping(mapping, variable_selected):
     return mapping[variable_selected]["id"]
+
 
 def get_complex(mapping, resource):
     for key, _property in mapping.items():
         mapping[key]["complex"] = init_complex(resource, _property['id'])
 
+
 def select_enable(mapping):
     if SELECT in mapping and mapping[SELECT]:
         return mapping[SELECT]
     return False
+
 
 mapping_model = {
     'Name': {'id': 'label', 'definition': 'Name of the model', 'required': True},
@@ -62,7 +69,7 @@ mapping_model = {
     'Citation': {"id": 'citation', 'definition': 'Reference publication for citing a model', 'required': False},
     # publisher and logo commented until we define Organization and Image
 }
-mapping_model_version = {
+mapping_software_version = {
     'Name': {"id": 'label'},
     'Description': {"id": 'description'},
     'Version number': {"id": 'has_version_id'},
@@ -71,7 +78,7 @@ mapping_model_version = {
 mapping_dataset_specification = {
     'Name': {'id': 'label', 'definition': 'Name of the input/output', 'required': True},
     'Description': {"id": 'description', 'definition': 'Description of the input/output', 'required': False},
-    'Format': {"id": 'has_format','definition': 'Format of the file (e.g., CSV, tiff, nc, etc.)', 'required': False},
+    'Format': {"id": 'has_format', 'definition': 'Format of the file (e.g., CSV, tiff, nc, etc.)', 'required': False},
 }
 # mapping_parameter = {
 #    'Name': {"id": 'label'},
@@ -91,52 +98,70 @@ mapping_parameter = {
     'Maximum accepted value': {'id': 'has_maximum_accepted_value', 'definition': 'Maximum value the parameter can '
                                                                                  'have ', 'required': False},
 }
-
 mapping_image = {
     'Name': {'id': 'label', 'definition': 'Name of the parameter', 'required': True},
     'Description': {"id": 'description', 'definition': 'Description of the model', 'required': False},
     'URL': {"id": 'value', 'definition': 'URL of the logo', 'required': False},
-    'Source': {"id": 'had_primary_source', 'definition': 'URL of the website where the logo comes from', 'required': False},
+    'Source': {"id": 'had_primary_source', 'definition': 'URL of the website where the logo comes from',
+               'required': False},
 }
 mapping_model_configuration = {
     'Name': {'id': 'label', 'definition': 'Name of the model configuration', 'required': True},
     'Description': {"id": 'description', 'definition': 'Description of the model configuration', 'required': False},
-    'Keywords': {"id": 'keywords', 'definition': 'Keywords that can be used to describe the model configuration', 'required': False},
-    'Documentation': {"id": 'has_documentation',
-                      'definition': 'URL where additional documentation of the model configuration can be found', 'required': False},
-    'Author': {"id": 'author', 'definition': 'Person(s) who created the model configuration', 'required': False, SELECT: True},
-    'Contributor': {"id": 'contributor', 'definition': 'Person(s) who contributed to the development of the model configuration',
-                    'required': False,SELECT: True},
-    # 'License': {"id": 'license', 'definition': 'License associated to the model (e.g., CC-BY)', 'required': False},
-    'Category': {"id": 'has_model_category', 'definition': 'Category associated with the model configuration (e.g., Hydrology)',
+    'Keywords': {"id": 'keywords', 'definition': 'Keywords that can be used to describe the model configuration',
                  'required': False},
-    'Creation date': {"id": 'date_created', 'definition': 'Date when the model configuration was created', 'required': False},
-    'Assumptions': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model configuration',
+    'Documentation': {"id": 'has_documentation',
+                      'definition': 'URL where additional documentation of the model configuration can be found',
+                      'required': False},
+    'Author': {"id": 'author', 'definition': 'Person(s) who created the model configuration', 'required': False,
+               SELECT: True},
+    'Contributor': {"id": 'contributor',
+                    'definition': 'Person(s) who contributed to the development of the model configuration',
+                    'required': False, SELECT: True},
+    # 'License': {"id": 'license', 'definition': 'License associated to the model (e.g., CC-BY)', 'required': False},
+    'Category': {"id": 'has_model_category',
+                 'definition': 'Category associated with the model configuration (e.g., Hydrology)',
+                 'required': False},
+    'Creation date': {"id": 'date_created', 'definition': 'Date when the model configuration was created',
+                      'required': False},
+    'Assumptions': {"id": 'has_assumption',
+                    'definition': 'Assumptions to be considered when using the model configuration',
                     'required': False},
     'Inputs': {"id": 'has_input', 'definition': 'Input files used in the model configuration', 'required': False},
-    'Outputs': {"id": 'has_output', 'definition': 'Output files produced by the model configuration', 'required': False},
+    'Outputs': {"id": 'has_output', 'definition': 'Output files produced by the model configuration',
+                'required': False},
     'Parameters': {"id": 'has_parameter', 'definition': 'Parameters (i.e., numerical values, strings or booleans) to '
                                                         'required by the model configuration',
-                        'required': False},
-    'Executable URL': {"id": 'has_component_location', 'definition': 'URL where the executable for this configuration can be found',
-                        'required': False},
-#Commented until we add SoftwareImage and SourceCode
-#'Software Image': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model',
-#                    'required': False},
-#'Code Repository': {"id": 'has_assumption', 'definition': 'Assumptions to be considered when using the model',
-#                    'required': False},
+                   'required': False},
+    'Executable URL': {"id": 'has_component_location',
+                       'definition': 'URL where the executable for this configuration can be found',
+                       'required': False},
 }
 mapping_person = {
     'Name': {'id': 'label', 'definition': 'Name of the person', 'required': True},
-    'email': {"id": 'email','definition': 'Email of the person', 'required': False},
-    'website': {"id": 'website','definition': 'Website of the person', 'required': False},
+    'email': {"id": 'email', 'definition': 'Email of the person', 'required': False},
+    'website': {"id": 'website', 'definition': 'Website of the person', 'required': False},
 }
 mapping_sample_resource = {
     'URL': {"id": 'value'}
 }
+
+property_mapping = {
+    "author": {"mapping": mapping_person, "resource": PersonCli},
+    "contributor": {"mapping": mapping_person, "resource": PersonCli},
+    "has_version": {"mapping": mapping_software_version, "resource": SoftwareVersionCli},
+    "has_contact_person": {"mapping": mapping_person, "resource": PersonCli}
+}
+
+def get_mapping(property_selected):
+    if property_selected in property_mapping:
+        return property_mapping[property_selected]
+    return None
+
+
 get_complex(mapping_model, Model)
 get_complex(mapping_model_configuration, ModelConfiguration)
-get_complex(mapping_model_version, SoftwareVersion)
+get_complex(mapping_software_version, SoftwareVersion)
 get_complex(mapping_dataset_specification, DatasetSpecification)
 get_complex(mapping_parameter, Parameter)
 get_complex(mapping_person, Person)

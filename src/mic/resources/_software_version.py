@@ -31,13 +31,4 @@ class SoftwareVersionCli:
         except ApiException as e:
             raise e
 
-    @staticmethod
-    def push(request):
-        api, username = get_api()
-        api_instance = modelcatalog.SoftwareVersionApi(api)
-        try:
-            api_response = api_instance.softwareversions_post(username, model=request)
-        except ApiException as e:
-            logging.error("Exception when calling ModelVersionConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
-            raise e
-        return api_response
+
