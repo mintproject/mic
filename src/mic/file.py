@@ -1,6 +1,19 @@
 import json
+import logging
+
 import click
 
+
+def cleanNullTerms(d):
+    clean = {}
+    for k, v in d.items():
+        if isinstance(v, dict):
+            nested = cleanNullTerms(v)
+            if len(nested.keys()) > 0:
+                clean[k] = nested
+        elif v is not None:
+            clean[k] = v
+    return clean
 
 def save(request):
     """
@@ -9,21 +22,19 @@ def save(request):
     :return:
     """
     try:
-        # print_request(request)
         file_name = click.prompt('Enter the file name to save (without extension): ')
         file_name += '.json'
         # Remove nulls
-        for key, value in list(request.items()):
-            if value is None:
-                request[key] = []
+        request_dump = cleanNullTerms(request)
         with open(file_name, 'w') as outfile:
-            json.dump(request, outfile)
+            json.dump(request_dump, outfile)
         print('File saved successfully')
         # this will show status if saved.
         # click.confirm('File saved successfully. Do you want to continue editing?', abort=True)
-    except:
+    except Exception as err:
+        logging.info(err, exc_info=True)
         print('An error occurred when saving the file')
-    pass
+    return file_name
 
 
 def load():
