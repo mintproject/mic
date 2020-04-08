@@ -5,6 +5,9 @@ from mic.drawer import print_request, print_choices, show_values_complex, show_v
 from mic.file import save
 from mic._utils import first_line_new
 from mic._mappings import *
+from mic.resources._image import ImageCli
+from mic.resources._person import PersonCli
+from mic.resources._software_version import SoftwareVersionCli
 
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
 ACTION_CHOICES = ["show", "save", "send", "exit"]
@@ -294,9 +297,9 @@ def mapping_resource_complex(variable_selected, mapping, full_request):
     if prop == "has_version":
         return call_menu_select_property(mapping_model_version, SoftwareVersionCli, full_request)
     elif (prop == "author") or (prop == "contributor") or (prop == "has_contact_person"):
-        return call_menu_select_property(mapping_person, Person, full_request)
+        return call_menu_select_property(mapping_person, PersonCli, full_request)
     elif prop == "logo":
-        return call_menu_select_property(mapping_image, Image, full_request)
+        return call_menu_select_property(mapping_image, ImageCli, full_request)
 
 
 def mapping_create_value_complex(request, variable_selected, mapping, request_property):
