@@ -155,8 +155,8 @@ property_mapping = {
 
 def get_mapping(property_selected):
     if property_selected in property_mapping:
-        return property_mapping[property_selected]
-    return None
+        return property_mapping[property_selected]["mapping"], property_mapping[property_selected]["resource"]
+    return None, None
 
 
 get_complex(mapping_model, Model)

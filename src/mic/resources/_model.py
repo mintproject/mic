@@ -13,7 +13,7 @@ RESOURCE = "Model"
 
 def create(request=None):
     click.clear()
-    call_menu_select_property(mapping_model, ModelCli(), request, True)
+    call_menu_select_property(mapping_model, ModelCli(), request, None)
 
 
 class ModelCli:
