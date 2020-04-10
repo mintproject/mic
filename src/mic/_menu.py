@@ -89,9 +89,9 @@ def menu_call_actions_complex(request, variable_selected, resource_name, mapping
                           value_proc=parse
                           )
     if choice == COMPLEX_CHOICES[0]:
-        call_menu_select_existing_resources(request, variable_selected, resource_name, mapping, request_property)
+        call_menu_select_existing_resources(request, variable_selected, resource_object, mapping, request_property)
     elif choice == COMPLEX_CHOICES[1]:
-        mapping_create_value_complex(request, variable_selected, mapping, request_property)
+        mapping_create_value_complex(request, resource_object, request_property)
     elif choice == COMPLEX_CHOICES[2]:
         menu_edit_resource_complex(request[request_property], variable_selected, mapping, resource_object, request)
     elif choice == COMPLEX_CHOICES[3]:
@@ -218,15 +218,15 @@ def call_ask_simple_value(request, variable_selected, resource_name, mapping, re
         request[request_property] = [value]
 
 
-def call_menu_select_existing_resources(request, variable_selected, resource_name, mapping, request_property):
+def call_menu_select_existing_resources(request, variable_selected, resource_object, mapping, request_property):
     """
     Call to the menu to select the resource complex
     @param request: request
     @type request: dict
     @param variable_selected: The name of variable selected (mic spec). For example: Versions
     @type variable_selected: string
-    @param resource_name: the resource_name to print it
-    @type resource_name: string
+    @param resource_object: the resource_name to print it
+    @type resource_object: string
     @param mapping: Mapping of the resource
     @type mapping: dict
     @param request_property: the property selected (model spec). For example: has_version
@@ -234,10 +234,10 @@ def call_menu_select_existing_resources(request, variable_selected, resource_nam
     """
     value = None
     if select_enable(mapping[variable_selected]):
-        sub_resource = menu_select_existing_resources(variable_selected)
-        value = sub_resource if sub_resource else mapping_resource_complex(variable_selected, mapping, request)
+        select_sub_resource = menu_select_existing_resources(variable_selected)
+        value = select_sub_resource if select_sub_resource else mapping_resource_complex(resource_object, request_property, request)
     elif not request[request_property]:
-        value = mapping_resource_complex(variable_selected, mapping, request)
+        value = mapping_resource_complex(resource_object, request_property, request)
     if request[request_property] is None:
         request[request_property] = [value]
     else:
@@ -295,34 +295,32 @@ def call_edit_resource(request, mapping, resource_name, request_property, resour
                            mapping=mapping)
 
 
-def mapping_resource_complex(variable_selected, mapping, full_request):
+def mapping_resource_complex(resource_object, request_selected, full_request):
     """
     Mapping: maps the variable_select with the Model Catalog Resource
+    @param request_selected:
+    @type request_selected:
+    @param subresource:
+    @type subresource:
     @param full_request:
     @type full_request:
-    @param variable_selected: The name of variable selected (mic spec). For example: Versions
-    @type variable_selected: string
-    @param mapping: Mapping of the resource
-    @type mapping: dict
     """
-    request_property = mapping[variable_selected]["id"]
+    request_property = mapping[request_selected]["id"]
     sub_resource_mapping, sub_resource = get_mapping(request_property)
     return call_menu_select_property(sub_resource_mapping, sub_resource, full_request)
 
 
-def mapping_create_value_complex(request, variable_selected, mapping, request_property):
+def mapping_create_value_complex(request, resource_object, request_property):
     """
     Call to the menu to create the resource complex
     @param request: request
     @type request: dict
-    @param variable_selected: The name of variable selected (mic spec). For example: Versions
-    @type variable_selected: string
-    @param mapping: Mapping of the resource
-    @type mapping: dict
+    @param resource_object: Mapping of the resource
+    @type resource_object: dict
     @param request_property: the property selected (model spec). For example: has_version
     @type request_property: string
     """
-    value = mapping_resource_complex(variable_selected, mapping, request)
+    value = mapping_resource_complex(resource_object, request_property, request)
     if request[request_property] is None:
         request[request_property] = [value]
     else:
