@@ -73,6 +73,7 @@ mapping_software_version = {
     'Name': {"id": 'label'},
     'Description': {"id": 'description'},
     'Version number': {"id": 'has_version_id'},
+    'Model Configurations': {"id": 'has_version_id'},
 }
 
 mapping_dataset_specification = {

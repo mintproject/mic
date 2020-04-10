@@ -307,7 +307,7 @@ def mapping_resource_complex(variable_selected, mapping, full_request):
     """
     request_property = mapping[variable_selected]["id"]
     sub_resource_mapping, sub_resource = get_mapping(request_property)
-    return call_menu_select_property(mapping_software_version, sub_resource, full_request)
+    return call_menu_select_property(sub_resource_mapping, sub_resource, full_request)
 
 
 def mapping_create_value_complex(request, variable_selected, mapping, request_property):
