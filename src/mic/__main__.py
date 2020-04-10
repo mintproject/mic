@@ -65,24 +65,6 @@ def modelconfiguration():
 
 
 @modelconfiguration.command(short_help="Create a modelconfiguration")
-@click.option(
-    "--inputs",
-    "-i",
-    type=int,
-    default=0,
-)
-@click.option(
-    "--outputs",
-    "-o",
-    type=int,
-    default=0,
-)
-@click.option(
-    "--parameters",
-    "-p",
-    type=int,
-    default=0,
-)
-def add(inputs=0, outputs=0, parameters=0, directory=""):
-    modelconfiguration_create(inputs, outputs, parameters)
+def add():
+    modelconfiguration_create()
     click.secho(f"Success", fg="green")

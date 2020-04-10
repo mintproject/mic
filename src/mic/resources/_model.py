@@ -2,11 +2,13 @@ import logging
 import modelcatalog
 from mic._model_catalog_utils import MODEL_CATALOG_URL
 from mic._utils import get_api
-from mic._mappings import *
-from modelcatalog import ApiException
+from mic._mappings import mapping_person, mapping_model, mapping_software_version
+from modelcatalog import ApiException, Model
 import click
 
 from mic._menu import call_menu_select_property
+from mic.resources._person import PersonCli
+from mic.resources._software_version import SoftwareVersionCli
 
 RESOURCE = "Model"
 
@@ -19,6 +21,11 @@ def create(request=None):
 class ModelCli:
     name = RESOURCE
     url = MODEL_CATALOG_URL
+
+    author = {"mapping": mapping_person, "resource": PersonCli}
+    contributor = {"mapping": mapping_person, "resource": PersonCli}
+    has_version = {"mapping": mapping_software_version, "resource": SoftwareVersionCli}
+    has_contact_person = {"mapping": mapping_person, "resource": PersonCli}
 
     def __init__(self):
         pass

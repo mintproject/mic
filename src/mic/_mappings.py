@@ -1,11 +1,6 @@
 import click
 from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource, Image, \
     ModelConfiguration
-from mic.resources._person import PersonCli
-from mic.resources._software_version import SoftwareVersionCli
-from mic.resources._modelconfiguration import ModelConfigurationCli
-from mic.resources._parameter import ParameterCli
-from mic.resources._dataspecification import DataSpecificationCli
 
 SELECT = 'select'
 
@@ -149,24 +144,6 @@ mapping_person = {
 mapping_sample_resource = {
     'URL': {"id": 'value'}
 }
-
-property_mapping = {
-    "author": {"mapping": mapping_person, "resource": PersonCli},
-    "contributor": {"mapping": mapping_person, "resource": PersonCli},
-    "has_version": {"mapping": mapping_software_version, "resource": SoftwareVersionCli},
-    "has_contact_person": {"mapping": mapping_person, "resource": PersonCli},
-    "has_configuration": {"mapping": mapping_model_configuration, "resource": ModelConfigurationCli},
-    "has_input": {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli},
-    "has_output": {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli},
-    "has_parameter": {"mapping": mapping_parameter, "resource": ParameterCli},
-
-}
-
-def get_mapping(property_selected):
-    if property_selected in property_mapping:
-        return property_mapping[property_selected]["mapping"], property_mapping[property_selected]["resource"]
-    return None, None
-
 
 get_complex(mapping_model, Model)
 get_complex(mapping_model_configuration, ModelConfiguration)

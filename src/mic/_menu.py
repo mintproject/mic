@@ -1,13 +1,11 @@
 import logging
 
+from mic._mappings import get_definition, get_prop_mapping, select_enable, is_complex
 from mic._model_catalog_utils import get_label_from_response, create_request, get_existing_resources
 from mic.drawer import print_request, print_choices, show_values_complex, show_values
 from mic.file import save
 from mic._utils import first_line_new
-from mic._mappings import *
-from mic.resources._image import ImageCli
-from mic.resources._person import PersonCli
-from mic.resources._software_version import SoftwareVersionCli
+import click
 from modelcatalog import ApiException
 
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
@@ -89,9 +87,9 @@ def menu_call_actions_complex(request, variable_selected, resource_name, mapping
                           value_proc=parse
                           )
     if choice == COMPLEX_CHOICES[0]:
-        call_menu_select_existing_resources(request, variable_selected, resource_name, mapping, request_property)
+        call_menu_select_existing_resources(request, variable_selected, resource_object, mapping, request_property)
     elif choice == COMPLEX_CHOICES[1]:
-        mapping_create_value_complex(request, variable_selected, mapping, request_property)
+        mapping_create_value_complex(request, resource_object, request_property)
     elif choice == COMPLEX_CHOICES[2]:
         menu_edit_resource_complex(request[request_property], variable_selected, mapping, resource_object, request)
     elif choice == COMPLEX_CHOICES[3]:
@@ -218,15 +216,15 @@ def call_ask_simple_value(request, variable_selected, resource_name, mapping, re
         request[request_property] = [value]
 
 
-def call_menu_select_existing_resources(request, variable_selected, resource_name, mapping, request_property):
+def call_menu_select_existing_resources(request, variable_selected, resource_object, mapping, request_property):
     """
     Call to the menu to select the resource complex
     @param request: request
     @type request: dict
     @param variable_selected: The name of variable selected (mic spec). For example: Versions
     @type variable_selected: string
-    @param resource_name: the resource_name to print it
-    @type resource_name: string
+    @param resource_object: the resource_name to print it
+    @type resource_object: string
     @param mapping: Mapping of the resource
     @type mapping: dict
     @param request_property: the property selected (model spec). For example: has_version
@@ -234,10 +232,11 @@ def call_menu_select_existing_resources(request, variable_selected, resource_nam
     """
     value = None
     if select_enable(mapping[variable_selected]):
-        sub_resource = menu_select_existing_resources(variable_selected)
-        value = sub_resource if sub_resource else mapping_resource_complex(variable_selected, mapping, request)
+        select_sub_resource = menu_select_existing_resources(variable_selected)
+        value = select_sub_resource if select_sub_resource else mapping_resource_complex(resource_object,
+                                                                                         request_property, request)
     elif not request[request_property]:
-        value = mapping_resource_complex(variable_selected, mapping, request)
+        value = mapping_resource_complex(resource_object, request_property, request)
     if request[request_property] is None:
         request[request_property] = [value]
     else:
@@ -269,6 +268,7 @@ def call_menu_select_property(mapping, resource_object, full_request=None):
                            resource_object=resource_object, mapping=mapping)
     return request
 
+
 def call_edit_resource(request, mapping, resource_name, request_property, resource_object, full_request=None):
     """
     Call to the menu to edit the resource complex
@@ -284,45 +284,47 @@ def call_edit_resource(request, mapping, resource_name, request_property, resour
     @type request_property: string
     """
     while True:
-        mapping, resource_object = get_mapping(request_property)
-        property_chosen = menu_select_property(request[0], mapping)
-        if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request):
+        sub_resource_object = getattr(resource_object, request_property)
+        sub_resource_mapping, sub_resource = sub_resource_object["mapping"], sub_resource_object["resource"]
+        property_chosen = menu_select_property(request[0], sub_resource_mapping)
+        if handle_actions(request, property_chosen, sub_resource_mapping, sub_resource, full_request=full_request):
             break
         # Some special actions do not require exit.
-        if isinstance(property_chosen, int) and 0 < property_chosen < (len(mapping.keys()) + 1):
-            property_mcat_selected = list(mapping.keys())[property_chosen - 1]
-            call_ask_value(request[0], property_mcat_selected, resource_name=resource_name, resource_object=resource_object,
-                           mapping=mapping)
+        if isinstance(property_chosen, int) and 0 < property_chosen < (len(sub_resource_mapping.keys()) + 1):
+            property_mcat_selected = list(sub_resource_mapping.keys())[property_chosen - 1]
+            call_ask_value(request[0], property_mcat_selected, resource_name=resource_name,
+                           resource_object=sub_resource,
+                           mapping=sub_resource_mapping)
 
 
-def mapping_resource_complex(variable_selected, mapping, full_request):
+def mapping_resource_complex(resource_object, request_property, full_request):
     """
     Mapping: maps the variable_select with the Model Catalog Resource
+    @param request_selected:
+    @type request_selected:
+    @param subresource:
+    @type subresource:
     @param full_request:
     @type full_request:
-    @param variable_selected: The name of variable selected (mic spec). For example: Versions
-    @type variable_selected: string
-    @param mapping: Mapping of the resource
-    @type mapping: dict
     """
-    request_property = mapping[variable_selected]["id"]
-    sub_resource_mapping, sub_resource = get_mapping(request_property)
+    print(request_property)
+    print(resource_object)
+    sub_resource_object = getattr(resource_object, request_property)
+    sub_resource_mapping, sub_resource = sub_resource_object["mapping"], sub_resource_object["resource"]
     return call_menu_select_property(sub_resource_mapping, sub_resource, full_request)
 
 
-def mapping_create_value_complex(request, variable_selected, mapping, request_property):
+def mapping_create_value_complex(request, resource_object, request_property):
     """
     Call to the menu to create the resource complex
     @param request: request
     @type request: dict
-    @param variable_selected: The name of variable selected (mic spec). For example: Versions
-    @type variable_selected: string
-    @param mapping: Mapping of the resource
-    @type mapping: dict
+    @param resource_object: Mapping of the resource
+    @type resource_object: dict
     @param request_property: the property selected (model spec). For example: has_version
     @type request_property: string
     """
-    value = mapping_resource_complex(variable_selected, mapping, request)
+    value = mapping_resource_complex(resource_object, request_property, request)
     if request[request_property] is None:
         request[request_property] = [value]
     else:
