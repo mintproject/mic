@@ -284,9 +284,7 @@ def call_edit_resource(request, mapping, resource_name, request_property, resour
     @type request_property: string
     """
     while True:
-        if (request_property == "author") or (request_property == "contributor"):
-            mapping = mapping_person
-            resource_name = "Person"
+        mapping, resource_object = get_mapping(request_property)
         property_chosen = menu_select_property(request[0], mapping)
         if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request):
             break
@@ -307,13 +305,9 @@ def mapping_resource_complex(variable_selected, mapping, full_request):
     @param mapping: Mapping of the resource
     @type mapping: dict
     """
-    prop = mapping[variable_selected]["id"]
-    if prop == "has_version":
-        return call_menu_select_property(mapping_software_version, SoftwareVersionCli, full_request)
-    elif (prop == "author") or (prop == "contributor") or (prop == "has_contact_person"):
-        return call_menu_select_property(mapping_person, PersonCli, full_request)
-    elif prop == "logo":
-        return call_menu_select_property(mapping_image, ImageCli, full_request)
+    request_property = mapping[variable_selected]["id"]
+    sub_resource_mapping, sub_resource = get_mapping(request_property)
+    return call_menu_select_property(mapping_software_version, sub_resource, full_request)
 
 
 def mapping_create_value_complex(request, variable_selected, mapping, request_property):
@@ -371,7 +365,7 @@ def handle_actions(request, action, mapping, resource_object, full_request):
         if click.confirm("Do you want to see the resource on the browser", default=False):
             click.launch(resource_object.url)
     elif action == ACTION_CHOICES[3]:
-        # EXIT
+        pass
     return True
 
 
