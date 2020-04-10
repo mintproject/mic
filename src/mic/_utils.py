@@ -18,9 +18,11 @@ __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 def generate_new_uri():
     return "{}{}".format(MODEL_ID_URI, str(uuid.uuid4()))
 
+
 def check_credentials():
-    if not Path(__DEFAULT_MINT_API_CREDENTIALS_FILE__).exists():
+    if not Path(__DEFAULT_MINT_API_CREDENTIALS_FILE__).expanduser().exists():
         create_credentials()
+
 
 def create_credentials(profile="default"):
     api_username = click.prompt("Model Catalog API Username")
@@ -82,7 +84,6 @@ def login(username, password):
 def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))
     click.echo("The actual values are:")
-
 
 
 def init_logger():
