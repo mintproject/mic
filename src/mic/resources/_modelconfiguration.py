@@ -1,19 +1,28 @@
 import logging
 import modelcatalog
+from mic._model_catalog_utils import MODEL_CATALOG_URL
+from mic._menu import call_menu_select_property
+from mic._mappings import mapping_dataset_specification, mapping_parameter, mapping_model_configuration
 from mic._utils import get_api
-from modelcatalog import ApiException
+from modelcatalog import ApiException, Model, ModelConfiguration
 
 import click
+from mic.resources._dataspecification import DataSpecificationCli
+from mic.resources._parameter import ParameterCli
 
 RESOURCE = "Model Configuration"
 
 
-def create(inputs=0, outputs=0, parameters=0):
-    request = {}
+def create(request=None):
+    call_menu_select_property(mapping_model_configuration, ModelConfigurationCli(), request)
 
 
 class ModelConfigurationCli:
     name = RESOURCE
+
+    has_input = {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli}
+    has_output = {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli}
+    has_parameter = {"mapping": mapping_parameter, "resource": ParameterCli}
 
     def __init__(self):
         pass
@@ -34,17 +43,13 @@ class ModelConfigurationCli:
     def post(request):
         api, username = get_api()
         api_instance = modelcatalog.ModelConfigurationApi(api)
+        model_configuration = ModelConfiguration(**request)
+
         try:
-            api_response = api_instance.modelconfigurations_post(username, model=request)
+            api_response = api_instance.modelconfigurations_post(username, model_configuration=model_configuration)
+            return "{}{}".format(MODEL_CATALOG_URL, api_response.id)
         except ApiException as e:
-            logging.error("Exception when calling ModelConfigurationConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
+            logging.error(
+                "Exception when calling ModelConfigurationConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
             raise e
         return api_response
-
-
-def menu():
-    first_line_new(RESOURCE)
-    parameters = click.prompt('Number of parameters', type=int)
-    inputs = click.prompt('Number of inputs', type=int)
-    outputs = click.prompt('Number of outputs', type=int)
-    return inputs, outputs, parameters

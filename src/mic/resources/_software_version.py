@@ -1,9 +1,11 @@
 import logging
 import modelcatalog
 from mic._utils import first_line_new, get_api
-from mic._mappings import *
+from mic._mappings import mapping_model_configuration
+
 from modelcatalog import ApiException
-#Version: number
+from mic.resources._modelconfiguration import ModelConfigurationCli
+
 RESOURCE = "ModelVersion Version"
 
 
@@ -15,6 +17,7 @@ def create():
 
 class SoftwareVersionCli:
     name = RESOURCE
+    has_configuration = {"mapping": mapping_model_configuration, "resource": ModelConfigurationCli}
 
     def __init__(self):
         pass
