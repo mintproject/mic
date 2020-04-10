@@ -14,14 +14,11 @@ def get_label_from_response(response):
     """
     labels = []
     for resource in response:
-        if isinstance(resource, dict):
-            resource_dict = resource
-        else:
-            resource_dict = resource.to_dict()
-        if "label" in resource_dict:
-            labels.append(resource_dict["label"][0])
-        elif "id" in resource_dict:
-            labels.append(resource_dict["id"])
+        print(resource)
+        if resource.label:
+            labels.append(resource.label[0])
+        elif resource.id:
+            labels.append(resource.id)
         else:
             labels.append(None)
     return labels

@@ -38,9 +38,10 @@ class ModelCli:
     def post(self, request):
         api, username = get_api()
         api_instance = modelcatalog.ModelApi(api)
+        model = Model(**request)
         try:
-            api_response = api_instance.models_post(username, model=request)
-            self.url = "{}{}".format(self.url, api_response.id)
+            api_response = api_instance.models_post(username, model=model)
+            return "{}{}".format(self.url, api_response.id)
         except ApiException as e:
             logging.error("Exception when calling ModelConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
             raise e

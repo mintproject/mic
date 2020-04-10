@@ -140,7 +140,7 @@ def menu_ask_simple_value(variable_selected, resource_name, mapping, default_val
 
 def menu_push(request, resource_object):
     try:
-        resource_object.post(request)
+        return resource_object.post(request)
         click.secho(f"Success", fg="green")
     except ApiException:
         click.secho(f"An error occurred when sending the request", fg="red")
@@ -361,9 +361,9 @@ def handle_actions(request, action, mapping, resource_object, full_request):
         click.confirm("Do you want to exit?", default=False)
     elif action == ACTION_CHOICES[2]:
         # PUSH
-        menu_push(full_request, resource_object)
-        if click.confirm("Do you want to see the resource on the browser", default=False):
-            click.launch(resource_object.url)
+        url = menu_push(full_request, resource_object)
+        if url and click.confirm("Do you want to see the resource on the browser", default=False):
+            click.launch(url)
     elif action == ACTION_CHOICES[3]:
         pass
     return True
