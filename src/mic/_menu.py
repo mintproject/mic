@@ -142,7 +142,6 @@ def menu_ask_simple_value(variable_selected, resource_name, mapping, default_val
 def menu_push(request, resource_object, parent):
     try:
         response_sub_resource = resource_object.post(request)
-        print(response_sub_resource)
         request['id'] = response_sub_resource.id
         if parent and parent.name == "Software Version":
             variable_selected = "models"
@@ -161,7 +160,6 @@ def menu_push(request, resource_object, parent):
                     model_version.has_configuration.append({"id":response_sub_resource.id})
                 else:
                     model_version.has_configuration = [{"id":response_sub_resource.id}]
-                print(model_version)
 
                 parent.put(model_version)
         click.secho(f"Success", fg="green")

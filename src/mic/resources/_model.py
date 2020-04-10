@@ -25,6 +25,11 @@ class ModelCli:
     has_version = {"mapping": mapping_software_version, "resource": SoftwareVersionCli}
     has_contact_person = {"mapping": mapping_person, "resource": PersonCli}
 
+    author = {"mapping": mapping_person, "resource": PersonCli}
+    contributor = {"mapping": mapping_person, "resource": PersonCli}
+    has_version = {"mapping": mapping_software_version, "resource": SoftwareVersionCli}
+    has_contact_person = {"mapping": mapping_person, "resource": PersonCli}
+
     def __init__(self):
         pass
 

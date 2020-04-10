@@ -67,5 +67,4 @@ def modelconfiguration():
 def add():
     from mic.resources._software_version import SoftwareVersionCli
     modelconfiguration_create(parent=SoftwareVersionCli)
-
     click.secho(f"Success", fg="green")

@@ -6,7 +6,6 @@ from mic._mappings import mapping_dataset_specification, mapping_parameter, mapp
 from mic._utils import get_api
 from modelcatalog import ApiException, Model, ModelConfiguration
 
-
 from mic.resources._dataspecification import DataSpecificationCli
 from mic.resources._parameter import ParameterCli
 
