@@ -8,6 +8,7 @@ import click
 import semver
 
 import mic
+from mic._utils import create_credentials
 from mic import _utils, file
 from mic.resources._modelconfiguration import create as modelconfiguration_create
 from mic.resources._model import create as create_model
@@ -37,40 +38,8 @@ def version(debug=False):
 
 
 @cli.command(help="Configure your credentials to access the Model Catalog API ")
-@click.option(
-    "--profile",
-    "-p",
-    envvar="CAPS_PROFILE",
-    type=str,
-    default="default",
-    metavar="<profile-name>",
-)
-def configure(profile="default"):
-    api_username = click.prompt("Model Catalog API Username")
-    api_password = click.prompt("Model Catalog API Password", hide_input=True)
-
-    credentials_file = Path(
-        os.getenv("MINT_API_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
-    ).expanduser()
-    os.makedirs(str(credentials_file.parent), exist_ok=True)
-
-    credentials = configparser.ConfigParser()
-    credentials.optionxform = str
-
-    if credentials_file.exists():
-        credentials.read(credentials_file)
-
-    credentials[profile] = {
-        "api_username": api_username,
-        "api_password": api_password
-    }
-
-    with credentials_file.open("w") as fh:
-        credentials_file.parent.chmod(0o700)
-        credentials_file.chmod(0o600)
-        credentials.write(fh)
-        click.secho(f"Success", fg="green")
-
+def configure():
+    create_credentials()
 
 @cli.group()
 def model():

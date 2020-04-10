@@ -7,7 +7,7 @@ install_requires = [
     "jsonschema>=3.0.0",
     "semver>=2.8.1",
     "requests",
-    "modelcatalog-api",
+    "modelcatalog-api==2.5.0",
     "tabulate>=0.8.1"
 ]
 

@@ -12,14 +12,45 @@ import requests
 from modelcatalog import ApiException
 
 MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
+__DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 
 
 def generate_new_uri():
     return "{}{}".format(MODEL_ID_URI, str(uuid.uuid4()))
 
+def check_credentials():
+    if not Path(__DEFAULT_MINT_API_CREDENTIALS_FILE__).exists():
+        create_credentials()
+
+def create_credentials(profile="default"):
+    api_username = click.prompt("Model Catalog API Username")
+    api_password = click.prompt("Model Catalog API Password", hide_input=True)
+
+    credentials_file = Path(
+        os.getenv("MINT_API_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
+    ).expanduser()
+    os.makedirs(str(credentials_file.parent), exist_ok=True)
+
+    credentials = configparser.ConfigParser()
+    credentials.optionxform = str
+
+    if credentials_file.exists():
+        credentials.read(credentials_file)
+
+    credentials[profile] = {
+        "api_username": api_username,
+        "api_password": api_password
+    }
+
+    with credentials_file.open("w") as fh:
+        credentials_file.parent.chmod(0o700)
+        credentials_file.chmod(0o600)
+        credentials.write(fh)
+        click.secho(f"Success", fg="green")
+
 
 def get_api():
-    __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint_api/credentials"
+    check_credentials()
     credentials_file = Path(
         os.getenv("MINT_API_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
     ).expanduser()

@@ -8,7 +8,13 @@ MIC has been tested in OSX. But we're testing in Windows and Linux.It is install
 
 !!! info
     Please report any issue with us [here](https://github.com/mintproject/mic/issues/new/choose).
-    
+
+## Features
+
+- [x] Add model and th related resources: Author, Contributors, Model Version, Model Configuration, Parameters, Inputs and Outputs.
+- [x] Save the resource as a file
+- [x] Send the resource to the Model Catalog Server (you must have an account)
+
 # Usage
 
 ## Add a new model
