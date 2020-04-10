@@ -1,13 +1,12 @@
 import modelcatalog
-from mic._utils import get_api, first_line_new
-import click
+from mic._utils import get_api
 from modelcatalog import ApiException
-
 RESOURCE = "Person"
-RESOURCE_AUTHOR = "Author"
 
 
 class PersonCli:
+    name = RESOURCE
+
     def __init__(self):
         pass
 

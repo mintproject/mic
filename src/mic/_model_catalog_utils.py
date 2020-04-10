@@ -2,6 +2,7 @@ import click
 from modelcatalog import ApiException
 from mic.resources._person import PersonCli
 
+MODEL_CATALOG_URL = "https://w3id.org/okn/i/mint/"
 
 def get_label_from_response(response):
     """
@@ -13,16 +14,20 @@ def get_label_from_response(response):
     """
     labels = []
     for resource in response:
-        if isinstance(resource, dict):
-            resource_dict = resource
+        if isinstance(resource,dict):
+            if resource["label"]:
+                labels.append(resource["label"][0])
+            elif resource["id"]:
+                labels.append(resource["id"])
+            else:
+                labels.append(None)
         else:
-            resource_dict = resource.to_dict()
-        if "label" in resource_dict:
-            labels.append(resource_dict["label"][0])
-        elif "id" in resource_dict:
-            labels.append(resource_dict["id"])
-        else:
-            labels.append(None)
+            if resource.label:
+                labels.append(resource.label[0])
+            elif resource.id:
+                labels.append(resource.id)
+            else:
+                labels.append(None)
     return labels
 
 def create_request(values):
