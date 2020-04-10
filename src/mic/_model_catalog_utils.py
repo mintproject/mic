@@ -14,13 +14,20 @@ def get_label_from_response(response):
     """
     labels = []
     for resource in response:
-        print(resource)
-        if resource.label:
-            labels.append(resource.label[0])
-        elif resource.id:
-            labels.append(resource.id)
+        if isinstance(resource,dict):
+            if resource["label"]:
+                labels.append(resource["label"][0])
+            elif resource["id"]:
+                labels.append(resource["id"])
+            else:
+                labels.append(None)
         else:
-            labels.append(None)
+            if resource.label:
+                labels.append(resource.label[0])
+            elif resource.id:
+                labels.append(resource.id)
+            else:
+                labels.append(None)
     return labels
 
 def create_request(values):
