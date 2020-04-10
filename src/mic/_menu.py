@@ -7,12 +7,13 @@ from mic.file import save
 from mic._utils import first_line_new
 import click
 from modelcatalog import ApiException
+from mic._model_catalog_utils import MODEL_CATALOG_URL
 
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
 ACTION_CHOICES = ["show", "save", "send", "exit"]
 
 
-def menu_select_existing_resources(variable_selected):
+def menu_select_existing_resources(resource_object, request_property, variable_selected):
     """
     Menu: Show the existing resources and asks to user the selection
     @param variable_selected: The name of variable selected (mic spec). For example: Versions
@@ -21,7 +22,9 @@ def menu_select_existing_resources(variable_selected):
     @rtype: dict
     """
     click.echo("Available resources")
-    response = get_existing_resources(variable_selected)
+    sub_resource_object = getattr(resource_object, request_property)
+    sub_resource_mapping, sub_resource = sub_resource_object["mapping"], sub_resource_object["resource"]
+    response = sub_resource.get()
     resources = get_label_from_response(response)
     print_choices(resources)
     if click.confirm("Did you find the {}?".format(variable_selected), default=True):
@@ -136,9 +139,31 @@ def menu_ask_simple_value(variable_selected, resource_name, mapping, default_val
         return None
 
 
-def menu_push(request, resource_object):
+def menu_push(request, resource_object, parent):
     try:
-        return resource_object.post(request)
+        response_sub_resource = resource_object.post(request)
+        print(response_sub_resource)
+        request['id'] = response_sub_resource.id
+        if parent and parent.name == "Software Version":
+            variable_selected = "models"
+            response_get_parent = parent.get()
+            resources = get_label_from_response(response_get_parent)
+            print_choices(resources)
+            if click.confirm("Did you find the {}?".format(variable_selected), default=True):
+                choice = click.prompt("Select the {}".format(variable_selected),
+                                      default=1,
+                                      show_choices=False,
+                                      type=click.Choice(list(range(1, len(resources) + 1))),
+                                      value_proc=parse
+                                      )
+                model_version = response_get_parent[choice - 1]
+                if model_version.has_configuration:
+                    model_version.has_configuration.append({"id":response_sub_resource.id})
+                else:
+                    model_version.has_configuration = [{"id":response_sub_resource.id}]
+                print(model_version)
+
+                parent.put(model_version)
         click.secho(f"Success", fg="green")
     except ApiException:
         click.secho(f"An error occurred when sending the request", fg="red")
@@ -232,7 +257,7 @@ def call_menu_select_existing_resources(request, variable_selected, resource_obj
     """
     value = None
     if select_enable(mapping[variable_selected]):
-        select_sub_resource = menu_select_existing_resources(variable_selected)
+        select_sub_resource = menu_select_existing_resources(resource_object, request_property, variable_selected)
         value = select_sub_resource if select_sub_resource else mapping_resource_complex(resource_object,
                                                                                          request_property, request)
     elif not request[request_property]:
@@ -243,7 +268,7 @@ def call_menu_select_existing_resources(request, variable_selected, resource_obj
         request[request_property].append(value)
 
 
-def call_menu_select_property(mapping, resource_object, full_request=None):
+def call_menu_select_property(mapping, resource_object, full_request=None, parent=None):
     """
     Method to call the menu to add resource
     @param mapping: Mapping of the resource
@@ -260,7 +285,7 @@ def call_menu_select_property(mapping, resource_object, full_request=None):
         click.clear()
         first_line_new(resource_object.name)
         property_chosen = menu_select_property(request, mapping)
-        if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request):
+        if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request, parent=parent):
             break
         if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()) + 1:
             property_model_catalog_selected = list(mapping.keys())[property_chosen - 1]
@@ -287,7 +312,8 @@ def call_edit_resource(request, mapping, resource_name, request_property, resour
         sub_resource_object = getattr(resource_object, request_property)
         sub_resource_mapping, sub_resource = sub_resource_object["mapping"], sub_resource_object["resource"]
         property_chosen = menu_select_property(request[0], sub_resource_mapping)
-        if handle_actions(request, property_chosen, sub_resource_mapping, sub_resource, full_request=full_request):
+        if handle_actions(request, property_chosen, sub_resource_mapping, sub_resource, full_request=full_request,
+                          parent=None):
             break
         # Some special actions do not require exit.
         if isinstance(property_chosen, int) and 0 < property_chosen < (len(sub_resource_mapping.keys()) + 1):
@@ -307,8 +333,6 @@ def mapping_resource_complex(resource_object, request_property, full_request):
     @param full_request:
     @type full_request:
     """
-    print(request_property)
-    print(resource_object)
     sub_resource_object = getattr(resource_object, request_property)
     sub_resource_mapping, sub_resource = sub_resource_object["mapping"], sub_resource_object["resource"]
     return call_menu_select_property(sub_resource_mapping, sub_resource, full_request)
@@ -331,9 +355,11 @@ def mapping_create_value_complex(request, resource_object, request_property):
         request[request_property].append(value)
 
 
-def handle_actions(request, action, mapping, resource_object, full_request):
+def handle_actions(request, action, mapping, resource_object, full_request, parent):
     """
     Verify the choice (menu_select_property) and call the special actions (show, save, push or exit). If not return False
+    @param parent:
+    @type parent:
     @param resource_object:
     @type resource_object:
     @param full_request:
@@ -363,9 +389,10 @@ def handle_actions(request, action, mapping, resource_object, full_request):
         click.confirm("Do you want to exit?", default=False)
     elif action == ACTION_CHOICES[2]:
         # PUSH
-        url = menu_push(full_request, resource_object)
-        if url and click.confirm("Do you want to see the resource on the browser", default=False):
-            click.launch(url)
+        menu_push(full_request, resource_object, parent=parent)
+        save(full_request)
+        if request["id"] and click.confirm("Do you want to see the resource on the browser", default=False):
+            click.launch("{}{}".format(MODEL_CATALOG_URL, request["id"]))
     elif action == ACTION_CHOICES[3]:
         pass
     return True

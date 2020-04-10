@@ -6,15 +6,15 @@ from mic._mappings import mapping_dataset_specification, mapping_parameter, mapp
 from mic._utils import get_api
 from modelcatalog import ApiException, Model, ModelConfiguration
 
-import click
+
 from mic.resources._dataspecification import DataSpecificationCli
 from mic.resources._parameter import ParameterCli
 
 RESOURCE = "Model Configuration"
 
 
-def create(request=None):
-    call_menu_select_property(mapping_model_configuration, ModelConfigurationCli(), request)
+def create(request=None, parent=None):
+    call_menu_select_property(mapping_model_configuration, ModelConfigurationCli(), request, parent=parent)
 
 
 class ModelConfigurationCli:
@@ -47,7 +47,7 @@ class ModelConfigurationCli:
 
         try:
             api_response = api_instance.modelconfigurations_post(username, model_configuration=model_configuration)
-            return "{}{}".format(MODEL_CATALOG_URL, api_response.id)
+            return api_response
         except ApiException as e:
             logging.error(
                 "Exception when calling ModelConfigurationConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)

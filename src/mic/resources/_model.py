@@ -1,6 +1,5 @@
 import logging
 import modelcatalog
-from mic._model_catalog_utils import MODEL_CATALOG_URL
 from mic._utils import get_api
 from mic._mappings import mapping_person, mapping_model, mapping_software_version
 from modelcatalog import ApiException, Model
@@ -20,7 +19,6 @@ def create(request=None):
 
 class ModelCli:
     name = RESOURCE
-    url = MODEL_CATALOG_URL
 
     author = {"mapping": mapping_person, "resource": PersonCli}
     contributor = {"mapping": mapping_person, "resource": PersonCli}
@@ -48,7 +46,7 @@ class ModelCli:
         model = Model(**request)
         try:
             api_response = api_instance.models_post(username, model=model)
-            return "{}{}".format(self.url, api_response.id)
+            return api_response
         except ApiException as e:
             logging.error("Exception when calling ModelConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
             raise e
