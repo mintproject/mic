@@ -39,8 +39,7 @@ def login(username, password):
     configuration = modelcatalog.Configuration()
     try:
         api_response = api_instance.user_login_get(username, password)
-        data = json.dumps(ast.literal_eval(api_response))
-        access_token = json.loads(data)["access_token"]
+        access_token = api_response["access_token"]
         configuration.access_token = access_token
 
     except ApiException as e:
