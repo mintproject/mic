@@ -1,18 +1,14 @@
 import logging
 import modelcatalog
-from mic._utils import first_line_new, get_api
-from mic._mappings import *
+from mic._utils import get_api
 from modelcatalog import ApiException
 
 import click
-
-
 
 RESOURCE = "Model Configuration"
 
 
 def create(inputs=0, outputs=0, parameters=0):
-    first_line_new(RESOURCE)
     request = {}
 
 

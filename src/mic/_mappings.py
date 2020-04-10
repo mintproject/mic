@@ -3,6 +3,9 @@ from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter
     ModelConfiguration
 from mic.resources._person import PersonCli
 from mic.resources._software_version import SoftwareVersionCli
+from mic.resources._modelconfiguration import ModelConfigurationCli
+from mic.resources._parameter import ParameterCli
+from mic.resources._dataspecification import DataSpecificationCli
 
 SELECT = 'select'
 
@@ -73,7 +76,7 @@ mapping_software_version = {
     'Name': {"id": 'label'},
     'Description': {"id": 'description'},
     'Version number': {"id": 'has_version_id'},
-    'Model Configurations': {"id": 'has_version_id'},
+    'Model Configurations': {"id": 'has_configuration', SELECT: False},
 }
 
 mapping_dataset_specification = {
@@ -151,7 +154,12 @@ property_mapping = {
     "author": {"mapping": mapping_person, "resource": PersonCli},
     "contributor": {"mapping": mapping_person, "resource": PersonCli},
     "has_version": {"mapping": mapping_software_version, "resource": SoftwareVersionCli},
-    "has_contact_person": {"mapping": mapping_person, "resource": PersonCli}
+    "has_contact_person": {"mapping": mapping_person, "resource": PersonCli},
+    "has_configuration": {"mapping": mapping_model_configuration, "resource": ModelConfigurationCli},
+    "has_input": {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli},
+    "has_output": {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli},
+    "has_parameter": {"mapping": mapping_parameter, "resource": ParameterCli},
+
 }
 
 def get_mapping(property_selected):

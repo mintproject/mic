@@ -1,7 +1,5 @@
-import logging
 import modelcatalog
 from mic._utils import get_api
-from mic._mappings import *
 from modelcatalog import ApiException
 RESOURCE = "Person"
 
