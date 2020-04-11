@@ -5,14 +5,16 @@ import click
 
 def cleanNullTerms(d):
     clean = {}
-    for k, v in d.items():
-        if isinstance(v, dict):
-            nested = cleanNullTerms(v)
-            if len(nested.keys()) > 0:
-                clean[k] = nested
-        elif v is not None:
-            clean[k] = v
+    if d is not None:
+        for k, v in d.items():
+            if isinstance(v, dict):
+                nested = cleanNullTerms(v)
+                if len(nested.keys()) > 0:
+                    clean[k] = nested
+            elif v is not None:
+                clean[k] = v
     return clean
+
 
 def save(request):
     """
@@ -48,8 +50,9 @@ def load():
         file = click.prompt("Please type the path if the file to load")
         with open(file) as json_file:
             loaded_file = json.load(json_file)
-        print('File loaded successfully')
+        click.echo('File loaded successfully')
     except:
-        print('Error when loading the file')
+        click.echo('Error when loading the file')
+        return None
         # click.confirm('Error loading the file. Continue?', abort=True)
     return loaded_file

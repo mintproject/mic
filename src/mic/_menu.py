@@ -271,12 +271,15 @@ def call_menu_select_property(mapping, resource_object, full_request=None, paren
     @type mapping: dict
     @param resource_object: the resource_object
     @type resource_object: object
-    @param request: request (optionally loaded from file)
+    @param full_request: request (optionally loaded from file)
     @type request: dict
     """
     request = create_request(mapping.values())
     if full_request is None:
         full_request = request
+    # load from file only if it's top resource. Otherwise it would affect sub-resources.
+    if parent is None and full_request is not None:
+        request = full_request
     while True:
         click.clear()
         first_line_new(resource_object.name)
@@ -379,16 +382,20 @@ def handle_actions(request, action, mapping, resource_object, full_request, pare
             input('Press ENTER to continue')
         except:
             click.echo('Property not in range')
+        finally:
+            return False
     if action == ACTION_CHOICES[1]:
         # SAVE
-        file_name = save(full_request)
-        click.confirm("Do you want to exit?", default=False)
+        save(full_request)
+        return click.confirm("Exit?", default=False)
     elif action == ACTION_CHOICES[2]:
         # PUSH
         menu_push(full_request, resource_object, parent=parent)
         save(full_request)
-        if request["id"] and click.confirm("Do you want to see the resource on the browser", default=False):
+        if request["id"] and click.confirm("See the model/config/setup on your browser?", default=False):
             click.launch("{}{}".format(MODEL_CATALOG_URL, request["id"]))
+        if request["id"]:
+            click.echo("Online URI for model/configuration/setup: " + MODEL_CATALOG_URL + request["id"])
     elif action == ACTION_CHOICES[3]:
         pass
     return True

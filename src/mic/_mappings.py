@@ -60,7 +60,7 @@ mapping_model = {
     # 'Publisher': {"id": 'publisher', 'definition': 'Organization responsible for publishing the model', 'required': False},
     'Download URL': {"id": 'has_download_url', 'definition': 'URL available for downloading the model',
                      'required': False},
-    'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
+   # 'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
     'Purpose': {"id": 'has_purpose',
                 'definition': 'Objective or main functionality that can be achieved by running this model',
                 'required': False},
