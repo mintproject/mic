@@ -6,8 +6,8 @@ from modelcatalog import ApiException, Model
 import click
 
 from mic._menu import call_menu_select_property
-from mic.resources._person import PersonCli
-from mic.resources._software_version import SoftwareVersionCli
+from mic._person import PersonCli
+from mic._software_version import SoftwareVersionCli
 
 RESOURCE = "Model"
 

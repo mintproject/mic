@@ -1,5 +1,3 @@
-import logging
-
 from mic._mappings import get_definition, get_prop_mapping, select_enable, is_complex
 from mic._model_catalog_utils import get_label_from_response, create_request, get_existing_resources
 from mic.drawer import print_request, print_choices, show_values_complex, show_values

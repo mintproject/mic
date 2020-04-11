@@ -1,4 +1,3 @@
-
 RESOURCE = "Image"
 
 class ImageCli:

@@ -1,13 +1,12 @@
 import logging
 import modelcatalog
-from mic._model_catalog_utils import MODEL_CATALOG_URL
 from mic._menu import call_menu_select_property
 from mic._mappings import mapping_dataset_specification, mapping_parameter, mapping_model_configuration
 from mic._utils import get_api
-from modelcatalog import ApiException, Model, ModelConfiguration
+from modelcatalog import ApiException, ModelConfiguration
 
-from mic.resources._dataspecification import DataSpecificationCli
-from mic.resources._parameter import ParameterCli
+from mic._dataspecification import DataSpecificationCli
+from mic._parameter import ParameterCli
 
 RESOURCE = "Model Configuration"
 

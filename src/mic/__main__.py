@@ -1,5 +1,3 @@
-import configparser
-import os
 import sys
 from pathlib import Path
 
@@ -10,8 +8,8 @@ import semver
 import mic
 from mic._utils import create_credentials
 from mic import _utils, file
-from mic.resources._modelconfiguration import create as modelconfiguration_create
-from mic.resources._model import create as create_model
+from mic._modelconfiguration import create as modelconfiguration_create
+from mic._model import create as create_model
 
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint_api/credentials"
 
@@ -65,6 +63,6 @@ def modelconfiguration():
 
 @modelconfiguration.command(short_help="Create a modelconfiguration")
 def add():
-    from mic.resources._software_version import SoftwareVersionCli
+    from _software_version import SoftwareVersionCli
     modelconfiguration_create(parent=SoftwareVersionCli)
     click.secho(f"Success", fg="green")
