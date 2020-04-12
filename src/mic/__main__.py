@@ -63,6 +63,6 @@ def modelconfiguration():
 
 @modelconfiguration.command(short_help="Create a modelconfiguration")
 def add():
-    from _software_version import SoftwareVersionCli
+    from mic._software_version import SoftwareVersionCli
     modelconfiguration_create(parent=SoftwareVersionCli)
     click.secho(f"Success", fg="green")

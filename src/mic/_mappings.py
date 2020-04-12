@@ -60,7 +60,7 @@ mapping_model = {
     # 'Publisher': {"id": 'publisher', 'definition': 'Organization responsible for publishing the model', 'required': False},
     'Download URL': {"id": 'has_download_url', 'definition': 'URL available for downloading the model',
                      'required': False},
-   # 'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
+    'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
     'Purpose': {"id": 'has_purpose',
                 'definition': 'Objective or main functionality that can be achieved by running this model',
                 'required': False},
@@ -98,11 +98,11 @@ mapping_parameter = {
                                                                                  'have ', 'required': False},
 }
 mapping_image = {
-    'Name': {'id': 'label', 'definition': 'Name of the parameter', 'required': True},
-    'Description': {"id": 'description', 'definition': 'Description of the model', 'required': False},
-    'URL': {"id": 'value', 'definition': 'URL of the logo', 'required': False},
-    'Source': {"id": 'had_primary_source', 'definition': 'URL of the website where the logo comes from',
-               'required': False},
+    'Name': {'id': 'label', 'definition': 'Name of the image', 'required': True, 'complex': False},
+    'Description': {"id": 'description', 'definition': 'Description of the image', 'required': False, 'complex': False},
+    'URL': {"id": 'value', 'definition': 'URL of the image', 'required': False, 'complex': False},
+    'Source': {"id": 'had_primary_source', 'definition': 'URL of the website where the logo comes from (e.g., https://wikidata.org/)',
+               'required': False, 'complex': False},
 }
 mapping_model_configuration = {
     'Name': {'id': 'label', 'definition': 'Name of the model configuration', 'required': True},
@@ -152,4 +152,5 @@ get_complex(mapping_dataset_specification, DatasetSpecification)
 get_complex(mapping_parameter, Parameter)
 get_complex(mapping_person, Person)
 get_complex(mapping_sample_resource, SampleResource)
-get_complex(mapping_image, Image)
+# In Image URL and source are mapped as complex, but they are not
+# get_complex(mapping_image, Image)

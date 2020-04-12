@@ -3,17 +3,21 @@ import logging
 import click
 
 
-def cleanNullTerms(d):
-    clean = {}
-    if d is not None:
-        for k, v in d.items():
-            if isinstance(v, dict):
-                nested = cleanNullTerms(v)
-                if len(nested.keys()) > 0:
-                    clean[k] = nested
-            elif v is not None:
-                clean[k] = v
-    return clean
+def clean_null_terms(d):
+    """
+    Recursively remove all None values from dictionaries and lists, and returns
+    the result as a new dictionary or list.
+    """
+    if isinstance(d, list):
+        return [clean_null_terms(x) for x in d if x is not None]
+    elif isinstance(d, dict):
+        return {
+            key: clean_null_terms(val)
+            for key, val in d.items()
+            if val is not None
+        }
+    else:
+        return d
 
 
 def save(request):
@@ -26,7 +30,7 @@ def save(request):
         file_name = click.prompt('Enter the file name to save (without extension): ')
         file_name += '.json'
         # Remove nulls
-        request_dump = cleanNullTerms(request)
+        request_dump = clean_null_terms(request)
         with open(file_name, 'w') as outfile:
             json.dump(request_dump, outfile)
         print('File saved successfully')

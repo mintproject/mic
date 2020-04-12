@@ -205,7 +205,6 @@ def call_ask_value(request, variable_selected, resource_name, resource_object, m
     """
     request_property = get_prop_mapping(mapping, variable_selected)
     click.clear()
-
     if is_complex(mapping, variable_selected):
         show_values_complex(request, request_property, variable_selected)
         menu_call_actions_complex(request, variable_selected, resource_name, mapping, resource_object, request_property)
@@ -322,7 +321,7 @@ def call_edit_resource(request, mapping, resource_name, request_property, resour
                            mapping=sub_resource_mapping)
 
 
-def mapping_resource_complex(resource_object, request_property, full_request):
+def mapping_resource_complex(resource_object, request_property, full_request=None):
     """
     Mapping: maps the variable_select with the Model Catalog Resource
     @param request_selected:
@@ -347,7 +346,10 @@ def mapping_create_value_complex(request, resource_object, request_property):
     @param request_property: the property selected (model spec). For example: has_version
     @type request_property: string
     """
-    value = mapping_resource_complex(resource_object, request_property, request)
+    value = mapping_resource_complex(resource_object, request_property)
+    # If the 'id' key is empty, we add a default so the program does not fail
+    if value['label'] is None:
+        value['label'] = 'Resource name [required]'
     if request[request_property] is None:
         request[request_property] = [value]
     else:
@@ -371,7 +373,8 @@ def handle_actions(request, action, mapping, resource_object, full_request, pare
     @rtype: bool
     @param mapping: mapping to be able to show properties
     """
-    if type(action) != str:
+    if type(action) != str or action not in ACTION_CHOICES:
+        # action not recognized; do not exit
         return False
     if action == ACTION_CHOICES[0]:
         # SHOW
