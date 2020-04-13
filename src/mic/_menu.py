@@ -112,7 +112,7 @@ def menu_delete_resource_complex(request):
                           type=click.Choice(list(range(1, len(labels) + 1))),
                           value_proc=parse
                           )
-    if choice != 0 and choice <= len(labels):
+    if choice > 0 and choice <= len(labels):
         request.pop(choice - 1)
     else:
         show_error("The current value for choice is either greater than length of input size or zero.")
