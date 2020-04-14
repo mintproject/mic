@@ -273,7 +273,7 @@ def call_menu_select_existing_resources(request, variable_selected, resource_obj
         request[request_property].append(value)
 
 
-def call_menu_select_property(mapping, resource_object, full_request=None, parent=None):
+def call_menu_select_property(mapping, resource_object, full_request=None, parent=None,is_subresource=False):
     """
     Method to call the menu to add resource
     @param mapping: Mapping of the resource
@@ -292,10 +292,7 @@ def call_menu_select_property(mapping, resource_object, full_request=None, paren
     while True:
         click.clear()
         first_line_new(resource_object.name)
-        if parent is None and full_request is not None:
-            property_chosen = menu_select_property(request, mapping,True)
-        else:
-             property_chosen = menu_select_property(request, mapping,False)
+        property_chosen = menu_select_property(request, mapping,is_subresource)
         if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request, parent=parent):
             break
         if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()) + 1:
@@ -346,7 +343,7 @@ def mapping_resource_complex(resource_object, request_property, full_request=Non
     """
     sub_resource_object = getattr(resource_object, request_property)
     sub_resource_mapping, sub_resource = sub_resource_object["mapping"], sub_resource_object["resource"]
-    return call_menu_select_property(sub_resource_mapping, sub_resource, full_request)
+    return call_menu_select_property(sub_resource_mapping, sub_resource, full_request,is_subresource=True)
 
 
 def mapping_create_value_complex(request, resource_object, request_property):
