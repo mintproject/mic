@@ -112,10 +112,13 @@ def menu_delete_resource_complex(request):
                           type=click.Choice(list(range(1, len(labels) + 1))),
                           value_proc=parse
                           )
-    if choice > 0 and choice <= len(labels):
+    if not isinstance(choice, int):
+        show_error("Please only input integers not characters.")
+        menu_delete_resource_complex(request)
+    elif choice > 0 and choice <= len(labels):
         request.pop(choice - 1)
     else:
-        show_error("The current value for choice is either greater than length of input size or zero.")
+        show_error("The current value for choice is either greater than length of input size or less than equal to zero.")
         menu_delete_resource_complex(request)
 
 
