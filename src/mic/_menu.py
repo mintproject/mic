@@ -1,6 +1,6 @@
 from mic._mappings import get_definition, get_prop_mapping, select_enable, is_complex
 from mic._model_catalog_utils import get_label_from_response, create_request, get_existing_resources
-from mic.drawer import print_request, print_choices, show_values_complex, show_values
+from mic.drawer import print_request, print_choices, show_values_complex, show_values, show_error
 from mic.file import save
 from mic._utils import first_line_new
 import click
@@ -115,7 +115,14 @@ def menu_delete_resource_complex(request):
                           type=click.Choice(list(range(1, len(labels) + 1))),
                           value_proc=parse
                           )
-    request.pop(choice - 1)
+    if not isinstance(choice, int):
+        show_error("Please only input integers not characters.")
+        menu_delete_resource_complex(request)
+    elif choice > 0 and choice <= len(labels):
+        request.pop(choice - 1)
+    else:
+        show_error("The current value for choice is either greater than length of input size or less than equal to zero.")
+        menu_delete_resource_complex(request)
 
 
 def menu_ask_simple_value(variable_selected, resource_name, mapping, default_value=""):
