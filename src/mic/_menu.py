@@ -292,10 +292,10 @@ def call_menu_select_property(mapping, resource_object, full_request=None, paren
     while True:
         click.clear()
         first_line_new(resource_object.name)
-        if resource_object.name=='Model'or resource_object.name=='Model Configuration':
-            property_chosen = menu_select_property(request, mapping,False)
+        if parent is None and full_request is not None:
+            property_chosen = menu_select_property(request, mapping,True)
         else:
-             property_chosen = menu_select_property(request, mapping,True)
+             property_chosen = menu_select_property(request, mapping,False)
         if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request, parent=parent):
             break
         if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()) + 1:
