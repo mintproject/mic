@@ -36,7 +36,7 @@ def menu_select_existing_resources(resource_object, request_property, variable_s
     return None
 
 
-def menu_select_property(request, mapping):
+def menu_select_property(request, mapping, is_subresource=False):
     """
     Menu: Show the properties by the request
     @param request: Request (modelcatalog spec)
@@ -46,13 +46,16 @@ def menu_select_property(request, mapping):
     @return: the choice
     @rtype: [int, str]
     """
+    choices_new = ACTION_CHOICES.copy()
+    if is_subresource:
+        choices_new.remove("send")
     print_request(request, mapping)
     properties_choices = list(request.keys())
     select_property = click.prompt(
-        "Select the property to edit [{}-{}] or {}".format(1, len(properties_choices), ACTION_CHOICES),
+        "Select the property to edit [{}-{}] or {}".format(1, len(properties_choices), choices_new),
         default=1,
         show_choices=False,
-        type=click.Choice(list(range(1, len(properties_choices) + 1)) + ACTION_CHOICES),
+        type=click.Choice(list(range(1, len(properties_choices) + 1)) + choices_new),
         value_proc=parse
     )
     return select_property
@@ -282,7 +285,10 @@ def call_menu_select_property(mapping, resource_object, full_request=None, paren
     while True:
         click.clear()
         first_line_new(resource_object.name)
-        property_chosen = menu_select_property(request, mapping)
+        if resource_object.name=='Model'or resource_object.name=='Model Configuration':
+            property_chosen = menu_select_property(request, mapping,False)
+        else:
+             property_chosen = menu_select_property(request, mapping,True)
         if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request, parent=parent):
             break
         if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()) + 1:
