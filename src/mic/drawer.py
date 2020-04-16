@@ -43,3 +43,6 @@ def show_values(request, request_property, variable_name):
         click.echo('Current value for ' + variable_name + ' is: ' + str(request[request_property]))
     else:
         click.echo('No value for {}'.format(variable_name))
+
+def show_error(request_message):
+    click.secho(request_message, fg="red")
