@@ -215,7 +215,17 @@ def call_ask_value(request, variable_selected, resource_name, resource_object, m
     """
     request_property = get_prop_mapping(mapping, variable_selected)
     click.clear()
-    if is_complex(mapping, variable_selected):
+
+    # Check if the subresource of the object causes an AttributeError (Raised when there is no such attribute in the object)
+    is_info_about_sub_resource = True
+
+    try:
+        sub_resource_object = getattr(resource_object, request_property)
+    except AttributeError as ae:
+        is_info_about_sub_resource = False
+
+    # Perform menu action for complex resource if subresource is available 
+    if is_complex(mapping, variable_selected) and is_info_about_sub_resource:
         show_values_complex(request, request_property, variable_selected)
         menu_call_actions_complex(request, variable_selected, resource_name, mapping, resource_object, request_property)
     else:
@@ -356,6 +366,7 @@ def mapping_create_value_complex(request, resource_object, request_property):
     @param request_property: the property selected (model spec). For example: has_version
     @type request_property: string
     """
+    print("Ok")
     value = mapping_resource_complex(resource_object, request_property)
     # If the 'id' key is empty, we add a default so the program does not fail
     if value['label'] is None:
