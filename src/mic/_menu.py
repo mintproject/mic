@@ -366,7 +366,6 @@ def mapping_create_value_complex(request, resource_object, request_property):
     @param request_property: the property selected (model spec). For example: has_version
     @type request_property: string
     """
-    print("Ok")
     value = mapping_resource_complex(resource_object, request_property)
     # If the 'id' key is empty, we add a default so the program does not fail
     if value['label'] is None:
