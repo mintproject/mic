@@ -58,6 +58,9 @@ def menu_select_property(request, mapping, is_subresource=False):
         type=click.Choice(list(range(1, len(properties_choices) + 1)) + choices_new),
         value_proc=parse
     )
+
+    if not isinstance(select_property, int) and select_property not in choices_new:
+        return -1
     return select_property
 
 
@@ -90,6 +93,10 @@ def menu_call_actions_complex(request, variable_selected, resource_name, mapping
                           type=click.Choice(choices_new),
                           value_proc=parse
                           )
+
+    if choice not in choices_new:
+        return choice
+
     if choice == COMPLEX_CHOICES[0]:
         call_menu_select_existing_resources(request, variable_selected, resource_object, mapping, request_property)
     elif choice == COMPLEX_CHOICES[1]:
