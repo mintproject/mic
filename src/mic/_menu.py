@@ -58,6 +58,9 @@ def menu_select_property(request, mapping, is_subresource=False):
         type=click.Choice(list(range(1, len(properties_choices) + 1)) + choices_new),
         value_proc=parse
     )
+
+    if not isinstance(select_property, int) and select_property not in choices_new:
+        return -1
     return select_property
 
 
@@ -90,6 +93,10 @@ def menu_call_actions_complex(request, variable_selected, resource_name, mapping
                           type=click.Choice(choices_new),
                           value_proc=parse
                           )
+
+    if choice not in choices_new:
+        return choice
+
     if choice == COMPLEX_CHOICES[0]:
         call_menu_select_existing_resources(request, variable_selected, resource_object, mapping, request_property)
     elif choice == COMPLEX_CHOICES[1]:
@@ -215,7 +222,17 @@ def call_ask_value(request, variable_selected, resource_name, resource_object, m
     """
     request_property = get_prop_mapping(mapping, variable_selected)
     click.clear()
-    if is_complex(mapping, variable_selected):
+
+    # Check if the subresource of the object causes an AttributeError (Raised when there is no such attribute in the object)
+    is_info_about_sub_resource = True
+
+    try:
+        sub_resource_object = getattr(resource_object, request_property)
+    except AttributeError as ae:
+        is_info_about_sub_resource = False
+
+    # Perform menu action for complex resource if subresource is available 
+    if is_complex(mapping, variable_selected) and is_info_about_sub_resource:
         show_values_complex(request, request_property, variable_selected)
         menu_call_actions_complex(request, variable_selected, resource_name, mapping, resource_object, request_property)
     else:
@@ -273,7 +290,7 @@ def call_menu_select_existing_resources(request, variable_selected, resource_obj
         request[request_property].append(value)
 
 
-def call_menu_select_property(mapping, resource_object, full_request=None, parent=None,is_subresource=False):
+def call_menu_select_property(mapping, resource_object, full_request=None, parent=None, is_subresource=False):
     """
     Method to call the menu to add resource
     @param mapping: Mapping of the resource
@@ -292,7 +309,7 @@ def call_menu_select_property(mapping, resource_object, full_request=None, paren
     while True:
         click.clear()
         first_line_new(resource_object.name)
-        property_chosen = menu_select_property(request, mapping,is_subresource)
+        property_chosen = menu_select_property(request, mapping, is_subresource)
         if handle_actions(request, property_chosen, mapping, resource_object, full_request=full_request, parent=parent):
             break
         if isinstance(property_chosen, int) and 0 < property_chosen < len(mapping.keys()) + 1:
@@ -343,7 +360,7 @@ def mapping_resource_complex(resource_object, request_property, full_request=Non
     """
     sub_resource_object = getattr(resource_object, request_property)
     sub_resource_mapping, sub_resource = sub_resource_object["mapping"], sub_resource_object["resource"]
-    return call_menu_select_property(sub_resource_mapping, sub_resource, full_request,is_subresource=True)
+    return call_menu_select_property(sub_resource_mapping, sub_resource, full_request, is_subresource=True)
 
 
 def mapping_create_value_complex(request, resource_object, request_property):
