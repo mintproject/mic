@@ -1,11 +1,11 @@
-Model Insertion CLI (MIC) is a command-line interface for addming  models on a Model Catalog Service.
+Model Insertion CLI (MIC) is a command-line interface for adding model metadata in the [MINT Model Catalog Service](https://models.mint.isi.edu/home).
 
-MIC is an application that ask the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contribuors.
+MIC helps you complete the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contributors (among other key metadata).
 
-MIC has been tested in OSX. But we're testing in Windows and Linux.It is installed through a simple pip command.
+MIC has been tested in OSX, Unix and Windows. It can installed through a simple pip command (see below).
 
 !!! info
-    Please report any issue with us [here](https://github.com/mintproject/mic/issues/new/choose).
+    MIC is ongoing work. Please report any issue you experience in our [GitHub repository](https://github.com/mintproject/mic/issues/new/choose).
 
 ## Requirements
 
@@ -13,10 +13,7 @@ MIC has the following requirements:
 
 1. Python >= 3.6
 
-
-### Python 3
-
-DAME uses Python. Please, follow the steps bellow to install it:
+To install install Python 3, follow the instructions below:
 
 - [Installation on Linux](https://realpython.com/installing-python/#linux)
 - [Installation on Windows](https://realpython.com/installing-python/#windows)
@@ -30,18 +27,11 @@ To install MIC, open a terminal and run:
 pip install mic
 ```
 
-You did it!
-
-# Usage
-
-## Help functionality in the CLI
-
-mic --help
-
-## Login
-
-Use this command to configure username and password for the Model Catalog API
-
+To check if mic was installed correctly, run:
+```bash
+mic version
 ```
-mic configure
+You should see a message like the following one:
+```bash
+mic v0.2.0
 ```
