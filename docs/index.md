@@ -5,7 +5,7 @@ MIC helps you complete the information of your model, model version, model confi
 MIC has been tested in OSX, Unix and Windows. It can installed through a simple pip command (see below).
 
 !!! info
-    MIC is ongoing work. Please report any issue you experience in our [GitHub repository](https://github.com/mintproject/mic/issues/new/choose).
+    MIC is a Beta application. Please report any issue you experience in our [GitHub repository](https://github.com/mintproject/mic/issues/new/choose).
 
 ## Requirements
 
