@@ -36,7 +36,7 @@ Full documentation available at: [https://mic-cli.readthedocs.io/en/latest/](htt
 
 ## Next Features
 
-![Next features](docs/figures/mic.png)
+![Next features](docs/figures/mic-v2.png)
 
 The figure above highlights the next features we will support in MIC:
 
