@@ -32,7 +32,7 @@ The `version` command lists the current version of mic.
 
 ## Login and credentials
 
-The MINT model catalog requires credentials for modifying the contents in the catalog. Use this command to configure username and password for the Model Catalog API.
+The MINT Model Catalog requires credentials for modifying the contents in the catalog. Use this command to configure username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/).
 
 ```
 mic configure
@@ -122,7 +122,7 @@ No value for Name
 Definition: Name of the model
 Model - Name : Height Above Nearest Drainage (HAND)
 ```
-Note that each property includes a definition. In this case, we added as name "`Height Above Nearest Drainage (HAND)`". When pressing enter, the table will be completed:
+Note that each property includes a **definition**, explaining what the property aims to describe. In this case, we added as name "`Height Above Nearest Drainage (HAND)`". When pressing enter, the table will be completed:
 
 ```bash
 ======= Model ======
@@ -136,7 +136,7 @@ The actual values are:
 +-------+----------------+------------------------------------------+
 <Rest of the table ommitted for simplicity>
 ```
-Once you are done, you just have to type `send` and the model will be sent you will be prompted with a message to save your model description, and a URL which you can use to browse if the metadata was correctly posted to the model catalog. The message should look similar to:
+Once you are done, you just have to type `send` and the model will be sent you will be prompted with a message to save your model description, and a URL which you can use to browse if the metadata was correctly posted to the Model Catalog. The message should look similar to:
 
 ```bash
 Select the property to edit [1-17] or ['show', 'save', 'send', 'exit'] [1]: send
@@ -156,9 +156,9 @@ Where `<modelID>` is the ID provided by the API to the target model.
 
 ## Frequently Asked Questions
 
-**What do the values in the table ask for?**
+**What do the properties in the table ask mean?**
 
-If you find any of the fields in the metadata table confusing, just select them for editing. You will be shown a definition of what the property means. For example by editing property 16 (Purpose):
+If you find any of the fields in the metadata table confusing, just select them for editing. You will be shown a definition of what each property means. For example by editing property 16 (Purpose):
 
 ```bash
 Current value for Purpose is: ['Crop seasonal production']
