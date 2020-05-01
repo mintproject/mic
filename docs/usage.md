@@ -120,20 +120,20 @@ By typing the number of the property (in this case, 1), you will see:
 ```bash
 No value for Name
 Definition: Name of the model
-Model - Name : Model for Flood analysis
+Model - Name : Height Above Nearest Drainage (HAND)
 ```
-We added as name" `Model for Flood analysis`. When pressing enter, the table will be completed:
+Note that each property includes a definition. In this case, we added as name "`Height Above Nearest Drainage (HAND)`". When pressing enter, the table will be completed:
 
 ```bash
 ======= Model ======
 The actual values are:
-+-------+----------------+------------------------------+
-|   no. | Property       | Value                        |
-+=======+================+==============================+
-|     1 | Name           | ['Model for Flood analysis'] |
-+-------+----------------+------------------------------+
-|     2 | Description    |                              |
-+-------+----------------+------------------------------+
++-------+----------------+------------------------------------------+
+|   no. | Property       | Value                                    |
++=======+================+==========================================+
+|     1 | Name           | ['Height Above Nearest Drainage (HAND)'] |
++-------+----------------+------------------------------------------+
+|     2 | Description    |                                          |
++-------+----------------+------------------------------------------+
 <Rest of the table ommitted for simplicity>
 ```
 Once you are done, you just have to type `send` and the model will be sent you will be prompted with a message to save your model description, and a URL which you can use to browse if the metadata was correctly posted to the model catalog. The message should look similar to:
@@ -151,4 +151,24 @@ Success
 ```
 Where `<modelID>` is the ID provided by the API to the target model.
 
+!!! warning
+    Please review carefully your metadata before sending it to the server. At the moment MIC does not support editing model metadata. If you submit an entry twice, you will create two different entries for your model.
 
+## Frequently Asked Questions
+
+**What do the values in the table ask for?**
+
+If you find any of the fields in the metadata table confusing, just select them for editing. You will be shown a definition of what the property means. For example by editing property 16 (Purpose):
+
+```bash
+Current value for Purpose is: ['Crop seasonal production']
+Definition: Objective or main functionality that can be achieved by running this model
+```
+
+**I don't know all metadata of my model right now. Can I save my progress?**
+
+Yes. You can use the `save` command at any point to save your progress. Your metadata will be saved as a JSON file, which you can load with the `load` command. When you are ready to submit, just type `send`.
+
+**What happens if I submit my model metadata twice?** 
+
+Right not MIC does not support editing model metadata. If you submit the same model metadata twice, you will create two entries in the catalog. We are working to support this feature.

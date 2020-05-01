@@ -1,6 +1,6 @@
-Model Insertion CLI (MIC) is a command-line interface for adding model metadata in the [MINT Model Catalog Service](https://models.mint.isi.edu/home).
+Model Insertion Checker (MIC) is a command-line a command line wizard for users to add new calibrated models and their metadata. MIC posts new entries to the [MINT Model Catalog Service](https://models.mint.isi.edu/home).
 
-MIC helps you complete the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contributors (among other key metadata).
+MIC allows recording key metadata of a model, including model version, model configuration, parameters, inputs, outputs, authors and contributors (among other key metadata). Future versions will check that the information is consistent and validated. 
 
 MIC has been tested in OSX, Unix and Windows. It can installed through a simple pip command (see below).
 

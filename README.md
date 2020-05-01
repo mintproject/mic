@@ -1,8 +1,8 @@
-# Model Insertion CLI (MIC) 
+# Model Insertion Checker (MIC) 
 
-Model Insertion CLI (MIC) is a command-line interface for addming  models on a Model Catalog Service.
+Model Insertion Checker (MIC) is a command line wizard for users to add new calibrated models and their metadata.
 
-MIC is an application that ask the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contribuors.
+MIC is an application that asks the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contributors.
 
 MIC has been tested in OSX and Windows (currently under test in Linux). Mic is installed through a simple pip command:
 
