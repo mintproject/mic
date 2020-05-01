@@ -156,7 +156,7 @@ Where `<modelID>` is the ID provided by the API to the target model.
 
 ## Frequently Asked Questions
 
-**What do the properties in the table ask mean?**
+**What do the properties in the table mean?**
 
 If you find any of the fields in the metadata table confusing, just select them for editing. You will be shown a definition of what each property means. For example by editing property 16 (Purpose):
 
