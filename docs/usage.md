@@ -171,4 +171,4 @@ Yes. You can use the `save` command at any point to save your progress. Your met
 
 **What happens if I submit my model metadata twice?** 
 
-Right not MIC does not support editing model metadata. If you submit the same model metadata twice, you will create two entries in the catalog. We are working to support this feature.
+Right now MIC does not support editing model metadata. If you submit the same model metadata twice, you will create two entries in the catalog. We are working to support this feature.
