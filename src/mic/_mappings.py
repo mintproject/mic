@@ -25,6 +25,11 @@ def init_complex(resource, _property):
 def get_prop_mapping(mapping, variable_selected):
     return mapping[variable_selected]["id"]
 
+def get_type_mapping(mapping):
+    if "type" in mapping:
+        return mapping["type"]
+    return None
+
 
 def get_complex(mapping, resource):
     for key, _property in mapping.items():
@@ -36,6 +41,8 @@ def select_enable(mapping):
         return mapping[SELECT]
     return False
 
+
+metadata_types = ["float", "url"]
 
 mapping_model = {
     'Name': {'id': 'label', 'definition': 'Name of the model', 'required': True},
@@ -59,7 +66,7 @@ mapping_model = {
                     'required': False},
     # 'Publisher': {"id": 'publisher', 'definition': 'Organization responsible for publishing the model', 'required': False},
     'Download URL': {"id": 'has_download_url', 'definition': 'URL available for downloading the model',
-                     'required': False},
+                     'required': False, 'type': metadata_types[1]},
     'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
     'Purpose': {"id": 'has_purpose',
                 'definition': 'Objective or main functionality that can be achieved by running this model',
@@ -93,9 +100,9 @@ mapping_parameter = {
               'required': False},
     'Default Value': {'id': 'has_default_value', 'definition': 'Default value of the parameter', 'required': False},
     'Minimum accepted value': {'id': 'has_minimum_accepted_value', 'definition': 'Minimum value the parameter can have',
-                               'required': False},
+                               'required': False, 'type': metadata_types[0]},
     'Maximum accepted value': {'id': 'has_maximum_accepted_value', 'definition': 'Maximum value the parameter can '
-                                                                                 'have ', 'required': False},
+                                                                                 'have ', 'required': False, 'type': metadata_types[0]},
 }
 mapping_image = {
     'Name': {'id': 'label', 'definition': 'Name of the image', 'required': True, 'complex': False},
