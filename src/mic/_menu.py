@@ -154,7 +154,7 @@ def menu_ask_simple_value(variable_selected, resource_name, mapping, default_val
             if validate_metadata(metadata_type, value):
                 return value
             else:
-                show_error("{} should be type of {}".format(variable_selected, metadata_type))
+                show_error("{} should be type of {}".format(variable_selected, metadata_type.name))
                 return menu_ask_simple_value(variable_selected, resource_name, mapping, default_value=default_value)
         return value
     else:

@@ -1,6 +1,7 @@
 import click
 from modelcatalog import Model, DatasetSpecification, SoftwareVersion, Parameter, Person, SampleResource, Image, \
     ModelConfiguration
+import enum
 
 SELECT = 'select'
 
@@ -42,14 +43,18 @@ def select_enable(mapping):
     return False
 
 
-metadata_types = ["float", "url"]
+
+class Metadata_types(enum.Enum):
+    Float = 1
+    Url = 2
+
 
 mapping_model = {
     'Name': {'id': 'label', 'definition': 'Name of the model', 'required': True},
     'Description': {"id": 'description', 'definition': 'Description of the model', 'required': False},
     'Keywords': {"id": 'keywords', 'definition': 'Keywords that can be used to describe the model', 'required': False},
     'Website': {"id": 'website', 'definition': 'Website where more information about the model can be found',
-                'required': False},
+                'required': False , 'type': Metadata_types.Url},
     'Documentation': {"id": 'has_documentation',
                       'definition': 'URL where additional documentation of the model can be found', 'required': False},
     'Versions': {"id": 'has_version', 'definition': 'Available versions of a particular model', 'required': False},
@@ -66,7 +71,7 @@ mapping_model = {
                     'required': False},
     # 'Publisher': {"id": 'publisher', 'definition': 'Organization responsible for publishing the model', 'required': False},
     'Download URL': {"id": 'has_download_url', 'definition': 'URL available for downloading the model',
-                     'required': False, 'type': metadata_types[1]},
+                     'required': False, 'type': Metadata_types.Url},
     'Logo': {"id": 'logo', 'definition': 'URL to an image that can be used to identify this model', 'required': False},
     'Purpose': {"id": 'has_purpose',
                 'definition': 'Objective or main functionality that can be achieved by running this model',
@@ -97,17 +102,17 @@ mapping_parameter = {
                                                        'float or boolean', 'required': True},
     'Value': {'id': 'has_fixed_value', 'definition': 'Value of this parameter in this setup. Setting up a value will '
                                                      'make the parameter non-editable on execution',
-              'required': False},
-    'Default Value': {'id': 'has_default_value', 'definition': 'Default value of the parameter', 'required': False},
+              'required': False, 'type': Metadata_types.Float},
+    'Default Value': {'id': 'has_default_value', 'definition': 'Default value of the parameter', 'required': False, 'type': Metadata_types.Float},
     'Minimum accepted value': {'id': 'has_minimum_accepted_value', 'definition': 'Minimum value the parameter can have',
-                               'required': False, 'type': metadata_types[0]},
+                               'required': False, 'type': Metadata_types.Float},
     'Maximum accepted value': {'id': 'has_maximum_accepted_value', 'definition': 'Maximum value the parameter can '
-                                                                                 'have ', 'required': False, 'type': metadata_types[0]},
+                                                                                 'have ', 'required': False, 'type': Metadata_types.Float},
 }
 mapping_image = {
     'Name': {'id': 'label', 'definition': 'Name of the image', 'required': True, 'complex': False},
     'Description': {"id": 'description', 'definition': 'Description of the image', 'required': False, 'complex': False},
-    'URL': {"id": 'value', 'definition': 'URL of the image', 'required': False, 'complex': False},
+    'URL': {"id": 'value', 'definition': 'URL of the image', 'required': False, 'complex': False,'type': Metadata_types.Url},
     'Source': {"id": 'had_primary_source', 'definition': 'URL of the website where the logo comes from (e.g., https://wikidata.org/)',
                'required': False, 'complex': False},
 }
@@ -146,7 +151,7 @@ mapping_model_configuration = {
 mapping_person = {
     'Name': {'id': 'label', 'definition': 'Name of the person', 'required': True},
     'email': {"id": 'email', 'definition': 'Email of the person', 'required': False},
-    'website': {"id": 'website', 'definition': 'Website of the person', 'required': False},
+    'website': {"id": 'website', 'definition': 'Website of the person', 'required': False,'type': Metadata_types.Url},
 }
 mapping_sample_resource = {
     'URL': {"id": 'value'}
