@@ -7,7 +7,9 @@ from pathlib import Path
 import click
 import modelcatalog
 import requests
+import re
 from modelcatalog import ApiException
+from mic._mappings import Metadata_types
 
 MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
@@ -95,3 +97,15 @@ def init_logger():
 
 def get_latest_version():
     return requests.get("https://pypi.org/pypi/mic/json").json()["info"]["version"]
+
+
+def validate_metadata(default_type, value):
+    if default_type == Metadata_types.Url:
+        regex = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
+        return re.match(regex, value)
+    elif default_type == Metadata_types.Float:
+        try:
+            convert_to_float = float(value)
+            return True
+        except ValueError as ve:
+            return False
