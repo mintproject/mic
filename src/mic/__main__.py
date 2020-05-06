@@ -2,16 +2,16 @@ import sys
 from pathlib import Path
 
 import click
-
-import semver
-
 import mic
-from mic._utils import create_credentials
+import semver
+from mic.credentials import configure_credentials
 from mic import _utils, file
-from mic._modelconfiguration import create as modelconfiguration_create
 from mic._model import create as create_model
+from mic._modelconfiguration import create as modelconfiguration_create
 
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint_api/credentials"
+
+from modelcatalog import Configuration
 
 
 @click.group()
@@ -35,8 +35,23 @@ def version(debug=False):
 
 
 @cli.command(help="Configure your credentials to access the Model Catalog API ")
-def configure():
-    create_credentials()
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+@click.option('--server', prompt='Model Catalog API',
+              help='The Model Catalog API', required=True, default=Configuration().host, show_default=True)
+@click.option('--username', prompt='Username',
+              help='Your email.', required=True, default="mint@isi.edu", show_default=True)
+@click.option('--password', prompt="Password",
+              required=True, hide_input=True, help="Your password")
+def configure(server, username, password, profile="default"):
+    configure_credentials(server, username, password, profile)
+
 
 @cli.group()
 def model():

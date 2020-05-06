@@ -1,8 +1,11 @@
-import click
+import logging
+
+import modelcatalog
+from mic.credentials import get_credentials
 from modelcatalog import ApiException
-from mic._person import PersonCli
 
 MODEL_CATALOG_URL = "https://w3id.org/okn/i/mint/"
+
 
 def get_label_from_response(response):
     """
@@ -14,7 +17,7 @@ def get_label_from_response(response):
     """
     labels = []
     for resource in response:
-        if isinstance(resource,dict):
+        if isinstance(resource, dict):
             if resource["label"]:
                 labels.append(resource["label"][0])
             elif resource["id"]:
@@ -30,6 +33,7 @@ def get_label_from_response(response):
                 labels.append(None)
     return labels
 
+
 def create_request(values):
     """
     Create a dictionary to send the model catalog
@@ -41,17 +45,27 @@ def create_request(values):
         request[value["id"]] = None
     return request
 
-def get_existing_resources(resource_name):
-    """
-    Get all the resources of a resource
-    @param resource_name: The name of the resource (mic spec, not modelcatalog)
-    @type resource_name:
-    @return: A list of resource
-    @rtype: List[]
-    """
-    # TO DO: clean up this, it's not too maintainable
-    if (resource_name == "Author") or (resource_name == "Contributor") or (resource_name == "Contact person"):
-        try:
-            return PersonCli().get()
-        except ApiException as e:
-            click.echo("Failed to get person resources")
+
+def get_api(profile="default"):
+    try:
+        credentials = get_credentials(profile)
+        username = credentials[profile]["api_username"]
+        password = credentials[profile]["api_password"]
+    except ValueError:
+        exit(1)
+    configuration = login(username, password)
+    return modelcatalog.ApiClient(configuration=configuration), username
+
+
+def login(username, password):
+    api_instance = modelcatalog.DefaultApi()
+    configuration = modelcatalog.Configuration()
+    try:
+        api_response = api_instance.user_login_get(username, password)
+        access_token = api_response["access_token"]
+        configuration.access_token = access_token
+
+    except ApiException as e:
+        logging.error("Exception when calling DefaultApi->user_login_get: %s\n" % e)
+        quit()
+    return configuration

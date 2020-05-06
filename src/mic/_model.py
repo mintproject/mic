@@ -1,6 +1,5 @@
 import logging
 import modelcatalog
-from mic._utils import get_api
 from mic._mappings import mapping_person, mapping_model, mapping_software_version, mapping_image
 from modelcatalog import ApiException, Model
 import click
@@ -9,6 +8,8 @@ from mic._menu import call_menu_select_property
 from mic._person import PersonCli
 from mic._image import ImageCli
 from mic._software_version import SoftwareVersionCli
+
+from mic.model_catalog_utils import get_api
 
 RESOURCE = "Model"
 

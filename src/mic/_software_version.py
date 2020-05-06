@@ -1,7 +1,8 @@
 import logging
 import modelcatalog
-from mic._model_catalog_utils import MODEL_CATALOG_URL
-from mic._utils import first_line_new, get_api
+from mic.model_catalog_utils import MODEL_CATALOG_URL
+from mic._utils import first_line_new
+from mic.model_catalog_utils import get_api
 from mic._mappings import mapping_model_configuration
 
 from modelcatalog import ApiException

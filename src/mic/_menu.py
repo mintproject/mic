@@ -1,11 +1,11 @@
 from mic._mappings import get_definition, get_prop_mapping, get_type_mapping, select_enable, is_complex
-from mic._model_catalog_utils import get_label_from_response, create_request, get_existing_resources
+from mic.model_catalog_utils import get_label_from_response, create_request
 from mic.drawer import print_request, print_choices, show_values_complex, show_values, show_error
 from mic.file import save
 from mic._utils import first_line_new, validate_metadata
 import click
 from modelcatalog import ApiException
-from mic._model_catalog_utils import MODEL_CATALOG_URL
+from mic.model_catalog_utils import MODEL_CATALOG_URL
 
 COMPLEX_CHOICES = ["select", "add", "edit", "remove"]
 ACTION_CHOICES = ["show", "save", "send", "exit"]
