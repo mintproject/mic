@@ -8,7 +8,8 @@ install_requires = [
     "semver>=2.8.1",
     "requests",
     "modelcatalog-api==2.5.0",
-    "tabulate>=0.8.1"
+    "tabulate>=0.8.1",
+    "Jinja2">="2.11.2""
 ]
 
 

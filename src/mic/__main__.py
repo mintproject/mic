@@ -184,5 +184,5 @@ def init(name, inputs, outputs, parameters, directory, language):
     render_io_sh(component_dir)
     render_dockerfile(component_dir, language)
 
-    save(model_configuration.to_dict(), file_name=component_dir / "{}.json".format(name))
+    save(model_configuration.to_dict(), file_name=component_dir / ".{}.json".format(name))
 
