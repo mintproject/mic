@@ -65,8 +65,15 @@ def add(inputs=0, outputs=0, parameters=0, directory=""):
 
 
 @model.command(short_help="Load a model from file")
-def load(inputs=0, outputs=0, parameters=0, directory=""):
-    request = file.load()
+@click.option(
+    "--filename",
+    "-f",
+    required=True,
+    prompt="Please type the path to the file",
+    type=click.Path(exists=True, file_okay=True, resolve_path=True),
+)
+def load(filename):
+    request = file.load(filename)
     create_model(request)
     click.secho(f"Success", fg="green")
 

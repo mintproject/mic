@@ -43,16 +43,17 @@ def save(request):
     return file_name
 
 
-def load():
+def load(filename):
     """
     Method that loads a JSON file of a model
     TO DO: Does not distinguish type at the moment (assumes it's a model)
     :param request: Current JSON request (initialized)
     :return: the JSON with the loaded file in request
+    @param filename:
+    @type filename:
     """
     try:
-        file = click.prompt("Please type the path if the file to load")
-        with open(file) as json_file:
+        with open(filename) as json_file:
             loaded_file = json.load(json_file)
         click.echo('File loaded successfully')
     except:
