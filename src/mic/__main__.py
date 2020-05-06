@@ -6,10 +6,8 @@ import mic
 import semver
 from mic.credentials import configure_credentials
 from mic import _utils, file
-from mic._model import create as create_model
-from mic._modelconfiguration import create as modelconfiguration_create
-
-__DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint_api/credentials"
+from mic.resources.model import create as create_model
+from mic.resources.model_configuration import create as model_configuration_create
 
 from modelcatalog import Configuration
 
@@ -50,8 +48,10 @@ def version(debug=False):
 @click.option('--password', prompt="Password",
               required=True, hide_input=True, help="Your password")
 def configure(server, username, password, profile="default"):
-    configure_credentials(server, username, password, profile)
-
+    try:
+        configure_credentials(server, username, password, profile)
+    except Exception as e:
+        click.secho("Unable to create configuration file", fg="red")
 
 @cli.group()
 def model():
@@ -85,6 +85,6 @@ def modelconfiguration():
 
 @modelconfiguration.command(short_help="Create a modelconfiguration")
 def add():
-    from mic._software_version import SoftwareVersionCli
-    modelconfiguration_create(parent=SoftwareVersionCli)
+    from mic.resources.software_version import SoftwareVersionCli
+    model_configuration_create(parent=SoftwareVersionCli)
     click.secho(f"Success", fg="green")

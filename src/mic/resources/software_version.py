@@ -6,7 +6,7 @@ from mic.model_catalog_utils import get_api
 from mic._mappings import mapping_model_configuration
 
 from modelcatalog import ApiException
-from mic._modelconfiguration import ModelConfigurationCli
+from mic.resources.model_configuration import ModelConfigurationCli
 
 RESOURCE = "Software Version"
 

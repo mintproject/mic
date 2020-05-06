@@ -2,7 +2,7 @@ import logging
 
 import modelcatalog
 from mic.credentials import get_credentials
-from modelcatalog import ApiException
+from modelcatalog import ApiException, ApiClient
 
 MODEL_CATALOG_URL = "https://w3id.org/okn/i/mint/"
 
@@ -49,17 +49,20 @@ def create_request(values):
 def get_api(profile="default"):
     try:
         credentials = get_credentials(profile)
-        username = credentials[profile]["api_username"]
-        password = credentials[profile]["api_password"]
+        username = credentials["username"]
+        password = credentials["password"]
+        server = credentials["server"]
     except ValueError:
         exit(1)
-    configuration = login(username, password)
-    return modelcatalog.ApiClient(configuration=configuration), username
+    configuration = _api_configuration(username, password, server)
+    return ApiClient(configuration=configuration), credentials["username"]
 
 
-def login(username, password):
-    api_instance = modelcatalog.DefaultApi()
+def _api_configuration(username, password, server=None):
     configuration = modelcatalog.Configuration()
+    if server is None:
+        configuration.host = server
+    api_instance = modelcatalog.DefaultApi(ApiClient(configuration=configuration))
     try:
         api_response = api_instance.user_login_get(username, password)
         access_token = api_response["access_token"]
