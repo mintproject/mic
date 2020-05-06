@@ -5,9 +5,9 @@ from modelcatalog import ApiException, Model
 import click
 
 from mic._menu import call_menu_select_property
-from mic._person import PersonCli
-from mic._image import ImageCli
-from mic._software_version import SoftwareVersionCli
+from mic.resources.person import PersonCli
+from mic.resources.image import ImageCli
+from mic.resources.software_version import SoftwareVersionCli
 
 from mic.model_catalog_utils import get_api
 

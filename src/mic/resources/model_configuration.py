@@ -4,8 +4,8 @@ from mic._menu import call_menu_select_property
 from mic._mappings import mapping_dataset_specification, mapping_parameter, mapping_model_configuration
 from mic.model_catalog_utils import get_api
 from modelcatalog import ApiException, ModelConfiguration
-from mic._dataspecification import DataSpecificationCli
-from mic._parameter import ParameterCli
+from mic.resources.data_specification import DataSpecificationCli
+from mic.resources.parameter import ParameterCli
 
 RESOURCE = "Model Configuration"
 
