@@ -3,12 +3,13 @@ from pathlib import Path
 
 import click
 import semver
-from modelcatalog import Configuration
+from modelcatalog import Configuration, ModelConfiguration, DatasetSpecification, Parameter
 
 import mic
 from mic import _utils, file
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_dockerfile
 from mic.credentials import configure_credentials
+from mic.file import save
 from mic.resources.model import create as create_model
 from mic.resources.model_configuration import create as model_configuration_create
 
@@ -124,7 +125,7 @@ def component():
 @component.command(short_help="Init a component")
 @click.option(
     "--name",
-    "-nz",
+    "-n",
     type=str,
     prompt=True,
     required=True
@@ -159,7 +160,29 @@ def component():
     default="generic"
 )
 def init(name, inputs, outputs, parameters, directory, language):
+    model_configuration = ModelConfiguration()
+    _inputs = []
+    _outputs = []
+    _parameters = []
+    for i in range(0, inputs):
+        _inputs.append(DatasetSpecification(label="Input {}".format(i+1), position=i+1))
+    for i in range(0, inputs):
+        _outputs.append(DatasetSpecification(label="Output {}".format(i+1), position=i+1))
+    for i in range(0, inputs):
+        _parameters.append(Parameter(label="Parameter {}".format(i+1), position=i+1))
+
+    if _inputs:
+        model_configuration.has_input = _inputs
+    if _outputs:
+        model_configuration.has_output = _outputs
+    if _parameters:
+        model_configuration.has_parameter = _parameters
+    model_configuration.label = name
+
     component_dir = create_directory(Path(directory), name)
     render_run_sh(component_dir, inputs, parameters, outputs, language)
     render_io_sh(component_dir)
     render_dockerfile(component_dir, language)
+
+    save(model_configuration.to_dict(), file_name=component_dir / "{}.json".format(name))
+
