@@ -14,9 +14,9 @@ from mic.model_catalog_utils import get_api
 RESOURCE = "Model"
 
 
-def create(request=None):
+def create(profile=None, request=None):
     click.clear()
-    call_menu_select_property(mapping_model, ModelCli(), request)
+    call_menu_select_property(mapping_model, ModelCli(profile), request)
 
 
 class ModelCli:
@@ -33,13 +33,13 @@ class ModelCli:
     has_contact_person = {"mapping": mapping_person, "resource": PersonCli}
     logo = {"mapping": mapping_image, "resource": ImageCli}
 
-    def __init__(self):
-        pass
+    def __init__(self, profile):
+        self.profile = profile
 
-    @staticmethod
-    def get():
+
+    def get(self):
         # create an instance of the API class
-        api, username = get_api()
+        api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelApi(api_client=api)
         try:
             # List all Person entities
@@ -49,7 +49,7 @@ class ModelCli:
             raise e
 
     def post(self, request):
-        api, username = get_api()
+        api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelApi(api)
         model = Model(**request)
         try:

@@ -1,5 +1,6 @@
 import logging
 
+import click
 import modelcatalog
 from mic.credentials import get_credentials
 from modelcatalog import ApiException, ApiClient
@@ -53,6 +54,10 @@ def get_api(profile="default"):
         password = credentials["password"]
         server = credentials["server"]
     except ValueError:
+        exit(1)
+    except KeyError:
+        click.secho("WARNING: The profile is malformed, To configure it, run:\nmic configure -p {}".format(profile),
+                    fg="yellow")
         exit(1)
     configuration = _api_configuration(username, password, server)
     return ApiClient(configuration=configuration), credentials["username"]

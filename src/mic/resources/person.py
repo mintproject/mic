@@ -7,13 +7,12 @@ RESOURCE = "Person"
 class PersonCli:
     name = RESOURCE
 
-    def __init__(self):
-        pass
+    def __init__(self, profile=None):
+        self.profile = profile
 
-    @staticmethod
-    def get():
+    def get(self):
         # create an instance of the API class
-        api, username = get_api()
+        api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.PersonApi(api)
         try:
             # List all Person entities

@@ -1,17 +1,18 @@
 import logging
+
 import modelcatalog
-from mic._menu import call_menu_select_property
 from mic._mappings import mapping_dataset_specification, mapping_parameter, mapping_model_configuration
+from mic._menu import call_menu_select_property
 from mic.model_catalog_utils import get_api
-from modelcatalog import ApiException, ModelConfiguration
 from mic.resources.data_specification import DataSpecificationCli
 from mic.resources.parameter import ParameterCli
+from modelcatalog import ApiException, ModelConfiguration
 
 RESOURCE = "Model Configuration"
 
 
-def create(request=None, parent=None):
-    call_menu_select_property(mapping_model_configuration, ModelConfigurationCli(), request, parent=parent)
+def create(profile=None, request=None, parent=None):
+    call_menu_select_property(mapping_model_configuration, ModelConfigurationCli(profile), request, parent=parent)
 
 
 class ModelConfigurationCli:
@@ -21,13 +22,11 @@ class ModelConfigurationCli:
     has_output = {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli}
     has_parameter = {"mapping": mapping_parameter, "resource": ParameterCli}
 
-    def __init__(self):
-        pass
+    def __init__(self, profile):
+        self.profile = profile
 
-    @staticmethod
-    def get():
-        # create an instance of the API class
-        api, username = get_api()
+    def get(self):
+        api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelConfigurationApi(api)
         try:
             # List all Person entities
@@ -36,9 +35,8 @@ class ModelConfigurationCli:
         except ApiException as e:
             raise e
 
-    @staticmethod
-    def post(request):
-        api, username = get_api()
+    def post(self, request):
+        api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelConfigurationApi(api)
         model_configuration = ModelConfiguration(**request)
 

@@ -59,8 +59,16 @@ def model():
 
 
 @model.command(short_help="Add a model")
-def add(inputs=0, outputs=0, parameters=0, directory=""):
-    create_model()
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def add(profile):
+    create_model(profile=profile)
     click.secho(f"Success", fg="green")
 
 
@@ -72,9 +80,17 @@ def add(inputs=0, outputs=0, parameters=0, directory=""):
     prompt="Please type the path to the file",
     type=click.Path(exists=True, file_okay=True, resolve_path=True),
 )
-def load(filename):
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def load(filename, profile):
     request = file.load(filename)
-    create_model(request)
+    create_model(profile=profile, request=request)
     click.secho(f"Success", fg="green")
 
 
@@ -84,7 +100,15 @@ def modelconfiguration():
 
 
 @modelconfiguration.command(short_help="Create a modelconfiguration")
-def add():
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def add(profile):
     from mic.resources.software_version import SoftwareVersionCli
-    model_configuration_create(parent=SoftwareVersionCli)
+    model_configuration_create(profile=profile, parent=SoftwareVersionCli)
     click.secho(f"Success", fg="green")

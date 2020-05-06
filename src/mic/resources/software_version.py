@@ -20,13 +20,11 @@ class SoftwareVersionCli:
     name = RESOURCE
     has_configuration = {"mapping": mapping_model_configuration, "resource": ModelConfigurationCli}
 
-    def __init__(self):
-        pass
+    def __init__(self, profile=None):
+        self.profile = profile
 
-    @staticmethod
-    def get():
-        # create an instance of the API class
-        api, username = get_api()
+    def get(self):
+        api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.SoftwareVersionApi(api)
         try:
             # List all Person entities
@@ -35,9 +33,8 @@ class SoftwareVersionCli:
         except ApiException as e:
             raise e
 
-    @staticmethod
-    def put(software_version):
-        api, username = get_api()
+    def put(self, software_version):
+        api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.SoftwareVersionApi(api)
 
         try:
