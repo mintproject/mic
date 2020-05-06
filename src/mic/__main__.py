@@ -2,14 +2,15 @@ import sys
 from pathlib import Path
 
 import click
-import mic
 import semver
-from mic.credentials import configure_credentials
+from modelcatalog import Configuration
+
+import mic
 from mic import _utils, file
+from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_dockerfile
+from mic.credentials import configure_credentials
 from mic.resources.model import create as create_model
 from mic.resources.model_configuration import create as model_configuration_create
-
-from modelcatalog import Configuration
 
 
 @click.group()
@@ -52,6 +53,7 @@ def configure(server, username, password, profile="default"):
         configure_credentials(server, username, password, profile)
     except Exception as e:
         click.secho("Unable to create configuration file", fg="red")
+
 
 @cli.group()
 def model():
@@ -112,3 +114,52 @@ def add(profile):
     from mic.resources.software_version import SoftwareVersionCli
     model_configuration_create(profile=profile, parent=SoftwareVersionCli)
     click.secho(f"Success", fg="green")
+
+
+@cli.group()
+def component():
+    """Command to handle components"""
+
+
+@component.command(short_help="Init a component")
+@click.option(
+    "--name",
+    "-nz",
+    type=str,
+    prompt=True,
+    required=True
+)
+@click.option(
+    "--inputs",
+    "-i",
+    type=int,
+    default=0
+)
+@click.option(
+    "--outputs",
+    "-o",
+    type=int,
+    default=0
+)
+@click.option(
+    "--parameters",
+    "-p",
+    type=int,
+    default=0
+)
+@click.option(
+    "-d",
+    "--directory",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    default="."
+)
+@click.option(
+    "-l",
+    "--language",
+    default="generic"
+)
+def init(name, inputs, outputs, parameters, directory, language):
+    component_dir = create_directory(Path(directory), name)
+    render_run_sh(component_dir, inputs, parameters, outputs, language)
+    render_io_sh(component_dir)
+    render_dockerfile(component_dir, language)
