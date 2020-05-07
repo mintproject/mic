@@ -1,11 +1,11 @@
-Model Insertion Checker (MIC) is a command-line a command line wizard for users to add new calibrated models and their metadata. MIC posts new entries to the [MINT Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/), which can then be browsed through the [Model Explorer](https://models.mint.isi.edu/home).
+Model Insertion CLI (MIC) is a command-line interface for addming  models on a Model Catalog Service.
 
-MIC allows recording key metadata of a model, including model version, model configuration, parameters, inputs, outputs, authors and contributors (among other key metadata). Future versions will check that the information is consistent and validated. 
+MIC is an application that ask the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contribuors.
 
-MIC has been tested in OSX, Unix and Windows. It can installed through a simple pip command (see below).
+MIC has been tested in OSX. But we're testing in Windows and Linux.It is installed through a simple pip command.
 
 !!! info
-    MIC is a Beta application. Please report any issue you experience in our [GitHub repository](https://github.com/mintproject/mic/issues/new/choose).
+    Please report any issue with us [here](https://github.com/mintproject/mic/issues/new/choose).
 
 ## Requirements
 
@@ -13,7 +13,10 @@ MIC has the following requirements:
 
 1. Python >= 3.6
 
-To install install Python 3, follow the instructions below:
+
+### Python 3
+
+DAME uses Python. Please, follow the steps bellow to install it:
 
 - [Installation on Linux](https://realpython.com/installing-python/#linux)
 - [Installation on Windows](https://realpython.com/installing-python/#windows)
@@ -24,14 +27,7 @@ To install install Python 3, follow the instructions below:
 To install MIC, open a terminal and run:
 
 ```bash
-pip install mic
+$ pip install mic
 ```
 
-To check if mic was installed correctly, run:
-```bash
-mic version
-```
-You should see a message like the following one:
-```bash
-mic v0.2.0
-```
+You did it!
