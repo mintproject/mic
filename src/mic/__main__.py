@@ -157,7 +157,8 @@ def component():
 @click.option(
     "-l",
     "--language",
-    default="generic"
+    type=click.Choice(['generic', 'python3', 'conda', 'R'], case_sensitive=False),
+    required=True
 )
 def init(name, inputs, outputs, parameters, directory, language):
     model_configuration = ModelConfiguration()
@@ -183,6 +184,6 @@ def init(name, inputs, outputs, parameters, directory, language):
     render_run_sh(component_dir, inputs, parameters, outputs, language)
     render_io_sh(component_dir)
     render_dockerfile(component_dir, language)
-
+    click.secho("Your component is available: {}".format(component_dir), fg="green")
     save(model_configuration.to_dict(), file_name=component_dir / ".{}.json".format(name))
 
