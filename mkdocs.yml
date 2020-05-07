@@ -4,6 +4,15 @@ nav:
   - Available commands: usage.md
   - Configure: configure.md
   - Add model: usage-add-model.md
+  - 'Add modelconfiguration':
+      - 'Concepts': 'model_configuration/01.md'
+      - 'Pre requisites': 'model_configuration/02.md'
+      - 'Add a new model configuration': 'model_configuration/03.md'
+      - 'Edit metadata': 'model_configuration/04.md'
+      - 'Add your code': 'model_configuration/05.md'
+      - 'Validate': 'model_configuration/06.md'
+      - 'Publishe': 'model_configuration/07.md'
+
   - FAQ: faq.md
 
 theme: 
