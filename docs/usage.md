@@ -20,3 +20,14 @@ To add a model, you must run:
 mic model add
 ```
 
+More information [docs/model.md]
+
+## Add a new model configuration
+
+To add a model configuration, you must run:
+
+```bash
+mic model-configuration add
+```
+
+More information [docs/model_configuration.md]
