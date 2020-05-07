@@ -1,18 +1,67 @@
 # Usage
 
-## Help functionality in the CLI
+## Available commands
+Run the following command in your terminal to know more about the features in mic:
 
+```bash
 mic --help
+```
 
-## Login
+You should see a message such as the following one:
+```bash
+Usage: mic [OPTIONS] COMMAND [ARGS]...
 
-Use this command to configure username and password for the Model Catalog API
+Options:
+  -v, --verbose
+  --help         Show this message and exit.
+
+Commands:
+  configure           Configure your credentials to access the Model
+                      Catalog...
+
+  model               Command to create and edit Models
+  modelconfiguration  Command to create and edit ModelConfigurations
+  version             Show mic version.
+```
+The `configure` command allows setting up the credentials to be able to modify the catalog.
+
+The `model` and `modelConfiguration` commands allow adding a new [model](https://mintproject.readthedocs.io/en/latest/modelcatalog/#making-your-model-findable) or [model configuration](https://mintproject.readthedocs.io/en/latest/modelcatalog/#model-configuration) metadata. 
+
+The `version` command lists the current version of mic.
+
+
+## Login and credentials
+
+The MINT Model Catalog requires credentials for modifying the contents in the catalog. Use this command to configure username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/).
 
 ```
 mic configure
 ```
+!!! info
+    [Contact the MINT team](mailto:mint@mailman.isi.edu) to create a new user/password if you want to edit your own models.
 
-## Add a new model
+## Add a new model or model configuration
+
+To show the available commands for modes, type: 
+```bash
+mic model --help
+```
+And you will see the following:
+```bash
+Usage: mic model [OPTIONS] COMMAND [ARGS]...
+
+  Command to create and edit Models
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  add   Add a model
+  load  Load a model from file
+```
+The `add` command guides you through adding new model metadata.
+
+The `load` command allows you loading an existing json file with the model metadata.
 
 To add a model, you must run:
 
@@ -20,14 +69,106 @@ To add a model, you must run:
 mic model add
 ```
 
-More information [docs/model.md]
-
-## Add a new model configuration
-
-To add a model configuration, you must run:
+You will be shown a table to fill such as:
 
 ```bash
-mic model-configuration add
+======= Model ======
+The actual values are:
++-------+----------------+---------+
+|   no. | Property       | Value   |
++=======+================+=========+
+|     1 | Name           |         |
++-------+----------------+---------+
+|     2 | Description    |         |
++-------+----------------+---------+
+|     3 | Keywords       |         |
++-------+----------------+---------+
+|     4 | Website        |         |
++-------+----------------+---------+
+|     5 | Documentation  |         |
++-------+----------------+---------+
+|     6 | Versions       |         |
++-------+----------------+---------+
+|     7 | Author         |         |
++-------+----------------+---------+
+|     8 | Contributor    |         |
++-------+----------------+---------+
+|     9 | Contact person |         |
++-------+----------------+---------+
+|    10 | License        |         |
++-------+----------------+---------+
+|    11 | Category       |         |
++-------+----------------+---------+
+|    12 | Creation date  |         |
++-------+----------------+---------+
+|    13 | Assumptions    |         |
++-------+----------------+---------+
+|    14 | Download URL   |         |
++-------+----------------+---------+
+|    15 | Logo           |         |
++-------+----------------+---------+
+|    16 | Purpose        |         |
++-------+----------------+---------+
+|    17 | Citation       |         |
++-------+----------------+---------+
+Select the property to edit [1-17] or ['show', 'save', 'send', 'exit'] [1]:
 ```
 
-More information [docs/model_configuration.md]
+Next, select the property you wish to complete. For example `name`. 
+By typing the number of the property (in this case, 1), you will see:
+
+```bash
+No value for Name
+Definition: Name of the model
+Model - Name : Height Above Nearest Drainage (HAND)
+```
+Note that each property includes a **definition**, explaining what the property aims to describe. In this case, we added as name "`Height Above Nearest Drainage (HAND)`". When pressing enter, the table will be completed:
+
+```bash
+======= Model ======
+The actual values are:
++-------+----------------+------------------------------------------+
+|   no. | Property       | Value                                    |
++=======+================+==========================================+
+|     1 | Name           | ['Height Above Nearest Drainage (HAND)'] |
++-------+----------------+------------------------------------------+
+|     2 | Description    |                                          |
++-------+----------------+------------------------------------------+
+<Rest of the table ommitted for simplicity>
+```
+Once you are done, you just have to type `send` and the model will be sent you will be prompted with a message to save your model description, and a URL which you can use to browse if the metadata was correctly posted to the Model Catalog. The message should look similar to:
+
+```bash
+Select the property to edit [1-17] or ['show', 'save', 'send', 'exit'] [1]: send
+Success
+Enter the file name to save (without extension): : MySavedModel
+File saved successfully
+Success
+See the model/config/setup on your browser? [y/N]: y
+Online URI for model/configuration/setup: 
+    https://w3id.org/okn/i/mint/<modelID>
+Success
+```
+Where `<modelID>` is the ID provided by the API to the target model.
+
+!!! warning
+    Please review carefully your metadata before sending it to the server. At the moment MIC does not support editing model metadata. If you submit an entry twice, you will create two different entries for your model.
+
+## Frequently Asked Questions
+
+**What do the properties in the table mean?**
+
+If you find any of the fields in the metadata table confusing, just select them for editing. You will be shown a definition of what each property means. For example by editing property 16 (Purpose):
+
+```bash
+Current value for Purpose is: ['Crop seasonal production']
+Definition: Objective or main functionality that can be achieved by running this model
+```
+
+**I don't know all metadata of my model right now. Can I save my progress?**
+
+Yes. You can use the `save` command at any point to save your progress. Your metadata will be saved as a JSON file, which you can load with the `load` command. When you are ready to submit, just type `send`.
+
+**What happens if I submit my model metadata twice?** 
+
+Right now MIC does not support editing model metadata. If you submit the same model metadata twice, you will create two entries in the catalog. We are working to support this feature.

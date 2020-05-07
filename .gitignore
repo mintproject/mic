@@ -1,3 +1,6 @@
+Scripts/
+*.json
+pyvenv.cfg
 executions/
 setups/
 # Created by https://www.gitignore.io/api/python,osx,linux,visualstudio,visualstudiocode,ansible,pycharm,pycharm+all

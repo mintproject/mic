@@ -4,13 +4,11 @@ from setuptools import find_packages, setup
 
 install_requires = [
     "Click>=7.0",
-    "PyYAML>=5.1.2",
-    "yamlordereddictloader",
     "jsonschema>=3.0.0",
     "semver>=2.8.1",
     "requests",
-    "ruamel.yaml",
-    "modelcatalog-api"
+    "modelcatalog-api==2.5.0",
+    "tabulate>=0.8.1"
 ]
 
 

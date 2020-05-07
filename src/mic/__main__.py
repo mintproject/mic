@@ -1,22 +1,15 @@
-import configparser
-import logging
-import os
 import sys
 from pathlib import Path
-import json
 
 import click
-
-import semver
-
 import mic
-from mic import _utils
-from mic._modelconfiguration import create as modelconfiguration_create
-from mic._model import create as create_model
+import semver
+from mic.credentials import configure_credentials
+from mic import _utils, file
+from mic.resources.model import create as create_model
+from mic.resources.model_configuration import create as model_configuration_create
 
-
-__DEFAULT_CAPS_CLI_CREDENTIALS_FILE__ = "~/.mic/credentials"
-__DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint_api/credentials"
+from modelcatalog import Configuration
 
 
 @click.group()
@@ -39,79 +32,83 @@ def version(debug=False):
     click.echo(f"{Path(sys.argv[0]).name} v{mic.__version__}")
 
 
-@cli.command(help="Configure Model Catalog API credentials")
+@cli.command(help="Configure your credentials to access the Model Catalog API ")
 @click.option(
     "--profile",
     "-p",
-    envvar="CAPS_PROFILE",
+    envvar="MINT_PROFILE",
     type=str,
     default="default",
     metavar="<profile-name>",
 )
-def configure(profile="default"):
-    api_username = click.prompt("Model Catalog API Username")
-    api_password = click.prompt("Model Catalog API Password", hide_input=True)
-
-    credentials_file = Path(
-        os.getenv("MINT_API_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
-    ).expanduser()
-    os.makedirs(str(credentials_file.parent), exist_ok=True)
-
-    credentials = configparser.ConfigParser()
-    credentials.optionxform = str
-
-    if credentials_file.exists():
-        credentials.read(credentials_file)
-
-    credentials[profile] = {
-        "api_username": api_username,
-        "api_password": api_password
-    }
-
-    with credentials_file.open("w") as fh:
-        credentials_file.parent.chmod(0o700)
-        credentials_file.chmod(0o600)
-        credentials.write(fh)
-        click.secho(f"Success", fg="green")
-
+@click.option('--server', prompt='Model Catalog API',
+              help='The Model Catalog API', required=True, default=Configuration().host, show_default=True)
+@click.option('--username', prompt='Username',
+              help='Your email.', required=True, default="mint@isi.edu", show_default=True)
+@click.option('--password', prompt="Password",
+              required=True, hide_input=True, help="Your password")
+def configure(server, username, password, profile="default"):
+    try:
+        configure_credentials(server, username, password, profile)
+    except Exception as e:
+        click.secho("Unable to create configuration file", fg="red")
 
 @cli.group()
 def model():
-    """Command to handle the Models"""
+    """Command to create and edit Models"""
+
 
 @model.command(short_help="Add a model")
-def add(inputs=0, outputs=0, parameters=0, directory=""):
-    create_model()
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def add(profile):
+    create_model(profile=profile)
     click.secho(f"Success", fg="green")
 
+
+@model.command(short_help="Load a model from file")
+@click.option(
+    "--filename",
+    "-f",
+    required=True,
+    prompt="Please type the path to the file",
+    type=click.Path(exists=True, file_okay=True, resolve_path=True),
+)
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def load(filename, profile):
+    request = file.load(filename)
+    create_model(profile=profile, request=request)
+    click.secho(f"Success", fg="green")
 
 
 @cli.group()
 def modelconfiguration():
-    """Command to handle the ModelConfiguration"""
+    """Command to create and edit ModelConfigurations"""
 
-@modelconfiguration.command(short_help="Add a modelconfiguration")
+
+@modelconfiguration.command(short_help="Create a modelconfiguration")
 @click.option(
-    "--inputs",
-    "-i",
-    type=int,
-    default=0,
-)
-@click.option(
-    "--outputs",
-    "-o",
-    type=int,
-    default=0,
-)
-@click.option(
-    "--parameters",
+    "--profile",
     "-p",
-    type=int,
-    default=0,
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
 )
-def add(inputs=0, outputs=0, parameters=0, directory=""):
-    modelconfiguration_create(inputs, outputs, parameters)
+def add(profile):
+    from mic.resources.software_version import SoftwareVersionCli
+    model_configuration_create(profile=profile, parent=SoftwareVersionCli)
     click.secho(f"Success", fg="green")
-
-
-

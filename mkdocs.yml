@@ -1,4 +1,4 @@
-site_name: Model Insertion CLI (MIC)
+site_name: Model Insertion Checker (MIC)
 nav:
   - Home: index.md
   - Usage: usage.md
