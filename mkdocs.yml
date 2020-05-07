@@ -11,7 +11,7 @@ nav:
       - 'Edit metadata': 'model_configuration/04.md'
       - 'Add your code': 'model_configuration/05.md'
       - 'Validate': 'model_configuration/06.md'
-      - 'Publishe': 'model_configuration/07.md'
+      - 'Publish': 'model_configuration/07.md'
 
   - FAQ: faq.md
 
