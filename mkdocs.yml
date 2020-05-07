@@ -12,7 +12,6 @@ nav:
       - 'Add your code': 'model_configuration/05.md'
       - 'Validate': 'model_configuration/06.md'
       - 'Publish': 'model_configuration/07.md'
-
   - FAQ: faq.md
 
 theme: 
