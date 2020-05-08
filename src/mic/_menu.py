@@ -86,13 +86,18 @@ def menu_call_actions_complex(request, variable_selected, resource_name, mapping
     if request[request_property] is None:
         choices_new.remove("edit")
         choices_new.remove("remove")
+    if not select_enable(mapping[variable_selected]):
+        choices_new.remove("select")
 
-    choice = click.prompt("Select action:",
-                          default=choices_new[0],
-                          show_choices=True,
-                          type=click.Choice(choices_new),
-                          value_proc=parse
-                          )
+    if len(choices_new) == 1:
+        choice = choices_new[0]
+    else:
+        choice = click.prompt("Select action:",
+                              default=choices_new[0],
+                              show_choices=True,
+                              type=click.Choice(choices_new),
+                              value_proc=parse
+                              )
 
     if choice not in choices_new:
         return choice
