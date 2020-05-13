@@ -7,8 +7,8 @@ nav:
   - 'Add modelconfiguration':
       - 'Before you start...': 'model_configuration/02.md'
       - 'Getting started': 'model_configuration/03.md'
-      - 'Edit metadata': 'model_configuration/04.md'
       - 'Customize your code': 'model_configuration/05.md'
+      - 'Edit metadata': 'model_configuration/04.md'
       - 'Validate': 'model_configuration/06.md'
       - 'Publish': 'model_configuration/07.md'
   - FAQ: faq.md
