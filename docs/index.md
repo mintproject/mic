@@ -1,4 +1,4 @@
-Model Insertion CLI (MIC) is a command-line interface for addming  models on a Model Catalog Service.
+Model Insertion CLI (MIC) is a command-line interface for adding  models on a Model Catalog Service.
 
 MIC is an application that ask the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contribuors.
 
