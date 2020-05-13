@@ -5,6 +5,7 @@ MIC is an application that ask the information of your model, model version, mod
 MIC has been tested in OSX. But we're testing in Windows and Linux.It is installed through a simple pip command.
 
 !!! info
+    This is a BETA version.
     Please report any issue with us [here](https://github.com/mintproject/mic/issues/new/choose).
 
 ## Requirements
