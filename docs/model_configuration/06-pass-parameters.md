@@ -6,6 +6,7 @@ We identified two ways to pass the parameters to your model. To explain this, we
 
 
 In this case, we have two basic parameters:
+
 - start_date
 - end_date
 
@@ -66,6 +67,8 @@ In the example, we must run
 mic model_configuration config `src/time.sim`
 ```
 
+And the `config.yaml` has been updated
+
 ```
 ```yaml
 inputs:
@@ -82,6 +85,8 @@ config_files
     - src/time.sim
 ```
 
+!!! warning
+    If you edit the inputs or the parameters section in the `config.yaml` file, you must re-run `mic model_configuration init config.yaml`
 
 !!! info
     We are using a standard template language JINJA
