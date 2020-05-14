@@ -30,7 +30,7 @@ Let's suppose that you have identified two parameters:
 Then, you must run the command:
 
 ```bash
-$ mic model_configuration init <model_configuration_dir> --inputs_dir data/ --number-parameters 2
+$ mic model_configuration init <idir> --inputs_dir data/ --number-parameters 2
 
 This command generates `config.yaml` file. This YAML file with the information about your model configuration
 
@@ -47,10 +47,12 @@ parameters:
       default_value: 
 ```
 
-You **must** pass:
+You **must** add:
+
     - A *default_value* for each parameter
 
 You **can** edit 
+
   - The name of the parameters and inputs (Spaces are not admitted)
 
 ### Creating the invocation code
