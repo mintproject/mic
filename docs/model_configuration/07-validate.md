@@ -1,4 +1,4 @@
-It's time to validate your component.
+It's time to run and validate your component.
 
 If you don't want to test the Docker Image, add the option `--no-docker`
 
@@ -6,17 +6,15 @@ If you don't want to test the Docker Image, add the option `--no-docker`
 $ mic model_configuration validate hello_world --no-docker
 ```
 
-But we totally recommend to it.
-
 The validation process is going to validate:
-- Metadata match with the run file
+- Pass the parameters to your model
 - The execution on your machine
 - The creation of the Docker Image
 - The execution on your machine using Docker
 
 ```bash
 $ mic model_configuration validate hello_world/
-[OK] Metadata match with the run file
+[OK] Parameters
 [OK] Execution without Docker
 [OK] Extraction of dependencies
 [OK] Build Docker Image
