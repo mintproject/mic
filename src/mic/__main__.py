@@ -160,17 +160,27 @@ def create(name, inputs, outputs, parameters, directory, language):
 
 @modelconfiguration.command(short_help="Publish")
 @click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+@click.option(
     "-d",
     "--directory",
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     default="."
 )
-def publish(directory):
+def publish(directory, profile):
     try:
-        publish_docker()
-        publish_github()
-        publish_model_catalog()
+        # publish_docker()
+        publish_github(directory, profile)
+        # publish_model_catalog()
     except Exception as e:
+        click.secho(f"publish error", fg="red")
+        click.secho(e)
         exit(1)
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
