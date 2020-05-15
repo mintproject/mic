@@ -6,9 +6,10 @@ import semver
 from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 import mic
+from mic.constants import DATA_DIRECTORY_NAME
 from mic import _utils, file
 from mic.component.initialization import create_directory
-from mic.config_yaml import create_file_yaml, DATA_DIRECTORY_NAME
+from mic.config_yaml import create_file_yaml
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
@@ -121,14 +122,16 @@ def publish(directory):
 
 
 @modelconfiguration.command(short_help="Create directories and subdirectories")
-@click.option(
-    "-n",
-    "--name",
-    type=str,
-    required=True,
-    prompt=True
+@click.argument(
+    "name",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    required=True
 )
 def skeleton(name):
+    """
+     NAME is the name of your model configuration
+     This creates a directory `NAME` with the subdirectories data, src and docker
+     """
     try:
         create_directory(Path('.'), name)
     except Exception as e:
@@ -137,6 +140,12 @@ def skeleton(name):
 
 @modelconfiguration.command(short_help="Create directories and subdirectories")
 @click.option(
+    "-i",
+    "--inputs_dir",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    required=False,
+)
+@click.option(
     "-p",
     "--parameters",
     type=int,
@@ -144,12 +153,16 @@ def skeleton(name):
     default=0
 )
 @click.argument(
-    "directory",
+    "model_directory",
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     required=True
 )
-def init(directory, parameters):
-    create_file_yaml(Path(directory), Path(directory) / DATA_DIRECTORY_NAME, parameters)
+def init(model_directory, inputs_dir, parameters):
+    """
+    MODEL_DIRECTORY is the directory of your model configuration
+    """
+    inputs_dir = Path(inputs_dir) if inputs_dir else Path(model_directory) / DATA_DIRECTORY_NAME
+    create_file_yaml(Path(model_directory), inputs_dir, parameters)
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
