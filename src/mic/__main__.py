@@ -155,7 +155,7 @@ def skeleton(name):
     required=True
 )
 def init(directory, inputs_dir, parameters):
-    create_file_yaml(Path(directory), inputs_dir, parameters)
+    create_file_yaml(Path(directory), Path(inputs_dir), parameters)
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):

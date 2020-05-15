@@ -1,1 +1,8 @@
 CONFIG_FILE = "config.json"
+CONFIG_YAML_NAME = "config.yaml"
+INPUTS_KEY = "inputs"
+PARAMETERS_KEY = "parameters"
+OUTPUTS_KEY = "outputs"
+NAME_KEY = "name"
+PATH_KEY = "path"
+DEFAULT_VALUE_KEY = "default_value"
