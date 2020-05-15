@@ -9,7 +9,7 @@ install_requires = [
     "requests",
     "modelcatalog-api==2.5.0",
     "tabulate>=0.8.1",
-    "Jinja2">="2.11.2""
+    "Jinja2>=2.11.2"
 ]
 
 

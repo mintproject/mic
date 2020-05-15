@@ -3,15 +3,13 @@ from pathlib import Path
 
 import click
 import semver
-from modelcatalog import Configuration, ModelConfiguration, DatasetSpecification, Parameter
+from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 import mic
 from mic import _utils, file
-from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_dockerfile
-from mic.config_yaml import create_file
-from mic.constants import CONFIG_FILE
+from mic.component.initialization import create_directory
+from mic.config_yaml import create_file_yaml
 from mic.credentials import configure_credentials
-from mic.file import save
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
 from mic.publisher.model_catalog import publish_model_catalog
@@ -106,59 +104,6 @@ def modelconfiguration():
     """Command to create and edit ModelConfigurations"""
 
 
-@modelconfiguration.command(short_help="Create a modelconfiguration")
-@click.option(
-    "--name",
-    "-n",
-    type=str,
-    prompt=True,
-    required=True
-)
-@click.option(
-    "--inputs",
-    "-i",
-    type=int,
-    prompt=True,
-    default=0
-)
-@click.option(
-    "--outputs",
-    "-o",
-    type=int,
-    prompt=True,
-    default=0
-)
-@click.option(
-    "--parameters",
-    "-p",
-    type=int,
-    prompt=True,
-    default=0
-)
-@click.option(
-    "-d",
-    "--directory",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    default="."
-)
-@click.option(
-    "-l",
-    "--language",
-    type=click.Choice(['generic', 'python3', 'conda', 'R'], case_sensitive=False),
-    prompt=True,
-    required=True
-)
-def create(name, inputs, outputs, parameters, directory, language):
-    model_configuration = ModelConfiguration()
-    prepare_inputs_outputs_parameters(inputs, model_configuration, name)
-    component_dir = create_directory(Path(directory), name)
-    render_run_sh(component_dir, inputs, parameters, outputs, language)
-    render_io_sh(component_dir)
-    render_dockerfile(component_dir, language)
-    save(model_configuration.to_dict(), file_name=component_dir / CONFIG_FILE)
-    click.secho("Your component is available: {}".format(component_dir), fg="green")
-
-
 @modelconfiguration.command(short_help="Publish")
 @click.option(
     "-d",
@@ -189,6 +134,7 @@ def skeleton(name):
     except Exception as e:
         exit(1)
 
+
 @modelconfiguration.command(short_help="Create directories and subdirectories")
 @click.option(
     "-i",
@@ -208,11 +154,9 @@ def skeleton(name):
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     required=True
 )
-def init(directory, data_dir, parameters):
-    try:
-        create_file(directory, data_dir, parameters)
-    except Exception as e:
-        exit(1)
+def init(directory, inputs_dir, parameters):
+    create_file_yaml(Path(directory), inputs_dir, parameters)
+
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []
