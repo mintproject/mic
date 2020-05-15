@@ -18,17 +18,34 @@ def publish_github(directory: Path, profile):
     """
     git_username = None
     git_token = None
+    debug = False
 
     try:
         credentials = get_credentials(profile)
         git_username = credentials["gitUsername"]
         git_token = credentials["gitToken"]
     except KeyError:
-        click.secho("WARNING: The profile is malformed, To configure it, run:\nmic configure -p {}".format(profile),
-                    fg="yellow")
+        click.secho("WARNING: Could not find GitHub credentials in profile, "
+                    "please run:\nmic configure -p {}".format(profile), fg="yellow")
         exit(1)
 
     g = Github(git_username, git_token)
+
+    try:
+        if g.get_user().login is None:
+            logging.error("User profile GitHub credentials are invalid. Please enter a valid token and username")
+            exit(1)
+    # I know its bad to except Exception but it doesnt catch it when I except TypeError, and the only way this *should*
+    # fail is if the credentials are bad so...
+    except Exception as e:
+        logging.error("User profile GitHub credentials are invalid. Please enter a valid token and username")
+        if debug:
+            click.secho(e, fg="yellow")
+        exit(1)
+
+    if debug:
+        logging.info("User has " + str(g.rate_limiting[0]) + " API calls left of " + str(g.rate_limiting[1]) + " total")
+
     path = str(Path.cwd())
     repo_name = os.path.split(path)[1]
     repo = None
@@ -43,7 +60,9 @@ def publish_github(directory: Path, profile):
         repo = git_init(Path, g, repo_name)
         content_does_not_exist = True
 
+    # TODO, what happens if README in local and remote are different? (Error if different but allow if force is used)
     # TODO Let github credentials be added from within cli
+    # TODO robust debug mode. Git api requests. Make everything try, throw exception if debug on
 
     zip_path = compress_src_dir(path, repo_name)
 
@@ -69,7 +88,7 @@ def publish_github(directory: Path, profile):
             logging.info("Updating " + repo_name + ".zip")
             repo.update_file(path=repo_name + ".zip", message="Updated " + repo_name, content=data, sha=content.sha)
         else:
-            logging.info("This version of model already exists in GitHub repository. No change was made.")
+            logging.info("This version of model already exists in GitHub repository. No change made")
 
     try:
         os.remove(zip_path)
