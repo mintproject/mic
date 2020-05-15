@@ -2,10 +2,13 @@ from click.testing import CliRunner
 
 from mic.__main__ import skeleton
 
+MODEL_NAME = "model"
 
-def test_version(tmp_path):
+
+def test_skeleton(tmp_dir):
     runner = CliRunner()
     try:
-        runner.invoke(skeleton, input='wau wau\n')
+        response = runner.invoke(skeleton, ["-n", MODEL_NAME])
+        assert response.exit_code == 0
     except:
         assert False
