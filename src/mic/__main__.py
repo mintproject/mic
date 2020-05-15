@@ -15,7 +15,6 @@ from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
 from mic.publisher.model_catalog import publish_model_catalog
 from mic.resources.model import create as create_model
-from mic.resources.model_configuration import create as model_configuration_create
 
 
 @click.group()
@@ -158,6 +157,7 @@ def create(name, inputs, outputs, parameters, directory, language):
     save(model_configuration.to_dict(), file_name=component_dir / CONFIG_FILE)
     click.secho("Your component is available: {}".format(component_dir), fg="green")
 
+
 @modelconfiguration.command(short_help="Publish")
 @click.option(
     "-d",
@@ -172,6 +172,22 @@ def publish(directory):
         publish_model_catalog()
     except Exception as e:
         exit(1)
+
+
+@modelconfiguration.command(short_help="Create directories and subdirectories")
+@click.option(
+    "-n",
+    "--name",
+    type=str,
+    required=True,
+    prompt=True
+)
+def skeleton(name):
+    try:
+        component_dir = create_directory(Path('.'), name)
+    except Exception as e:
+        exit(1)
+
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []
@@ -190,4 +206,3 @@ def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     if _parameters:
         model_configuration.has_parameter = _parameters
     model_configuration.label = name
-

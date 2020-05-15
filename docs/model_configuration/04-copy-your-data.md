@@ -3,7 +3,7 @@
 You must copy your inputs into the directory `data`.
 
 !!! warning
-    Your code is not a input.
+    Your code is not an input.
 
 An `input` can be:
 
@@ -30,7 +30,7 @@ Let's suppose that you have identified two parameters:
 Then, you must run the command:
 
 ```bash
-$ mic model_configuration init <idir> --inputs_dir data/ --number-parameters 2
+$ mic model_configuration init <dir> --inputs_dir data/ --number-parameters 2
 
 This command generates `config.yaml` file. This YAML file with the information about your model configuration
 

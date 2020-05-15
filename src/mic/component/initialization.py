@@ -1,6 +1,7 @@
 import shutil
 from pathlib import Path
 
+import click
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from mic.component.python3 import freeze
@@ -10,6 +11,7 @@ IO_FILE = "io.sh"
 DOCKER_FILE = "Dockerfile"
 SRC_DIR = "src"
 DOCKER_DIR = "docker"
+DATA_DIR = "data"
 REQUIREMENTS_FILE = "requirements.txt"
 env = Environment(
     loader=PackageLoader('mic', 'templates'),
@@ -25,8 +27,13 @@ def create_directory(parent_directory: Path, name: str):
         shutil.rmtree(parent_directory)
     src = parent_directory / SRC_DIR
     docker = parent_directory / DOCKER_DIR
+    data = parent_directory / DATA_DIR
     src.mkdir(parents=True)
     docker.mkdir(parents=True)
+    data.mkdir(parents=True)
+    click.secho("Created: {}".format(src.absolute()), fg="green")
+    click.secho("Created: {}".format(docker.absolute()), fg="green")
+    click.secho("Created: {}".format(data.absolute()), fg="green")
     return parent_directory
 
 
