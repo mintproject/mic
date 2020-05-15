@@ -18,7 +18,7 @@ The code is available [here](https://gist.github.com/dfc647d2cca69a8e9e7561aff66
 In this example, the command will be
 
 ```bash
-$ mic model_configuration skeleton -n <model_name>
+$ mic model_configuration skeleton <model_name>
 ```
 
 MIC has created a directory `model_name`.

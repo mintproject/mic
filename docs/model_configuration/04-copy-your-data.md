@@ -30,7 +30,10 @@ Let's suppose that you have identified two parameters:
 Then, you must run the command:
 
 ```bash
-$ mic model_configuration init <dir> --inputs_dir data/ --number-parameters 2
+$ mic model_configuration init <model_dir> --inputs_dir data/ --number-parameters 2
+or
+$ mic model_configuration init <model_dir> --number-parameters 2
+```
 
 This command generates `config.yaml` file. This YAML file with the information about your model configuration
 
