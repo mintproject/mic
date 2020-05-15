@@ -82,3 +82,26 @@ def test_init_two_inputs_zero_parameters(tmp_path):
     spec = load((component_dir / CONFIG_YAML_NAME).open(), Loader=Loader)
     assert len(spec[INPUTS_KEY]) == 2
     assert PARAMETERS_KEY not in spec
+
+
+def test_init_two_inputs_zero_parameters(tmp_path):
+    runner = CliRunner()
+    os.chdir(tmp_path)
+    response = runner.invoke(skeleton, ["-n", MODEL_NAME])
+    component_dir = tmp_path / MODEL_NAME
+    p = component_dir / DATA_DIRECTORY_NAME / "hello.txt"
+    p.write_text("test")
+
+    p2 = component_dir / DATA_DIRECTORY_NAME / "hello_dir"
+    p2.mkdir()
+    p3 = p2 / "hello.txt"
+    p3.write_text("test")
+
+    try:
+        response = runner.invoke(init, [MODEL_NAME])
+        assert response.exit_code == 0
+    except:
+        assert False
+    spec = load((component_dir / CONFIG_YAML_NAME).open(), Loader=Loader)
+    assert len(spec[INPUTS_KEY]) == 2
+    assert PARAMETERS_KEY not in spec
