@@ -7,7 +7,7 @@ import os
 import zipfile
 
 
-def publish_github(directory: Path, profile):
+def publish_github(directory: Path, profile, force):
     """
     Publish the directory on git
     If the directory is not a git directory, create it
@@ -66,7 +66,7 @@ def publish_github(directory: Path, profile):
     # TODO add force command
     # TODO add quiet option
 
-    zip_path = compress_src_dir(path, repo_name)
+    zip_path = compress_src_dir(path, repo_name, force)
 
     data = open(zip_path, "rb").read()
 
@@ -184,7 +184,7 @@ def git_add():
     pass
 
 
-def compress_src_dir(directory, name):
+def compress_src_dir(directory, name, force):
     """
     Compress the directory src and create a zip file
     @param directory: Path
@@ -210,9 +210,18 @@ def compress_src_dir(directory, name):
                 file_paths.append(filepath)
 
     if os.path.exists(os.path.join(directory, (name + ".zip"))):
-        logging.error("\"" + name + ".zip" + "\" already exists in model. "
-                                             "Please remove it before publishing, or use force option")
-        exit(1)
+        if force:
+            try:
+                os.remove(os.path.join(directory, (name + ".zip")))
+            except PermissionError as e:
+                logging.error("mic does not have permissions to remove \"" +
+                              os.path.join(directory, (name + ".zip")) + "\"")
+                logging.info("Please remove the file and retry")
+                exit(1)
+        else:
+            logging.error("\"" + name + ".zip" + "\" already exists in model. "
+                                                 "Please remove it before publishing, or use force option")
+            exit(1)
 
     with zipfile.ZipFile(os.path.join(directory, (name + ".zip")), 'w') as zipper:
         # writing each file one by one

@@ -162,6 +162,7 @@ def create(name, inputs, outputs, parameters, directory, language):
     save(model_configuration.to_dict(), file_name=component_dir / CONFIG_FILE)
     click.secho("Your component is available: {}".format(component_dir), fg="green")
 
+
 @modelconfiguration.command(short_help="Publish")
 @click.option(
     "--profile",
@@ -177,15 +178,22 @@ def create(name, inputs, outputs, parameters, directory, language):
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     default="."
 )
-def publish(directory, profile):
+@click.option(
+    "-f",
+    "--force",
+    is_flag=True,
+    help="Force publish ignoring override warnings"
+)
+def publish(directory, profile, force=False):
     try:
         # publish_docker()
-        publish_github(directory, profile)
+        publish_github(directory, profile, force)
         # publish_model_catalog()
     except Exception as e:
         click.secho(f"publish error", fg="red")
         click.secho(e)
         exit(1)
+
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []
