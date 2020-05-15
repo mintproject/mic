@@ -22,6 +22,11 @@ def random_parameter():
 
 def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
     config_yaml_path = directory / CONFIG_YAML_NAME
+    if data_dir.exists():
+        click.secho("Searching files in the directory {}".format(data_dir))
+    else:
+        click.secho("Failed: Directory {} doesn't exist".format(data_dir), fg="red")
+        exit(1)
     try:
         spec = {}
         schema = write_properties(_schema.get_schema()["properties"])
@@ -38,7 +43,12 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
                 spec[INPUTS_KEY][index] = temp
             spec[INPUTS_KEY][index][NAME_KEY] = item.name
             spec[INPUTS_KEY][index][PATH_KEY] = str(item.relative_to(directory))
+    except Exception as e:
+        logging.error(e, exc_info=True)
+        click.secho("Failed: Error message {}".format(e), fg="red")
+        exit(1)
 
+    try:
         for parameter in range(0, parameters):
             temp = copy.deepcopy(schema[PARAMETERS_KEY])[0]
             if parameter >= len(spec[PARAMETERS_KEY]):

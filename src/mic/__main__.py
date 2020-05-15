@@ -8,7 +8,7 @@ from modelcatalog import Configuration, DatasetSpecification, Parameter
 import mic
 from mic import _utils, file
 from mic.component.initialization import create_directory
-from mic.config_yaml import create_file_yaml
+from mic.config_yaml import create_file_yaml, DATA_DIRECTORY_NAME
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
@@ -137,12 +137,6 @@ def skeleton(name):
 
 @modelconfiguration.command(short_help="Create directories and subdirectories")
 @click.option(
-    "-i",
-    "--inputs_dir",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    required=True,
-)
-@click.option(
     "-p",
     "--parameters",
     type=int,
@@ -154,8 +148,8 @@ def skeleton(name):
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     required=True
 )
-def init(directory, inputs_dir, parameters):
-    create_file_yaml(Path(directory), Path(inputs_dir), parameters)
+def init(directory, parameters):
+    create_file_yaml(Path(directory), Path(directory) / DATA_DIRECTORY_NAME, parameters)
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
