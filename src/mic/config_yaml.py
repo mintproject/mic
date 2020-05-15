@@ -32,8 +32,10 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
         schema = write_properties(_schema.get_schema()["properties"])
         input_files = [x for x in data_dir.iterdir()]
 
-        spec[INPUTS_KEY] = schema[INPUTS_KEY].copy()
-        spec[PARAMETERS_KEY] = schema[PARAMETERS_KEY].copy()
+        if input_files:
+            spec[INPUTS_KEY] = schema[INPUTS_KEY].copy()
+        if parameters:
+            spec[PARAMETERS_KEY] = schema[PARAMETERS_KEY].copy()
 
         for index, item in enumerate(input_files):
             temp = copy.deepcopy(schema[INPUTS_KEY])[0]
