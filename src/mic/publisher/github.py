@@ -63,6 +63,8 @@ def publish_github(directory: Path, profile):
     # TODO, what happens if README in local and remote are different? (Error if different but allow if force is used)
     # TODO Let github credentials be added from within cli
     # TODO robust debug mode. Git api requests. Make everything try, throw exception if debug on
+    # TODO add force command
+    # TODO add quiet option
 
     zip_path = compress_src_dir(path, repo_name)
 

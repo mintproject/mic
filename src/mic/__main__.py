@@ -53,9 +53,13 @@ def version(debug=False):
               help='Your email.', required=True, default="mint@isi.edu", show_default=True)
 @click.option('--password', prompt="Password",
               required=True, hide_input=True, help="Your password")
-def configure(server, username, password, profile="default"):
+@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username.', required=True)
+@click.option('--git_token', prompt='GitHub API token',
+              help='Your GitHub API token. Found under GitHub settings -> developer settings -> Personal access tokens.'
+                   'Muse have read, write and basic repo access to work', required=True, hide_input=False)
+def configure(server, username, password, git_username, git_token, profile="default"):
     try:
-        configure_credentials(server, username, password, profile)
+        configure_credentials(server, username, password, git_username, git_token, profile)
     except Exception as e:
         click.secho("Unable to create configuration file", fg="red")
 
