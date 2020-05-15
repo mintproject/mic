@@ -40,11 +40,9 @@ def publish_github(directory: Path, profile):
         repo = g.get_user().get_repo(repo_name)
     else:
         logging.info("Repo does not exist. Generating new repo")
-        repo = git_init(g, repo_name)
+        repo = git_init(Path, g, repo_name)
         content_does_not_exist = True
 
-    # TODO Check if file already exists before uploading file
-    # TODO Make readme when creating new repo
     # TODO Let github credentials be added from within cli
 
     zip_path = compress_src_dir(path, repo_name)
@@ -71,14 +69,14 @@ def publish_github(directory: Path, profile):
             logging.info("Updating " + repo_name + ".zip")
             repo.update_file(path=repo_name + ".zip", message="Updated " + repo_name, content=data, sha=content.sha)
         else:
-            logging.info("This version of model already exists in GitHub repository")
+            logging.info("This version of model already exists in GitHub repository. No change was made.")
 
     try:
         os.remove(zip_path)
     except Exception as e:
-        logging.error("Could not remove zip file")
-        click.secho(e, fg="red")
-        exit(1)
+        logging.warning("Could not remove zip file")
+        click.secho(e, fg="yellow")
+
 
     # try:
     #     if not is_git_directory():
@@ -123,15 +121,42 @@ def is_git_directory(gitObj, name):
     return False
 
 
-def git_init(gitObj, name):
+def git_init(path, gitObj, name):
     """
     Creates a new repository with the given name under the users repositories
+    Checks if README exists in current path. Creates new README if one does not already exist
+    @param path: path
     @param gitObj: github
     @param name: string
     @return repo: github.repository
     """
     user = gitObj.get_user()
-    return user.create_repo(name)
+    repo = user.create_repo(name)
+
+    path = os.path.join(path.cwd(), "README.md")
+
+    if os.path.exists(path):
+        logging.info("Uploading README to repo")
+        data = open("README.md", "r").read()
+        repo.create_file(path="README.md", message="Uploaded README", content=data)
+
+    else:
+        # Make README
+        try:
+            logging.info("No README found. Creating new one")
+            readme = open("README.md", "w+")
+            readme.write("Documentation for " + name + " goes here")
+            readme.close()
+
+            data = open("README.md", "r").read()
+            repo.create_file(path="README.md", message="Created README", content=data)
+            os.remove("README.md")
+
+        except Exception as e:
+            logging.warning("Error while trying to create README file")
+            click.secho("Error message: " + str(e), fg="yellow")
+
+    return repo
 
 
 def git_add():
