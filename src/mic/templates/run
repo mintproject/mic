@@ -11,15 +11,6 @@ BASEDIR=`dirname $0`
 CURDIR=`pwd`
 
 # EXAMPLE: PRINT THE VARIABLE
-{% for i in range(0, inputs) -%}
-echo "INPUTS: $INPUTS{{ i+1 }}"
-{% endfor -%}
-{% for i in range(0, parameters) -%}
-echo "PARAMS: $PARAMS{{ i+1 }}"
-{% endfor -%}
-{% for i in range(0, outputs) -%}
-echo "OUTPUTS: $OUTPUTS{{ i+1 }}"
-{% endfor %}
 # WRITE YOUR MODEL HERE
 
 
@@ -27,5 +18,4 @@ echo "OUTPUTS: $OUTPUTS{{ i+1 }}"
 ## You MUST move the output files
 ## Example: A model with two outputs: file_a.txt and file_b.txt
 ## You must write
-## mv file_a.txt $OUTPUTS1
-## mv file_B.txt $OUTPUTS2
+. $BASEDIR/output.sh

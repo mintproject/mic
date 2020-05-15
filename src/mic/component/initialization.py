@@ -8,6 +8,7 @@ from mic.component.python3 import freeze
 
 RUN_FILE = "run"
 IO_FILE = "io.sh"
+OUTPUT_FILE = "output.sh"
 DOCKER_FILE = "Dockerfile"
 SRC_DIR = "src"
 DOCKER_DIR = "docker"
@@ -37,7 +38,7 @@ def create_directory(parent_directory: Path, name: str):
     return parent_directory
 
 
-def render_run_sh(directory: Path, inputs: int = 0, parameters: int = 0, outputs: int = 0, language="generic") -> Path:
+def render_run_sh(directory: Path, inputs: int = 0, parameters: int = 0) -> Path:
     """
 
     @param language:
@@ -54,7 +55,7 @@ def render_run_sh(directory: Path, inputs: int = 0, parameters: int = 0, outputs
     template = env.get_template(RUN_FILE)
     run_file = directory / SRC_DIR / RUN_FILE
     with open(run_file, "w") as f:
-        content = render_template(template=template, inputs=inputs, outputs=outputs, parameters=parameters)
+        content = render_template(template=template, inputs=inputs, parameters=parameters)
         f.write(content)
     return run_file
 

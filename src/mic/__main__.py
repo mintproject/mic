@@ -184,7 +184,7 @@ def publish(directory):
 )
 def skeleton(name):
     try:
-        component_dir = create_directory(Path('.'), name)
+        create_directory(Path('.'), name)
     except Exception as e:
         exit(1)
 
