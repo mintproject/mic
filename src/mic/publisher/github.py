@@ -3,6 +3,9 @@ from github import Github
 from mic.credentials import get_credentials
 import click
 import logging
+import os
+import zipfile
+import base64
 
 
 def publish_github(directory: Path, profile):
@@ -14,18 +17,21 @@ def publish_github(directory: Path, profile):
     @param directory:
     @type directory:
     """
+    git_username = None
+    git_token = None
+
     try:
         credentials = get_credentials(profile)
-        gitUsername = credentials["gitUsername"]
-        gitToken = credentials["gitToken"]
+        git_username = credentials["gitUsername"]
+        git_token = credentials["gitToken"]
     except KeyError:
         click.secho("WARNING: The profile is malformed, To configure it, run:\nmic configure -p {}".format(profile),
                     fg="yellow")
         exit(1)
 
-    g = Github(gitUsername, gitToken)
-    # TODO dont hardcode the name
-    repo_name = "wcm2"
+    g = Github(git_username, git_token)
+    path = str(Path.cwd())
+    repo_name = os.path.split(path)[1]
     repo = None
 
     # Get the repo for the given model directory. Make new repo if it does not exist
@@ -35,8 +41,21 @@ def publish_github(directory: Path, profile):
         logging.info("Repo does not exist. Generating new repo")
         repo = git_init(g, repo_name)
 
-    # TODO upload directory to the repo
-    print(repo.name)
+    # TODO Check if file already exists before uploading file
+    zip_path = compress_src_dir(path, repo_name)
+
+    print(zip_path)
+    data = open(zip_path, "rb").read()
+
+    repo.create_file(path=repo_name + ".zip", message="Created " + repo_name, content=data)
+
+    try:
+        os.remove(zip_path)
+    except Exception as e:
+        logging.error("Could not remove zip file")
+        click.secho(e, fg="red")
+        exit(1)
+
     # try:
     #     if not is_git_directory():
     #         git_init()
@@ -95,11 +114,42 @@ def git_add():
     pass
 
 
-def compress_src_dir():
+def compress_src_dir(directory, name):
     """
     Compress the directory src and create a zip file
+    @param directory: Path
+    @param name: string
+    @return path: Path
     """
-    pass
+
+    file_paths = []
+
+    # walks through given directory and appends path to a list of paths that should be zipped
+    for root, directories, files in os.walk(directory):
+        for filename in files:
+            # join the two strings in order to form the full filepath.
+            filepath = os.path.relpath(os.path.join(root, filename), directory)
+            file_name = os.path.split(filepath)[1]
+
+            # Adds path if it is within src
+            if "src" in filepath:
+                file_paths.append(filepath)
+
+            # Adds path if file is a json or dockerfile
+            if ".json" in file_name or ".dockerfile" in file_name:
+                file_paths.append(filepath)
+
+    if os.path.exists(os.path.join(directory, (name + ".zip"))):
+        logging.error("\"" + name + ".zip" + "\" already exists in model. "
+                                             "Please remove it before publishing, or use force option")
+        exit(1)
+
+    with zipfile.ZipFile(os.path.join(directory, (name + ".zip")), 'w') as zipper:
+        # writing each file one by one
+        for file in file_paths:
+            zipper.write(file)
+
+    return os.path.join(directory, (name + ".zip"))
 
 
 def git_push():
