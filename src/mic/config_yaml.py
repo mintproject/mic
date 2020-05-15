@@ -1,9 +1,11 @@
 import copy
 import logging
 import random
+import re
 from pathlib import Path
 
 import yaml
+import unicodedata
 
 try:
     from yaml import CLoader as Loader
@@ -15,6 +17,20 @@ from mic import _schema
 from mic._makeyaml import make_yaml, write_properties
 from mic.constants import *
 
+
+def slugify(value, allow_unicode=False):
+    """
+    Convert to ASCII if 'allow_unicode' is False. Convert spaces to hyphens.
+    Remove characters that aren't alphanumerics, underscores, or hyphens.
+    Convert to lowercase. Also strip leading and trailing whitespace.
+    """
+    value = str(value)
+    if allow_unicode:
+        value = unicodedata.normalize('NFKC', value)
+    else:
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    value = re.sub(r'[^\w\s-]', '', value.lower()).strip()
+    return re.sub(r'[-\s]+', '-', value)
 
 def random_parameter():
     return random.choice(["a random string", True, 1.0, 1])
@@ -44,7 +60,7 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
             else:
                 spec[INPUTS_KEY][index] = temp
             spec[INPUTS_KEY][index][NAME_KEY] = item.name
-            spec[INPUTS_KEY][index][PATH_KEY] = str(item.relative_to(directory))
+            spec[INPUTS_KEY][index][PATH_KEY] = slugify(str(item.relative_to(directory)))
     except Exception as e:
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
