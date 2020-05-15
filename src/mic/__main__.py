@@ -8,6 +8,7 @@ from modelcatalog import Configuration, ModelConfiguration, DatasetSpecification
 import mic
 from mic import _utils, file
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_dockerfile
+from mic.config_yaml import create_file
 from mic.constants import CONFIG_FILE
 from mic.credentials import configure_credentials
 from mic.file import save
@@ -188,6 +189,30 @@ def skeleton(name):
     except Exception as e:
         exit(1)
 
+@modelconfiguration.command(short_help="Create directories and subdirectories")
+@click.option(
+    "-i",
+    "--inputs_dir",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    required=True,
+)
+@click.option(
+    "-p",
+    "--parameters",
+    type=int,
+    required=True,
+    default=0
+)
+@click.argument(
+    "directory",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    required=True
+)
+def init(directory, data_dir, parameters):
+    try:
+        create_file(directory, data_dir, parameters)
+    except Exception as e:
+        exit(1)
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []
