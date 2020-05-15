@@ -5,7 +5,6 @@ import click
 import logging
 import os
 import zipfile
-import base64
 
 
 def publish_github(directory: Path, profile):
@@ -33,6 +32,8 @@ def publish_github(directory: Path, profile):
     path = str(Path.cwd())
     repo_name = os.path.split(path)[1]
     repo = None
+    content_does_not_exist = False
+    content = None
 
     # Get the repo for the given model directory. Make new repo if it does not exist
     if is_git_directory(g, repo_name):
@@ -40,14 +41,37 @@ def publish_github(directory: Path, profile):
     else:
         logging.info("Repo does not exist. Generating new repo")
         repo = git_init(g, repo_name)
+        content_does_not_exist = True
 
     # TODO Check if file already exists before uploading file
+    # TODO Make readme when creating new repo
+    # TODO Let github credentials be added from within cli
+
     zip_path = compress_src_dir(path, repo_name)
 
-    print(zip_path)
     data = open(zip_path, "rb").read()
 
-    repo.create_file(path=repo_name + ".zip", message="Created " + repo_name, content=data)
+    # Check if file is already in repo
+    if not content_does_not_exist:  # if statement just skips extra api call if mic made new repo
+        found = False
+        content = repo.get_contents(path="")
+        for stuff in content:
+            if stuff.name == repo_name + ".zip":
+                found = True
+                content = stuff
+
+        if not found:
+            content_does_not_exist = True
+
+    if content_does_not_exist:
+        logging.info("Creating " + repo_name + ".zip")
+        repo.create_file(path=repo_name + ".zip", message="Created " + repo_name, content=data)
+    else:
+        if content.decoded_content != data:
+            logging.info("Updating " + repo_name + ".zip")
+            repo.update_file(path=repo_name + ".zip", message="Updated " + repo_name, content=data, sha=content.sha)
+        else:
+            logging.info("This version of model already exists in GitHub repository")
 
     try:
         os.remove(zip_path)
@@ -75,7 +99,7 @@ def create_github_repository():
     pass
 
 
-def is_has_remote_branch():
+def has_remote_branch():
     return True
 
 
