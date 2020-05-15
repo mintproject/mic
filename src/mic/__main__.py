@@ -6,10 +6,10 @@ import semver
 from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 import mic
-from mic.constants import DATA_DIRECTORY_NAME
+from mic.constants import DATA_DIRECTORY_NAME, CONFIG_YAML_NAME
 from mic import _utils, file
-from mic.component.initialization import create_directory
-from mic.config_yaml import create_file_yaml
+from mic.component.initialization import create_directory, render_run_sh, render_io_sh
+from mic.config_yaml import create_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
@@ -164,6 +164,23 @@ def init(model_directory, inputs_dir, parameters):
     inputs_dir = Path(inputs_dir) if inputs_dir else Path(model_directory) / DATA_DIRECTORY_NAME
     create_file_yaml(Path(model_directory), inputs_dir, parameters)
 
+
+@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+@click.argument(
+    "model_directory",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    required=True
+)
+def wrapper(model_directory):
+    """
+    Configuration is the config.yaml file of your model configuration
+    """
+    model_directory_path = Path(model_directory)
+    config_path = model_directory_path / CONFIG_YAML_NAME
+    inputs, parameters, outputs = get_inputs_parameters(config_path)
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
+    render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
+    render_io_sh(model_directory_path)
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []

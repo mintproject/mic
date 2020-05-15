@@ -2,10 +2,10 @@ import copy
 import logging
 import random
 import re
+import unicodedata
 from pathlib import Path
 
 import yaml
-import unicodedata
 
 try:
     from yaml import CLoader as Loader
@@ -31,6 +31,7 @@ def slugify(value, allow_unicode=False):
         value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
     value = re.sub(r'[^\w\s-]', '', value.lower()).strip()
     return re.sub(r'[-\s]+', '-', value)
+
 
 def random_parameter():
     return random.choice(["a random string", True, 1.0, 1])
@@ -59,8 +60,8 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
                 spec[INPUTS_KEY].append(temp)
             else:
                 spec[INPUTS_KEY][index] = temp
-            spec[INPUTS_KEY][index][NAME_KEY] = item.name
-            spec[INPUTS_KEY][index][PATH_KEY] = slugify(str(item.relative_to(directory)))
+            spec[INPUTS_KEY][index][NAME_KEY] = slugify(str(item.name).split('.')[0])
+            spec[INPUTS_KEY][index][PATH_KEY] = str(item.relative_to(directory))
     except Exception as e:
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
@@ -85,6 +86,22 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
         exit(1)
     click.secho("Created: {}".format(config_yaml_path.absolute()), fg="green")
     return config_yaml_path
+
+
+def get_inputs_parameters(config_yaml_path: Path) -> (dict,dict, dict):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    inputs = spec[INPUTS_KEY] if INPUTS_KEY in spec else None
+    parameters = spec[PARAMETERS_KEY] if PARAMETERS_KEY in spec else None
+    outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else None
+    return inputs, parameters, outputs
+
+
+def get_numbers_inputs_parameters(config_yaml_path: Path) -> (int, int, int):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    number_inputs = len(spec[INPUTS_KEY]) if INPUTS_KEY in spec else 0
+    number_parameters = len(spec[PARAMETERS_KEY]) if PARAMETERS_KEY in spec else 0
+    number_outputs = len(spec[OUTPUTS_KEY]) if OUTPUTS_KEY in spec else 0
+    return number_inputs, number_parameters, number_outputs
 
 
 def create_file_yaml_basic(config_yaml_path: Path):

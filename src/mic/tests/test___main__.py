@@ -4,6 +4,7 @@ from click.testing import CliRunner
 from yaml import load
 
 from mic.__main__ import skeleton, init
+from mic.config_yaml import get_numbers_inputs_parameters
 from mic.constants import *
 
 try:
@@ -102,6 +103,7 @@ def test_init_two_inputs_zero_parameters(tmp_path):
         assert response.exit_code == 0
     except:
         assert False
-    spec = load((component_dir / CONFIG_YAML_NAME).open(), Loader=Loader)
-    assert len(spec[INPUTS_KEY]) == 2
-    assert PARAMETERS_KEY not in spec
+
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(component_dir / CONFIG_YAML_NAME)
+    assert number_inputs == 2
+    assert number_parameters == 0

@@ -1,21 +1,23 @@
 #!/bin/bash
 set -xe
-checkExitCode() {
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1;
-fi
-}
 BASEDIR=`dirname $0`
-. $BASEDIR/io.sh {{ inputs }} {{ parameters }} {{outputs}} "$@"
+. $BASEDIR/io.sh {{ number_inputs }} {{ number_parameters }} {{number_outputs}} "$@"
 CURDIR=`pwd`
 
-# EXAMPLE: PRINT THE VARIABLE
-# WRITE YOUR MODEL HERE
+## INPUTS VARIABLES
+{% for item in inputs -%}
+{{item["name"]}}=${INPUTS{{ loop.index }}}
+{% endfor -%}
+
+## PARAMETERS VARIABLES
+{% for item in parameters -%}
+{{item["name"]}}=${PARAMS{{ loop.index }}}
+{% endfor -%}
+
+####### WRITE YOUR INVOCATION LINE AFTER THIS COMMENT
 
 
-# MOVE THE OUTPUTS FILE HERE
-## You MUST move the output files
-## Example: A model with two outputs: file_a.txt and file_b.txt
-## You must write
+
+####### WRITE YOUR INVOCATION LINE BEFORE THIS COMMENT
+
 . $BASEDIR/output.sh
