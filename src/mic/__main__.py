@@ -6,10 +6,11 @@ import semver
 from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 import mic
-from mic.constants import DATA_DIRECTORY_NAME
 from mic import _utils, file
-from mic.component.initialization import create_directory
-from mic.config_yaml import create_file_yaml
+from mic.component.initialization import create_directory, render_run_sh, render_io_sh
+from mic.config_yaml import create_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
+    add_configuration_files
+from mic.constants import DATA_DIRECTORY_NAME, CONFIG_YAML_NAME
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
@@ -127,7 +128,7 @@ def publish(directory):
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     required=True
 )
-def skeleton(name):
+def step1(name):
     """
      NAME is the name of your model configuration
      This creates a directory `NAME` with the subdirectories data, src and docker
@@ -157,12 +158,52 @@ def skeleton(name):
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     required=True
 )
-def init(model_directory, inputs_dir, parameters):
+def step2(model_directory, inputs_dir, parameters):
     """
     MODEL_DIRECTORY is the directory of your model configuration
     """
     inputs_dir = Path(inputs_dir) if inputs_dir else Path(model_directory) / DATA_DIRECTORY_NAME
     create_file_yaml(Path(model_directory), inputs_dir, parameters)
+
+
+@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step3(mic_config_file):
+    """
+    Configuration is the config.yaml file of your model configuration
+    """
+    if not Path(mic_config_file).exists():
+        exit(1)
+    config_path = Path(mic_config_file)
+    model_directory_path = config_path.parent
+    inputs, parameters, outputs = get_inputs_parameters(config_path)
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
+    render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
+    render_io_sh(model_directory_path)
+
+
+@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+@click.argument(
+    "configuration_files",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    required=True,
+    nargs=-1
+)
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def config(mic_config_file, configuration_files):
+    if not Path(mic_config_file).exists():
+        exit(1)
+    add_configuration_files(Path(mic_config_file), configuration_files)
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):

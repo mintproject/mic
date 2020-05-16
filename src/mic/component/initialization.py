@@ -38,24 +38,27 @@ def create_directory(parent_directory: Path, name: str):
     return parent_directory
 
 
-def render_run_sh(directory: Path, inputs: int = 0, parameters: int = 0) -> Path:
+def render_run_sh(directory: Path,
+                  inputs: dict, parameters: dict,
+                  number_inputs: int = 0, number_parameters: int = 0) -> Path:
     """
 
-    @param language:
-    @type language:
+    @param number_parameters:
+    @type number_parameters:
+    @param number_inputs:
+    @type number_inputs:
     @param directory:
     @type directory:
     @param inputs:
     @type inputs:
     @param parameters:
     @type parameters:
-    @param outputs:
-    @type outputs:
     """
     template = env.get_template(RUN_FILE)
     run_file = directory / SRC_DIR / RUN_FILE
     with open(run_file, "w") as f:
-        content = render_template(template=template, inputs=inputs, parameters=parameters)
+        content = render_template(template=template, inputs=inputs, parameters=parameters,
+                                  number_inputs=number_inputs, number_parameters=number_parameters, number_outputs=0)
         f.write(content)
     return run_file
 

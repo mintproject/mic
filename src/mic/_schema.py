@@ -12,9 +12,9 @@ schema = {
     "required": ["inputs", "parameters", "outputs"],
     "properties": {
         "schemaVersion": {"type": "string"},
-        "inputs": {"type": "array", "items": {"$ref": "#/definitions/data_file"}},
-        "outputs": {"type": "array", "items": {"$ref": "#/definitions/data_file"}},
-        "parameters": {"type": "array", "items": {"$ref": "#/definitions/parameters"}},
+        "inputs": {"type": "object", "$ref": "#/definitions/data_file"},
+        "outputs": {"type": "object", "$ref": "#/definitions/data_file"},
+        "parameters": {"type": "object", "$ref": "#/definitions/parameters"},
     },
 
     "definitions": {
