@@ -3,7 +3,7 @@ import os
 from click.testing import CliRunner
 from yaml import load
 
-from mic.__main__ import step1, step2
+from mic.__main__ import step1, step2, step3, config
 from mic.config_yaml import get_numbers_inputs_parameters
 from mic.constants import *
 
@@ -107,3 +107,33 @@ def test_init_two_inputs_zero_parameters(tmp_path):
     number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(component_dir / CONFIG_YAML_NAME)
     assert number_inputs == 2
     assert number_parameters == 0
+
+
+def test_step3(tmp_path):
+    runner = CliRunner()
+    os.chdir(tmp_path)
+    response = runner.invoke(step1, [MODEL_NAME])
+    component_dir = tmp_path / MODEL_NAME
+    p = component_dir / DATA_DIRECTORY_NAME / "hello.txt"
+    p.write_text("test")
+
+    p2 = component_dir / DATA_DIRECTORY_NAME / "hello2.txt"
+    p2.write_text("test")
+
+    try:
+        response = runner.invoke(step2, [MODEL_NAME, "-p", PARAMETERS_2])
+        assert response.exit_code == 0
+    except:
+        assert False
+    try:
+        response = runner.invoke(step3, ["-f", component_dir/ CONFIG_YAML_NAME])
+        assert response.exit_code == 0
+    except:
+        assert False
+
+
+    try:
+        response = runner.invoke(config, ["-f", component_dir/CONFIG_YAML_NAME, str(p2)])
+        assert response.exit_code == 0
+    except:
+        assert False
