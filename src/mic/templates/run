@@ -5,13 +5,14 @@ BASEDIR=`dirname $0`
 CURDIR=`pwd`
 
 ## INPUTS VARIABLES
-{% for item in inputs -%}
-{{item["name"]}}=${INPUTS{{ loop.index }}}
+{% for key, item in inputs.items() -%}
+{{key}}=${INPUTS{{ loop.index  }}}
 {% endfor -%}
 
+
 ## PARAMETERS VARIABLES
-{% for item in parameters -%}
-{{item["name"]}}=${PARAMS{{ loop.index }}}
+{% for key, item in parameters.items() -%}
+{{key}}=${PARAMS{{loop.index  }}}
 {% endfor -%}
 
 ####### WRITE YOUR INVOCATION LINE AFTER THIS COMMENT

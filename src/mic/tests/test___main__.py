@@ -3,7 +3,7 @@ import os
 from click.testing import CliRunner
 from yaml import load
 
-from mic.__main__ import skeleton, init
+from mic.__main__ import step1, step2
 from mic.config_yaml import get_numbers_inputs_parameters
 from mic.constants import *
 
@@ -20,7 +20,7 @@ def test_skeleton(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
     try:
-        response = runner.invoke(skeleton, [MODEL_NAME])
+        response = runner.invoke(step1, [MODEL_NAME])
         assert response.exit_code == 0
     except:
         assert False
@@ -29,12 +29,12 @@ def test_skeleton(tmp_path):
 def test_init(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
-    response = runner.invoke(skeleton, [MODEL_NAME])
+    response = runner.invoke(step1, [MODEL_NAME])
     component_dir = tmp_path / MODEL_NAME
     p = component_dir / DATA_DIRECTORY_NAME / "hello.txt"
     p.write_text("test")
     try:
-        response = runner.invoke(init, [MODEL_NAME, "-p", PARAMETERS_2])
+        response = runner.invoke(step2, [MODEL_NAME, "-p", PARAMETERS_2])
         assert response.exit_code == 0
     except:
         assert False
@@ -46,7 +46,7 @@ def test_init(tmp_path):
 def test_init_two_inputs(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
-    response = runner.invoke(skeleton, [MODEL_NAME])
+    response = runner.invoke(step1, [MODEL_NAME])
     component_dir = tmp_path / MODEL_NAME
     p = component_dir / DATA_DIRECTORY_NAME / "hello.txt"
     p.write_text("test")
@@ -55,7 +55,7 @@ def test_init_two_inputs(tmp_path):
     p2.write_text("test")
 
     try:
-        response = runner.invoke(init, [MODEL_NAME, "-p", PARAMETERS_2])
+        response = runner.invoke(step2, [MODEL_NAME, "-p", PARAMETERS_2])
         assert response.exit_code == 0
     except:
         assert False
@@ -67,7 +67,7 @@ def test_init_two_inputs(tmp_path):
 def test_init_two_inputs_zero_parameters(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
-    response = runner.invoke(skeleton, ["-n", MODEL_NAME])
+    response = runner.invoke(step1, ["-n", MODEL_NAME])
     component_dir = tmp_path / MODEL_NAME
     p = component_dir / DATA_DIRECTORY_NAME / "hello.txt"
     p.write_text("test")
@@ -76,7 +76,7 @@ def test_init_two_inputs_zero_parameters(tmp_path):
     p2.write_text("test")
 
     try:
-        response = runner.invoke(init, [MODEL_NAME])
+        response = runner.invoke(step2, [MODEL_NAME])
         assert response.exit_code == 0
     except:
         assert False
@@ -88,7 +88,7 @@ def test_init_two_inputs_zero_parameters(tmp_path):
 def test_init_two_inputs_zero_parameters(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
-    response = runner.invoke(skeleton, [MODEL_NAME])
+    response = runner.invoke(step1, [MODEL_NAME])
     component_dir = tmp_path / MODEL_NAME
     p = component_dir / DATA_DIRECTORY_NAME / "hello.txt"
     p.write_text("test")
@@ -99,7 +99,7 @@ def test_init_two_inputs_zero_parameters(tmp_path):
     p3.write_text("test")
 
     try:
-        response = runner.invoke(init, [MODEL_NAME])
+        response = runner.invoke(step2, [MODEL_NAME])
         assert response.exit_code == 0
     except:
         assert False
