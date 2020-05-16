@@ -16,6 +16,7 @@ def publish_github(directory: Path, profile, force):
     @param directory:
     @type directory:
     """
+
     git_username = None
     git_token = None
     debug = False
@@ -44,10 +45,16 @@ def publish_github(directory: Path, profile, force):
         exit(1)
 
     if debug:
-        logging.info("User has " + str(g.rate_limiting[0]) + " API calls left of " + str(g.rate_limiting[1]) + " total")
+        logging.debug("User has " + str(g.rate_limiting[0]) + " API calls left of " + str(g.rate_limiting[1]) + " total")
 
-    path = str(Path.cwd())
+    path = str(directory)
+    # remove trailing path separators
+    path = path.rstrip("\\")
+    path = path.rstrip("/")
+    os.chdir(path)  # forgive this sin. Setting current dir to path makes this so much easier
+
     repo_name = os.path.split(path)[1]
+    zip_name = repo_name + ".zip"
     repo = None
     content_does_not_exist = False
     content = None
@@ -57,17 +64,13 @@ def publish_github(directory: Path, profile, force):
         repo = g.get_user().get_repo(repo_name)
     else:
         logging.info("Repo does not exist. Generating new repo")
-        repo = git_init(Path, g, repo_name)
+        repo = git_init(directory, g, repo_name)
         content_does_not_exist = True
 
-    # TODO, what happens if README in local and remote are different? (Error if different but allow if force is used)
-    # TODO Let github credentials be added from within cli
-    # TODO robust debug mode. Git api requests. Make everything try, throw exception if debug on
-    # TODO add force command
+    # TODO robust debug mode. Git api requests remaining. Make everything try, throw exception if debug on
     # TODO add quiet option
 
     zip_path = compress_src_dir(path, repo_name, force)
-
     data = open(zip_path, "rb").read()
 
     # Check if file is already in repo
@@ -75,22 +78,37 @@ def publish_github(directory: Path, profile, force):
         found = False
         content = repo.get_contents(path="")
         for stuff in content:
-            if stuff.name == repo_name + ".zip":
+            if stuff.name == zip_name:
                 found = True
                 content = stuff
 
         if not found:
             content_does_not_exist = True
 
+    # Create or update file (depending on if one already exists)
     if content_does_not_exist:
-        logging.info("Creating " + repo_name + ".zip")
-        repo.create_file(path=repo_name + ".zip", message="Created " + repo_name, content=data)
+        logging.info("Creating " + zip_name)
+        repo.create_file(path=zip_name, message="Created " + repo_name, content=data)
     else:
+        # Check if there is a discrepancy between local README (if it exists) and GitHub README
+        if os.path.exists(os.path.join(path, "README.md")):
+            local_readme = open("README.md", "rb").read()
+
+            if repo.get_readme().decoded_content != local_readme:
+                if force:
+                    repo.update_file(path="README.md", message="Updated README", content=local_readme, sha=repo.get_readme().sha)
+                    logging.info("Updating remote README from local")
+                else:
+                    logging.warning("Local README does not match remote README")
+                    logging.info("Either delete local README to keep remote version or "
+                                 "use \"--force\" flag to override remote readme")
+                    exit(1)
+
         if content.decoded_content != data:
-            logging.info("Updating " + repo_name + ".zip")
-            repo.update_file(path=repo_name + ".zip", message="Updated " + repo_name, content=data, sha=content.sha)
+            logging.info("Updating " + zip_name)
+            repo.update_file(path=zip_name, message="Updated " + repo_name, content=data, sha=content.sha)
         else:
-            logging.info("This version of model already exists in GitHub repository. No change made")
+            logging.info("This version of model already exists in GitHub repository")
 
     try:
         os.remove(zip_path)
@@ -154,15 +172,16 @@ def git_init(path, gitObj, name):
     user = gitObj.get_user()
     repo = user.create_repo(name)
 
-    path = os.path.join(path.cwd(), "README.md")
+    readme_path = os.path.join(path, "README.md")
 
-    if os.path.exists(path):
+    # if README already exists
+    if os.path.exists(readme_path):
         logging.info("Uploading README to repo")
         data = open("README.md", "r").read()
         repo.create_file(path="README.md", message="Uploaded README", content=data)
 
     else:
-        # Make README
+        # else make new README
         try:
             logging.info("No README found. Creating new one")
             readme = open("README.md", "w+")
@@ -194,6 +213,10 @@ def compress_src_dir(directory, name, force):
 
     file_paths = []
 
+    # Remove any trailing os separators (Very likely user input issue)
+    directory = directory.rstrip("\\")
+    directory = directory.rstrip("/")
+
     # walks through given directory and appends path to a list of paths that should be zipped
     for root, directories, files in os.walk(directory):
         for filename in files:
@@ -212,6 +235,7 @@ def compress_src_dir(directory, name, force):
     if os.path.exists(os.path.join(directory, (name + ".zip"))):
         if force:
             try:
+                logging.info("Removing existing zip file")
                 os.remove(os.path.join(directory, (name + ".zip")))
             except PermissionError as e:
                 logging.error("mic does not have permissions to remove \"" +
