@@ -21,6 +21,7 @@ def publish_github(directory: Path, profile, force):
     git_token = None
     debug = False
 
+    # Try to get git username and token from credentials file
     try:
         credentials = get_credentials(profile)
         git_username = credentials["gitUsername"]
@@ -30,8 +31,10 @@ def publish_github(directory: Path, profile, force):
                     "please run:\nmic configure -p {}".format(profile), fg="yellow")
         exit(1)
 
+    # Create github object
     g = Github(git_username, git_token)
 
+    # Check if the credentials from the file are valid
     try:
         if g.get_user().login is None:
             logging.error("User profile GitHub credentials are invalid. Please enter a valid token and username")
@@ -68,13 +71,17 @@ def publish_github(directory: Path, profile, force):
         content_does_not_exist = True
 
     # TODO robust debug mode. Git api requests remaining. Make everything try, throw exception if debug on
-    # TODO add quiet option
+    # TODO git Release
+    # TODO specify release version option (-t/--tag)
+    # TODO allow release message (-m/--message)
+    # TODO documentation
 
+    # Zip the files in the
     zip_path = compress_src_dir(path, repo_name, force)
     data = open(zip_path, "rb").read()
 
     # Check if file is already in repo
-    if not content_does_not_exist:  # if statement just skips extra api call if mic made new repo
+    if not content_does_not_exist:  # this if statement just skips extra api call if mic already created a new repo
         found = False
         content = repo.get_contents(path="")
         for stuff in content:
@@ -87,13 +94,18 @@ def publish_github(directory: Path, profile, force):
 
     # Create or update file (depending on if one already exists)
     if content_does_not_exist:
-        logging.info("Creating " + zip_name)
+        logging.info("Zipping files")
         repo.create_file(path=zip_name, message="Created " + repo_name, content=data)
+
+        # Generate new release
+        logging.info("Generating new release")
+        update_release(repo, None, None)
     else:
         # Check if there is a discrepancy between local README (if it exists) and GitHub README
         if os.path.exists(os.path.join(path, "README.md")):
             local_readme = open("README.md", "rb").read()
 
+            # If force flag is used the remote README will be updated to the local one
             if repo.get_readme().decoded_content != local_readme:
                 if force:
                     repo.update_file(path="README.md", message="Updated README", content=local_readme, sha=repo.get_readme().sha)
@@ -104,12 +116,18 @@ def publish_github(directory: Path, profile, force):
                                  "use \"--force\" flag to override remote readme")
                     exit(1)
 
+        # Checks if content has changed then updates remote files with local ones and create release
         if content.decoded_content != data:
             logging.info("Updating " + zip_name)
             repo.update_file(path=zip_name, message="Updated " + repo_name, content=data, sha=content.sha)
+
+            # increment release
+            logging.info("Incrementing release")
+            update_release(repo, None, None)
         else:
             logging.info("This version of model already exists in GitHub repository")
 
+    # Tries to delete the zip file generated while zipping
     try:
         os.remove(zip_path)
     except Exception as e:
@@ -130,18 +148,6 @@ def publish_github(directory: Path, profile, force):
     #
     # except Exception as e:
     #     raise e
-
-
-def create_github_repository():
-    pass
-
-
-def has_remote_branch():
-    return True
-
-
-def git_commit():
-    pass
 
 
 def is_git_directory(gitObj, name):
@@ -169,8 +175,9 @@ def git_init(path, gitObj, name):
     @param name: string
     @return repo: github.repository
     """
+
     user = gitObj.get_user()
-    repo = user.create_repo(name)
+    repo = user.create_repo(name)  # Create new repository
 
     readme_path = os.path.join(path, "README.md")
 
@@ -181,11 +188,11 @@ def git_init(path, gitObj, name):
         repo.create_file(path="README.md", message="Uploaded README", content=data)
 
     else:
-        # else make new README
+        # Create a README in the repository
         try:
             logging.info("No README found. Creating new one")
             readme = open("README.md", "w+")
-            readme.write("Documentation for " + name + " goes here")
+            readme.write("Documentation for " + name + " goes here")  # Auto generated content for README
             readme.close()
 
             data = open("README.md", "r").read()
@@ -197,10 +204,6 @@ def git_init(path, gitObj, name):
             click.secho("Error message: " + str(e), fg="yellow")
 
     return repo
-
-
-def git_add():
-    pass
 
 
 def compress_src_dir(directory, name, force):
@@ -255,14 +258,26 @@ def compress_src_dir(directory, name, force):
     return os.path.join(directory, (name + ".zip"))
 
 
-def git_push():
-    pass
-
-
-def git_release():
+def update_release(repo, tag_name, message):
     """
-    Use https://pygithub.readthedocs.io/en/latest/github_objects/GitRelease.html#github.GitRelease.GitRelease.update_release
-
-    If there is a release, increment the version.
+    If there is a release already, increment it by new version. If tag_name is entered create the new release with
+    entered tag_name. Create new release if one does not exist
+    @param repo: github.Repository
+    @param tag_name: string
+    @param message: string
+    @return release: github.GitRelease
     """
-    pass
+
+    # If no tag_name is given auto generate tag_name from number of previous releases
+    if tag_name is None:
+        releases = repo.get_releases()
+        tag_name = str(releases.totalCount + 1) + ".0.0"
+
+    # If no message given, provide auto generated message
+    if message is None:
+        message = "Release " + tag_name + " for " + repo.name
+
+    repo.create_git_release(tag_name, tag_name, message)
+
+    return repo.get_latest_release()
+
