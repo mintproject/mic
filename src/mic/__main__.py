@@ -3,6 +3,7 @@ from pathlib import Path
 
 import click
 import semver
+from mic.component.executor import preparing_execution, execute
 from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 import mic
@@ -234,6 +235,22 @@ def step4(mic_config_file, configuration_files):
         exit(1)
     add_configuration_files(Path(mic_config_file), configuration_files)
 
+@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step6(mic_config_file):
+    """
+    Running your model
+    For example,
+    mic modelconfiguration step6 -f config.yaml
+    """
+    if not Path(mic_config_file).exists():
+        exit(1)
+    execute(Path(mic_config_file))
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []

@@ -5,15 +5,8 @@ import click
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 from mic.component.python3 import freeze
+from mic.constants import *
 
-RUN_FILE = "run"
-IO_FILE = "io.sh"
-OUTPUT_FILE = "output.sh"
-DOCKER_FILE = "Dockerfile"
-SRC_DIR = "src"
-DOCKER_DIR = "docker"
-DATA_DIR = "data"
-REQUIREMENTS_FILE = "requirements.txt"
 env = Environment(
     loader=PackageLoader('mic', 'templates'),
     autoescape=select_autoescape(['html', 'xml']),

@@ -78,9 +78,21 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
 
 def add_configuration_files(config_yaml_path: Path, configurations: tuple):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    spec["config_file"] = [str(Path(x).relative_to(config_yaml_path.parent))  for x in list(configurations)]
-    with open(config_yaml_path, 'w') as f:
-        yaml.dump(spec, f, sort_keys=False)
+    spec[CONFIG_FILE_KEY] = [str(Path(x).relative_to(config_yaml_path.parent)) for x in list(configurations)]
+
+    try:
+        with open(config_yaml_path, 'w') as f:
+            yaml.dump(spec, f, sort_keys=False)
+    except Exception as e:
+        click.secho("Failed: Error message {}".format(e), fg="red")
+    for item in spec[CONFIG_FILE_KEY]:
+        click.secho("Added: {} as a configuration file".format(item), fg="green")
+
+
+def get_configuration_files(config_yaml_path: Path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    return spec[CONFIG_FILE_KEY]
+
 
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
