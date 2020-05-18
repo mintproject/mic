@@ -124,17 +124,20 @@ def publish(directory):
 
 @modelconfiguration.command(short_help="Create directories and subdirectories")
 @click.argument(
-    "name",
+    "model_configuration_name",
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     required=True
 )
-def step1(name):
+def step1(model_configuration_name):
     """
-     NAME is the name of your model configuration
-     This creates a directory `NAME` with the subdirectories data, src and docker
+    Create the directories and subdirectories.
+
+    mic modelconfiguration step1 <model_configuration_name>
+
+    The argument: `model_configuration_name` is the name of your model configuration
      """
     try:
-        create_directory(Path('.'), name)
+        create_directory(Path('.'), model_configuration_name)
     except Exception as e:
         exit(1)
 
@@ -160,7 +163,15 @@ def step1(name):
 )
 def step2(model_directory, inputs_dir, parameters):
     """
-    MODEL_DIRECTORY is the directory of your model configuration
+    Create MIC_CONFIG_FILE (config.yaml).
+
+    - Before to run this command, you must copy the files or directories of the model into the data directory
+
+    - Then, you must pass the number of parameters using the option (-p)
+
+    mic modelconfiguration step2 <model_directory> -p <number_of_parameters>
+
+    The argument: `MODEL_DIRECTORY` is the directory of your model configuration
     """
     inputs_dir = Path(inputs_dir) if inputs_dir else Path(model_directory) / DATA_DIRECTORY_NAME
     create_file_yaml(Path(model_directory), inputs_dir, parameters)
@@ -175,7 +186,11 @@ def step2(model_directory, inputs_dir, parameters):
 )
 def step3(mic_config_file):
     """
-    Configuration is the config.yaml file of your model configuration
+    Create MINT wrapper using the config.yaml
+
+    - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
+
+    mic modelconfiguration step3 -f config.yaml
     """
     if not Path(mic_config_file).exists():
         exit(1)
@@ -200,7 +215,21 @@ def step3(mic_config_file):
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default="config.yaml"
 )
-def config(mic_config_file, configuration_files):
+def step4(mic_config_file, configuration_files):
+    """
+    THIS IS STEP IS OPTIONAL
+
+    Select the inputs files that are configuration files
+
+    - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
+
+    - And the files as arguments
+
+    mic modelconfiguration step4 -f config.yaml [configuration_files]...
+
+    For example,
+    mic modelconfiguration step4 -f config.yaml data/example_dir/file1.txt  data/file2.txt
+    """
     if not Path(mic_config_file).exists():
         exit(1)
     add_configuration_files(Path(mic_config_file), configuration_files)
