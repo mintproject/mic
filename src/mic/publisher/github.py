@@ -7,7 +7,7 @@ import os
 import zipfile
 
 
-def publish_github(directory: Path, profile, force):
+def publish_github(directory: Path, profile, force, tag, message):
     """
     Publish the directory on git
     If the directory is not a git directory, create it
@@ -71,9 +71,6 @@ def publish_github(directory: Path, profile, force):
         content_does_not_exist = True
 
     # TODO robust debug mode. Git api requests remaining. Make everything try, throw exception if debug on
-    # TODO git Release
-    # TODO specify release version option (-t/--tag)
-    # TODO allow release message (-m/--message)
     # TODO documentation
 
     # Zip the files in the
@@ -99,33 +96,41 @@ def publish_github(directory: Path, profile, force):
 
         # Generate new release
         logging.info("Generating new release")
-        update_release(repo, None, None)
+        update_release(repo, tag, message)
     else:
         # Check if there is a discrepancy between local README (if it exists) and GitHub README
         if os.path.exists(os.path.join(path, "README.md")):
             local_readme = open("README.md", "rb").read()
 
             # If force flag is used the remote README will be updated to the local one
-            if repo.get_readme().decoded_content != local_readme:
-                if force:
-                    repo.update_file(path="README.md", message="Updated README", content=local_readme, sha=repo.get_readme().sha)
-                    logging.info("Updating remote README from local")
-                else:
-                    logging.warning("Local README does not match remote README")
-                    logging.info("Either delete local README to keep remote version or "
-                                 "use \"--force\" flag to override remote readme")
-                    exit(1)
+            try:
+                if repo.get_readme().decoded_content != local_readme:
+                    if force:
+                        repo.update_file(path="README.md", message="Updated README", content=local_readme, sha=repo.get_readme().sha)
+                        logging.info("Updating remote README from local")
+                    else:
+                        logging.warning("Local README does not match remote README")
+                        logging.info("Either delete local README to keep remote version or "
+                                     "use \"--force\" flag to override remote readme")
+                        exit(1)
+            except Exception as e:
+                # If there is no README in the repo make new one from current
+                repo.create_file(path="README.md", message="Created README", content=local_readme)
 
         # Checks if content has changed then updates remote files with local ones and create release
-        if content.decoded_content != data:
-            logging.info("Updating " + zip_name)
+        if content.decoded_content != data or force:
+            if force and content.decoded_content == data:
+                logging.info("Forcing publish")
+            else:
+                logging.info("Updating " + zip_name)
             repo.update_file(path=zip_name, message="Updated " + repo_name, content=data, sha=content.sha)
 
             # increment release
             logging.info("Incrementing release")
-            update_release(repo, None, None)
+            update_release(repo, tag, message)
         else:
-            logging.info("This version of model already exists in GitHub repository")
+            logging.info("This version of model already exists in GitHub repository."
+                         " \"-f\" can be used to force release")
 
     # Tries to delete the zip file generated while zipping
     try:
@@ -268,16 +273,28 @@ def update_release(repo, tag_name, message):
     @return release: github.GitRelease
     """
 
+    releases = repo.get_releases()
+
     # If no tag_name is given auto generate tag_name from number of previous releases
     if tag_name is None:
-        releases = repo.get_releases()
         tag_name = str(releases.totalCount + 1) + ".0.0"
+
+    # Make sure the tag name does not exist in the repo
+    tag_already_taken = False
+    for r in releases:
+        if r.tag_name == tag_name:
+            tag_already_taken = True
+
 
     # If no message given, provide auto generated message
     if message is None:
         message = "Release " + tag_name + " for " + repo.name
 
-    repo.create_git_release(tag_name, tag_name, message)
-
-    return repo.get_latest_release()
+    if tag_already_taken:
+        logging.warning("There is already a release with that version tag in the repository")
+        logging.info("Use --tag option to give model a different version tag and rerun")
+        return None
+    else:
+        repo.create_git_release(tag_name, tag_name, message)
+        return repo.get_latest_release()
 
