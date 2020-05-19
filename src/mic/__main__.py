@@ -233,10 +233,10 @@ def step4(mic_config_file, configuration_files):
     For example,
     mic modelconfiguration step4 -f config.yaml data/example_dir/file1.txt  data/file2.txt
     """
-    if not Path(mic_config_file).exists():
-        exit(1)
-    add_configuration_files(Path(mic_config_file), configuration_files)
     config_path = Path(mic_config_file)
+    if not config_path.exists():
+        exit(1)
+    add_configuration_files(config_path, configuration_files)
     model_directory_path = config_path.parent
     inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
     number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
