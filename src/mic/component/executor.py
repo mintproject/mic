@@ -69,9 +69,12 @@ def create_model_catalog_resource(mint_config_file):
 
     for key, item in inputs.items():
         try:
-            format = item["path"].name.split('.')[-1]
+            if Path(item["path"]).is_dir():
+                _format = "zip"
+            else:
+                _format = item["path"].name.split('.')[-1]
         except:
-            format = "unknown"
+            _format = "unknown"
         _input = DatasetSpecification(id=generate_uuid(), label=key, has_format=format, position=[position])
         create_sample_resource(_input, str(Path(name / item["path"]).resolve()))
         model_catalog_inputs.append(_input)
@@ -100,11 +103,10 @@ def execute(mint_config_file: Path):
     model_path = mint_config_file.parent
     execution_dir = create_execution_directory(mint_config_file, model_path)
     resource = create_model_catalog_resource(mint_config_file)
-    print(resource)
     try:
         line = get_command_line(resource)
     except:
-        logging.error("a", exc_info=True)
+        logging.error("Unable to cmd_line", exc_info=True)
     run_execution(line, execution_dir)
 
 
