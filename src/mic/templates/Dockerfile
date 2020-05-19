@@ -1,10 +1,11 @@
-{% if language == "python3" -%}
-from python:3.7-buster
-{% else -%}
-from mintproject/generic
+FROM {{ language.image }}
+
+{% if "python" in language.label  -%}
+ADD requirements.txt /tmp/requirements.txt
+pip install -r /tmp/requirements.txt
 {% endif -%}
 
-
-{% if language == "python3" -%}
-pip install -r requirements.txt
+{% if "conda" in language.label  -%}
+ADD environment.yml /tmp/environment.yml
+RUN conda env update -f /tmp/environment.yml
 {% endif -%}

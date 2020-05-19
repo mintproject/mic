@@ -3,7 +3,6 @@ from pathlib import Path
 
 import click
 from jinja2 import Environment, PackageLoader, select_autoescape
-
 from mic.component.python3 import freeze
 from mic.constants import *
 
@@ -66,13 +65,17 @@ def render_io_sh(directory: Path) -> Path:
     return run_file
 
 
-def render_dockerfile(directory: Path, language: str) -> Path:
+def detect_framework(src_dir: Path) -> Framework:
+    return None
+
+
+def render_dockerfile(model_directory: Path, language: Framework) -> Path:
     template = env.get_template(DOCKER_FILE)
-    run_file = directory / DOCKER_DIR / DOCKER_FILE
+    run_file = model_directory / DOCKER_DIR / DOCKER_FILE
     with open(run_file, "w") as f:
         content = render_template(template=template, language=language)
         f.write(content)
-    language_tasks(directory, language)
+    # language_tasks(model_directory, language)
     return run_file
 
 
@@ -82,7 +85,7 @@ def render_output(directory: Path, language=None) -> Path:
     with open(run_file, "w") as f:
         content = render_template(template=template, language=language)
         f.write(content)
-    #language_tasks(directory, language)
+    # language_tasks(directory, language)
     return run_file
 
 

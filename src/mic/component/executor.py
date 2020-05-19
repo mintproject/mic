@@ -107,6 +107,7 @@ def execute(mint_config_file: Path):
         line = get_command_line(resource)
     except:
         logging.error("Unable to cmd_line", exc_info=True)
+    click.secho("Running \n {}".format(line), fg="green")
     run_execution(line, execution_dir)
 
 
