@@ -76,3 +76,23 @@ for ((i=1; i<=INUM; i++)); do typeset INPUTS$i=$(echo ${INPUTS[$i]}); done
 for ((i=1; i<=PNUM; i++)); do typeset PARAMS$i=$(echo ${PARAMS[$i]}); done
 for ((i=1; i<=ONUM; i++)); do typeset OUTPUTS$i=$(echo ${OUTPUTS[$i]}); done
 IFS=' '
+
+{% for key, item in inputs.items() -%}
+{{key}}=${INPUTS{{ loop.index  }}}
+export {{ key }}
+{% endfor -%}
+
+
+## PARAMETERS VARIABLES
+{% for key, item in parameters.items() -%}
+{{key}}=${PARAMS{{loop.index  }}}
+export  {{ key }}
+{% endfor -%}
+
+
+## PARAMETERS VARIABLES
+{% for item in configs -%}
+envsubst < {{item}} > {{item}}
+{% endfor -%}
+
+

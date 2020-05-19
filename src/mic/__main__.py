@@ -198,10 +198,10 @@ def step3(mic_config_file):
         exit(1)
     config_path = Path(mic_config_file)
     model_directory_path = config_path.parent
-    inputs, parameters, outputs = get_inputs_parameters(config_path)
+    inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
     number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
     render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
-    render_io_sh(model_directory_path)
+    render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path)
 
 
@@ -236,6 +236,13 @@ def step4(mic_config_file, configuration_files):
     if not Path(mic_config_file).exists():
         exit(1)
     add_configuration_files(Path(mic_config_file), configuration_files)
+    config_path = Path(mic_config_file)
+    model_directory_path = config_path.parent
+    inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
+    render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
+    render_io_sh(model_directory_path, inputs, parameters, configs)
+    render_output(model_directory_path)
 
 
 @modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
@@ -275,10 +282,10 @@ def step6(mic_config_file):
     src_dir_path = model_dir / SRC_DIR
     if detect_framework(src_dir_path) is None:
         language = click.prompt("Select the language",
-                              show_choices=True,
-                              type=click.Choice(Framework, case_sensitive=False),
-                              value_proc=handle
-                              )
+                                show_choices=True,
+                                type=click.Choice(Framework, case_sensitive=False),
+                                value_proc=handle
+                                )
         render_dockerfile(model_dir, language)
 
     pass

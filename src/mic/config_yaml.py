@@ -1,6 +1,7 @@
 import logging
 import random
 import re
+import shutil
 import unicodedata
 from pathlib import Path
 
@@ -94,12 +95,15 @@ def get_configuration_files(config_yaml_path: Path):
     return spec[CONFIG_FILE_KEY]
 
 
+
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
     inputs = spec[INPUTS_KEY] if INPUTS_KEY in spec else None
     parameters = spec[PARAMETERS_KEY] if PARAMETERS_KEY in spec else None
     outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else None
-    return inputs, parameters, outputs
+    configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else []
+
+    return inputs, parameters, outputs, configs
 
 
 def get_numbers_inputs_parameters(config_yaml_path: Path) -> (int, int, int):

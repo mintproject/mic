@@ -8,8 +8,7 @@ from pathlib import Path
 import click
 from dame.cli_methods import create_sample_resource
 from dame.executor import build_parameter, build_output
-from jinja2 import Environment, select_autoescape, FileSystemLoader
-from mic.config_yaml import get_configuration_files, get_inputs_parameters
+from mic.config_yaml import get_inputs_parameters
 from mic.constants import SRC_DIR, EXECUTIONS_DIR, DATA_DIR
 from modelcatalog import ModelConfiguration, DatasetSpecification, Parameter
 
@@ -32,7 +31,7 @@ def _copy_directory(src: Path, dest: Path) -> Path:
 
 def copy_inputs(mint_config_file: Path, src_dir_path: Path):
     model_path = mint_config_file.parent
-    inputs, parameters, _ = get_inputs_parameters(mint_config_file)
+    inputs, parameters, _, _ = get_inputs_parameters(mint_config_file)
     for _, item in inputs.items():
         input_path = model_path / DATA_DIR / item['path']
         is_directory = True if input_path.is_dir() else False
@@ -60,7 +59,7 @@ def create_execution_directory(mint_config_file: Path, model_path: Path):
 
 def create_model_catalog_resource(mint_config_file):
     name = mint_config_file.parent
-    inputs, parameters, outputs = get_inputs_parameters(mint_config_file)
+    inputs, parameters, outputs, _ = get_inputs_parameters(mint_config_file)
     model_catalog_inputs = []
     model_catalog_parameters = []
     model_catalog_outputs = []
@@ -109,24 +108,6 @@ def execute(mint_config_file: Path):
         logging.error("Unable to cmd_line", exc_info=True)
     click.secho("Running \n {}".format(line), fg="green")
     run_execution(line, execution_dir)
-
-
-def replace_parameters(mint_config_file: Path, src_directory=Path('.')):
-    """
-    You must run this method in the src directory
-    """
-    env = Environment(
-        loader=FileSystemLoader(src_directory),
-        autoescape=select_autoescape(['html', 'xml']),
-        trim_blocks=False,
-        lstrip_blocks=False
-    )
-    _, parameters, _ = get_inputs_parameters(mint_config_file)
-    configuration_files = [Path(file_path) for file_path in get_configuration_files(mint_config_file)]
-    for item in configuration_files:
-        template = env.get_template(item.name)
-        with open(item, "w") as f:
-            f.write(template.render(template=template, **parameters))
 
 
 def get_command_line(resource):
