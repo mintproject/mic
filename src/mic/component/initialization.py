@@ -53,6 +53,7 @@ def render_run_sh(directory: Path,
         content = render_template(template=template, inputs=inputs, parameters=parameters,
                                   number_inputs=number_inputs, number_parameters=number_parameters, number_outputs=0)
         f.write(content)
+    run_file.chmod(0o755)
     return run_file
 
 
@@ -72,6 +73,16 @@ def render_dockerfile(directory: Path, language: str) -> Path:
         content = render_template(template=template, language=language)
         f.write(content)
     language_tasks(directory, language)
+    return run_file
+
+
+def render_output(directory: Path, language=None) -> Path:
+    template = env.get_template(OUTPUT_FILE)
+    run_file = directory / DOCKER_DIR / OUTPUT_FILE
+    with open(run_file, "w") as f:
+        content = render_template(template=template, language=language)
+        f.write(content)
+    #language_tasks(directory, language)
     return run_file
 
 
