@@ -7,10 +7,11 @@ install_requires = [
     "jsonschema>=3.0.0",
     "semver>=2.8.1",
     "requests",
-    "modelcatalog-api==2.5.0",
     "tabulate>=0.8.1",
     "Jinja2>=2.11.2",
-    "PyYAML>=5.3.1"
+    "PyYAML>=5.3.1",
+    "dame-cli>=5.0.0",
+    "modelcatalog-api==2.4.0",
 ]
 
 

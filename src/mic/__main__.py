@@ -2,20 +2,20 @@ import sys
 from pathlib import Path
 
 import click
-import semver
-from modelcatalog import Configuration, DatasetSpecification, Parameter
-
 import mic
+import semver
 from mic import _utils, file
-from mic.component.initialization import create_directory, render_run_sh, render_io_sh
+from mic.component.executor import execute
+from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output
 from mic.config_yaml import create_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files
-from mic.constants import DATA_DIRECTORY_NAME, CONFIG_YAML_NAME
+from mic.constants import DATA_DIRECTORY_NAME
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
 from mic.publisher.model_catalog import publish_model_catalog
 from mic.resources.model import create as create_model
+from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 
 @click.group()
@@ -193,6 +193,7 @@ def step3(mic_config_file):
     mic modelconfiguration step3 -f config.yaml
     """
     if not Path(mic_config_file).exists():
+        click.secho("Error: {} doesn't exists".format(mic_config_file), fg="red")
         exit(1)
     config_path = Path(mic_config_file)
     model_directory_path = config_path.parent
@@ -200,6 +201,7 @@ def step3(mic_config_file):
     number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
     render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path)
+    render_output(model_directory_path)
 
 
 @modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
@@ -233,6 +235,25 @@ def step4(mic_config_file, configuration_files):
     if not Path(mic_config_file).exists():
         exit(1)
     add_configuration_files(Path(mic_config_file), configuration_files)
+
+
+@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step5(mic_config_file):
+    """
+    Running your model in your computer with your computational environment.
+    For example,
+
+    mic modelconfiguration step5 -f config.yaml
+    """
+    if not Path(mic_config_file).exists():
+        exit(1)
+    execute(Path(mic_config_file))
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
