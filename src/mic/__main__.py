@@ -184,10 +184,24 @@ def create(name, inputs, outputs, parameters, directory, language):
     is_flag=True,
     help="Force publish ignoring override warnings"
 )
-def publish(directory, profile, force=False):
+@click.option(
+    "-t",
+    "--tag",
+    type=str,
+    default=None,
+    help="Tag for GitHub release"
+)
+@click.option(
+    "-m",
+    "--message",
+    type=str,
+    default=None,
+    help="Message for GitHub release"
+)
+def publish(directory, profile, force=False, tag=None, message=None):
     try:
         # publish_docker()
-        publish_github(directory, profile, force)
+        publish_github(directory, profile, force, tag, message)
         # publish_model_catalog()
     except Exception as e:
         click.secho(f"publish error", fg="red")
