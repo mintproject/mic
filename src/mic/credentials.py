@@ -23,7 +23,7 @@ def get_credentials(profile: str) -> dict:
     raise ValueError("Profile doesn't exists")
 
 
-def configure_credentials(server, username, password, git_username, git_token, profile):
+def configure_credentials(server, username, password, profile):
     credentials_file = pathlib.Path(
         os.getenv("MINT_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
     ).expanduser()
@@ -38,9 +38,7 @@ def configure_credentials(server, username, password, git_username, git_token, p
     credentials[profile] = {
         "server": server,
         "username": username,
-        "password": password,
-        "gitUsername": git_username,
-        "gitToken": git_token
+        "password": password
     }
 
     with credentials_file.open("w") as fh:

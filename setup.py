@@ -8,8 +8,7 @@ install_requires = [
     "semver>=2.8.1",
     "requests",
     "tabulate>=0.8.1",
-    "PyGithub>=1.43.5",
-    "jinja2>=2.11.2"
+    "Jinja2>=2.11.2",
     "PyYAML>=5.3.1",
     "dame-cli>=5.0.0",
     "modelcatalog-api==2.4.0",
