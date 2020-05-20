@@ -38,7 +38,7 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
         is_directory = True if input_path.is_dir() else False
         try:
             shutil.copytree(input_path, src_dir_path / input_path.name)
-            #os.symlink(input_path, src_dir_path / input_path.name, target_is_directory=is_directory)
+            # os.symlink(input_path, src_dir_path / input_path.name, target_is_directory=is_directory)
             click.secho("Added: {} into the execution directory".format(input_path.name), fg="green")
         except OSError as e:
             click.secho("Failed: Error message {}".format(e), fg="red")
@@ -111,20 +111,21 @@ def execute(mint_config_file: Path):
     click.secho("Running \n {}".format(line), fg="green")
     run_execution(line, execution_dir)
 
+
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
     image, logs = client.images.build(path=str(docker_path), tag="{}:latest".format(name), nocache=True)
     for chunk in logs:
         print(chunk)
     return image.id
-    #return docker_image_name
+    # return docker_image_name
+
 
 def execute_docker(mint_config_file: Path):
     model_path = mint_config_file.parent
     name = model_path.name
     docker_path = model_path / DOCKER_DIR
     image = build_docker(docker_path, name)
-
 
     src_dir = create_execution_directory(mint_config_file, model_path)
     resource = create_model_catalog_resource(mint_config_file)

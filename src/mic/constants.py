@@ -5,7 +5,7 @@ CONFIG_YAML_NAME = "config.yaml"
 INPUTS_KEY = "inputs"
 PARAMETERS_KEY = "parameters"
 CONFIG_FILE_KEY = "configs"
-
+STEP_KEY = "step"
 OUTPUTS_KEY = "outputs"
 NAME_KEY = "name"
 PATH_KEY = "path"
@@ -20,7 +20,7 @@ DOCKER_DIR = "docker"
 DATA_DIR = "data"
 REQUIREMENTS_FILE = "requirements.txt"
 EXECUTIONS_DIR = "executions"
-
+TOTAL_STEPS = 8
 
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")

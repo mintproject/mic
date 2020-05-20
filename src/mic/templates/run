@@ -4,15 +4,19 @@ BASEDIR=`dirname $0`
 CURDIR=`pwd`
 set -e
 ## INPUTS VARIABLES
+{% if inputs -%}
 {% for key, item in inputs.items() -%}
 {{key}}=${INPUTS{{ loop.index  }}}
 {% endfor -%}
-
+{% endif %}
 
 ## PARAMETERS VARIABLES
+{% if parameters -%}
 {% for key, item in parameters.items() -%}
 {{key}}=${PARAMS{{loop.index  }}}
 {% endfor -%}
+{% endif %}
+
 set -xe
 
 ####### WRITE YOUR INVOCATION LINE AFTER THIS COMMENT
@@ -21,4 +25,5 @@ set -xe
 
 ####### WRITE YOUR INVOCATION LINE BEFORE THIS COMMENT
 set -e
+cd $BASEDIR
 . $BASEDIR/output.sh

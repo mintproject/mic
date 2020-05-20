@@ -8,9 +8,9 @@ from mic import _utils, file
 from mic.component.executor import execute, execute_docker
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
     render_dockerfile
-from mic.config_yaml import create_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files
-from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR
+from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
+    add_configuration_files, add_outputs, create_config_file_yaml, get_spec, write_step
+from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
@@ -140,17 +140,17 @@ def step1(model_configuration_name):
     The argument: `model_configuration_name` is the name of your model configuration
      """
     try:
-        create_directory(Path('.'), model_configuration_name)
+        model_dir_path = create_directory(Path('.'), model_configuration_name)
     except Exception as e:
         exit(1)
-
+    create_config_file_yaml(model_dir_path)
 
 @encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
 @click.option(
-    "-i",
-    "--inputs_dir",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    required=False,
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
 )
 @click.option(
     "-p",
@@ -159,12 +159,7 @@ def step1(model_configuration_name):
     required=True,
     default=0
 )
-@click.argument(
-    "model_directory",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    required=True
-)
-def step2(model_directory, inputs_dir, parameters):
+def step2(mic_config_file, parameters):
     """
     Create MIC_CONFIG_FILE (config.yaml).
 
@@ -172,12 +167,14 @@ def step2(model_directory, inputs_dir, parameters):
 
     - Then, you must pass the number of parameters using the option (-p)
 
-    mic modelconfiguration step2 <model_directory> -p <number_of_parameters>
+    mic encapsulate step2 <model_directory> -p <number_of_parameters>
 
     The argument: `MODEL_DIRECTORY` is the directory of your model configuration
     """
-    inputs_dir = Path(inputs_dir) if inputs_dir else Path(model_directory) / DATA_DIRECTORY_NAME
-    create_file_yaml(Path(model_directory), inputs_dir, parameters)
+    inputs_dir = Path(mic_config_file).parent / DATA_DIRECTORY_NAME
+    if not inputs_dir.exists():
+        exit(1)
+    fill_config_file_yaml(Path(mic_config_file), inputs_dir, parameters)
 
 
 @encapsulate.command(short_help="Create MINT wrapper using the config.yaml")
@@ -193,7 +190,7 @@ def step3(mic_config_file):
 
     - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
 
-    mic modelconfiguration step3 -f config.yaml
+    mic encapsulate step3 -f config.yaml
     """
     if not Path(mic_config_file).exists():
         click.secho("Error: {} doesn't exists".format(mic_config_file), fg="red")
@@ -205,6 +202,8 @@ def step3(mic_config_file):
     run_path = render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path)
+    spec = get_spec(config_path)
+    write_step(config_path, spec, 3)
     click.secho("The MINT Wrapper has created: {}".format(run_path))
 
 
@@ -232,10 +231,10 @@ def step4(mic_config_file, configuration_files):
 
     - And the files as arguments
 
-    mic modelconfiguration step4 -f config.yaml [configuration_files]...
+    mic encapsulate step4 -f config.yaml [configuration_files]...
 
     For example,
-    mic modelconfiguration step4 -f config.yaml data/example_dir/file1.txt  data/file2.txt
+    mic encapsulate step4 -f config.yaml data/example_dir/file1.txt  data/file2.txt
     """
     config_path = Path(mic_config_file)
     if not config_path.exists():
@@ -247,7 +246,8 @@ def step4(mic_config_file, configuration_files):
     render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path)
-
+    spec = get_spec(config_path)
+    write_step(config_path, spec, 4)
 
 @encapsulate.command(short_help="Optional - Run your model with your computational environment.")
 @click.option(
@@ -261,11 +261,14 @@ def step5(mic_config_file):
     Running your model in your computer with your computational environment.
     For example,
 
-    mic modelconfiguration step5 -f config.yaml
+    mic encapsulate step5 -f config.yaml
     """
-    if not Path(mic_config_file).exists():
+    mic_config_path = Path(mic_config_file)
+    if not mic_config_path.exists():
         exit(1)
-    execute(Path(mic_config_file))
+    execute(mic_config_path)
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 5)
 
 
 @encapsulate.command(short_help="Prepare your Docker Image")
@@ -280,9 +283,10 @@ def step6(mic_config_file):
     Create the Docker Image
     For example,
 
-    mic modelconfiguration step6 -f config.yaml
+    mic encapsulate step6 -f config.yaml
     """
-    model_dir = Path(mic_config_file).parent
+    mic_config_path = Path(mic_config_file)
+    model_dir = mic_config_path.parent
     src_dir_path = model_dir / SRC_DIR
     framework = detect_framework(src_dir_path)
     if framework is None:
@@ -297,8 +301,8 @@ def step6(mic_config_file):
         bin_dir.mkdir(exist_ok=True)
     dockerfile = render_dockerfile(model_dir, framework)
     click.secho("The Dockerfile has been created: {}".format(dockerfile))
-    pass
-
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 6)
 
 @encapsulate.command(short_help="Build and run the docker images")
 @click.option(
@@ -309,17 +313,53 @@ def step6(mic_config_file):
 )
 def step7(mic_config_file):
     """
-    Create the Docker Image
+    Build and run the Docker image
     For example,
 
-    mic modelconfiguration step6 -f config.yaml
+    mic encapsulate step7 -f config.yaml
     """
-    model_dir = Path(mic_config_file).parent
+    mic_config_path = Path(mic_config_file)
     execute_docker(Path(mic_config_file))
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 7)
 
-    pass
+@encapsulate.command(short_help="Select the outputs")
+@click.argument(
+    "outputs",
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
+    required=True,
+    nargs=-1
+)
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step8(mic_config_file, outputs):
+    """
+    Select the outputs
+    For example,
 
+    mic encapsulate step8 -f config.yaml [outputs]...
+    """
+    mic_config_path = Path(mic_config_file)
+    add_outputs(Path(mic_config_file), outputs)
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 8)
 
+@encapsulate.command(short_help="Show status")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def status(mic_config_file):
+    mic_config_path = Path(mic_config_file)
+    spec = get_spec(mic_config_path)
+    click.secho("Step {} of {}".format(spec[STEP_KEY], TOTAL_STEPS))
+    
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []
     _outputs = []

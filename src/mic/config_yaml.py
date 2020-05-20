@@ -1,7 +1,6 @@
 import logging
 import random
 import re
-import shutil
 import unicodedata
 from pathlib import Path
 
@@ -36,8 +35,30 @@ def random_parameter():
     return random.choice(["a random string", True, 1.0, 1])
 
 
-def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
-    config_yaml_path = directory / CONFIG_YAML_NAME
+def create_config_file_yaml(model_path: Path) -> Path:
+    config_yaml_path = model_path / CONFIG_YAML_NAME
+    if model_path.exists():
+        click.secho("Searching files in the directory {}".format(model_path))
+    else:
+        click.secho("Failed: Directory {} doesn't exist".format(model_path), fg="red")
+        exit(1)
+    spec = {}
+    write_step(config_yaml_path, spec, step=1)
+
+
+def get_spec(config_yaml_path: Path) -> dict:
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    return spec
+
+
+def write_step(config_yaml_path: Path, spec: dict, step: int):
+    spec[STEP_KEY] = step
+    with open(config_yaml_path, 'w') as f:
+        yaml.dump(spec, f, sort_keys=False)
+
+
+def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: int) -> Path:
+    directory = config_yaml_path.parent
     if data_dir.exists():
         click.secho("Searching files in the directory {}".format(data_dir))
     else:
@@ -51,6 +72,7 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
                 input_files.append(x)
         if input_files:
             spec[INPUTS_KEY] = {}
+
         if parameters:
             spec[PARAMETERS_KEY] = {}
 
@@ -69,8 +91,8 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
             spec[PARAMETERS_KEY][name] = {}
             spec[PARAMETERS_KEY][name][DEFAULT_VALUE_KEY] = random_parameter()
 
-        with open(config_yaml_path, 'w') as f:
-            yaml.dump(spec, f, sort_keys=False)
+        write_step(config_yaml_path, spec, step=2)
+
 
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -78,6 +100,23 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
         exit(1)
     click.secho("Created: {}".format(config_yaml_path.absolute()), fg="green")
     return config_yaml_path
+
+
+def add_outputs(config_yaml_path: Path, outputs: tuple):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    spec[OUTPUTS_KEY] = []
+    for x in list(outputs):
+        p = Path(x).absolute()
+        while p.name == SRC_DIR:
+            p = p.parent
+        spec[OUTPUTS_KEY] = [str(Path(x).absolute().relative_to(p.parent))]
+    try:
+        with open(config_yaml_path, 'w') as f:
+            yaml.dump(spec, f, sort_keys=False)
+    except Exception as e:
+        click.secho("Failed: Error message {}".format(e), fg="red")
+    for item in spec[OUTPUTS_KEY]:
+        click.secho("Added: {} as a output".format(item), fg="green")
 
 
 def add_configuration_files(config_yaml_path: Path, configurations: tuple):
@@ -96,7 +135,6 @@ def add_configuration_files(config_yaml_path: Path, configurations: tuple):
 def get_configuration_files(config_yaml_path: Path):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
     return spec[CONFIG_FILE_KEY]
-
 
 
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
