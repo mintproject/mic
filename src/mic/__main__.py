@@ -2,20 +2,21 @@ import sys
 from pathlib import Path
 
 import click
-import semver
-from modelcatalog import Configuration, ModelConfiguration, DatasetSpecification, Parameter
-
 import mic
+import semver
 from mic import _utils, file
-from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_dockerfile
-from mic.constants import CONFIG_FILE
+from mic.component.executor import execute, execute_docker
+from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
+    render_dockerfile
+from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
+    add_configuration_files, add_outputs, create_config_file_yaml, get_spec, write_step
+from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS
 from mic.credentials import configure_credentials
-from mic.file import save
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
 from mic.publisher.model_catalog import publish_model_catalog
 from mic.resources.model import create as create_model
-from mic.resources.model_configuration import create as model_configuration_create
+from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 
 @click.group()
@@ -110,103 +111,263 @@ def modelconfiguration():
     """Command to create and edit ModelConfigurations"""
 
 
-@modelconfiguration.command(short_help="Create a modelconfiguration")
-@click.option(
-    "--name",
-    "-n",
-    type=str,
-    prompt=True,
-    required=True
-)
-@click.option(
-    "--inputs",
-    "-i",
-    type=int,
-    prompt=True,
-    default=0
-)
-@click.option(
-    "--outputs",
-    "-o",
-    type=int,
-    prompt=True,
-    default=0
-)
-@click.option(
-    "--parameters",
-    "-p",
-    type=int,
-    prompt=True,
-    default=0
-)
-@click.option(
-    "-d",
-    "--directory",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    default="."
-)
-@click.option(
-    "-l",
-    "--language",
-    type=click.Choice(['generic', 'python3', 'conda', 'R'], case_sensitive=False),
-    prompt=True,
-    required=True
-)
-def create(name, inputs, outputs, parameters, directory, language):
-    model_configuration = ModelConfiguration()
-    prepare_inputs_outputs_parameters(inputs, model_configuration, name)
-    component_dir = create_directory(Path(directory), name)
-    render_run_sh(component_dir, inputs, parameters, outputs, language)
-    render_io_sh(component_dir)
-    render_dockerfile(component_dir, language)
-    save(model_configuration.to_dict(), file_name=component_dir / CONFIG_FILE)
-    click.secho("Your component is available: {}".format(component_dir), fg="green")
-
-
 @modelconfiguration.command(short_help="Publish")
 @click.option(
-    "--profile",
-    "-p",
-    envvar="MINT_PROFILE",
-    type=str,
-    default="default",
-    metavar="<profile-name>",
-)
-@click.option(
     "-d",
     "--directory",
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
     default="."
+)
+def publish(directory):
+    try:
+        publish_docker()
+        publish_github()
+        publish_model_catalog()
+    except Exception as e:
+        exit(1)
+
+
+@cli.group()
+def encapsulate():
+    """Command to encapsulate your Model Configuration"""
+
+
+@encapsulate.command(short_help="Create directories and subdirectories")
+@click.argument(
+    "model_configuration_name",
+    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    required=True
+)
+def step1(model_configuration_name):
+    """
+    Create the directories and subdirectories.
+
+    mic modelconfiguration step1 <model_configuration_name>
+
+    The argument: `model_configuration_name` is the name of your model configuration
+     """
+    try:
+        model_dir_path = create_directory(Path('.'), model_configuration_name)
+    except Exception as e:
+        exit(1)
+    create_config_file_yaml(model_dir_path)
+
+
+@encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+@click.option(
+    "-p",
+    "--parameters",
+    type=int,
+    required=True,
+    default=0
+)
+def step2(mic_config_file, parameters):
+    """
+    Create MIC_CONFIG_FILE (config.yaml).
+
+    - Before to run this command, you must copy the files or directories of the model into the data directory
+
+    - Then, you must pass the number of parameters using the option (-p)
+
+    mic encapsulate step2 -f <mic_config_file> -p <number_of_parameters>
+
+    The argument: `MODEL_DIRECTORY` is the directory of your model configuration
+    """
+    inputs_dir = Path(mic_config_file).parent / DATA_DIRECTORY_NAME
+    if not inputs_dir.exists():
+        exit(1)
+    fill_config_file_yaml(Path(mic_config_file), inputs_dir, parameters)
+
+
+@encapsulate.command(short_help="Create MINT wrapper using the config.yaml")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step3(mic_config_file):
+    """
+    Create MINT wrapper using the config.yaml
+
+    - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
+
+    mic encapsulate step3 -f <mic_config_file>
+    """
+    if not Path(mic_config_file).exists():
+        click.secho("Error: {} doesn't exists".format(mic_config_file), fg="red")
+        exit(1)
+    config_path = Path(mic_config_file)
+    model_directory_path = config_path.parent
+    inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
+    run_path = render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
+    render_io_sh(model_directory_path, inputs, parameters, configs)
+    render_output(model_directory_path)
+    spec = get_spec(config_path)
+    write_step(config_path, spec, 3)
+    click.secho("The MINT Wrapper has created: {}".format(run_path))
+
+
+@encapsulate.command(short_help="Optional - If the configuration has config files, select them")
+@click.argument(
+    "configuration_files",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    required=True,
+    nargs=-1
 )
 @click.option(
     "-f",
-    "--force",
-    is_flag=True,
-    help="Force publish ignoring override warnings"
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
 )
-@click.option(
-    "-t",
-    "--tag",
-    type=str,
-    default=None,
-    help="Tag for GitHub release"
-)
-@click.option(
-    "-m",
-    "--message",
-    type=str,
-    default=None,
-    help="Message for GitHub release"
-)
-def publish(directory, profile, force=False, tag=None, message=None):
-    try:
-        # publish_docker()
-        publish_github(directory, profile, force, tag, message)
-        # publish_model_catalog()
-    except Exception as e:
-        click.secho(f"publish error", fg="red")
-        click.secho(e)
+def step4(mic_config_file, configuration_files):
+    """
+    THIS IS STEP IS OPTIONAL
+    Select the inputs files that are configuration files
+
+    - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
+
+    - And the files as arguments
+
+    mic encapsulate step4 -f <mic_config_file> [configuration_files]...
+
+    For example,
+    mic encapsulate step4 -f config.yaml data/example_dir/file1.txt  data/file2.txt
+    """
+    config_path = Path(mic_config_file)
+    if not config_path.exists():
         exit(1)
+    add_configuration_files(config_path, configuration_files)
+    model_directory_path = config_path.parent
+    inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
+    render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
+    render_io_sh(model_directory_path, inputs, parameters, configs)
+    render_output(model_directory_path)
+    spec = get_spec(config_path)
+    write_step(config_path, spec, 4)
+
+
+@encapsulate.command(short_help="Optional - Run your model with your computational environment.")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step5(mic_config_file):
+    """
+    Running your model in your computer with your computational environment.
+    For example,
+
+    mic encapsulate step5 -f <mic_config_file>
+    """
+    mic_config_path = Path(mic_config_file)
+    if not mic_config_path.exists():
+        exit(1)
+    execute(mic_config_path)
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 5)
+
+
+@encapsulate.command(short_help="Prepare your Docker Image")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step6(mic_config_file):
+    """
+    Create the Docker Image
+
+    mic encapsulate step6 -f <mic_config_file>
+    """
+    mic_config_path = Path(mic_config_file)
+    model_dir = mic_config_path.parent
+    src_dir_path = model_dir / SRC_DIR
+    framework = detect_framework(src_dir_path)
+    if framework is None:
+        framework = click.prompt("Select the language",
+                                 show_choices=True,
+                                 type=click.Choice(Framework, case_sensitive=False),
+                                 value_proc=handle
+                                 )
+
+    if framework == Framework.GENERIC:
+        bin_dir = model_dir / DOCKER_DIR / "bin"
+        bin_dir.mkdir(exist_ok=True)
+    dockerfile = render_dockerfile(model_dir, framework)
+    click.secho("The Dockerfile has been created: {}".format(dockerfile))
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 6)
+
+
+@encapsulate.command(short_help="Build and run the docker images")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step7(mic_config_file):
+    """
+    Build and run the Docker image
+
+    mic encapsulate step7 -f <mic_config_file>
+    """
+    mic_config_path = Path(mic_config_file)
+    execute_docker(Path(mic_config_file))
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 7)
+
+
+@encapsulate.command(short_help="Select the outputs")
+@click.argument(
+    "outputs",
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
+    required=True,
+    nargs=-1
+)
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step8(mic_config_file, outputs):
+    """
+    Select the outputs
+    For example,
+
+    mic encapsulate step8 -f <mic_config_file> [outputs]...
+    """
+    mic_config_path = Path(mic_config_file)
+    add_outputs(Path(mic_config_file), outputs)
+    spec = get_spec(mic_config_path)
+    write_step(mic_config_path, spec, 8)
+
+
+@encapsulate.command(short_help="Show status")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def status(mic_config_file):
+    mic_config_path = Path(mic_config_file)
+    spec = get_spec(mic_config_path)
+    click.secho("Step {} of {}".format(spec[STEP_KEY], TOTAL_STEPS))
+
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
@@ -226,4 +387,3 @@ def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     if _parameters:
         model_configuration.has_parameter = _parameters
     model_configuration.label = name
-

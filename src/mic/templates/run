@@ -1,31 +1,29 @@
 #!/bin/bash
-set -xe
-checkExitCode() {
-if [ $? -ne 0 ]; then
-    echo "Error"
-    exit 1;
-fi
-}
 BASEDIR=`dirname $0`
-. $BASEDIR/io.sh {{ inputs }} {{ parameters }} {{outputs}} "$@"
+. $BASEDIR/io.sh {{ number_inputs }} {{ number_parameters }} {{number_outputs}} "$@"
 CURDIR=`pwd`
-
-# EXAMPLE: PRINT THE VARIABLE
-{% for i in range(0, inputs) -%}
-echo "INPUTS: $INPUTS{{ i+1 }}"
+set -e
+## INPUTS VARIABLES
+{% if inputs -%}
+{% for key, item in inputs.items() -%}
+{{key}}=${INPUTS{{ loop.index  }}}
 {% endfor -%}
-{% for i in range(0, parameters) -%}
-echo "PARAMS: $PARAMS{{ i+1 }}"
+{% endif %}
+
+## PARAMETERS VARIABLES
+{% if parameters -%}
+{% for key, item in parameters.items() -%}
+{{key}}=${PARAMS{{loop.index  }}}
 {% endfor -%}
-{% for i in range(0, outputs) -%}
-echo "OUTPUTS: $OUTPUTS{{ i+1 }}"
-{% endfor %}
-# WRITE YOUR MODEL HERE
+{% endif %}
+
+set -xe
+
+####### WRITE YOUR INVOCATION LINE AFTER THIS COMMENT
 
 
-# MOVE THE OUTPUTS FILE HERE
-## You MUST move the output files
-## Example: A model with two outputs: file_a.txt and file_b.txt
-## You must write
-## mv file_a.txt $OUTPUTS1
-## mv file_B.txt $OUTPUTS2
+
+####### WRITE YOUR INVOCATION LINE BEFORE THIS COMMENT
+set -e
+cd $BASEDIR
+. $BASEDIR/output.sh

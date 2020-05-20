@@ -5,11 +5,14 @@ nav:
   - Configure: configure.md
   - Add model: usage-add-model.md
   - 'Add modelconfiguration':
-      - 'Before you start...': 'model_configuration/02.md'
-      - 'Getting started': 'model_configuration/03.md'
-      - 'Customize your code': 'model_configuration/05.md'
-      - 'Validate': 'model_configuration/06.md'
-      - 'Publish': 'model_configuration/07.md'
+      - 'Before you start...': 'model_configuration/02-pre-steps.md'
+      - 'Getting started': 'model_configuration/03-create-skeleton.md'
+      - 'Inputs and parameters': 'model_configuration/04-copy-your-data.md'
+      - 'Write the invocation lines': 'model_configuration/05-write-invocation.md'
+      - 'Pass the parameters': 'model_configuration/06-pass-parameters.md'
+      - 'Run and Validate': 'model_configuration/07-validate.md'
+      - 'Identify the outputs': 'model_configuration/08-outputs.md'
+      - 'Publish': 'model_configuration/09-publish.md'
   - FAQ: faq.md
   - Glossary: glossary.md
 
