@@ -54,9 +54,13 @@ def version(debug=False):
               help='Your email.', required=True, default="mint@isi.edu", show_default=True)
 @click.option('--password', prompt="Password",
               required=True, hide_input=True, help="Your password")
-def configure(server, username, password, profile="default"):
+@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username.', required=True)
+@click.option('--git_token', prompt='GitHub API token',
+              help='Your GitHub API token. Found under GitHub settings -> developer settings -> Personal access tokens.'
+                   'Muse have read, write and basic repo access to work', required=True, hide_input=False)
+def configure(server, username, password, git_username, git_token, profile="default"):
     try:
-        configure_credentials(server, username, password, profile)
+        configure_credentials(server, username, password, git_username, git_token, profile)
     except Exception as e:
         click.secho("Unable to create configuration file", fg="red")
 
@@ -227,7 +231,6 @@ def step3(mic_config_file):
 def step4(mic_config_file, configuration_files):
     """
     THIS IS STEP IS OPTIONAL
-
     Select the inputs files that are configuration files
 
     - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
@@ -364,6 +367,7 @@ def status(mic_config_file):
     mic_config_path = Path(mic_config_file)
     spec = get_spec(mic_config_path)
     click.secho("Step {} of {}".format(spec[STEP_KEY], TOTAL_STEPS))
+
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
