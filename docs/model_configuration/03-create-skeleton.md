@@ -1,24 +1,9 @@
-In this example, we are going to run a simple `python` code. 
-
-```bash
-$ python hello.py Fling output.txt
-Created the file output.txt
-```
-
-
-This code creates the file `output.txt` 
-```bash
-Hello Fling!
-```
-
-The code is available [here](https://gist.github.com/dfc647d2cca69a8e9e7561aff668e2c3)
-
 ### Creating the directory skeleton for your first configuration
 
-In this example, the command will be
+You must create the directories and sub directories
 
 ```bash
-$ mic model_configuration skeleton <model_name>
+$ mic encapsulate step1 <model_name>
 ```
 
 MIC has created a directory `model_name`.

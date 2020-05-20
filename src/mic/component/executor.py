@@ -33,7 +33,7 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
     model_path = mint_config_file.parent
     inputs, parameters, _, _ = get_inputs_parameters(mint_config_file)
     for _, item in inputs.items():
-        input_path = model_path / DATA_DIR / item['path']
+        input_path = model_path / item['path']
         is_directory = True if input_path.is_dir() else False
         try:
             os.symlink(input_path, src_dir_path / input_path.name, target_is_directory=is_directory)

@@ -21,4 +21,4 @@ set -xe
 
 ####### WRITE YOUR INVOCATION LINE BEFORE THIS COMMENT
 set -e
-. $BASEDIR/output.sh
+#. $BASEDIR/output.sh

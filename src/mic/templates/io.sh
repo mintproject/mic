@@ -92,7 +92,8 @@ export  {{ key }}
 
 ## PARAMETERS VARIABLES
 {% for item in configs -%}
-envsubst < {{item}} > {{item}}
+cp {{item}} {{item}}.bk
+envsubst < {{item}}.bk> {{item}}
 {% endfor -%}
 
 

@@ -122,8 +122,10 @@ def publish(directory):
     except Exception as e:
         exit(1)
 
-
-@modelconfiguration.command(short_help="Create directories and subdirectories")
+@cli.group()
+def encapsulate():
+    """Command to create and edit ModelConfigurations"""
+@encapsulate.command(short_help="Create directories and subdirectories")
 @click.argument(
     "model_configuration_name",
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
@@ -143,7 +145,7 @@ def step1(model_configuration_name):
         exit(1)
 
 
-@modelconfiguration.command(short_help="Create directories and subdirectories")
+@encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
 @click.option(
     "-i",
     "--inputs_dir",
@@ -178,7 +180,7 @@ def step2(model_directory, inputs_dir, parameters):
     create_file_yaml(Path(model_directory), inputs_dir, parameters)
 
 
-@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+@encapsulate.command(short_help="Create MINT wrapper using the config.yaml")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -200,12 +202,14 @@ def step3(mic_config_file):
     model_directory_path = config_path.parent
     inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
     number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
-    render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
+    run_path = render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path)
+    click.secho("The MINT Wrapper has created: {}".format(run_path))
 
 
-@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+
+@encapsulate.command(short_help="Optional - If the configuration has config files, select them")
 @click.argument(
     "configuration_files",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
@@ -245,7 +249,7 @@ def step4(mic_config_file, configuration_files):
     render_output(model_directory_path)
 
 
-@modelconfiguration.command(short_help="Create MINT wrapper using the config.yaml")
+@encapsulate.command(short_help="Optional - Run your model with your computational environment.")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -264,7 +268,7 @@ def step5(mic_config_file):
     execute(Path(mic_config_file))
 
 
-@modelconfiguration.command(short_help="Building Docker Image using the config.yaml")
+@encapsulate.command(short_help="Prepare your Docker Image")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -280,14 +284,15 @@ def step6(mic_config_file):
     """
     model_dir = Path(mic_config_file).parent
     src_dir_path = model_dir / SRC_DIR
-    if detect_framework(src_dir_path) is None:
-        language = click.prompt("Select the language",
+    framework = detect_framework(src_dir_path)
+    if framework is None:
+        framework = click.prompt("Select the language",
                                 show_choices=True,
                                 type=click.Choice(Framework, case_sensitive=False),
                                 value_proc=handle
                                 )
-        render_dockerfile(model_dir, language)
-
+    dockerfile = render_dockerfile(model_dir, framework)
+    click.secho("The Dockerfile has been created: {}".format(dockerfile))
     pass
 
 

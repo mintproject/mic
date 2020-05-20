@@ -58,11 +58,11 @@ def render_run_sh(directory: Path,
 
 def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list) -> Path:
     template = env.get_template(IO_FILE)
+    data_dir = directory / DATA_DIR
     run_file = directory / SRC_DIR / IO_FILE
-    print(configs)
     with open(run_file, "w") as f:
         content = render_template(template=template, inputs=inputs,
-                                  parameters=parameters, configs=[Path(i).name for i in configs])
+                                  parameters=parameters, configs=[str(Path(directory / i).relative_to(data_dir)) for i in configs])
         f.write(content)
     return run_file
 

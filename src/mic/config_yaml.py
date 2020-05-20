@@ -45,7 +45,10 @@ def create_file_yaml(directory: Path, data_dir: Path, parameters: int) -> Path:
         exit(1)
     try:
         spec = {}
-        input_files = [x for x in data_dir.iterdir()]
+        input_files = []
+        for x in data_dir.iterdir():
+            if not x.name.startswith('.'):
+                input_files.append(x)
         if input_files:
             spec[INPUTS_KEY] = {}
         if parameters:
