@@ -125,7 +125,7 @@ def publish(directory):
 
 @cli.group()
 def encapsulate():
-    """Command to create and edit ModelConfigurations"""
+    """Command to encapsulate your Model Configuration"""
 
 
 @encapsulate.command(short_help="Create directories and subdirectories")
