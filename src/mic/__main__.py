@@ -359,7 +359,7 @@ def status(mic_config_file):
     mic_config_path = Path(mic_config_file)
     spec = get_spec(mic_config_path)
     click.secho("Step {} of {}".format(spec[STEP_KEY], TOTAL_STEPS))
-    
+
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     _inputs = []
     _outputs = []

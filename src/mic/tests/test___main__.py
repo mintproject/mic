@@ -16,7 +16,7 @@ MODEL_NAME = "model"
 PARAMETERS_2: int = 2
 
 
-def test_skeleton(tmp_path):
+def test_step1(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
     try:
@@ -26,7 +26,7 @@ def test_skeleton(tmp_path):
         assert False
 
 
-def test_init(tmp_path):
+def test_step2(tmp_path):
     runner = CliRunner()
     os.chdir(tmp_path)
     response = runner.invoke(step1, [MODEL_NAME])
@@ -34,13 +34,15 @@ def test_init(tmp_path):
     p = component_dir / DATA_DIRECTORY_NAME / "hello.txt"
     p.write_text("test")
     try:
-        response = runner.invoke(step2, [MODEL_NAME, "-p", PARAMETERS_2])
+        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME, "-p", 2])
         assert response.exit_code == 0
     except:
         assert False
     spec = load((component_dir / CONFIG_YAML_NAME).open(), Loader=Loader)
-    assert len(spec["inputs"]) == 1
-    assert len(spec["parameters"]) == 2
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(component_dir / CONFIG_YAML_NAME)
+    assert number_inputs == 1
+    assert number_parameters == 2
+
 
 
 def test_init_two_inputs(tmp_path):
@@ -55,13 +57,15 @@ def test_init_two_inputs(tmp_path):
     p2.write_text("test")
 
     try:
-        response = runner.invoke(step2, [MODEL_NAME, "-p", PARAMETERS_2])
+        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME])
         assert response.exit_code == 0
     except:
         assert False
     spec = load((component_dir / CONFIG_YAML_NAME).open(), Loader=Loader)
-    assert len(spec["inputs"]) == 2
-    assert len(spec["parameters"]) == 2
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(component_dir / CONFIG_YAML_NAME)
+    assert number_inputs == 2
+    assert number_parameters == 0
+
 
 
 def test_init_two_inputs_zero_parameters(tmp_path):
@@ -76,13 +80,13 @@ def test_init_two_inputs_zero_parameters(tmp_path):
     p2.write_text("test")
 
     try:
-        response = runner.invoke(step2, [MODEL_NAME])
+        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME])
         assert response.exit_code == 0
     except:
         assert False
-    spec = load((component_dir / CONFIG_YAML_NAME).open(), Loader=Loader)
-    assert len(spec[INPUTS_KEY]) == 2
-    assert PARAMETERS_KEY not in spec
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(component_dir / CONFIG_YAML_NAME)
+    assert number_inputs == 2
+    assert number_parameters == 0
 
 
 def test_init_two_inputs_zero_parameters(tmp_path):
@@ -99,7 +103,7 @@ def test_init_two_inputs_zero_parameters(tmp_path):
     p3.write_text("test")
 
     try:
-        response = runner.invoke(step2, [MODEL_NAME])
+        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME])
         assert response.exit_code == 0
     except:
         assert False
@@ -121,7 +125,7 @@ def test_step3(tmp_path):
     p2.write_text("test")
 
     try:
-        response = runner.invoke(step2, [MODEL_NAME, "-p", PARAMETERS_2])
+        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME])
         print(response.output)
         assert response.exit_code == 0
     except:
@@ -147,13 +151,13 @@ def test_step5(tmp_path):
     response = runner.invoke(step1, [MODEL_NAME])
     component_dir = tmp_path / MODEL_NAME
     input_config_path = component_dir / DATA_DIRECTORY_NAME / "this_is_config_file.txt"
-    input_config_path.write_text("0 0 {{parameters.parameter_1.default_value}} {{parameters.parameter_2.default_value}}")
+    input_config_path.write_text("0 0 {{parameter_1}} {{parameter_2}")
 
     input_data_path = component_dir / DATA_DIRECTORY_NAME / "this_is_data.txt"
     input_data_path.write_text("test")
 
     try:
-        response = runner.invoke(step2, [MODEL_NAME, "-p", PARAMETERS_2])
+        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME, "-p", 2]z)
         assert response.exit_code == 0
     except:
         assert False
