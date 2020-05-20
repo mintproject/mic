@@ -13,10 +13,10 @@ In this case, we have two basic parameters:
 ```yaml
 ...
 parameters:
-    - name: start_date
+   start_date:
       default_value: 2010
-    - name: edit_date
-      default_value: 2012
+   end_date:
+    default_value: 2012
 ```
 
 
@@ -53,18 +53,18 @@ SWAT uses configuration files to pass the parameters. To manipulate the simulati
 Then, we must open the file and replace the values with variables
 ```bash
  DAY_START YRC_START DAY_END YRC_END  STEP
-         0      {{ start_date }}       0   {{ end_date }}     0
+         0      ${start_date}       0   ${end_date}     0
 ```
 
 And add the file as configuration file of the model.
 
 ```bash
-mic model_configuration config <path_1> <path_n>
+mic encapsulate step4 -f config.yaml [configuration_files]...
 ```
 
 In the example, we must run
 ```
-mic model_configuration config `src/time.sim`
+mic encapsulate step4 -f config.yaml`src/time.sim`
 ```
 
 And the `config.yaml` has been updated
@@ -72,9 +72,9 @@ And the `config.yaml` has been updated
 ```
 ```yaml
 inputs:
-    - name: gldas_noaho25_m.2.1
+    gldas_noaho25_m.2.1
       path: data/GLDAS_NOAH025_M.2.1/
-    - name:  
+    pre  
       path: data/prepicipitation_rates.txt
 parameters:
     - name: start_date

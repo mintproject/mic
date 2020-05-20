@@ -3,7 +3,6 @@ from pathlib import Path
 
 import click
 from jinja2 import Environment, PackageLoader, select_autoescape
-
 from mic.component.python3 import freeze
 from mic.constants import *
 
@@ -57,32 +56,38 @@ def render_run_sh(directory: Path,
     return run_file
 
 
-def render_io_sh(directory: Path) -> Path:
+def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list) -> Path:
     template = env.get_template(IO_FILE)
+    data_dir = directory / DATA_DIR
     run_file = directory / SRC_DIR / IO_FILE
     with open(run_file, "w") as f:
-        content = render_template(template=template)
+        content = render_template(template=template, inputs=inputs,
+                                  parameters=parameters, configs=[str(Path(directory / i).relative_to(data_dir)) for i in configs])
         f.write(content)
     return run_file
 
 
-def render_dockerfile(directory: Path, language: str) -> Path:
+def detect_framework(src_dir: Path) -> Framework:
+    return None
+
+
+def render_dockerfile(model_directory: Path, language: Framework) -> Path:
     template = env.get_template(DOCKER_FILE)
-    run_file = directory / DOCKER_DIR / DOCKER_FILE
+    run_file = model_directory / DOCKER_DIR / DOCKER_FILE
     with open(run_file, "w") as f:
         content = render_template(template=template, language=language)
         f.write(content)
-    language_tasks(directory, language)
+    # language_tasks(model_directory, language)
     return run_file
 
 
 def render_output(directory: Path, language=None) -> Path:
     template = env.get_template(OUTPUT_FILE)
-    run_file = directory / DOCKER_DIR / OUTPUT_FILE
+    run_file = directory / SRC_DIR / OUTPUT_FILE
     with open(run_file, "w") as f:
         content = render_template(template=template, language=language)
         f.write(content)
-    #language_tasks(directory, language)
+    # language_tasks(directory, language)
     return run_file
 
 

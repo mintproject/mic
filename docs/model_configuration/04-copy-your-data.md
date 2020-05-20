@@ -30,23 +30,23 @@ Let's suppose that you have identified two parameters:
 Then, you must run the command:
 
 ```bash
-$ mic model_configuration init <model_dir> --inputs_dir data/ --number-parameters 2
+$ mic encapsulate step2 <model_dir> --inputs_dir data/ --number-parameters 2
 or
-$ mic model_configuration init <model_dir> --number-parameters 2
+$ mic encapsulate step2 <model_dir>  --number-parameters 2
 ```
 
 This command generates `config.yaml` file. This YAML file with the information about your model configuration
 
 ```yaml
 inputs:
-    - name: gldas_noaho25_m.2.1
+  gldas_noaho25_m.2.1:
       path: data/GLDAS_NOAH025_M.2.1/
-    - name:  
+ prepicipitation_rates: 
       path: data/prepicipitation_rates.txt
 parameters:
-    - name: parameter1
+  parameter1:
       default_value: 
-    - name: parameter2
+  parameter2:
       default_value: 
 ```
 
@@ -62,15 +62,16 @@ You **can** edit
 
 Then, we must generate the MINT wrapper to run your model
 
-You must run:
+You must pass the `MIC_CONFIG_FILE` (`config.yaml`) using the option (`-f`).
+
 
 ```bash
-$ mic model_configuration create config.yaml
+$ mic encapsulate step3 -f config.yaml
 The invocation has been created.
 ```
 
 !!! warning
-    If you edit the inputs or the parameters section in the `config.yaml` file, you must re-run `mic model_configuration init config.yaml`
+    If you edit the inputs or the parameters section in the `config.yaml` file, you must re-run ` mic encapsulate step3 -f config.yaml`
 
 
 In the next step, you are going to learn how to run your models using the MINT Wrapper
