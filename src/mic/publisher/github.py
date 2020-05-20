@@ -12,9 +12,21 @@ def publish_github(directory: Path, profile, force, tag, message):
     Publish the directory on git
     If the directory is not a git directory, create it
     If the git directory doesn't have a remote origin, create a github repository
-    @param profile:
-    @param directory:
-    @type directory:
+
+    @type profile: str
+    @param profile: the prodile to use in the credentials file
+
+    @type: directory: Path
+    @param directory: path to the model's directory
+
+    @type force: bool
+    @param force: should publish be forced to run, ignoring override protection
+
+    @type tag: str
+    @param tag: name for the release tag
+
+    @type message: str
+    @param message: message for release
     """
 
     git_username = None
@@ -157,10 +169,16 @@ def publish_github(directory: Path, profile, force, tag, message):
 
 def is_git_directory(gitObj, name):
     """
-    Returns True if user already owns a repository with the model's name.
-    False otherwise
-    @param gitObj: github
+    Returns True if user already owns a repository with the model's name. False otherwise
+
+    @type gitObj: github
+    @param gitObj: Object for the github class
+
+    @type name: repository name to check
     @param name: string
+
+    @rtype bool
+    @return: Whether there is a git directory with this name already
     """
     repo_list = gitObj.get_user().get_repos(type="owner")
 
@@ -175,10 +193,18 @@ def git_init(path, gitObj, name):
     """
     Creates a new repository with the given name under the users repositories
     Checks if README exists in current path. Creates new README if one does not already exist
-    @param path: path
-    @param gitObj: github
-    @param name: string
-    @return repo: github.repository
+
+    @type path: Path
+    @param path: Path of model
+
+    @type gitObj: github
+    @param gitObj: github object with token credentials
+
+    @type name: str
+    @param name: name of repository
+
+    @rtype: repo: github.repository
+    @return repo: object for the repository to modify
     """
 
     user = gitObj.get_user()
@@ -214,9 +240,18 @@ def git_init(path, gitObj, name):
 def compress_src_dir(directory, name, force):
     """
     Compress the directory src and create a zip file
-    @param directory: Path
-    @param name: string
-    @return path: Path
+
+    @type directory: Path
+    @param directory:
+
+    @type name: str
+    @param name: name for the zipped file
+
+    @type force: bool
+    @param force: flag to override file if zip file with same name already exists
+
+    @rtype path: Path
+    @return path: Path to the zipped file
     """
 
     file_paths = []
@@ -267,10 +302,18 @@ def update_release(repo, tag_name, message):
     """
     If there is a release already, increment it by new version. If tag_name is entered create the new release with
     entered tag_name. Create new release if one does not exist
-    @param repo: github.Repository
-    @param tag_name: string
-    @param message: string
-    @return release: github.GitRelease
+
+    @type repo: github.Repository
+    @param repo: repository object for the model
+
+    @type tag_name: str
+    @param tag_name: GitHub tag for the commit
+
+    @type message: str
+    @param message: GitHub message for the release
+
+    @rtype release: github.GitRelease
+    @return release: release object
     """
 
     releases = repo.get_releases()
@@ -284,7 +327,6 @@ def update_release(repo, tag_name, message):
     for r in releases:
         if r.tag_name == tag_name:
             tag_already_taken = True
-
 
     # If no message given, provide auto generated message
     if message is None:
