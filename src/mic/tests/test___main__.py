@@ -157,7 +157,7 @@ def test_step5(tmp_path):
     input_data_path.write_text("test")
 
     try:
-        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME, "-p", 2]z)
+        response = runner.invoke(step2, ["-f", component_dir / CONFIG_YAML_NAME, "-p", 2])
         assert response.exit_code == 0
     except:
         assert False
