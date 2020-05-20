@@ -5,12 +5,12 @@ import click
 import mic
 import semver
 from mic import _utils, file
-from mic.component.executor import execute
+from mic.component.executor import execute, execute_docker
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
     render_dockerfile
 from mic.config_yaml import create_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files
-from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle
+from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import publish_github
@@ -291,8 +291,32 @@ def step6(mic_config_file):
                                 type=click.Choice(Framework, case_sensitive=False),
                                 value_proc=handle
                                 )
+
+    if framework == Framework.GENERIC:
+        bin_dir = model_dir / DOCKER_DIR / "bin"
+        bin_dir.mkdir(exist_ok=True)
     dockerfile = render_dockerfile(model_dir, framework)
     click.secho("The Dockerfile has been created: {}".format(dockerfile))
+    pass
+
+
+@encapsulate.command(short_help="Build and run the docker images")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+def step7(mic_config_file):
+    """
+    Create the Docker Image
+    For example,
+
+    mic modelconfiguration step6 -f config.yaml
+    """
+    model_dir = Path(mic_config_file).parent
+    execute_docker(Path(mic_config_file))
+
     pass
 
 

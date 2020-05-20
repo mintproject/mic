@@ -9,3 +9,8 @@ pip install -r /tmp/requirements.txt
 ADD environment.yml /tmp/environment.yml
 RUN conda env update -f /tmp/environment.yml
 {% endif -%}
+
+{% if "generic" in language.label  -%}
+#If you put an executable in the bin directory, uncomment the next file
+#ADD bin/* /usr/bin/
+{% endif -%}

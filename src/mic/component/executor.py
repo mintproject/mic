@@ -6,10 +6,11 @@ import uuid
 from pathlib import Path
 
 import click
+import docker
 from dame.cli_methods import create_sample_resource
-from dame.executor import build_parameter, build_output
+from dame.executor import build_parameter, build_output, run_docker
 from mic.config_yaml import get_inputs_parameters
-from mic.constants import SRC_DIR, EXECUTIONS_DIR, DATA_DIR
+from mic.constants import SRC_DIR, EXECUTIONS_DIR, DATA_DIR, DOCKER_DIR
 from modelcatalog import ModelConfiguration, DatasetSpecification, Parameter
 
 
@@ -36,7 +37,8 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
         input_path = model_path / item['path']
         is_directory = True if input_path.is_dir() else False
         try:
-            os.symlink(input_path, src_dir_path / input_path.name, target_is_directory=is_directory)
+            shutil.copytree(input_path, src_dir_path / input_path.name)
+            #os.symlink(input_path, src_dir_path / input_path.name, target_is_directory=is_directory)
             click.secho("Added: {} into the execution directory".format(input_path.name), fg="green")
         except OSError as e:
             click.secho("Failed: Error message {}".format(e), fg="red")
@@ -108,6 +110,47 @@ def execute(mint_config_file: Path):
         logging.error("Unable to cmd_line", exc_info=True)
     click.secho("Running \n {}".format(line), fg="green")
     run_execution(line, execution_dir)
+
+def build_docker(docker_path: Path, name: str):
+    client = docker.from_env()
+    image, logs = client.images.build(path=str(docker_path), tag="{}:latest".format(name), nocache=True)
+    for chunk in logs:
+        print(chunk)
+    return image.id
+    #return docker_image_name
+
+def execute_docker(mint_config_file: Path):
+    model_path = mint_config_file.parent
+    name = model_path.name
+    docker_path = model_path / DOCKER_DIR
+    image = build_docker(docker_path, name)
+
+
+    src_dir = create_execution_directory(mint_config_file, model_path)
+    resource = create_model_catalog_resource(mint_config_file)
+    mint_volumes = {str(src_dir.absolute()): {'bind': '/tmp/mint', 'mode': 'rw'}}
+    print(mint_volumes)
+    print(image)
+    try:
+        line = get_command_line(resource)
+    except:
+        logging.error("Unable to cmd_line", exc_info=True)
+    click.secho("Running \n {}".format(line), fg="green")
+    try:
+        client = docker.from_env()
+        res = client.containers.run(command=line,
+                                    image=image,
+                                    volumes=mint_volumes,
+                                    working_dir='/tmp/mint',
+                                    detach=True,
+                                    stream=True,
+                                    remove=True
+                                    )
+        for chunk in res.logs(stream=True):
+            print(chunk)
+
+    except Exception as e:
+        logging.error(e, exc_info=True)
 
 
 def get_command_line(resource):

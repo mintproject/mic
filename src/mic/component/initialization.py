@@ -83,7 +83,7 @@ def render_dockerfile(model_directory: Path, language: Framework) -> Path:
 
 def render_output(directory: Path, language=None) -> Path:
     template = env.get_template(OUTPUT_FILE)
-    run_file = directory / DOCKER_DIR / OUTPUT_FILE
+    run_file = directory / SRC_DIR / OUTPUT_FILE
     with open(run_file, "w") as f:
         content = render_template(template=template, language=language)
         f.write(content)
