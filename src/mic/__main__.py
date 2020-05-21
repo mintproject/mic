@@ -56,7 +56,7 @@ def version(debug=False):
               required=True, hide_input=True, help="Your password")
 @click.option('--name', prompt='Name', help='Your name', required=True)
 @click.option('--email', prompt='Email', help='Your email', required=True)
-@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username.', required=True)
+@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username', required=True)
 @click.option('--git_token', prompt='GitHub API token',
               help='Your GitHub API token. Found under GitHub settings -> developer settings -> Personal access tokens.'
                    'Muse have read, write and basic repo access to work', required=True, hide_input=False)
