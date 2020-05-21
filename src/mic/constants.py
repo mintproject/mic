@@ -21,6 +21,13 @@ DATA_DIR = "data"
 REQUIREMENTS_FILE = "requirements.txt"
 EXECUTIONS_DIR = "executions"
 TOTAL_STEPS = 8
+MINT_COMPONENT_ZIP = "mint_component"
+GIT_TOKEN_KEY = "git_token"
+GIT_USERNAME_KEY = "git_username"
+DOCKER_KEY = "docker_image"
+REPO_KEY = "github_repo_url"
+VERSION_KEY = "version"
+DOCKER_USERNAME_KEY = "dockerhub_username"
 
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")

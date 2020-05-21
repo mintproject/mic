@@ -9,12 +9,12 @@ from mic.component.executor import execute, execute_docker
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
     render_dockerfile
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, add_outputs, create_config_file_yaml, get_spec, write_step
-from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS
+    add_configuration_files, add_outputs, create_config_file_yaml, get_spec, write_step, write_spec, get_key_spec
+from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS, \
+    DOCKER_KEY, REPO_KEY, VERSION_KEY
 from mic.credentials import configure_credentials
 from mic.publisher.docker import publish_docker
-from mic.publisher.github import publish_github
-from mic.publisher.model_catalog import publish_model_catalog
+from mic.publisher.github import create_local_repo_and_commit, push
 from mic.resources.model import create as create_model
 from modelcatalog import Configuration, DatasetSpecification, Parameter
 
@@ -54,9 +54,17 @@ def version(debug=False):
               help='Your email.', required=True, default="mint@isi.edu", show_default=True)
 @click.option('--password', prompt="Password",
               required=True, hide_input=True, help="Your password")
-def configure(server, username, password, profile="default"):
+@click.option('--name', prompt='Name', help='Your name', required=True)
+@click.option('--email', prompt='Email', help='Your email', required=True)
+@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username.', required=True)
+@click.option('--git_token', prompt='GitHub API token',
+              help='Your GitHub API token. Found under GitHub settings -> developer settings -> Personal access tokens.'
+                   'Muse have read, write and basic repo access to work', required=True, hide_input=False)
+@click.option('--dockerhub_username', prompt='Docker Username', help='Your Docker Username.')
+def configure(server, username, password, git_username, git_token, name, email, dockerhub_username, profile="default"):
     try:
-        configure_credentials(server, username, password, profile)
+        configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username,
+                              profile)
     except Exception as e:
         click.secho("Unable to create configuration file", fg="red")
 
@@ -103,27 +111,6 @@ def load(filename, profile):
 
 
 @cli.group()
-def modelconfiguration():
-    """Command to create and edit ModelConfigurations"""
-
-
-@modelconfiguration.command(short_help="Publish")
-@click.option(
-    "-d",
-    "--directory",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
-    default="."
-)
-def publish(directory):
-    try:
-        publish_docker()
-        publish_github()
-        publish_model_catalog()
-    except Exception as e:
-        exit(1)
-
-
-@cli.group()
 def encapsulate():
     """Command to encapsulate your Model Configuration"""
 
@@ -147,6 +134,7 @@ def step1(model_configuration_name):
     except Exception as e:
         exit(1)
     create_config_file_yaml(model_dir_path)
+    create_local_repo_and_commit(model_dir_path)
 
 
 @encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
@@ -322,9 +310,9 @@ def step7(mic_config_file):
     mic encapsulate step7 -f <mic_config_file>
     """
     mic_config_path = Path(mic_config_file)
-    execute_docker(Path(mic_config_file))
-    spec = get_spec(mic_config_path)
-    write_step(mic_config_path, spec, 7)
+    docker_image = execute_docker(Path(mic_config_file))
+    write_spec(mic_config_path, DOCKER_KEY, docker_image)
+    write_spec(mic_config_path, STEP_KEY, 7)
 
 
 @encapsulate.command(short_help="Select the outputs")
@@ -349,8 +337,43 @@ def step8(mic_config_file, outputs):
     """
     mic_config_path = Path(mic_config_file)
     add_outputs(Path(mic_config_file), outputs)
-    spec = get_spec(mic_config_path)
-    write_step(mic_config_path, spec, 8)
+    write_spec(mic_config_path, STEP_KEY, 8)
+
+
+@encapsulate.command(short_help="Publish your code")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def step9(mic_config_file, profile):
+    """
+    Select the outputs
+    For example,
+
+    mic encapsulate step9 -f <mic_config_file> [outputs]...
+    """
+    mic_config_path = Path(mic_config_file)
+    model_dir = mic_config_path.parent
+    url, version = push(model_dir, profile)
+    write_spec(mic_config_path, REPO_KEY, url)
+    write_spec(mic_config_path, VERSION_KEY, version)
+    write_spec(mic_config_path, STEP_KEY, 9)
+    docker_image = publish_docker(mic_config_path, profile, version)
+    write_spec(mic_config_path, DOCKER_KEY, docker_image)
+    click.secho("Repository: {}".format(url))
+    click.secho("Version: {}".format(version))
+    click.secho("Docker Image: {}".format(docker_image))
+
 
 
 @encapsulate.command(short_help="Show status")
