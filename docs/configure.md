@@ -1,4 +1,3 @@
-# Login and credentials
 
 ## Overview
 ```
@@ -8,8 +7,7 @@ mic configure [-p | --profile] [--server] [--username] [--password] [--name]
 
 ## Description
 
-mic uses several APIs to upload models
-The MINT Model Catalog requires credentials for modifying the contents in the catalog. Use this command to configure username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/). This command can also be used with no parameters, it will prompt the user to enter any required field not given. 
+mic uses several APIs to upload models. The MINT Model Catalog requires credentials for modifying the contents in the catalog. Use this command to configure username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/). This command can also be used with no parameters, it will prompt the user to enter any required field not given. 
 
 ## Options
 
