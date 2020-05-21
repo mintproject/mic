@@ -37,12 +37,15 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
         input_path = model_path / item['path']
         is_directory = True if input_path.is_dir() else False
         try:
-            shutil.copytree(input_path, src_dir_path / input_path.name)
+            if is_directory:
+                shutil.copytree(input_path, src_dir_path / input_path.name)
+            else:
+                shutil.copy(input_path, src_dir_path / input_path.name)
+
             # os.symlink(input_path, src_dir_path / input_path.name, target_is_directory=is_directory)
             click.secho("Added: {} into the execution directory".format(input_path.name), fg="green")
         except OSError as e:
             click.secho("Failed: Error message {}".format(e), fg="red")
-
         except Exception as e:
             click.secho("Failed: Error message {}".format(e), fg="red")
     click.secho("The execution directory is available {}".format(src_dir_path), fg="green")
@@ -98,6 +101,7 @@ def create_model_catalog_resource(mint_config_file):
 def run_execution(line, execution_dir):
     proc = subprocess.Popen(line.split(' '), cwd=execution_dir)
     proc.wait()
+    return proc.returncode
 
 
 def execute(mint_config_file: Path):
@@ -108,16 +112,19 @@ def execute(mint_config_file: Path):
         line = get_command_line(resource)
     except:
         logging.error("Unable to cmd_line", exc_info=True)
-    click.secho("Running \n {}".format(line), fg="green")
-    run_execution(line, execution_dir)
+    click.secho("Running\n{}".format(line))
+    if run_execution(line, execution_dir) == 0:
+        click.secho("Success", fg="green")
+    else:
+        click.secho("Failed", fg="red")
 
 
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
-    image, logs = client.images.build(path=str(docker_path), tag="{}:latest".format(name), nocache=True)
+    image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
     for chunk in logs:
         print(chunk)
-    return image.id
+    return image.tags[0]
     # return docker_image_name
 
 
@@ -130,8 +137,6 @@ def execute_docker(mint_config_file: Path):
     src_dir = create_execution_directory(mint_config_file, model_path)
     resource = create_model_catalog_resource(mint_config_file)
     mint_volumes = {str(src_dir.absolute()): {'bind': '/tmp/mint', 'mode': 'rw'}}
-    print(mint_volumes)
-    print(image)
     try:
         line = get_command_line(resource)
     except:
@@ -149,9 +154,12 @@ def execute_docker(mint_config_file: Path):
                                     )
         for chunk in res.logs(stream=True):
             print(chunk)
+        click.secho("Success", fg="green")
 
     except Exception as e:
+        click.secho("Failed", fg="red")
         logging.error(e, exc_info=True)
+    return image
 
 
 def get_command_line(resource):

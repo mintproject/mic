@@ -50,9 +50,26 @@ def get_spec(config_yaml_path: Path) -> dict:
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
     return spec
 
+def get_key_spec(config_yaml_path: Path, key: str):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    if key in spec:
+        return spec[key]
+    return None
+
+def write_spec(config_yaml_path: Path, key: str, value: object):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    spec[key] = value
+    with open(config_yaml_path, 'w') as f:
+        yaml.dump(spec, f, sort_keys=False)
+
 
 def write_step(config_yaml_path: Path, spec: dict, step: int):
     spec[STEP_KEY] = step
+    with open(config_yaml_path, 'w') as f:
+        yaml.dump(spec, f, sort_keys=False)
+
+def write_docker_image(config_yaml_path: Path, spec: dict, image_name: str):
+    spec[DOCKER_KEY] = {NAME_KEY : image_name}
     with open(config_yaml_path, 'w') as f:
         yaml.dump(spec, f, sort_keys=False)
 
@@ -77,7 +94,7 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
             spec[PARAMETERS_KEY] = {}
 
         for index, item in enumerate(input_files):
-            name = slugify(str(item.name).split('.')[0])
+            name = slugify(str(item.name).replace('.', "_"))
             spec[INPUTS_KEY][name] = {}
             spec[INPUTS_KEY][name][PATH_KEY] = str(item.relative_to(directory))
     except Exception as e:
