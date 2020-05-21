@@ -73,7 +73,6 @@ def compress_src_dir(model_path: Path):
 def check_create_remote_repo(repo, profile, model_name):
     if "origin" in repo.remotes:
         try:
-            print(repo.remotes["origin"].url)
             return repo.remotes["origin"].url
         except:
             pass
@@ -160,7 +159,7 @@ def github_create_repo(profile, model_name):
             exit(0)
     else:
         repo = user.create_repo(model_name)
-    return repo.clone_url
+    return repo.clone_url, repo
 
 
 def github_config(profile):
