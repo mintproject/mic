@@ -1,5 +1,6 @@
 import shutil
 from pathlib import Path
+from typing import List
 
 import click
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -81,13 +82,17 @@ def render_dockerfile(model_directory: Path, language: Framework) -> Path:
     return run_file
 
 
-def render_output(directory: Path, language=None) -> Path:
+def render_output(directory: Path, files: List[Path], compress: str) -> Path:
     template = env.get_template(OUTPUT_FILE)
     run_file = directory / SRC_DIR / OUTPUT_FILE
     with open(run_file, "w") as f:
-        content = render_template(template=template, language=language)
+        if files and compress:
+            content = render_template(template=template, files=files, compress=compress)
+        elif files:
+            content = render_template(template=template, files=files, compress=None)
+        else:
+            render_template(template=template, files=[], compress=None)
         f.write(content)
-    # language_tasks(directory, language)
     return run_file
 
 

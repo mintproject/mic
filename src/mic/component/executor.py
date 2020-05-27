@@ -3,14 +3,17 @@ import os
 import shutil
 import subprocess
 import uuid
+from datetime import datetime
 from pathlib import Path
+from typing import List
 
 import click
 import docker
 from dame.cli_methods import create_sample_resource
-from dame.executor import build_parameter, build_output, run_docker
-from mic.config_yaml import get_inputs_parameters
-from mic.constants import SRC_DIR, EXECUTIONS_DIR, DATA_DIR, DOCKER_DIR
+from dame.executor import build_parameter, build_output
+from mic.component.initialization import render_output
+from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs
+from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, DOCKER_KEY, LAST_EXECUTION_DIR
 from modelcatalog import ModelConfiguration, DatasetSpecification, Parameter
 
 
@@ -31,6 +34,7 @@ def _copy_directory(src: Path, dest: Path) -> Path:
 
 
 def copy_inputs(mint_config_file: Path, src_dir_path: Path):
+    model_path = mint_config_file.parent
     model_path = mint_config_file.parent
     inputs, parameters, _, _ = get_inputs_parameters(mint_config_file)
     for _, item in inputs.items():
@@ -134,6 +138,8 @@ def execute_docker(mint_config_file: Path):
     docker_path = model_path / DOCKER_DIR
     image = build_docker(docker_path, name)
 
+    now = datetime.now().timestamp()
+
     src_dir = create_execution_directory(mint_config_file, model_path)
     resource = create_model_catalog_resource(mint_config_file)
     mint_volumes = {str(src_dir.absolute()): {'bind': '/tmp/mint', 'mode': 'rw'}}
@@ -159,8 +165,38 @@ def execute_docker(mint_config_file: Path):
     except Exception as e:
         click.secho("Failed", fg="red")
         logging.error(e, exc_info=True)
-    return image
+    detect_news_file(src_dir, mint_config_file, now)
+    write_spec(mint_config_file, DOCKER_KEY, image)
+    write_spec(mint_config_file, LAST_EXECUTION_DIR, str(src_dir.absolute()))
+    return src_dir
 
+def compress_file(detected_files):
+    click.secho("The model has generated the following files")
+    for file in detected_files:
+        print(file)
+    return click.confirm("Do you want to create one zip files with the files?", default=False)
+
+
+def detect_news_file(src_directory: Path, mint_config_file: Path, time: datetime) -> List[Path]:
+    model_name = mint_config_file.parent.name
+    files_list = []
+    for root, _, filenames in os.walk(src_directory, topdown=True):
+        for filename in filenames:
+            filepath = os.path.join(os.path.abspath(root), filename)
+            created = os.path.getmtime(Path(filepath))
+            modified = os.path.getmtime(Path(filepath))
+            if time < created or time < modified:
+                files_list.append(Path(filepath).relative_to(src_directory))
+    if files_list:
+        model_dir = mint_config_file.parent
+        print(model_dir)
+        if compress_file(files_list):
+            zip_compress = "{}.zip".format(model_name)
+            render_output(model_dir, files_list, zip_compress)
+            add_outputs(mint_config_file, [zip_compress])
+        else:
+            render_output(model_dir, files_list, None)
+            add_outputs(mint_config_file, files_list)
 
 def get_command_line(resource):
     line = './run '

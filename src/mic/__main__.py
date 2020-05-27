@@ -310,9 +310,9 @@ def step7(mic_config_file):
     mic encapsulate step7 -f <mic_config_file>
     """
     mic_config_path = Path(mic_config_file)
-    docker_image = execute_docker(Path(mic_config_file))
-    write_spec(mic_config_path, DOCKER_KEY, docker_image)
+    execute_docker(Path(mic_config_file))
     write_spec(mic_config_path, STEP_KEY, 7)
+    click.echo()
 
 
 @encapsulate.command(short_help="Select the outputs")

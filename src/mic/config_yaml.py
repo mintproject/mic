@@ -3,6 +3,7 @@ import random
 import re
 import unicodedata
 from pathlib import Path
+from typing import List
 
 import yaml
 
@@ -122,14 +123,12 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
     return config_yaml_path
 
 
-def add_outputs(config_yaml_path: Path, outputs: tuple):
+def add_outputs(config_yaml_path: Path, outputs: List[Path]):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    spec[OUTPUTS_KEY] = []
-    for x in list(outputs):
-        p = Path(x).absolute()
-        while p.name == SRC_DIR:
-            p = p.parent
-        spec[OUTPUTS_KEY] = [str(Path(x).absolute().relative_to(p.parent))]
+    spec[OUTPUTS_KEY] = {}
+    for x in outputs:
+        name = slugify(str(x).replace('.', "_"))
+        spec[OUTPUTS_KEY][name] = {'path':  str(x)}
     try:
         with open(config_yaml_path, 'w') as f:
             yaml.dump(spec, f, sort_keys=False)
