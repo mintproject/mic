@@ -13,8 +13,8 @@ GitHub is a website and cloud-based service that helps developers store and mana
 
 ### Obtain GitHub Token
 
-To push your code, you must generate a GitHub Token.
-
+To push your code, you must generate a GitHub Token. Instructions for this can be found [here](../configure.md#GitHubCreds)
+    
 !!! note
     A documentation
 

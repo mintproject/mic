@@ -12,6 +12,8 @@ install_requires = [
     "PyYAML>=5.3.1",
     "dame-cli>=5.0.0",
     "modelcatalog-api==2.4.0",
+    "pygit2>=1.2.1",
+    "PyGithub>=1.43.5"
 ]
 
 
