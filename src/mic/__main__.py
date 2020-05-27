@@ -125,7 +125,7 @@ def step1(model_configuration_name):
     """
     Create the directories and subdirectories.
 
-    mic modelconfiguration step1 <model_configuration_name>
+    mic encapsulate step1 <model_configuration_name>
 
     The argument: `model_configuration_name` is the name of your model configuration
      """
@@ -199,7 +199,7 @@ def step3(mic_config_file):
     click.secho("The MINT Wrapper has created: {}".format(run_path))
 
 
-@encapsulate.command(short_help="Optional - If the configuration has config files, select them")
+@encapsulate.command(short_help="If the configuration has config files, select them")
 @click.argument(
     "configuration_files",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
@@ -296,7 +296,7 @@ def step6(mic_config_file):
     write_step(mic_config_path, spec, 6)
 
 
-@encapsulate.command(short_help="Build and run the docker images")
+@encapsulate.command(short_help="Build and run the Docker Image")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -310,9 +310,9 @@ def step7(mic_config_file):
     mic encapsulate step7 -f <mic_config_file>
     """
     mic_config_path = Path(mic_config_file)
-    docker_image = execute_docker(Path(mic_config_file))
-    write_spec(mic_config_path, DOCKER_KEY, docker_image)
+    execute_docker(Path(mic_config_file))
     write_spec(mic_config_path, STEP_KEY, 7)
+
 
 
 @encapsulate.command(short_help="Select the outputs")
