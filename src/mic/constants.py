@@ -29,6 +29,7 @@ LAST_EXECUTION_DIR = "last_execution_dir"
 REPO_KEY = "github_repo_url"
 VERSION_KEY = "version"
 DOCKER_USERNAME_KEY = "dockerhub_username"
+MINT_COMPONENT_KEY = "mint_component_url"
 
 TYPE_PARAMETER = "https://w3id.org/okn/o/sd#Parameter"
 TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"

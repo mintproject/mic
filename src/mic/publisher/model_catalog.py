@@ -2,7 +2,7 @@ import uuid
 from pathlib import Path
 
 import click
-from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE
+from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY
 from dame.cli_methods import create_sample_resource
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY, MINT_COMPONENT_ZIP
 from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter
@@ -21,7 +21,7 @@ def create_model_catalog_resource(mint_config_file, allow_local_path=True):
     model_catalog_parameters = create_parameter_resource(parameters)
 
     image = get_key_spec(mint_config_file, DOCKER_KEY)
-    code = get_key_spec(mint_config_file, MINT_COMPONENT_ZIP)
+    code = get_key_spec(mint_config_file, MINT_COMPONENT_KEY)
 
     model_configuration = ModelConfiguration(id=generate_uuid(),
                                              label=[str(name)],
@@ -41,7 +41,7 @@ def create_model_catalog_resource(mint_config_file, allow_local_path=True):
     if code is None:
         click.secho("Failed to publish. Missing information zip file")
     else:
-        model_configuration.has_implementation_script_location = code
+        model_configuration.has_implementation_script_location = [code]
     return model_configuration
 
 
@@ -69,7 +69,8 @@ def create_output_resource(allow_local_path, outputs, name):
             _format = "unknown"
         _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
         if allow_local_path:
-            create_sample_resource(_input, str(Path(name / item["path"]).resolve()))
+            p = Path(name) / item["path"]
+            create_sample_resource(_input, str(p.resolve()))
         response.append(_input)
         position += 1
     if not response:
@@ -90,7 +91,8 @@ def create_input_resource(allow_local_path, inputs, name):
             _format = "unknown"
         _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
         if allow_local_path:
-            create_sample_resource(_input, str(Path(name / item["path"]).resolve()))
+            p = Path(name) / item["path"]
+            create_sample_resource(_input, str(p.resolve()))
         model_catalog_inputs.append(_input)
         position += 1
 

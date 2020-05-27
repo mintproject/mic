@@ -349,15 +349,9 @@ def step8(mic_config_file, profile):
     mic_config_path = Path(mic_config_file)
     model_dir = mic_config_path.parent
     click.secho("Deleting the executions")
-    url, _version = push(model_dir, profile)
-    write_spec(mic_config_path, REPO_KEY, url)
-    write_spec(mic_config_path, VERSION_KEY, _version)
-    write_spec(mic_config_path, STEP_KEY, 9)
-    docker_image = publish_docker(mic_config_path, profile, _version)
-    write_spec(mic_config_path, DOCKER_KEY, docker_image)
-    click.secho("Repository: {}".format(url))
-    click.secho("Version: {}".format(_version))
-    click.secho("Docker Image: {}".format(docker_image))
+    push(model_dir, mic_config_path, profile)
+    publish_docker(mic_config_path, profile)
+    write_spec(mic_config_path, STEP_KEY, 8)
 
 
 @encapsulate.command(short_help="Publish your model configuration")
