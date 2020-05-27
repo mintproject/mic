@@ -73,7 +73,6 @@ def compress_src_dir(model_path: Path):
 def check_create_remote_repo(repo, profile, model_name):
     if "origin" in repo.remotes:
         try:
-            print(repo.remotes["origin"].url)
             return repo.remotes["origin"].url
         except:
             pass
