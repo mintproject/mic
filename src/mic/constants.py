@@ -29,6 +29,8 @@ LAST_EXECUTION_DIR = "last_execution_dir"
 REPO_KEY = "github_repo_url"
 VERSION_KEY = "version"
 DOCKER_USERNAME_KEY = "dockerhub_username"
+GITIGNORE_FILE = ".gitignore"
+
 
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")

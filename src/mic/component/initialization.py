@@ -31,6 +31,19 @@ def create_directory(parent_directory: Path, name: str):
     return parent_directory
 
 
+def render_gitignore(directory: Path):
+    template = env.get_template(GITIGNORE_FILE)
+    gitignore_file = directory / GITIGNORE_FILE
+
+    with open(gitignore_file, "w") as gi:
+        ignore = render_template(template=template)
+        gi.write(ignore)
+
+    gitignore_file.chmod(0o755)
+    click.secho("Created: {}".format(gitignore_file.absolute()), fg="green")
+    return gitignore_file
+
+
 def render_run_sh(directory: Path,
                   inputs: dict, parameters: dict,
                   number_inputs: int = 0, number_parameters: int = 0) -> Path:

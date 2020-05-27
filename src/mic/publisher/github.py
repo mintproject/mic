@@ -40,6 +40,7 @@ def push(model_directory: Path, profile):
     git_push(repo, profile, version)
     return url, version
 
+
 def git_commit(repo):
     repo.index.add_all()
     repo.index.write()
@@ -109,6 +110,7 @@ def git_tag(repo, tagger):
 
     click.secho("New version: {}".format(str(version)))
     return str(version)
+
 
 def get_next_tag(repo):
     regex = re.compile('^refs/tags')

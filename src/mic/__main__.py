@@ -6,7 +6,7 @@ import mic
 import semver
 from mic import _utils, file
 from mic.component.executor import execute, execute_docker
-from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
+from mic.component.initialization import create_directory, render_gitignore, render_run_sh, render_io_sh, render_output, detect_framework, \
     render_dockerfile
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files, add_outputs, create_config_file_yaml, get_spec, write_step, write_spec, get_key_spec
@@ -130,7 +130,10 @@ def step1(model_configuration_name):
     try:
         model_dir_path = create_directory(Path('.'), model_configuration_name)
     except Exception as e:
+        click.secho("Error: {} could not be created".format(model_configuration_name), fg="red")
         exit(1)
+
+    render_gitignore(model_dir_path)
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
 
