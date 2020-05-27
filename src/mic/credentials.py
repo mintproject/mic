@@ -52,7 +52,7 @@ def configure_credentials(server, username, password, git_username, git_token, n
         credentials.write(fh)
 
 
-def print_list_credentials(profile):
+def print_list_credentials(profile, short):
 
     credentials_file = pathlib.Path(
         os.getenv("MINT_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
@@ -84,12 +84,15 @@ def print_list_credentials(profile):
     for prof in profile_list:
         # there is no way to get the key from the prof obj, so I have to manually format the tostring
         click.echo("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]))
-        for field in prof:
-            # Dont print password or token
-            if field != "password" and field != "git_token":
-                click.echo("   {}: {}".format(field, prof[field]))
-            # Dont print full token for security reasons
-            elif field == "git_token":
-                click.echo("   {}: Ending in \"...{}\"".format(field, (prof[field])[-5:]))
 
-        click.echo("\n")
+        # Only show details if short is not used
+        if not short:
+            for field in prof:
+                # Dont print password or token
+                if field != "password" and field != "git_token":
+                    click.echo("   {}: {}".format(field, prof[field]))
+                # Dont print full token for security reasons
+                elif field == "git_token":
+                    click.echo("   {}: Ending in \"...{}\"".format(field, (prof[field])[-5:]))
+
+            click.echo("\n")

@@ -76,8 +76,14 @@ def configure(server, username, password, git_username, git_token, name, dockerh
     default=None,
     metavar="<profile-name>",
 )
-def list_credentials(profile=None):
-    print_list_credentials(profile)
+@click.option(
+    "--short",
+    "-s",
+    is_flag=True,
+    help="Only show a list of profiles, not their contents"
+)
+def list_credentials(profile=None, short=False):
+    print_list_credentials(profile, short)
 
 @cli.group()
 def model():
