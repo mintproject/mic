@@ -159,7 +159,7 @@ def github_create_repo(profile, model_name):
             exit(0)
     else:
         repo = user.create_repo(model_name)
-    return repo.clone_url, repo
+    return repo.clone_url
 
 
 def github_config(profile):

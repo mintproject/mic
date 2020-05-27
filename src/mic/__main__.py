@@ -312,7 +312,7 @@ def step7(mic_config_file):
     mic_config_path = Path(mic_config_file)
     execute_docker(Path(mic_config_file))
     write_spec(mic_config_path, STEP_KEY, 7)
-    click.echo()
+
 
 
 @encapsulate.command(short_help="Select the outputs")

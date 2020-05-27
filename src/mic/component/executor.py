@@ -165,6 +165,7 @@ def execute_docker(mint_config_file: Path):
     except Exception as e:
         click.secho("Failed", fg="red")
         logging.error(e, exc_info=True)
+
     detect_news_file(src_dir, mint_config_file, now)
     write_spec(mint_config_file, DOCKER_KEY, image)
     write_spec(mint_config_file, LAST_EXECUTION_DIR, str(src_dir.absolute()))
