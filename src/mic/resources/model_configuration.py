@@ -38,8 +38,10 @@ class ModelConfigurationCli:
     def post(self, request):
         api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelConfigurationApi(api)
-        model_configuration = ModelConfiguration(**request)
-
+        if isinstance(request, dict):
+            model_configuration = ModelConfiguration(**request)
+        else:
+            model_configuration = request
         try:
             api_response = api_instance.modelconfigurations_post(username, model_configuration=model_configuration)
             return api_response

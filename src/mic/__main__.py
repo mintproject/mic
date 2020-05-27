@@ -1,22 +1,28 @@
+import json
 import sys
 from pathlib import Path
 
-import click
 import mic
 import semver
 from mic import _utils, file
-from mic.component.executor import execute, execute_docker
-from mic.component.initialization import create_directory, render_gitignore, render_run_sh, render_io_sh, render_output, detect_framework, \
+from mic._menu import parse
+from mic.cli_docs import *
+from mic.component.executor import execute, execute_using_docker
+from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
     render_dockerfile
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, add_outputs, create_config_file_yaml, get_spec, write_step, write_spec, get_key_spec
+    add_configuration_files, create_config_file_yaml, get_spec, write_step, write_spec
 from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS, \
     DOCKER_KEY, REPO_KEY, VERSION_KEY
 from mic.credentials import configure_credentials
+from mic.drawer import print_choices
+from mic.model_catalog_utils import get_label_from_response
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import create_local_repo_and_commit, push
+from mic.publisher.model_catalog import create_model_catalog_resource
 from mic.resources.model import create as create_model
-from modelcatalog import Configuration, DatasetSpecification, Parameter
+from modelcatalog import Configuration, DatasetSpecification, Parameter, Model, SoftwareVersion
+from mic.resources.model_configuration import ModelConfigurationCli
 
 
 @click.group()
@@ -282,7 +288,10 @@ def step6(mic_config_file):
     src_dir_path = model_dir / SRC_DIR
     framework = detect_framework(src_dir_path)
     if framework is None:
-        framework = click.prompt("Select the language",
+        click.secho("We need information about the language, tool or framework used by the model")
+        click.secho("This information allows to select the correct Docker Image")
+        click.secho("By the default, you can select the option {}".format(Framework.GENERIC))
+        framework = click.prompt("Select a option ".format(Framework),
                                  show_choices=True,
                                  type=click.Choice(Framework, case_sensitive=False),
                                  value_proc=handle
@@ -311,34 +320,8 @@ def step7(mic_config_file):
     mic encapsulate step7 -f <mic_config_file>
     """
     mic_config_path = Path(mic_config_file)
-    execute_docker(Path(mic_config_file))
+    execute_using_docker(Path(mic_config_file))
     write_spec(mic_config_path, STEP_KEY, 7)
-
-
-
-@encapsulate.command(short_help="Select the outputs")
-@click.argument(
-    "outputs",
-    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
-    required=True,
-    nargs=-1
-)
-@click.option(
-    "-f",
-    "--mic_config_file",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
-)
-def step8(mic_config_file, outputs):
-    """
-    Select the outputs
-    For example,
-
-    mic encapsulate step8 -f <mic_config_file> [outputs]...
-    """
-    mic_config_path = Path(mic_config_file)
-    add_outputs(Path(mic_config_file), outputs)
-    write_spec(mic_config_path, STEP_KEY, 8)
 
 
 @encapsulate.command(short_help="Publish your code")
@@ -356,25 +339,68 @@ def step8(mic_config_file, outputs):
     default="default",
     metavar="<profile-name>",
 )
-def step9(mic_config_file, profile):
+def step8(mic_config_file, profile):
     """
     Select the outputs
     For example,
 
-    mic encapsulate step9 -f <mic_config_file> [outputs]...
+    mic encapsulate step8 -f <mic_config_file> [outputs]...
     """
+    info_step8()
     mic_config_path = Path(mic_config_file)
     model_dir = mic_config_path.parent
-    url, version = push(model_dir, profile)
-    write_spec(mic_config_path, REPO_KEY, url)
-    write_spec(mic_config_path, VERSION_KEY, version)
-    write_spec(mic_config_path, STEP_KEY, 9)
-    docker_image = publish_docker(mic_config_path, profile, version)
-    write_spec(mic_config_path, DOCKER_KEY, docker_image)
-    click.secho("Repository: {}".format(url))
-    click.secho("Version: {}".format(version))
-    click.secho("Docker Image: {}".format(docker_image))
+    click.secho("Deleting the executions")
+    push(model_dir, mic_config_path, profile)
+    publish_docker(mic_config_path, profile)
+    write_spec(mic_config_path, STEP_KEY, 8)
 
+
+@encapsulate.command(short_help="Publish your model configuration")
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def step9(mic_config_file, profile):
+    from mic.resources.model import ModelCli
+    model_configuration = create_model_catalog_resource(Path(mic_config_file), allow_local_path=False)
+    model_cli = ModelCli(profile=profile)
+    models = model_cli.get()
+    labels = get_label_from_response(models)
+    print_choices(labels)
+    click.secho("These are the existing models")
+    if click.confirm("Do you want to create new one?", default=True):
+        name = click.prompt("Name of the model")
+        _version = click.prompt("Version of the model")
+        new_model = Model(label=[name],
+                      has_version=[SoftwareVersion(label=[_version], has_version_id=[_version],
+                                                  has_configuration=[model_configuration])])
+        api_response = model_cli.post(new_model)
+
+    else:
+        choice = click.prompt("Select the resource to edit",
+                              default=1,
+                              show_choices=False,
+                              type=click.Choice(list(range(1, len(labels) + 1))),
+                              value_proc=parse
+                              )
+
+    click.echo("https://w3id.org/okn/i/mint/{}".format(api_response.id))
+    # select
+    # create
+
+    # list versions
+    # select
+    # create
 
 
 @encapsulate.command(short_help="Show status")

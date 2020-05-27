@@ -51,7 +51,7 @@ class ModelCli:
     def post(self, request):
         api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelApi(api)
-        model = Model(**request)
+        model = Model(**request) if isinstance(request, dict) else request
         try:
             api_response = api_instance.models_post(username, model=model)
             return api_response

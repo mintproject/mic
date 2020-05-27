@@ -7,9 +7,11 @@ from pathlib import Path
 import click
 import pygit2 as pygit2
 import semver
+from mic.config_yaml import write_spec
 from distutils.version import StrictVersion
 from github import Github
-from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY
+from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
+    MINT_COMPONENT_KEY
 from mic.credentials import get_credentials
 
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
@@ -30,15 +32,31 @@ def create_local_repo_and_commit(model_directory: Path):
         raise e
 
 
-def push(model_directory: Path, profile):
+def push(model_directory: Path, mic_config_path: Path, profile):
+    click.secho("Creating the git repository")
     repo = get_or_create_repo(model_directory)
+    click.secho("Compressing your code")
     compress_src_dir(model_directory)
+    click.secho("Creating a new commit")
     git_commit(repo)
+    click.secho("Creating or using the GitHub repository")
     url = check_create_remote_repo(repo, profile, model_directory.name)
-    version = git_tag(repo, author)
+    click.secho("Creating a new version")
+    _version = git_tag(repo, author)
     click.secho("Pushing your changes to the server")
-    git_push(repo, profile, version)
-    return url, version
+    git_push(repo, profile, _version)
+    repo = get_github_repo(profile, model_directory.name)
+    for i in repo.get_contents(""):
+        if i.name == "{}.zip".format(MINT_COMPONENT_ZIP):
+            file = i
+            break
+
+    write_spec(mic_config_path, REPO_KEY, url)
+    write_spec(mic_config_path, VERSION_KEY, _version)
+    write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
+    click.secho("Repository: {}".format(url))
+    click.secho("Version: {}".format(_version))
+
 
 
 def git_commit(repo):
@@ -68,7 +86,7 @@ def compress_src_dir(model_path: Path):
     Compress the directory src and create a zip file
     """
     zip_file_path = model_path / MINT_COMPONENT_ZIP
-    return shutil.make_archive(zip_file_path.name, 'zip', model_path)
+    return shutil.make_archive(zip_file_path.name, 'zip', root_dir=model_path, base_dir=SRC_DIR)
 
 
 def check_create_remote_repo(repo, profile, model_name):
@@ -80,9 +98,18 @@ def check_create_remote_repo(repo, profile, model_name):
     try:
         return repo.remotes["origin"].url
     except:
-        url = github_create_repo(profile, model_name)
+        repo = github_create_repo(profile, model_name)
+        url = repo.clone_url
         repo.remotes.create("origin", url)
-        return repo.remotes["origin"].url
+        return url
+
+
+def get_github_repo(profile, model_name):
+    git_token, git_username = github_config(profile)
+    g = Github(git_username, git_token)
+    github_login(g)
+    user = g.get_user()
+    return user.get_repo(model_name)
 
 
 def git_add_remote(repo, url):
@@ -152,7 +179,7 @@ def github_create_repo(profile, model_name):
     try:
         repo = user.get_repo(model_name)
     except:
-        #TODO: github.GithubException.UnknownObjectException: 404
+        # TODO: github.GithubException.UnknownObjectException: 404
         # {"message": "Not Found", "documentation_url": "https://developer.github.com/v3/repos/#get"}
         pass
     if repo:
@@ -161,7 +188,7 @@ def github_create_repo(profile, model_name):
             exit(0)
     else:
         repo = user.create_repo(model_name)
-    return repo.clone_url
+    return repo
 
 
 def github_config(profile):

@@ -29,13 +29,16 @@ LAST_EXECUTION_DIR = "last_execution_dir"
 REPO_KEY = "github_repo_url"
 VERSION_KEY = "version"
 DOCKER_USERNAME_KEY = "dockerhub_username"
+MINT_COMPONENT_KEY = "mint_component_url"
+TYPE_PARAMETER = "https://w3id.org/okn/o/sd#Parameter"
+TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
+TYPE_SOFTWARE_IMAGE = "https://w3id.org/okn/o/sd#SoftwareImage"
 GITIGNORE_FILE = ".gitignore"
-
 
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")
     CONDA = ("conda", "mintproject/conda:20.5.1")
-    GENERIC = ("generic", "mintproject/generic:20.5.1")
+    GENERIC = ("general", "mintproject/generic:20.5.1")
 
     def __init__(self, label, image):
         self.label = label
