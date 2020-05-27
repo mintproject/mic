@@ -51,16 +51,16 @@ def version(debug=False):
 @click.option('--server', prompt='Model Catalog API',
               help='The Model Catalog API', required=True, default=Configuration().host, show_default=True)
 @click.option('--username', prompt='Username',
-              help='Your email to MC API', required=True, default="mint@isi.edu", show_default=True)
+              help='Your email', required=True, default="mint@isi.edu", show_default=True)
 @click.option('--password', prompt="Password",
               required=True, hide_input=True, help="Your password")
 @click.option('--name', prompt='Name', help='Your name', required=True)
-@click.option('--email', prompt='Email', help='Your email', required=True)
 @click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username', required=True)
 @click.option('--git_token', prompt='GitHub API token', help='Your GitHub API token', required=True, hide_input=False)
 @click.option('--dockerhub_username', prompt='Docker Username', help='Your Docker Username')
-def configure(server, username, password, git_username, git_token, name, email, dockerhub_username, profile="default"):
+def configure(server, username, password, git_username, git_token, name, dockerhub_username, profile="default"):
     try:
+        email = username
         configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username,
                               profile)
     except Exception as e:
