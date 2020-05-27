@@ -102,4 +102,5 @@ envsubst < {{item}}.bk> {{item}}
 {% endfor -%}
 {% endif %}
 
+find . -maxdepth 1 -name '*.zip' -execdir unzip '{}' ';'
 
