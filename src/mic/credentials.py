@@ -50,3 +50,46 @@ def configure_credentials(server, username, password, git_username, git_token, n
         credentials_file.parent.chmod(0o700)
         credentials_file.chmod(0o600)
         credentials.write(fh)
+
+
+def print_list_credentials(profile):
+
+    credentials_file = pathlib.Path(
+        os.getenv("MINT_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
+    ).expanduser()
+    credentials = configparser.ConfigParser()
+    if credentials_file.exists():
+        credentials.read(credentials_file)
+    else:
+        click.secho("WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
+                    fg="yellow")
+
+    profile_list = []
+
+    # list all profiles if none given
+    if profile is None:
+        for p in credentials:
+            # configparser has both DEFAULT and default read, no need to get both
+            if p is not "DEFAULT":
+                profile_list.append(get_credentials(p))
+    # list given profile
+    else:
+        try:
+            profile_list.append(get_credentials(profile))
+        except KeyError as e:
+            click.secho(
+                "WARNING: That profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
+                fg="yellow")
+
+    for prof in profile_list:
+        # there is no way to get the key from the prof obj, so I have to manually format the tostring
+        click.echo("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]))
+        for field in prof:
+            # Dont print password or token
+            if field != "password" and field != "git_token":
+                click.echo("   {}: {}".format(field, prof[field]))
+            # Dont print full token for security reasons
+            elif field == "git_token":
+                click.echo("   {}: Ending in \"...{}\"".format(field, (prof[field])[-5:]))
+
+        click.echo("\n")

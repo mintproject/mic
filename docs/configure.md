@@ -31,10 +31,6 @@ Password for Model Catalog - [required]
 
 Full name of the author - [required]
 
-`--email <email>`
-
-Authors preferred email account - [required]
-
 `--git_username <GitHub Username>`
 
 Author's Github username - [required]

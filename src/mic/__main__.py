@@ -12,7 +12,7 @@ from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters
     add_configuration_files, add_outputs, create_config_file_yaml, get_spec, write_step, write_spec, get_key_spec
 from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS, \
     DOCKER_KEY, REPO_KEY, VERSION_KEY
-from mic.credentials import configure_credentials
+from mic.credentials import configure_credentials, print_list_credentials
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import create_local_repo_and_commit, push
 from mic.resources.model import create as create_model
@@ -66,6 +66,18 @@ def configure(server, username, password, git_username, git_token, name, dockerh
     except Exception as e:
         click.secho("Unable to create configuration file", fg="red")
 
+
+@cli.command(help="List credential parameters for mic profiles. Lists all profile configurations if no profile given")
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default=None,
+    metavar="<profile-name>",
+)
+def list_credentials(profile=None):
+    print_list_credentials(profile)
 
 @cli.group()
 def model():
