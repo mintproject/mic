@@ -34,12 +34,13 @@ You should consider upgrading via the 'pip install --upgrade mic' command.""",
         )
 
 
-@cli.command(short_help="Show mic version.")
+@cli.command(short_help="Show mic version")
 def version(debug=False):
     click.echo(f"{Path(sys.argv[0]).name} v{mic.__version__}")
 
 
-@cli.command(help="Configure your credentials to access the Model Catalog API ")
+@cli.command(short_help="Configure credentials", help="Configure your credentials to access the Model Catalog API, "
+                                                      "GitHub and Docker features")
 @click.option(
     "--profile",
     "-p",
@@ -67,7 +68,8 @@ def configure(server, username, password, git_username, git_token, name, dockerh
         click.secho("Unable to create configuration file", fg="red")
 
 
-@cli.command(help="List credential parameters for mic profiles. Lists all profile configurations if no profile given")
+@cli.command(short_help="List configuration profiles",
+             help="List credential parameters for mic profiles. Lists all profile configurations if no profile given")
 @click.option(
     "--profile",
     "-p",
@@ -75,6 +77,7 @@ def configure(server, username, password, git_username, git_token, name, dockerh
     type=str,
     default=None,
     metavar="<profile-name>",
+    help="specify a specific profile to list"
 )
 @click.option(
     "--short",
@@ -84,6 +87,7 @@ def configure(server, username, password, git_username, git_token, name, dockerh
 )
 def list_credentials(profile=None, short=False):
     print_list_credentials(profile, short)
+
 
 @cli.group()
 def model():

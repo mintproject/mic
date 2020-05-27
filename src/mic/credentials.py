@@ -81,6 +81,9 @@ def print_list_credentials(profile, short):
                 "WARNING: That profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
                 fg="yellow")
 
+    click.echo("\n== Profiles ==")
+    if not short:
+        click.echo("")
     for prof in profile_list:
         # there is no way to get the key from the prof obj, so I have to manually format the tostring
         click.echo("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]))
@@ -93,6 +96,10 @@ def print_list_credentials(profile, short):
                     click.echo("   {}: {}".format(field, prof[field]))
                 # Dont print full token for security reasons
                 elif field == "git_token":
-                    click.echo("   {}: Ending in \"...{}\"".format(field, (prof[field])[-5:]))
+                    # Its safe to print if its obviously not a github token
+                    if len(prof[field]) < 6:
+                        click.echo("   {}: {}".format(field, prof[field]))
+                    else:
+                        click.echo("   {}: Ending in \"...{}\"".format(field, (prof[field])[-5:]))
 
             click.echo("\n")
