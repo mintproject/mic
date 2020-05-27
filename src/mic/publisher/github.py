@@ -58,6 +58,7 @@ def push(model_directory: Path, mic_config_path: Path, profile):
     click.secho("Version: {}".format(_version))
 
 
+
 def git_commit(repo):
     repo.index.add_all()
     repo.index.write()

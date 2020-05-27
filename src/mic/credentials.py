@@ -23,7 +23,7 @@ def get_credentials(profile: str) -> dict:
     raise ValueError("Profile doesn't exists")
 
 
-def configure_credentials(server, username, password, git_username, git_token, email, name, dockerhub_username, profile):
+def configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username, profile):
     credentials_file = pathlib.Path(
         os.getenv("MINT_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
     ).expanduser()

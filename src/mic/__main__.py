@@ -57,18 +57,16 @@ def version(debug=False):
 @click.option('--server', prompt='Model Catalog API',
               help='The Model Catalog API', required=True, default=Configuration().host, show_default=True)
 @click.option('--username', prompt='Username',
-              help='Your email.', required=True, default="mint@isi.edu", show_default=True)
+              help='Your email', required=True, default="mint@isi.edu", show_default=True)
 @click.option('--password', prompt="Password",
               required=True, hide_input=True, help="Your password")
 @click.option('--name', prompt='Name', help='Your name', required=True)
-@click.option('--email', prompt='Email', help='Your email', required=True)
-@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username.', required=True)
-@click.option('--git_token', prompt='GitHub API token',
-              help='Your GitHub API token. Found under GitHub settings -> developer settings -> Personal access tokens.'
-                   'Muse have read, write and basic repo access to work', required=True, hide_input=False)
-@click.option('--dockerhub_username', prompt='Docker Username', help='Your Docker Username.')
-def configure(server, username, password, git_username, git_token, name, email, dockerhub_username, profile="default"):
+@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username', required=True)
+@click.option('--git_token', prompt='GitHub API token', help='Your GitHub API token', required=True, hide_input=False)
+@click.option('--dockerhub_username', prompt='Docker Username', help='Your Docker Username')
+def configure(server, username, password, git_username, git_token, name, dockerhub_username, profile="default"):
     try:
+        email = username
         configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username,
                               profile)
     except Exception as e:
@@ -138,7 +136,10 @@ def step1(model_configuration_name):
     try:
         model_dir_path = create_directory(Path('.'), model_configuration_name)
     except Exception as e:
+        click.secho("Error: {} could not be created".format(model_configuration_name), fg="red")
         exit(1)
+
+    render_gitignore(model_dir_path)
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
 
