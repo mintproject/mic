@@ -9,7 +9,7 @@ import pygit2 as pygit2
 import semver
 from distutils.version import StrictVersion
 from github import Github
-from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY
+from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR
 from mic.credentials import get_credentials
 
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
@@ -31,10 +31,15 @@ def create_local_repo_and_commit(model_directory: Path):
 
 
 def push(model_directory: Path, profile):
+    click.secho("Creating the git repository")
     repo = get_or_create_repo(model_directory)
+    click.secho("Compressing your code")
     compress_src_dir(model_directory)
+    click.secho("Creating a new commit")
     git_commit(repo)
+    click.secho("Creating or using the GitHub repository")
     url = check_create_remote_repo(repo, profile, model_directory.name)
+    click.secho("Creating a new version")
     version = git_tag(repo, author)
     click.secho("Pushing your changes to the server")
     git_push(repo, profile, version)
@@ -67,7 +72,7 @@ def compress_src_dir(model_path: Path):
     Compress the directory src and create a zip file
     """
     zip_file_path = model_path / MINT_COMPONENT_ZIP
-    return shutil.make_archive(zip_file_path.name, 'zip', model_path)
+    return shutil.make_archive(zip_file_path.name, 'zip', model_path / SRC_DIR )
 
 
 def check_create_remote_repo(repo, profile, model_name):

@@ -19,4 +19,4 @@ def publish_docker(mic_config_path, profile, version):
         client.images.push(repository, version)
     except Exception as e:
         raise e
-    return "{}/{}".format(repository, version)
+    return "{}:{}".format(repository, version)

@@ -10,8 +10,7 @@ install_requires = [
     "tabulate>=0.8.1",
     "Jinja2>=2.11.2",
     "PyYAML>=5.3.1",
-    "dame-cli>=5.0.0",
-    "modelcatalog-api==2.4.0",
+    "modelcatalog-api==2.5.0",
 ]
 
 
