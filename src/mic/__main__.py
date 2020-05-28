@@ -268,7 +268,7 @@ def step4(mic_config_file, configuration_files):
     number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
     render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
-    render_output(model_directory_path)
+    render_output(model_directory_path, [], False)
     spec = get_spec(config_path)
     write_step(config_path, spec, 4)
 
