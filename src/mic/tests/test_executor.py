@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import pytest
-from component.executor import detect_news_file
+from mic.component.executor import detect_news_file
 
 
 def test_detect_news_file(tmp_path):
