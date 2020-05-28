@@ -2,7 +2,8 @@ import uuid
 from pathlib import Path
 
 import click
-from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY
+from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
+    TYPE_MODEL_CONFIGURATION
 from dame.cli_methods import create_sample_resource
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY, MINT_COMPONENT_ZIP
 from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter
@@ -24,6 +25,7 @@ def create_model_catalog_resource(mint_config_file, allow_local_path=True):
     code = get_key_spec(mint_config_file, MINT_COMPONENT_KEY)
 
     model_configuration = ModelConfiguration(id=generate_uuid(),
+                                             type=[TYPE_MODEL_CONFIGURATION],
                                              label=[str(name)],
                                              has_input=model_catalog_inputs,
                                              has_output=model_catalog_outputs,
@@ -41,7 +43,7 @@ def create_model_catalog_resource(mint_config_file, allow_local_path=True):
     if code is None:
         click.secho("Failed to publish. Missing information zip file")
     else:
-        model_configuration.has_implementation_script_location = [code]
+        model_configuration.has_component_location = [code]
     return model_configuration
 
 

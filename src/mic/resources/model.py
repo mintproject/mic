@@ -1,5 +1,6 @@
 import logging
 import modelcatalog
+from dame.utils import obtain_id
 from mic._mappings import mapping_person, mapping_model, mapping_software_version, mapping_image
 from modelcatalog import ApiException, Model
 import click
@@ -58,3 +59,15 @@ class ModelCli:
         except ApiException as e:
             logging.error("Exception when calling ModelConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
             raise e
+
+    def pu(self, request):
+        model_id = obtain_id(request.id)
+        api, username = get_api(profile=self.profile)
+        api_instance = modelcatalog.ModelApi(api)
+        model = Model(**request) if isinstance(request, dict) else request
+
+        try:
+            # Update a Model
+            return api_instance.models_id_put(model_id, username, model=model)
+        except ApiException as e:
+            print("Exception when calling ModelApi->models_id_put: %s\n" % e)

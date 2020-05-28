@@ -1,19 +1,22 @@
-import json
+import sys
+from pathlib import Path
+
 import sys
 from pathlib import Path
 
 import mic
 import semver
+from dame.utils import obtain_id
 from mic import _utils, file
 from mic._menu import parse
 from mic.cli_docs import *
 from mic.component.executor import execute, execute_using_docker
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
-    render_dockerfile
+    render_dockerfile, render_gitignore
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files, create_config_file_yaml, get_spec, write_step, write_spec
 from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS, \
-    DOCKER_KEY, REPO_KEY, VERSION_KEY
+    TYPE_SOFTWARE_IMAGE, DATA_DIR
 from mic.credentials import configure_credentials
 from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
@@ -22,7 +25,6 @@ from mic.publisher.github import create_local_repo_and_commit, push
 from mic.publisher.model_catalog import create_model_catalog_resource
 from mic.resources.model import create as create_model
 from modelcatalog import Configuration, DatasetSpecification, Parameter, Model, SoftwareVersion
-from mic.resources.model_configuration import ModelConfigurationCli
 
 
 @click.group()
@@ -142,15 +144,11 @@ def step1(model_configuration_name):
     render_gitignore(model_dir_path)
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
+    click.echo("MIC has created the directories")
+    click.secho("You must add your data (files or directories) into the directory: {}".format(model_dir_path / DATA_DIR), fg='green')
 
 
 @encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
-@click.option(
-    "-f",
-    "--mic_config_file",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
-)
 @click.option(
     "-p",
     "--parameters",
@@ -158,17 +156,22 @@ def step1(model_configuration_name):
     required=True,
     default=0
 )
+@click.option(
+    "-f",
+    "--mic_config_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default="config.yaml"
+)
 def step2(mic_config_file, parameters):
     """
-    Create MIC_CONFIG_FILE (config.yaml).
-
-    - Before to run this command, you must copy the files or directories of the model into the data directory
-
-    - Then, you must pass the number of parameters using the option (-p)
+    Fill the MIC configuration file with the information about the parameters and inputs
 
     mic encapsulate step2 -f <mic_config_file> -p <number_of_parameters>
 
-    The argument: `MODEL_DIRECTORY` is the directory of your model configuration
+    MIC is going to detect:
+     - the inputs (files and directory) and add them in the MIC configuration file.
+     - the parameters and add them in the configuration file
+
     """
     inputs_dir = Path(mic_config_file).parent / DATA_DIRECTORY_NAME
     if not inputs_dir.exists():
@@ -382,8 +385,8 @@ def step9(mic_config_file, profile):
         name = click.prompt("Name of the model")
         _version = click.prompt("Version of the model")
         new_model = Model(label=[name],
-                      has_version=[SoftwareVersion(label=[_version], has_version_id=[_version],
-                                                  has_configuration=[model_configuration])])
+                          has_version=[SoftwareVersion(label=[_version], has_version_id=[_version],
+                                                       has_configuration=[model_configuration])])
         api_response = model_cli.post(new_model)
 
     else:
@@ -393,8 +396,38 @@ def step9(mic_config_file, profile):
                               type=click.Choice(list(range(1, len(labels) + 1))),
                               value_proc=parse
                               )
-
-    click.echo("https://w3id.org/okn/i/mint/{}".format(api_response.id))
+        selected_model = models[choice - 1]
+        software_versions = selected_model.has_version
+        click.secho("These are the existing models versions")
+        labels = get_label_from_response(software_versions)
+        print_choices(labels)
+        if click.confirm("Do you want to create new ModelVersion?", default=True):
+            _version = click.prompt("Version of the model")
+            software_version = SoftwareVersion(label=[_version],
+                                               type=[TYPE_SOFTWARE_IMAGE],
+                                        has_version_id=[_version],
+                                        has_configuration=[model_configuration])
+            if selected_model.has_version:
+                selected_model.has_version.append(software_version)
+            else:
+                selected_model.has_version = [software_version]
+        else:
+            choice = click.prompt("Select the resource to edit",
+                                  default=1,
+                                  show_choices=False,
+                                  type=click.Choice(list(range(1, len(labels) + 1))),
+                                  value_proc=parse
+                                  )
+            existing_configurations = selected_model.has_version[choice - 1].has_configuration
+            if existing_configurations:
+                existing_configurations.append(model_configuration)
+            else:
+                existing_configurations = [model_configuration]
+        print(selected_model)
+        exit(0)
+        api_response = model_cli.put(selected_model)
+        print(api_response)
+    click.echo("dame run {}".format(obtain_id(model_configuration.id)))
     # select
     # create
 
@@ -433,3 +466,6 @@ def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     if _parameters:
         model_configuration.has_parameter = _parameters
     model_configuration.label = name
+
+if __name__ == '__main__':
+    step9("config.yaml", "default")

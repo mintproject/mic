@@ -106,7 +106,6 @@ def execute_using_docker(mint_config_file: Path):
 
     docker_run(image, resource, src_dir)
     detect_news_file(src_dir, mint_config_file, now)
-    write_spec(mint_config_file, DOCKER_KEY, image)
     write_spec(mint_config_file, LAST_EXECUTION_DIR, str(src_dir.absolute()))
     return src_dir
 
