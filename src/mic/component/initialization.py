@@ -104,7 +104,7 @@ def render_output(directory: Path, files: List[Path], compress: str) -> Path:
         elif files:
             content = render_template(template=template, files=files, compress=None)
         else:
-            render_template(template=template, files=[], compress=None)
+            content = render_template(template=template, files=[], compress=None)
         f.write(content)
     return run_file
 
