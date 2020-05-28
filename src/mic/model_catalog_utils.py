@@ -1,3 +1,5 @@
+import ast
+import json
 import logging
 
 import click
@@ -26,9 +28,9 @@ def get_label_from_response(response):
             else:
                 labels.append(None)
         else:
-            if resource.label:
+            if hasattr(resource, "label") and resource.label:
                 labels.append(resource.label[0])
-            elif resource.id:
+            elif hasattr(resource, "id") and resource.id:
                 labels.append(resource.id)
             else:
                 labels.append(None)

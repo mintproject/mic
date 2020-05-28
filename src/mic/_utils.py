@@ -4,6 +4,7 @@ import re
 import uuid
 import click
 import requests
+import validators
 from mic._mappings import Metadata_types
 
 MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
@@ -34,6 +35,10 @@ def path_walk(top, topdown = False, followlinks = False):
 def generate_new_uri():
     return "{}{}".format(MODEL_ID_URI, str(uuid.uuid4()))
 
+
+def obtain_id(url):
+    if validators.url(url):
+        return url.split('/')[-1]
 
 def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))

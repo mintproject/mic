@@ -130,13 +130,12 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
             spec[PARAMETERS_KEY][name][DEFAULT_VALUE_KEY] = random_parameter()
 
         write_step(config_yaml_path, spec, step=2)
-
-
     except Exception as e:
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
         exit(1)
-    click.secho("Created: {}".format(config_yaml_path.absolute()), fg="green")
+    click.secho("MIC has added the parameters and inputs into the {}".format(MIC_CONFIG_FILE_NAME), fg="green")
+    click.secho("You can see the changes {}".format(config_yaml_path.absolute()), fg="green")
     return config_yaml_path
 
 
@@ -179,7 +178,6 @@ def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
     parameters = spec[PARAMETERS_KEY] if PARAMETERS_KEY in spec else None
     outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else None
     configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else []
-
     return inputs, parameters, outputs, configs
 
 

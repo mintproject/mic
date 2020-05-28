@@ -97,6 +97,10 @@ export  {{ key }}
 ## PARAMETERS VARIABLES
 {% if configs -%}
 {% for item in configs -%}
+
+find . -maxdepth 1 -name '*.zip' -execdir unzip '{}' ';'
+
+
 cp {{item}} {{item}}.bk
 envsubst < {{item}}.bk> {{item}}
 {% endfor -%}
