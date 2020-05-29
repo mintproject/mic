@@ -260,35 +260,18 @@ def step4(mic_config_file, configuration_files):
 )
 def step5(mic_config_file):
     """
-    Running your model in your computer with your computational environment.
+    Editing the MIC Wrapper and building your environment
     For example,
 
     mic encapsulate step5 -f <mic_config_file>
     """
     mic_config_path = Path(mic_config_file)
-    if not mic_config_path.exists():
-        exit(1)
-    execute(mic_config_path)
-    spec = get_spec(mic_config_path)
-    write_step(mic_config_path, spec, 5)
-
-
-@encapsulate.command(short_help="Prepare your Docker Image")
-@click.option(
-    "-f",
-    "--mic_config_file",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
-)
-def step6(mic_config_file):
-    """
-    Create the Docker Image
-
-    mic encapsulate step6 -f <mic_config_file>
-    """
-    mic_config_path = Path(mic_config_file)
     model_dir = mic_config_path.parent
     src_dir_path = model_dir / SRC_DIR
+    if not mic_config_path.exists():
+        exit(1)
+    spec = get_spec(mic_config_path)
+
     framework = detect_framework(src_dir_path)
     if framework is None:
         click.secho("We need information about the language, tool or framework used by the model")
@@ -306,7 +289,7 @@ def step6(mic_config_file):
     dockerfile = render_dockerfile(model_dir, framework)
     click.secho("The Dockerfile has been created: {}".format(dockerfile))
     spec = get_spec(mic_config_path)
-    write_step(mic_config_path, spec, 6)
+    write_step(mic_config_path, spec, 5)
 
 
 @encapsulate.command(short_help="Build and run the Docker Image")
@@ -316,11 +299,11 @@ def step6(mic_config_file):
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default="config.yaml"
 )
-def step7(mic_config_file):
+def step6(mic_config_file):
     """
     Build and run the Docker image
 
-    mic encapsulate step7 -f <mic_config_file>
+    mic encapsulate step6 -f <mic_config_file>
     """
     mic_config_path = Path(mic_config_file)
     execute_using_docker(Path(mic_config_file))
@@ -342,12 +325,12 @@ def step7(mic_config_file):
     default="default",
     metavar="<profile-name>",
 )
-def step8(mic_config_file, profile):
+def step7(mic_config_file, profile):
     """
     Select the outputs
     For example,
 
-    mic encapsulate step8 -f <mic_config_file> [outputs]...
+    mic encapsulate step7 -f <mic_config_file> [outputs]...
     """
     info_step8()
     mic_config_path = Path(mic_config_file)
@@ -373,7 +356,7 @@ def step8(mic_config_file, profile):
     default="default",
     metavar="<profile-name>",
 )
-def step9(mic_config_file, profile):
+def step8(mic_config_file, profile):
     from mic.resources.model import ModelCli
     model_configuration = create_model_catalog_resource(Path(mic_config_file), allow_local_path=False)
     model_cli = ModelCli(profile=profile)
