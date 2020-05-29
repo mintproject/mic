@@ -62,21 +62,22 @@ def create_parameter_resource(parameters):
 
 def create_output_resource(allow_local_path, outputs, name):
     response = []
-    print(outputs)
     position = 1
-    for key, item in outputs.items():
-        try:
-            _format = item["path"].split('.')[-1]
-        except:
-            _format = "unknown"
-        _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
-        if allow_local_path:
-            p = Path(name) / item["path"]
-            create_sample_resource(_input, str(p.resolve()))
-        response.append(_input)
-        position += 1
-    if not response:
-        return None
+    if outputs:
+        response = None
+        for key, item in outputs.items():
+            try:
+                _format = item["path"].split('.')[-1]
+            except:
+                _format = "unknown"
+            _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
+            if allow_local_path:
+                p = Path(name) / item["path"]
+                create_sample_resource(_input, str(p.resolve()))
+            response.append(_input)
+            position += 1
+    else:
+        response = None
     return response
 
 
