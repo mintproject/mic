@@ -80,8 +80,22 @@ def write_spec(config_yaml_path: Path, key: str, value: object):
 
 def write_step(config_yaml_path: Path, spec: dict, step: int):
     spec[STEP_KEY] = step
+    print(spec)
+    comments = []
+    if config_yaml_path.exists():
+        comments = get_comment_list(config_yaml_path)
+
     with open(config_yaml_path, 'w') as f:
         yaml.dump(spec, f, sort_keys=False)
+
+    # yaml.dump will override comments in original yaml file. this will replace them
+    for i in comments:
+        new_line = False
+        if i['value'] is None or i['value'] == "":
+            new_line = True
+
+        add_comment_by_line(config_yaml_path, i['line_number'], new_line,i['comment'])
+
 
 def write_docker_image(config_yaml_path: Path, spec: dict, image_name: str):
     spec[DOCKER_KEY] = {NAME_KEY : image_name}
@@ -140,6 +154,73 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
     return config_yaml_path
 
 
+def get_comment_list(config_yaml_path: Path):
+    """
+    Return list of all the yaml values that have comments. This is needed becasue yaml.dump will erase any comments in
+    the yaml
+    @param config_yaml_path: path to yaml
+    @type config_yaml_path: Path
+    @return: list
+    """
+    all_comments = []
+    count = 0
+    with open(config_yaml_path, "r") as file:
+        for line in file:
+            count += 1
+            value_comment_line = {'value': "", 'line_number': count, 'comment': ""}
+            if "#" in line:
+                for i in line.split(" "):
+                    if ":" in i:
+                        value_comment_line['value'] = i
+
+                curr_comment = line.split("#")
+                curr_comment.pop(0)
+                curr_comment = "#" + "#".join(curr_comment).replace("\n", "")
+                value_comment_line['comment'] = curr_comment
+                value_comment_line['line_number'] = count
+                if value_comment_line not in all_comments:
+                    # deep copy
+                    all_comments.append({'value': value_comment_line['value'],
+                                         'line_number': value_comment_line['line_number'],
+                                         'comment': value_comment_line['comment']})
+
+    return all_comments
+
+
+def add_comment_by_line(config_yaml_path: Path, line_number, insert_new_line, comment):
+    """
+    Adds comment to yaml file from line number
+
+    @param config_yaml_path: path
+    @param line_number: line number comment is on
+    @param insert_new_line: If the comment was on a line without a value. Added comment needs to insert on new line
+    @param comment: comment to append
+    @return:
+    """
+    new_file = []
+    count = 0
+    with open(config_yaml_path, "r") as file:
+        for line in file:
+            count += 1
+            if line_number == count:
+                # make sure comment character is in comment
+                if "#" not in comment:
+                    comment = "# " + comment
+                if not insert_new_line:
+                    new_file.append(line.replace("\n", "  " + comment + "\n"))
+                else:
+                    new_file.append(comment + "\n")
+                    new_file.append(line)
+            else:
+                new_file.append(line)
+
+        if line_number > count:
+            new_file.append(comment + "\n")
+
+    with open(config_yaml_path, "w") as file:
+        file.writelines(new_file)
+
+
 def add_comment(config_yaml_path: Path, value, comment):
     """
     yaml does not natively support comments, so this workaround has to be implemented. This function reads through
@@ -150,7 +231,6 @@ def add_comment(config_yaml_path: Path, value, comment):
     @type value: str
     @param comment: comment to append
     @type comment: str
-    @return:
     """
     new_file = []
     with open(config_yaml_path, "r") as file:
