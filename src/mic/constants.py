@@ -36,6 +36,7 @@ TYPE_MODEL_CONFIGURATION = "https://w3id.org/okn/o/sdm#ModelConfiguration"
 TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
 TYPE_SOFTWARE_IMAGE = "https://w3id.org/okn/o/sd#SoftwareImage"
 GITIGNORE_FILE = ".gitignore"
+DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
 
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")

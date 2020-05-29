@@ -130,6 +130,7 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
             spec[PARAMETERS_KEY][name][DEFAULT_VALUE_KEY] = random_parameter()
 
         write_step(config_yaml_path, spec, step=2)
+        add_comment(config_yaml_path, DEFAULT_VALUE_KEY, DEFAULT_PARAMETER_COMMENT)
     except Exception as e:
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
@@ -137,6 +138,34 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
     click.secho("MIC has added the parameters and inputs into the {}".format(MIC_CONFIG_FILE_NAME), fg="green")
     click.secho("You can see the changes {}".format(config_yaml_path.absolute()), fg="green")
     return config_yaml_path
+
+
+def add_comment(config_yaml_path: Path, value, comment):
+    """
+    yaml does not natively support comments, so this workaround has to be implemented. This function reads through
+    the yaml file and looks for the value given, then appends a comment to the end
+    @param config_yaml_path:
+    @type config_yaml_path: Path
+    @param value: name of field to append comment to
+    @type value: str
+    @param comment: comment to append
+    @type comment: str
+    @return:
+    """
+    new_file = []
+    with open(config_yaml_path, "r") as file:
+        for line in file:
+            if value in line:
+                # make sure comment character is in comment
+                if "#" not in comment:
+                    comment = "# " + comment
+
+                new_file.append(line.replace("\n", "  " + comment + "\n"))
+            else:
+                new_file.append(line)
+
+    with open(config_yaml_path, "w") as file:
+        file.writelines(new_file)
 
 
 def add_outputs(config_yaml_path: Path, outputs: List[Path]):
