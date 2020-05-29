@@ -33,7 +33,7 @@ def slugify(value, allow_unicode=False):
 
 
 def random_parameter():
-    return random.choice(["a random string", True, 1.0, 1])
+    return 0
 
 
 def create_config_file_yaml(model_path: Path) -> Path:
