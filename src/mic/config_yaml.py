@@ -116,6 +116,8 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
             name = slugify(str(item.name).replace('.', "_"))
             spec[INPUTS_KEY][name] = {}
             spec[INPUTS_KEY][name][PATH_KEY] = str(item.relative_to(directory))
+            spec[INPUTS_KEY][name][DEFAULT_DESCRIPTION_KEY] = ""
+
     except Exception as e:
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
@@ -126,9 +128,11 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
             name = "parameter{}".format(parameter + 1)
             spec[PARAMETERS_KEY][name] = {}
             spec[PARAMETERS_KEY][name][DEFAULT_VALUE_KEY] = random_parameter()
+            spec[PARAMETERS_KEY][name][DEFAULT_DESCRIPTION_KEY] = ""
 
         write_step(config_yaml_path, spec, step=2)
         add_comment(config_yaml_path, DEFAULT_VALUE_KEY, DEFAULT_PARAMETER_COMMENT)
+        add_comment(config_yaml_path, DEFAULT_DESCRIPTION_KEY, DEFAULT_DESCRIPTION_MESSAGE)
     except Exception as e:
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
@@ -241,7 +245,8 @@ def add_comment(config_yaml_path: Path, value, comment):
     new_file = []
     with open(config_yaml_path, "r") as file:
         for line in file:
-            if value in line:
+            # if the value is in line and line doesnt have comment
+            if value in line and "#" not in line:
                 # make sure comment character is in comment
                 if "#" not in comment:
                     comment = "# " + comment
@@ -260,8 +265,10 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
     for x in outputs:
         name = slugify(str(x).replace('.', "_"))
         spec[OUTPUTS_KEY][name] = {'path':  str(x)}
+        spec[OUTPUTS_KEY][name][DEFAULT_DESCRIPTION_KEY] = ""
     try:
-        write_to_yaml(config_yaml_path,spec)
+        write_to_yaml(config_yaml_path, spec)
+        add_comment(config_yaml_path, DEFAULT_DESCRIPTION_KEY, DEFAULT_DESCRIPTION_MESSAGE)
     except Exception as e:
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in spec[OUTPUTS_KEY]:

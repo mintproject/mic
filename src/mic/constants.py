@@ -1,13 +1,14 @@
 from enum import Enum
 
 CONFIG_FILE = "config.json"
-CONFIG_YAML_NAME = "config.yaml"
+CONFIG_YAML_NAME = "mic.yaml"
 INPUTS_KEY = "inputs"
 PARAMETERS_KEY = "parameters"
 CONFIG_FILE_KEY = "configs"
 STEP_KEY = "step"
 OUTPUTS_KEY = "outputs"
 NAME_KEY = "name"
+DEFAULT_DESCRIPTION_KEY = "description"
 PATH_KEY = "path"
 DEFAULT_VALUE_KEY = "default_value"
 DATA_DIRECTORY_NAME = "data"
@@ -37,6 +38,7 @@ TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
 TYPE_SOFTWARE_IMAGE = "https://w3id.org/okn/o/sd#SoftwareImage"
 GITIGNORE_FILE = ".gitignore"
 DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
+DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")
