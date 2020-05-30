@@ -16,7 +16,7 @@ from mic.component.initialization import create_directory, render_run_sh, render
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files, create_config_file_yaml, get_spec, write_step, write_spec
 from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS, \
-    TYPE_SOFTWARE_IMAGE, DATA_DIR
+    TYPE_SOFTWARE_IMAGE, DATA_DIR, CONFIG_YAML_NAME
 from mic.credentials import configure_credentials, print_list_credentials
 from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
@@ -67,7 +67,7 @@ def version(debug=False):
 @click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username', required=True)
 @click.option('--git_token', prompt='GitHub API token', help='Your GitHub API token', required=True, hide_input=False)
 @click.option('--dockerhub_username', prompt='Docker Username', help='Your Docker Username')
-def configure(server, username, password, git_username, git_token, name, dockerhub_username, profile="default"):
+def credentials(server, username, password, git_username, git_token, name, dockerhub_username, profile="default"):
     try:
         email = username
         configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username,
@@ -76,8 +76,8 @@ def configure(server, username, password, git_username, git_token, name, dockerh
         click.secho("Unable to create configuration file", fg="red")
 
 
-@cli.command(short_help="List configuration profiles",
-             help="List credential parameters for mic profiles. Lists all profile configurations if no profile given")
+@cli.command(short_help="List credentials profiles",
+             help="List credential parameters for mic profiles. Lists all profile credentials if no profile given")
 @click.option(
     "--profile",
     "-p",
@@ -182,7 +182,7 @@ def step1(model_configuration_name):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 def step2(mic_config_file, parameters):
     """
@@ -201,18 +201,18 @@ def step2(mic_config_file, parameters):
     fill_config_file_yaml(Path(mic_config_file), inputs_dir, parameters)
 
 
-@encapsulate.command(short_help="Create MINT wrapper using the config.yaml")
+@encapsulate.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
 @click.option(
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 def step3(mic_config_file):
     """
-    Create MINT wrapper using the config.yaml
+    Create MINT wrapper using the mic.yaml
 
-    - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
+    - You must pass the MIC_CONFIG_FILE (mic.yaml) using the option (-f).
 
     mic encapsulate step3 -f <mic_config_file>
     """
@@ -242,7 +242,7 @@ def step3(mic_config_file):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 def step4(mic_config_file, configuration_files):
     """
@@ -250,14 +250,14 @@ def step4(mic_config_file, configuration_files):
 
     Select the inputs files that are configuration files
 
-    - You must pass the MIC_CONFIG_FILE (config.yaml) using the option (-f).
+    - You must pass the MIC_CONFIG_FILE (mic.yaml) using the option (-f).
 
     - And the files as arguments
 
     mic encapsulate step4 -f <mic_config_file> [configuration_files]...
 
     For example,
-    mic encapsulate step4 -f config.yaml data/example_dir/file1.txt  data/file2.txt
+    mic encapsulate step4 -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
     config_path = Path(mic_config_file)
     if not config_path.exists():
@@ -278,7 +278,7 @@ def step4(mic_config_file, configuration_files):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 def step5(mic_config_file):
     """
@@ -300,7 +300,7 @@ def step5(mic_config_file):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 def step6(mic_config_file):
     """
@@ -336,7 +336,7 @@ def step6(mic_config_file):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 def step7(mic_config_file):
     """
@@ -354,7 +354,7 @@ def step7(mic_config_file):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 @click.option(
     "--profile",
@@ -385,7 +385,7 @@ def step8(mic_config_file, profile):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 @click.option(
     "--profile",
@@ -463,7 +463,7 @@ def step9(mic_config_file, profile):
     "-f",
     "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default="config.yaml"
+    default=CONFIG_YAML_NAME
 )
 def status(mic_config_file):
     mic_config_path = Path(mic_config_file)
@@ -490,4 +490,4 @@ def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     model_configuration.label = name
 
 if __name__ == '__main__':
-    step9("config.yaml", "default")
+    step9(CONFIG_YAML_NAME, "default")
