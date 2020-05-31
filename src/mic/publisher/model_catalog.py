@@ -3,14 +3,14 @@ from pathlib import Path
 
 import click
 from dame.cli_methods import create_sample_resource
-from mic.drawer import print_choices
 from mic._menu import parse
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
     TYPE_MODEL_CONFIGURATION
+from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
-from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter, Model, SoftwareVersion
 from mic.resources.model import ModelCli
+from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter, Model, SoftwareVersion
 
 
 def generate_uuid():
@@ -108,9 +108,9 @@ def create_input_resource(allow_local_path, inputs, name):
 
 def publish_model_configuration(model_configuration, profile):
     api_response = create_new_model(profile, model_configuration)
-    #if click.confirm("Do you want to create new one?", default=True):
+    # if click.confirm("Do you want to create new one?", default=True):
     #    api_response = create_new_model(model_cli, model_configuration)
-    #else:
+    # else:
     #    api_response = select_existing_resource(labels, model_cli, model_configuration, models)
     click.secho("Your Model Component has been published", fg="green")
     return api_response
@@ -158,7 +158,6 @@ def handle_model_version(labels, model_configuration, selected_model):
             selected_model.has_version.append(software_version)
         else:
             selected_model.has_version = [software_version]
-
 
 
 def create_new_model(model_cli, model_configuration):
