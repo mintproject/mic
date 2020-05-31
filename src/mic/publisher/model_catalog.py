@@ -2,11 +2,15 @@ import uuid
 from pathlib import Path
 
 import click
+from dame.cli_methods import create_sample_resource
+from mic.drawer import print_choices
+from mic._menu import parse
+from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
     TYPE_MODEL_CONFIGURATION
-from dame.cli_methods import create_sample_resource
-from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY, MINT_COMPONENT_ZIP
-from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter
+from mic.model_catalog_utils import get_label_from_response
+from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter, Model, SoftwareVersion
+from mic.resources.model import ModelCli
 
 
 def generate_uuid():
@@ -61,10 +65,9 @@ def create_parameter_resource(parameters):
 
 
 def create_output_resource(allow_local_path, outputs, name):
-    response = []
     position = 1
+    response = []
     if outputs:
-        response = None
         for key, item in outputs.items():
             try:
                 _format = item["path"].split('.')[-1]
@@ -76,8 +79,7 @@ def create_output_resource(allow_local_path, outputs, name):
                 create_sample_resource(_input, str(p.resolve()))
             response.append(_input)
             position += 1
-    else:
-        response = None
+    response = response if response else None
     return response
 
 
@@ -102,3 +104,76 @@ def create_input_resource(allow_local_path, inputs, name):
     if not model_catalog_inputs:
         return None
     return model_catalog_inputs
+
+
+def publish_model_configuration(model_configuration, profile):
+    api_response = create_new_model(profile, model_configuration)
+    #if click.confirm("Do you want to create new one?", default=True):
+    #    api_response = create_new_model(model_cli, model_configuration)
+    #else:
+    #    api_response = select_existing_resource(labels, model_cli, model_configuration, models)
+    click.secho("Your Model Component has been published", fg="green")
+    return api_response
+
+
+def handle_model(profile, model_configuration):
+    model_cli = ModelCli(profile=profile)
+    models = model_cli.get()
+    labels = get_show_models(models, "models")
+    choice = click.prompt("Please select the model to use",
+                          default=1,
+                          show_choices=False,
+                          type=click.Choice(list(range(1, len(labels) + 1))),
+                          value_proc=parse
+                          )
+    selected_model = models[choice - 1]
+    software_versions = selected_model.has_version
+    labels = get_show_models(software_versions, "version")
+    handle_model_version(labels, model_configuration, selected_model)
+    return model_cli.put(selected_model)
+
+
+def handle_model_version(labels, model_configuration, selected_model):
+    if not click.confirm("Do you want to use an existing version?", default=True):
+        choice = click.prompt("Select the resource to edit",
+                              default=1,
+                              show_choices=False,
+                              type=click.Choice(list(range(1, len(labels) + 1))),
+                              value_proc=parse
+                              )
+        existing_configurations = selected_model.has_version[choice - 1].has_configuration
+        if existing_configurations:
+            existing_configurations.append(model_configuration)
+        else:
+            existing_configurations = [model_configuration]
+
+    else:
+        click.echo("Please, enter the information about the new version")
+        _version = click.prompt("Version of the model")
+        software_version = SoftwareVersion(label=[_version],
+                                           type=[TYPE_SOFTWARE_IMAGE],
+                                           has_version_id=[_version],
+                                           has_configuration=[model_configuration])
+        if selected_model.has_version:
+            selected_model.has_version.append(software_version)
+        else:
+            selected_model.has_version = [software_version]
+
+
+
+def create_new_model(model_cli, model_configuration):
+    click.echo("Please enter the information about the Model")
+    name = click.prompt("Name of the model")
+    _version = click.prompt("Version of the model")
+    new_model = Model(label=[name],
+                      has_version=[SoftwareVersion(label=[_version], has_version_id=[_version],
+                                                   has_configuration=[model_configuration])])
+    return model_cli.post(new_model)
+
+
+def get_show_models(resources, resource_name):
+    labels = get_label_from_response(resources)
+    print_choices(labels)
+    click.secho("Existing {} are:".format(resource_name))
+    print_choices(labels)
+    return labels

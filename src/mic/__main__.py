@@ -1,30 +1,24 @@
 import sys
 from pathlib import Path
 
-import sys
-from pathlib import Path
-
 import mic
 import semver
 from dame.utils import obtain_id
 from mic import _utils, file
-from mic._menu import parse
 from mic.cli_docs import *
-from mic.component.executor import execute, execute_using_docker
-from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, detect_framework, \
+from mic.component.executor import execute_using_docker
+from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, \
     render_dockerfile, render_gitignore
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files, create_config_file_yaml, get_spec, write_step, write_spec
-from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, handle, DOCKER_DIR, STEP_KEY, TOTAL_STEPS, \
-    TYPE_SOFTWARE_IMAGE, DATA_DIR
+from mic.constants import DATA_DIRECTORY_NAME, Framework, SRC_DIR, DOCKER_DIR, STEP_KEY, TOTAL_STEPS, \
+    DATA_DIR
 from mic.credentials import configure_credentials
-from mic.drawer import print_choices
-from mic.model_catalog_utils import get_label_from_response
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import create_local_repo_and_commit, push
-from mic.publisher.model_catalog import create_model_catalog_resource
+from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
 from mic.resources.model import create as create_model
-from modelcatalog import Configuration, DatasetSpecification, Parameter, Model, SoftwareVersion
+from modelcatalog import Configuration, DatasetSpecification, Parameter
 
 
 @click.group()
@@ -145,7 +139,9 @@ def step1(model_configuration_name):
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
     click.echo("MIC has created the directories")
-    click.secho("You must add your data (files or directories) into the directory: {}".format(model_dir_path / DATA_DIR), fg='green')
+    click.secho(
+        "You must add your data (files or directories) into the directory: {}".format(model_dir_path / DATA_DIR),
+        fg='green')
 
 
 @encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
@@ -270,26 +266,23 @@ def step5(mic_config_file):
     src_dir_path = model_dir / SRC_DIR
     if not mic_config_path.exists():
         exit(1)
-    spec = get_spec(mic_config_path)
-
-    framework = detect_framework(src_dir_path)
-    if framework is None:
-        click.secho("We need information about the language, tool or framework used by the model")
-        click.secho("This information allows to select the correct Docker Image")
-        click.secho("By the default, you can select the option {}".format(Framework.GENERIC))
-        framework = click.prompt("Select a option ".format(Framework),
-                                 show_choices=True,
-                                 type=click.Choice(Framework, case_sensitive=False),
-                                 value_proc=handle
-                                 )
-
+    # framework = detect_framework(src_dir_path)
+    # if framework is None:
+    #     click.secho("We need information about the language, tool or framework used by the model")
+    #     click.secho("This information allows to select the correct Docker Image")
+    #     click.secho("By the default, you can select the option {}".format(Framework.GENERIC))
+    #     framework = click.prompt("Select a option ".format(Framework),
+    #                              show_choices=True,
+    #                              type=click.Choice(Framework, case_sensitive=False),
+    #                              value_proc=handle
+    #                              )
+    framework = Framework.GENERIC
     if framework == Framework.GENERIC:
         bin_dir = model_dir / DOCKER_DIR / "bin"
         bin_dir.mkdir(exist_ok=True)
     dockerfile = render_dockerfile(model_dir, framework)
-    click.secho("The Dockerfile has been created: {}".format(dockerfile))
+    click.secho("Dockerfile has been created: {}".format(dockerfile))
     spec = get_spec(mic_config_path)
-    write_step(mic_config_path, spec, 5)
 
 
 @encapsulate.command(short_help="Build and run the Docker Image")
@@ -327,10 +320,9 @@ def step6(mic_config_file):
 )
 def step7(mic_config_file, profile):
     """
-    Select the outputs
-    For example,
+    Publish your code and MIC wrapper on GitHub and the Docker Image on DockerHub
 
-    mic encapsulate step7 -f <mic_config_file> [outputs]...
+    mic encapsulate step7 -f <mic_config_file>
     """
     info_step8()
     mic_config_path = Path(mic_config_file)
@@ -357,67 +349,12 @@ def step7(mic_config_file, profile):
     metavar="<profile-name>",
 )
 def step8(mic_config_file, profile):
-    from mic.resources.model import ModelCli
+    mic_config_path = Path(mic_config_file)
     model_configuration = create_model_catalog_resource(Path(mic_config_file), allow_local_path=False)
-    model_cli = ModelCli(profile=profile)
-    models = model_cli.get()
-    labels = get_label_from_response(models)
-    print_choices(labels)
-    click.secho("These are the existing models")
-    if click.confirm("Do you want to create new one?", default=True):
-        name = click.prompt("Name of the model")
-        _version = click.prompt("Version of the model")
-        new_model = Model(label=[name],
-                          has_version=[SoftwareVersion(label=[_version], has_version_id=[_version],
-                                                       has_configuration=[model_configuration])])
-        api_response = model_cli.post(new_model)
-
-    else:
-        choice = click.prompt("Select the resource to edit",
-                              default=1,
-                              show_choices=False,
-                              type=click.Choice(list(range(1, len(labels) + 1))),
-                              value_proc=parse
-                              )
-        selected_model = models[choice - 1]
-        software_versions = selected_model.has_version
-        click.secho("These are the existing models versions")
-        labels = get_label_from_response(software_versions)
-        print_choices(labels)
-        if click.confirm("Do you want to create new ModelVersion?", default=True):
-            _version = click.prompt("Version of the model")
-            software_version = SoftwareVersion(label=[_version],
-                                               type=[TYPE_SOFTWARE_IMAGE],
-                                        has_version_id=[_version],
-                                        has_configuration=[model_configuration])
-            if selected_model.has_version:
-                selected_model.has_version.append(software_version)
-            else:
-                selected_model.has_version = [software_version]
-        else:
-            choice = click.prompt("Select the resource to edit",
-                                  default=1,
-                                  show_choices=False,
-                                  type=click.Choice(list(range(1, len(labels) + 1))),
-                                  value_proc=parse
-                                  )
-            existing_configurations = selected_model.has_version[choice - 1].has_configuration
-            if existing_configurations:
-                existing_configurations.append(model_configuration)
-            else:
-                existing_configurations = [model_configuration]
-        print(selected_model)
-        exit(0)
-        api_response = model_cli.put(selected_model)
-        print(api_response)
-    click.echo("dame run {}".format(obtain_id(model_configuration.id)))
-    # select
-    # create
-
-    # list versions
-    # select
-    # create
-
+    publish_model_configuration(model_configuration, profile)
+    click.echo("You can run or see the details using DAME. More info at https://dame-cli.readthedocs.io/en/latest/".format(obtain_id(model_configuration.id)))
+    click.echo("For example, you can run it using:\ndame run {}".format(obtain_id(model_configuration.id)))
+    write_spec(mic_config_path, STEP_KEY, 9)
 
 @encapsulate.command(short_help="Show status")
 @click.option(
@@ -449,6 +386,3 @@ def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
     if _parameters:
         model_configuration.has_parameter = _parameters
     model_configuration.label = name
-
-if __name__ == '__main__':
-    step9("config.yaml", "default")
