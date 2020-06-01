@@ -60,7 +60,7 @@ class ModelCli:
             logging.error("Exception when calling ModelConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
             raise e
 
-    def pu(self, request):
+    def put(self, request):
         model_id = obtain_id(request.id)
         api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelApi(api)
