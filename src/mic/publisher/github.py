@@ -59,6 +59,7 @@ def push(model_directory: Path, mic_config_path: Path, profile):
 
 
 
+
 def git_commit(repo):
     repo.index.add_all()
     repo.index.write()
