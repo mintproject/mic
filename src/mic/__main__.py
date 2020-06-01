@@ -351,9 +351,9 @@ def step7(mic_config_file, profile):
 def step8(mic_config_file, profile):
     mic_config_path = Path(mic_config_file)
     model_configuration = create_model_catalog_resource(Path(mic_config_file), allow_local_path=False)
-    publish_model_configuration(model_configuration, profile)
-    click.echo("You can run or see the details using DAME. More info at https://dame-cli.readthedocs.io/en/latest/".format(obtain_id(model_configuration.id)))
-    click.echo("For example, you can run it using:\ndame run {}".format(obtain_id(model_configuration.id)))
+    api_response_model, api_response_mc = publish_model_configuration(model_configuration, profile)
+    click.echo("You can run or see the details using DAME. More info at https://dame-cli.readthedocs.io/en/latest/")
+    click.echo("For example, you can run it using:\ndame run {}".format(obtain_id(api_response_mc.id)))
     write_spec(mic_config_path, STEP_KEY, 9)
 
 @encapsulate.command(short_help="Show status")
