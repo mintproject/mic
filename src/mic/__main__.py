@@ -138,7 +138,8 @@ def encapsulate():
     """Command to encapsulate your Model Configuration"""
 
 
-@encapsulate.command(short_help="Create directories and subdirectories")
+
+@encapsulate.command(short_help="Set up a MIC directory structure and MIC file template")
 @click.argument(
     "model_configuration_name",
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
@@ -147,7 +148,7 @@ def encapsulate():
 def step1(model_configuration_name):
     """
     Create the directories and subdirectories.
-
+    
     mic encapsulate step1 <model_configuration_name>
 
     The argument: `model_configuration_name` is the name of your model configuration
@@ -323,13 +324,14 @@ def step6(mic_file):
     """
     mic_config_path = Path(mic_file)
     execute_using_docker(Path(mic_file))
-    write_spec(mic_config_path, STEP_KEY, 7)
+    write_spec(mic_config_path, STEP_KEY, 6)
 
 
-@encapsulate.command(short_help="Publish your code")
+
+@encapsulate.command(short_help="Publish your code in GitHub and your image to Dockerhub")
 @click.option(
     "-f",
-    "--mic_file",
+    "--mic_config_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
@@ -353,10 +355,10 @@ def step7(mic_file, profile):
     click.secho("Deleting the executions")
     push(model_dir, mic_config_path, profile)
     publish_docker(mic_config_path, profile)
-    write_spec(mic_config_path, STEP_KEY, 8)
+    write_spec(mic_config_path, STEP_KEY, 7)
 
 
-@encapsulate.command(short_help="Publish your model configuration")
+@encapsulate.command(short_help="Publish your model component in the MINT Model Catalog")
 @click.option(
     "-f",
     "--mic_file",
@@ -374,10 +376,11 @@ def step7(mic_file, profile):
 def step8(mic_file, profile):
     mic_config_path = Path(mic_file)
     model_configuration = create_model_catalog_resource(Path(mic_file), allow_local_path=False)
+
     api_response_model, api_response_mc = publish_model_configuration(model_configuration, profile)
     click.echo("You can run or see the details using DAME. More info at https://dame-cli.readthedocs.io/en/latest/")
     click.echo("For example, you can run it using:\ndame run {}".format(obtain_id(api_response_mc.id)))
-    write_spec(mic_config_path, STEP_KEY, 9)
+    write_spec(mic_config_path, STEP_KEY, 8)
 
 
 @encapsulate.command(short_help="Show status")
@@ -389,6 +392,7 @@ def step8(mic_file, profile):
 )
 def status(mic_file):
     mic_config_path = Path(mic_file)
+
     spec = get_spec(mic_config_path)
     click.secho("Step {} of {}".format(spec[STEP_KEY], TOTAL_STEPS))
 

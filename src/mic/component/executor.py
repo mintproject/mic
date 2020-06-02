@@ -84,11 +84,11 @@ def execute(mint_config_file: Path):
 
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
+    click.echo("Downloading the base image and building your image")
     image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
     for chunk in logs:
         print(chunk)
     return image.tags[0]
-    # return docker_image_name
 
 
 def execute_using_docker(mint_config_file: Path):
@@ -102,8 +102,8 @@ def execute_using_docker(mint_config_file: Path):
     try:
         resource = create_model_catalog_resource(mint_config_file)
     except ValueError:
+        logging.error(exc_info=True)
         pass
-
     docker_run(image, resource, src_dir)
     detect_news_file(src_dir, mint_config_file, now)
     write_spec(mint_config_file, LAST_EXECUTION_DIR, str(src_dir.absolute()))
