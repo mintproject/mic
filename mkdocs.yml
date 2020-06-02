@@ -4,15 +4,17 @@ nav:
   - Available commands: usage.md
   - Configure: configure.md
   - Add model: usage-add-model.md
-  - 'Add modelconfiguration':
+  - 'Creating a model component':
+      - 'Overview': 'model_configuration/01-overview.md'
       - 'Before you start...': 'model_configuration/02-pre-steps.md'
-      - 'Getting started': 'model_configuration/03-create-skeleton.md'
-      - 'Inputs and parameters': 'model_configuration/04-copy-your-data.md'
-      - 'Write the invocation lines': 'model_configuration/05-write-invocation.md'
-      - 'Pass the parameters': 'model_configuration/06-pass-parameters.md'
-      - 'Run and Validate': 'model_configuration/07-validate.md'
-      - 'Identify the outputs': 'model_configuration/08-outputs.md'
-      - 'Publish': 'model_configuration/09-publish.md'
+      - 'Set up a MIC directory': 'model_configuration/03-step1.md'
+      - 'Inputs and parameters': 'model_configuration/04-step2.md'
+      - 'Code preparation': 'model_configuration/05-step3.md'
+      - 'Edit component configuration files': 'model_configuration/06-step4.md'
+      - 'Comman line invocation': 'model_configuration/07-step5.md'
+      - 'Build and run your Docker Image': 'model_configuration/08-step6.md'
+      - 'Publish to GitHub and DockerHub': 'model_configuration/09-step7.md'
+      - 'Publish component to MINT model catalog': 'model_configuration/02-step8.md'
   - FAQ: faq.md
   - Glossary: glossary.md
 
