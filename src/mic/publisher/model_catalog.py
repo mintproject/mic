@@ -1,9 +1,9 @@
 import uuid
 from pathlib import Path
 
+
 import uuid
 from pathlib import Path
-
 import click
 import validators
 from dame.cli_methods import create_sample_resource
@@ -27,6 +27,7 @@ def generate_uuid():
 def create_model_catalog_resource(mint_config_file, allow_local_path=True):
     name = mint_config_file.parent.name
     inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
+
 
     model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
                                                     mint_config_file.parent) if inputs else None

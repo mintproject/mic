@@ -1,13 +1,13 @@
 
 ## Overview
 ```
-mic configure [-p | --profile] [--server] [--username] [--password] [--name] 
+mic credentials [-p | --profile] [--server] [--username] [--password] [--name] 
               [--email] [--git_username] [--git_token] [--dockerhub_username] 
 ``` 
 
 ## Description
 
-mic uses several APIs to upload models. The MINT Model Catalog requires credentials for modifying the contents in the catalog. Use this command to configure username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/). This command can also be used with no parameters, it will prompt the user to enter any required field not given. 
+mic uses several APIs to upload models. The MINT Model Catalog requires credentials for modifying the contents in the catalog. Use this command to configure a username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/). This command can also be used with no parameters, it will prompt the user to enter any required field not given. 
 
 ## Options
 
@@ -68,7 +68,7 @@ The `GitHub Token` is the user's [personal access token](https://help.github.com
 ### Example usage:
 
 ```
-$ mic configure
+$ mic credentials
 Model Catalog API [https://api.models.mint.isi.edu/v1.4.0]:
 Username [mint@isi.edu]:
 Password:

@@ -100,15 +100,14 @@ export  {{ key }}
 
 find . -maxdepth 1 -name '*.zip' -execdir unzip '{}' ';'
 
+
 if [ ! -f {{item}}.bk ]; then
   cp {{item}} {{item}}.bk
 fi
 
 envsubst < {{item}}.bk> {{item}}
 rm {{item}}.bk
-
 {% endfor -%}
 {% endif %}
-
 
 
