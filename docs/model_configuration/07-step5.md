@@ -1,5 +1,3 @@
-## Step 5: Define how to use your component in the command line
-
 In this step, MIC will guide you on how to set up the execution of your model using the command line.
 
 ### Editing the MINT Wrapper file

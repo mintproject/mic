@@ -1,5 +1,3 @@
-## Before you start
-
 In order to use MIC, you should create a GitHub and a DockerHub account. We will use these accounts in MIC to help you publish your component. You only need to perform these steps once.
 
 
@@ -28,36 +26,14 @@ The `GitHub Token` is the user's [personal access token](https://help.github.com
 
 ## Create a DockerHub account
 
-In order to use MIC effectively, your should create a GitHub and DockerHub account. We will use these accounts in MIC to help you publish your component.
-
-!!! warning
-    MIC **will not** store your credentials in our server. The credentials will store in your computer.
-
-## GitHub 
-
-### Create account
-
-GitHub is a website and cloud-based service that helps developers store and manage their code, as well as track and control changes to their code.
-
-`MIC` creates a GitHub repository and push your code.
-
-### Obtain GitHub Token
-
-To push your code, you must generate a GitHub Token. Instructions for this can be found [here](../configure.md#GitHubCreds)
-    
-!!! note
-    A documentation
-
-## DockerHub
-
-Docker Hub is a hosted repository service provided by Docker for sharing Docker images
+Docker Hub is a repository of packaged code prepared so that the code runs in any computer system. MIC uses it to make your model code easy to run by others. It will take just a few minutes to create an account and allow MIC to access it.
 If you don't have a Docker ID, head over to https://hub.docker.com to create one.
 
 `MIC` creates and pushes Docker images for you.
 
 ### Login
 
-To push the Docker image, you must login
+To push a Docker image, you must login in DockerHub:
 
 ```bash
 docker login
@@ -69,4 +45,4 @@ Password:
 ### Configure MIC
 
 Type `mic credentials` and fill in the information requested. You only need to do this once.
-```
+
