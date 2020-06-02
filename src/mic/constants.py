@@ -18,7 +18,7 @@ OUTPUT_FILE = "output.sh"
 DOCKER_FILE = "Dockerfile"
 SRC_DIR = "src"
 DOCKER_DIR = "docker"
-MIC_CONFIG_FILE_NAME = "MIC configuration file"
+MIC_CONFIG_FILE_NAME = "MIC file"
 DATA_DIR = "data"
 REQUIREMENTS_FILE = "requirements.txt"
 EXECUTIONS_DIR = "executions"
@@ -33,7 +33,6 @@ VERSION_KEY = "version"
 DOCKER_USERNAME_KEY = "dockerhub_username"
 MINT_COMPONENT_KEY = "mint_component_url"
 MINT_INSTANCE = "https://w3id.org/okn/i/mint/"
-
 TYPE_PARAMETER = "https://w3id.org/okn/o/sd#Parameter"
 TYPE_MODEL_CONFIGURATION = "https://w3id.org/okn/o/sdm#ModelConfiguration"
 TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
@@ -42,6 +41,7 @@ TYPE_SOFTWARE_VERSION = "https://w3id.org/okn/o/sd#SoftwareVersion"
 GITIGNORE_FILE = ".gitignore"
 DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
 DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
+
 
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")
