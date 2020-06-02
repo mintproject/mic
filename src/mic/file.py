@@ -1,5 +1,6 @@
 import json
 import logging
+
 import click
 
 
@@ -20,22 +21,20 @@ def clean_null_terms(d):
         return d
 
 
-def save(request):
+def save(request, file_name=None):
     """
     Function to save the current request as a JSON file
     :param request: JSON to save
     :return:
     """
     try:
-        file_name = click.prompt('Enter the file name to save (without extension): ')
-        file_name += '.json'
+        if file_name is None:
+            file_name = click.prompt('Enter the file name to save (without extension): ')
+            file_name += '.json'
         # Remove nulls
         request_dump = clean_null_terms(request)
         with open(file_name, 'w') as outfile:
-            json.dump(request_dump, outfile)
-        print('File saved successfully')
-        # this will show status if saved.
-        # click.confirm('File saved successfully. Do you want to continue editing?', abort=True)
+            json.dump(request_dump, outfile, indent=4)
     except Exception as err:
         logging.info(err, exc_info=True)
         click.secho(f"An error occurred when saving the file", fg="red")
