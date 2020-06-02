@@ -11,6 +11,9 @@ For example, let’s assume a model that has its inputs for a particular region 
 
 ![Diagram](figures/04_01.png)
 
+!!!warning
+  The data to copy in the `data` foder is what MIC will use to **test** your model. It is recommended that you copy in this folder only the data needed as input to run the model.
+
 Next, we must define the parameters to expose in your model component.
 These parameters are important because we may not be interested in exposing the full complexity of our model. For example, if we have prepared a model to execute in a particular region and we have tweaked certain parameters (e.g., soil porosity), we may not want these changed by the researchers or analysts using our model. However, we may want them to be able to change other parameters (e.g., increments in precipitation) to generate interesting simulations. This way, analysts or researchers can explore indicators values under different initial conditions, without needing to worry about complex model calibration details.
 
@@ -30,11 +33,7 @@ Options:
 
 The command has two options:
 -p, --parameters: The number of parameters
--f, --mic_file: A path to the MIC file. By default, the value is: `mic.yaml
-
-!!! info
-    The flags `-f` or `--mic_file` are equivalent.
-
+-f, --mic_file: A path to the MIC file. By default, the value is: `mic.yaml`
 
 !!! info
    The MIC file is under your Model Component directory.
