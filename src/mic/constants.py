@@ -46,7 +46,7 @@ DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 class Framework(Enum):
     PYTHON37 = ("python37", "mintproject/python37:20.5.1")
     CONDA = ("conda", "mintproject/conda:20.5.1")
-    GENERIC = ("general", "mintproject/generic:20.5.1")
+    GENERIC = ("general", "mintproject/base-ubuntu18:latest")
 
     def __init__(self, label, image):
         self.label = label

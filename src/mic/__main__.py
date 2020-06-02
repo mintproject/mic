@@ -138,7 +138,7 @@ def encapsulate():
     """Command to encapsulate your Model Configuration"""
 
 
-@encapsulate.command(short_help="Create directories and subdirectories")
+@encapsulate.command(short_help="Set up a MIC directory structure and MIC file template")
 @click.argument(
     "model_configuration_name",
     type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
@@ -167,7 +167,7 @@ def step1(model_configuration_name):
         fg='green')
 
 
-@encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
+@encapsulate.command(short_help="Specify the inputs and parameters of your model component")
 @click.option(
     "-p",
     "--parameters",
@@ -198,7 +198,7 @@ def step2(mic_config_file, parameters):
     fill_config_file_yaml(Path(mic_config_file), inputs_dir, parameters)
 
 
-@encapsulate.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
+@encapsulate.command(short_help="Prepare the MIC wrapper for your model component")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -228,7 +228,7 @@ def step3(mic_config_file):
     click.secho("The MINT Wrapper has created: {}".format(run_path))
 
 
-@encapsulate.command(short_help="If the configuration has config files, select them")
+@encapsulate.command(short_help="Edit your model configuration files")
 @click.argument(
     "configuration_files",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
@@ -270,7 +270,7 @@ def step4(mic_config_file, configuration_files):
     write_step(config_path, spec, 4)
 
 
-@encapsulate.command(short_help="Optional - Run your model with your computational environment.")
+@encapsulate.command(short_help="Define how to use your component in the command line")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -308,7 +308,7 @@ def step5(mic_config_file):
     spec = get_spec(mic_config_path)
 
 
-@encapsulate.command(short_help="Build and run the Docker Image")
+@encapsulate.command(short_help="Prepare, build, and run your Docker Image")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -326,7 +326,7 @@ def step6(mic_config_file):
     write_spec(mic_config_path, STEP_KEY, 7)
 
 
-@encapsulate.command(short_help="Publish your code")
+@encapsulate.command(short_help="Publish your code in GitHub and your image to Dockerhub")
 @click.option(
     "-f",
     "--mic_config_file",
@@ -356,7 +356,7 @@ def step7(mic_config_file, profile):
     write_spec(mic_config_path, STEP_KEY, 8)
 
 
-@encapsulate.command(short_help="Publish your model configuration")
+@encapsulate.command(short_help="Publish your model component in the MINT Model Catalog")
 @click.option(
     "-f",
     "--mic_config_file",
