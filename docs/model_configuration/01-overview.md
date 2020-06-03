@@ -28,7 +28,6 @@ Options:
 
 Commands:
   status  Displays in which step you are in
-  test      Tests your component (only available after completing step 5)
   step1   Set up a MIC directory structure and MIC file template
   step2   Specify the inputs and parameters of your model component
   step3   Prepare the MIC wrapper for your model component
