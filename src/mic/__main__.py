@@ -3,12 +3,13 @@ from pathlib import Path
 
 import mic
 import semver
+from mic.component.python3 import freeze
 from dame.utils import obtain_id
 from mic import _utils, file
 from mic.cli_docs import *
 from mic.component.executor import execute_using_docker
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, \
-    render_dockerfile, render_gitignore
+    render_dockerfile, render_gitignore, detect_framework
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files, create_config_file_yaml, get_spec, write_step, write_spec
 from mic.constants import *
@@ -290,20 +291,30 @@ def step5(mic_file):
     src_dir_path = model_dir / SRC_DIR
     if not mic_config_path.exists():
         exit(1)
-    # framework = detect_framework(src_dir_path)
-    # if framework is None:
-    #     click.secho("We need information about the language, tool or framework used by the model")
-    #     click.secho("This information allows to select the correct Docker Image")
-    #     click.secho("By the default, you can select the option {}".format(Framework.GENERIC))
-    #     framework = click.prompt("Select a option ".format(Framework),
-    #                              show_choices=True,
-    #                              type=click.Choice(Framework, case_sensitive=False),
-    #                              value_proc=handle
-    #                              )
-    framework = Framework.GENERIC
+    frameworks = detect_framework(src_dir_path)
+    if len(frameworks) > 1:
+        click.secho("MIC has detect {} possible framework/language on component: {}".format(
+            len(frameworks), ",".join([i.label for i in frameworks])))
+
+        click.secho("Please select the correct option")
+        click.secho("This information allows MIC to select the correct Docker Image")
+        framework = click.prompt("Select a option ".format(Framework),
+                                 show_choices=True,
+                                 type=click.Choice(frameworks, case_sensitive=False),
+                                 value_proc=handle
+                                 )
+    elif len(frameworks) == 1:
+        framework = frameworks[0]
+    else:
+        framework = Framework.GENERIC
+
     if framework == Framework.GENERIC:
         bin_dir = model_dir / DOCKER_DIR / "bin"
         bin_dir.mkdir(exist_ok=True)
+    elif framework == Framework.PYTHON37:
+        requirements_file = Path(mic_file).parent / DOCKER_DIR / REQUIREMENTS_FILE
+        freeze(requirements_file)
+        click.echo("Extracting the Python dependencies.\nYou can view or edit the dependencies file {} ".format(requirements_file))
     dockerfile = render_dockerfile(model_dir, framework)
     click.secho("Dockerfile has been created: {}".format(dockerfile))
     spec = get_spec(mic_config_path)
