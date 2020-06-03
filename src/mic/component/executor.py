@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import shutil
@@ -85,9 +86,14 @@ def execute(mint_config_file: Path):
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
     click.echo("Downloading the base image and building your image")
-    image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
-    for chunk in logs:
-        print(chunk)
+    try:
+        image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
+    except Exception as e:
+        click.secho("Error building the image", fg="red")
+        for i in e.build_log:
+            if "stream" in i:
+                print(i["stream"])
+        exit(1)
     return image.tags[0]
 
 

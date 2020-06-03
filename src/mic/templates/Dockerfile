@@ -1,8 +1,9 @@
 FROM {{ language.image }}
 
-{% if "python" in language.label  -%}
+{% if "python3" in language.label  -%}
 ADD requirements.txt /tmp/requirements.txt
-pip install -r /tmp/requirements.txt
+RUN pip3 install -U pip
+RUN pip3 install -r /tmp/requirements.txt
 {% endif -%}
 
 {% if "conda" in language.label  -%}
