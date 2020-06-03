@@ -40,13 +40,13 @@ Commands:
 
 If you get lost and you don’t know in which stage of your model component you are,  just type`mic encapsulate status` to see which step you are currently on. If you want to know about the details of any step, just do `mic encapsulate stepY --help`, where `Y` represents a number 1..8.
 
-Creating a MINT model component involves eight major steps:
 
-!!! info:
-    Currently, **MIC has been tested for steps 1 through 5**. We are testing the functionality for Steps 6, 7 and 8. Some of the steps described here (in particular, steps 3, 4 and 5) will be automated in next MIC releseases. Stay tuned!
+Creating a MINT model component involves eight major steps. Below is an overview of the different steps and how they interact with each other: 
 
-Below is an overview of the different steps and how they interact with each other: 
 ![Diagram](figures/overview.png)
+
+!!! info
+   Currently, **MIC has been tested for steps 1 through 6**. We are testing the functionality for Steps 6, 7 and 8. Some of the steps described here (in particular, steps 3, 4 and 5) will be automated in next MIC releseases. Stay tuned!
 
 ### Step 1: Set up a MIC directory structure and MIC file template
 
