@@ -161,9 +161,10 @@ def step1(model_configuration_name):
     render_gitignore(model_dir_path)
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
-    click.echo("MIC has created the directories")
+    click.echo("Initialized local GitHub repository")
     click.secho(
-        "You must add your data (files or directories) into the directory: {}".format(model_dir_path / DATA_DIR),
+        "You must add any of your data (files or directories) into the {} directory: {}".format(
+            DATA_DIR, model_dir_path / DATA_DIR),
         fg='green')
 
 
@@ -225,7 +226,8 @@ def step3(mic_config_file):
     render_output(model_directory_path, [], False)
     spec = get_spec(config_path)
     write_step(config_path, spec, 3)
-    click.secho("The MINT Wrapper has created: {}".format(run_path))
+    click.secho("The MIC Wrapper has been created at: {}".format(run_path))
+    click.secho("\"{}\" is the mic run file".format(RUN_FILE))
 
 
 @encapsulate.command(short_help="If the configuration has config files, select them")
@@ -258,7 +260,16 @@ def step4(mic_config_file, configuration_files):
     """
     config_path = Path(mic_config_file)
     if not config_path.exists():
+        click.secho("Error: that configuration path does not exist", fg="red")
         exit(1)
+
+    # loop through configuration_files list
+    for cp in configuration_files:
+        # The program will crash if the users configuration file is not in the data dir. This checks for that
+        if DATA_DIR not in Path(cp).absolute().parts:
+            click.secho("Error: Configuration file must be stored within {} directory".format(DATA_DIR), fg="red")
+            click.secho("Bad path input: {}".format(cp))
+            exit(1)
     add_configuration_files(config_path, configuration_files)
     model_directory_path = config_path.parent
     inputs, parameters, outputs, configs = get_inputs_parameters(config_path)

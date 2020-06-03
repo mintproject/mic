@@ -37,7 +37,7 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
                 shutil.copytree(input_path, src_dir_path / input_path.name)
             else:
                 shutil.copy(input_path, src_dir_path / input_path.name)
-            click.secho("Added: {} into the execution directory".format(input_path.name), fg="green")
+            click.secho("Added: {} into the execution directory".format(input_path.name))
         except OSError as e:
             click.secho("Failed: Error message {}".format(e), fg="red")
         except Exception as e:
@@ -115,8 +115,9 @@ def docker_run(image, resource, src_dir):
     try:
         line = get_command_line(resource)
     except:
-        logging.error("Unable to cmd_line", exc_info=True)
-    click.secho("Running \n {}".format(line), fg="green")
+        logging.error("Unable to get cmd_line", exc_info=True)
+        exit(1)
+    click.secho("Running \n {}".format(line))
     try:
         client = docker.from_env()
         res = client.containers.run(command=line,
@@ -161,9 +162,9 @@ def detect_news_file(src_directory: Path, mint_config_file: Path, time: datetime
                 files_list.append(Path(filepath).relative_to(src_directory))
     if files_list:
         model_dir = mint_config_file.parent
-        click.secho("The model has generated the following files")
+        click.secho("The model has generated the following files:")
         for file in files_list:
-            print(file)
+            click.secho("   {}".format(file))
         render_output(model_dir, files_list, None)
         add_outputs(mint_config_file, files_list)
 

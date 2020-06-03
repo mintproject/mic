@@ -38,9 +38,7 @@ def random_parameter():
 
 def create_config_file_yaml(model_path: Path) -> Path:
     config_yaml_path = model_path / CONFIG_YAML_NAME
-    if model_path.exists():
-        click.secho("Searching files in the directory {}".format(model_path))
-    else:
+    if not model_path.exists():
         click.secho("Failed: Directory {} doesn't exist".format(model_path), fg="red")
         exit(1)
     spec = {}
@@ -96,9 +94,9 @@ def write_docker_image(config_yaml_path: Path, spec: dict, image_name: str):
 def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: int) -> Path:
     directory = config_yaml_path.parent
     if data_dir.exists():
-        click.secho("Searching files in the directory {}".format(data_dir))
+        click.secho("Searching for input files in the directory {}".format(data_dir))
     else:
-        click.secho("Failed: Directory {} doesn't exist".format(data_dir), fg="red")
+        click.secho("Failed: Directory {} doesn't exist. Please create it or rerun step1".format(data_dir), fg="red")
         exit(1)
     try:
         spec = {}
@@ -120,7 +118,7 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
 
     except Exception as e:
         logging.error(e, exc_info=True)
-        click.secho("Failed: Error message {}".format(e), fg="red")
+        click.secho("Failed: Error message: {}".format(e), fg="red")
         exit(1)
 
     try:
@@ -137,8 +135,11 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
         exit(1)
-    click.secho("MIC has added the parameters and inputs into the {}".format(MIC_CONFIG_FILE_NAME), fg="green")
-    click.secho("You can see the changes {}".format(config_yaml_path.absolute()), fg="green")
+    click.secho("MIC has added the parameters and inputs into the {} ({})".format(MIC_CONFIG_FILE_NAME,
+                                                                                  CONFIG_YAML_NAME))
+    click.secho("You can see the changes in {}".format(config_yaml_path.absolute()), fg="green")
+    click.secho("It is recommended you add a description for each input and parameter in {}".format(CONFIG_YAML_NAME),
+                fg="green")
     return config_yaml_path
 
 
@@ -272,7 +273,7 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
     except Exception as e:
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in spec[OUTPUTS_KEY]:
-        click.secho("Added: {} as a output".format(item), fg="green")
+        click.secho("Added: {} as a output".format(item))
 
 
 def add_configuration_files(config_yaml_path: Path, configurations: tuple):
@@ -284,7 +285,7 @@ def add_configuration_files(config_yaml_path: Path, configurations: tuple):
     except Exception as e:
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in spec[CONFIG_FILE_KEY]:
-        click.secho("Added: {} as a configuration file".format(item), fg="green")
+        click.secho("Added: {} as a configuration file".format(item))
 
 
 def get_configuration_files(config_yaml_path: Path):

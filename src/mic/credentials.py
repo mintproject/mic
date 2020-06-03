@@ -1,7 +1,7 @@
 import configparser
 import os
 import pathlib
-
+from mic.constants import DEFAULT_CONFIGURATION_WARNING
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 
 import click
@@ -18,8 +18,7 @@ def get_credentials(profile: str) -> dict:
         credentials.read(credentials_file)
         return credentials[profile]
     elif credentials is not None and profile not in credentials and profile != ("%s" % DEFAULT_PROFILE):
-        click.secho("WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
-                    fg="yellow")
+        click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
     raise ValueError("Profile doesn't exists")
 
 
@@ -61,7 +60,7 @@ def print_list_credentials(profile, short):
     if credentials_file.exists():
         credentials.read(credentials_file)
     else:
-        click.secho("WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
+        click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile),
                     fg="yellow")
 
     profile_list = []
@@ -77,9 +76,7 @@ def print_list_credentials(profile, short):
         try:
             profile_list.append(get_credentials(profile))
         except KeyError as e:
-            click.secho(
-                "WARNING: That profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
-                fg="yellow")
+            click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
 
     click.echo("\n== Profiles ==")
     if not short:
