@@ -46,7 +46,7 @@ Creating a MINT model component involves eight major steps. Below is an overview
 ![Diagram](figures/overview.png)
 
 !!! info
-   Currently, **MIC has been tested for steps 1 through 6**. We are testing the functionality for Steps 6, 7 and 8. Some of the steps described here (in particular, steps 3, 4 and 5) will be automated in next MIC releseases. Stay tuned!
+    Currently, **MIC has been tested for steps 1 through 6**. We are testing the functionality for Steps 6, 7 and 8. Some of the steps described here (in particular, steps 3, 4 and 5) will be automated in next MIC releseases. Stay tuned!
 
 ### Step 1: Set up a MIC directory structure and MIC file template
 
