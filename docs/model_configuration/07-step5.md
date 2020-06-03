@@ -1,5 +1,7 @@
 In this step, MIC will guide you on how to set up the execution of your model using the command line.
 
+[Skip background explanation](#how-to-perform-this-step)
+
 ### Editing the MINT Wrapper file
 
 The MINT Wrapper is a plain text file that contains a series of commands, and we generated it as a result of step 3. These commands are a mixture of commands we would normally type ourselves on the command line (such as ls or cp for example).
@@ -133,7 +135,8 @@ The step5 is going to:
 Detect if your code is compatible with our environment
 Prepare your Docker Image. A Docker Image is used to encapsulate a software component and the corresponding dependencies. You don’t start from scratch or install all the software over and over. It contains independently deployable bits of code that can be used to build and run agile applications. It could be anything from a FASTA parser, a tree algorithm, or a simple visualization module.
 
-By typing the following command:
+### How to perform this step?
+
 ```
 $ mic encapsulate step5                                                   
 Dockerfile has been created: /Users/mosorio/tmp/swat_simulation/docker/Dockerfile

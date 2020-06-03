@@ -1,5 +1,7 @@
 ## Step 2:  Specify the inputs and parameters of your model component
 
+[Skip background explanation](#how-to-perform-this-step)
+
 This step will help you describe the inputs data and parameters required to execute your model component. All inputs and parameters will be added by MIC in the MIC file.
 
 First, you must copy your inputs/data to the data directory.
@@ -19,7 +21,7 @@ These parameters are important because we may not be interested in exposing the 
 
 A parameter can be a string, float, integer, or boolean.
 
-##### How to perform this step?
+### How to perform this step?
 
 You must type the following:
 

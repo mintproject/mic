@@ -1,9 +1,9 @@
-In order to use MIC, you should create a GitHub and a DockerHub account. We will use these accounts in MIC to help you publish your component. You only need to perform these steps once.
+In order to use MIC, you should create a GitHub and a DockerHub account. We will use these accounts in MIC to help you publish your component. You only need to perform these steps once. Even though we recommend you performing these steps before starting using MIC, **you won't need a GitHub or Docker account after completing step 5**.
 
 
 ## Create a GitHub account
 
-GitHub is a website and cloud-based service that helps developers store and manage their code, as well as track and control changes to their code. MIC uses GitHub to store a snapshot of your code and invocation by creating a GitHub repository and pushing your local code files. The code is stored in your account, so you will be the owner..
+GitHub is a website and cloud-based service that helps developers store and manage their code, as well as track and control changes to their code. MIC uses GitHub to store a snapshot of your code and invocation by creating a GitHub repository and pushing your local code files. The code is stored in your account, so you will be the owner.
 
 ### Obtain your GitHub access token
 
