@@ -8,4 +8,3 @@
 - **MINT Model Catalog**: An online browseable catalog of model components. Accessible at: https://models.mint.isi.edu/
 - **Software Image**: Computational infrastructure needed to carry out a run of a model.
 - **Model component**: A specific invocation function for model software that ensures the inclusion of certain model processes and variables while excluding others. For example, the MODFLOW groundwater model may be configured in many different ways: activating the infiltration package, having snowmelt and wells, exposing a parameter to indicate the recharge rate of an area, etc.
-

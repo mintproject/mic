@@ -1,6 +1,9 @@
 import uuid
 from pathlib import Path
 
+
+import uuid
+from pathlib import Path
 import click
 import validators
 from dame.cli_methods import create_sample_resource
@@ -8,7 +11,7 @@ from mic._menu import parse
 from mic._utils import obtain_id
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
-    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE
+    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, DATA_DIR
 from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
 from mic.resources.model import ModelCli
@@ -25,8 +28,11 @@ def create_model_catalog_resource(mint_config_file, allow_local_path=True):
     name = mint_config_file.parent.name
     inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
 
-    model_catalog_inputs = create_input_resource(allow_local_path, inputs, name)
-    model_catalog_outputs = create_output_resource(allow_local_path, outputs, name)
+
+    model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
+                                                    mint_config_file.parent) if inputs else None
+    model_catalog_outputs = create_data_set_resource(False, outputs,
+                                                     mint_config_file.parent) if outputs else None
     model_catalog_parameters = create_parameter_resource(parameters)
 
     image = get_key_spec(mint_config_file, DOCKER_KEY)
@@ -67,26 +73,7 @@ def create_parameter_resource(parameters):
     return model_catalog_parameters
 
 
-def create_output_resource(allow_local_path, outputs, name):
-    position = 1
-    response = []
-    if outputs:
-        for key, item in outputs.items():
-            try:
-                _format = item["path"].split('.')[-1]
-            except:
-                _format = "unknown"
-            _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
-            if allow_local_path:
-                p = Path(name) / item["path"]
-                create_sample_resource(_input, str(p.resolve()))
-            response.append(_input)
-            position += 1
-    response = response if response else None
-    return response
-
-
-def create_input_resource(allow_local_path, inputs, name):
+def create_data_set_resource(allow_local_path, inputs, component_dir):
     model_catalog_inputs = []
     position = 1
     for key, item in inputs.items():
@@ -99,11 +86,10 @@ def create_input_resource(allow_local_path, inputs, name):
             _format = "unknown"
         _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
         if allow_local_path:
-            p = Path(name) / item["path"]
-            create_sample_resource(_input, str(p.resolve()))
+            p = Path(component_dir) / item["path"]
+            create_sample_resource(_input, str(p.relative_to(component_dir / DATA_DIR)))
         model_catalog_inputs.append(_input)
         position += 1
-
     if not model_catalog_inputs:
         return None
     return model_catalog_inputs
@@ -122,7 +108,6 @@ def publish_model_configuration(model_configuration, profile):
     labels = get_show_models(models, "models")
     if click.confirm("Do you want to use an existing model?", default=True):
         api_response = handle_existing_model(profile, api_response_mc, labels, model_cli)
-
     else:
         # todo: change to api_response_mc
         api_response = create_new_model(model_cli, api_response_mc)

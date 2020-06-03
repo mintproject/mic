@@ -18,7 +18,7 @@ OUTPUT_FILE = "output.sh"
 DOCKER_FILE = "Dockerfile"
 SRC_DIR = "src"
 DOCKER_DIR = "docker"
-MIC_CONFIG_FILE_NAME = "MIC configuration file"
+MIC_CONFIG_FILE_NAME = "MIC file"
 DATA_DIR = "data"
 REQUIREMENTS_FILE = "requirements.txt"
 EXECUTIONS_DIR = "executions"
@@ -47,14 +47,16 @@ DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 # Default output messages
 DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p"
 
-class Framework(Enum):
-    PYTHON37 = ("python37", "mintproject/python37:20.5.1")
-    CONDA = ("conda", "mintproject/conda:20.5.1")
-    GENERIC = ("general", "mintproject/generic:20.5.1")
 
-    def __init__(self, label, image):
+class Framework(Enum):
+    PYTHON37 = ("python3", "mintproject/base-ubuntu18:latest", ".py")
+    #CONDA = ("conda", "mintproject/conda:20.5.1", ".py")
+    GENERIC = ("general", "mintproject/base-ubuntu18:latest")
+
+    def __init__(self, label, image, extension=None):
         self.label = label
         self.image = image
+        self.extension = extension
 
     def __str__(self):
         return self.label
