@@ -353,7 +353,7 @@ def step6(mic_file):
 @encapsulate.command(short_help="Publish your code in GitHub and your image to Dockerhub")
 @click.option(
     "-f",
-    "--mic_config_file",
+    "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
