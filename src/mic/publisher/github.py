@@ -187,7 +187,7 @@ def github_create_repo(profile, model_name):
         pass
     if repo:
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
-            click.echo("Please rename the directory")
+            click.secho("Please rename the directory", fg="green")
             exit(0)
     else:
         repo = user.create_repo(model_name)

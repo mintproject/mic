@@ -26,9 +26,8 @@ def create_directory(parent_directory: Path, name: str):
     src.mkdir(parents=True)
     docker.mkdir(parents=True)
     data.mkdir(parents=True)
-    click.secho("Created: {}".format(src.absolute()))
-    click.secho("Created: {}".format(docker.absolute()))
-    click.secho("Created: {}".format(data.absolute()))
+
+    click.secho("Created: {}, {}, and {} directories".format(SRC_DIR, DATA_DIR, DOCKER_DIR))
     return parent_directory
 
 

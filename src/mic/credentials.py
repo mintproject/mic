@@ -82,21 +82,25 @@ def print_list_credentials(profile, short):
     if not short:
         click.echo("")
     for prof in profile_list:
+        # list profile name
         # there is no way to get the key from the prof obj, so I have to manually format the tostring
-        click.echo("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]))
+        click.secho("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]),fg="blue")
 
         # Only show details if short is not used
         if not short:
             for field in prof:
                 # Dont print password or token
                 if field != "password" and field != "git_token":
-                    click.echo("   {}: {}".format(field, prof[field]))
+                    click.secho("   {}".format(field), nl=False, fg="green")
+                    click.secho(": {}".format(prof[field]))
                 # Dont print full token for security reasons
                 elif field == "git_token":
                     # Its safe to print if its obviously not a github token
                     if len(prof[field]) < 6:
-                        click.echo("   {}: {}".format(field, prof[field]))
-                    else:
-                        click.echo("   {}: Ending in \"...{}\"".format(field, (prof[field])[-5:]))
+                        click.secho("   {}".format(field), nl=False, fg="green")
+                        click.secho(": {}".format(prof[field]))
 
+                    else:
+                        click.secho("   {}".format(field), nl=False, fg="green")
+                        click.secho(": Ending in \"...{}\"".format((prof[field])[-5:]))
             click.echo("\n")

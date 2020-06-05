@@ -135,11 +135,7 @@ def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: in
         logging.error(e, exc_info=True)
         click.secho("Failed: Error message {}".format(e), fg="red")
         exit(1)
-    click.secho("MIC has added the parameters and inputs into the {} ({})".format(MIC_CONFIG_FILE_NAME,
-                                                                                  CONFIG_YAML_NAME))
-    click.secho("You can see the changes in {}".format(config_yaml_path.absolute()), fg="green")
-    click.secho("It is recommended you add a description for each input and parameter in {}".format(CONFIG_YAML_NAME),
-                fg="green")
+
     return config_yaml_path
 
 

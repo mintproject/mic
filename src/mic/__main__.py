@@ -139,7 +139,6 @@ def encapsulate():
     """Command to encapsulate your Model Configuration"""
 
 
-
 @encapsulate.command(short_help="Set up a MIC directory structure and MIC file template")
 @click.argument(
     "model_configuration_name",
@@ -148,7 +147,8 @@ def encapsulate():
 )
 def step1(model_configuration_name):
     """
-    Create the directories and subdirectories.
+    Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
+    GitHub repository
     
     mic encapsulate step1 <model_configuration_name>
 
@@ -165,7 +165,7 @@ def step1(model_configuration_name):
     create_local_repo_and_commit(model_dir_path)
     click.echo("Initialized local GitHub repository")
     click.secho(
-        "You must add any of your data (files or directories) into the {} directory: {}".format(
+        "Before step2 you must add any of your data (files or directories) into the {} directory: {}".format(
             DATA_DIR, model_dir_path / DATA_DIR),
         fg='green')
 
@@ -199,9 +199,20 @@ def step2(mic_file, parameters):
     if not inputs_dir.exists():
         exit(1)
     fill_config_file_yaml(Path(mic_file), inputs_dir, parameters)
+    click.secho("MIC has added the parameters and inputs into the {} ({})".format(MIC_CONFIG_FILE_NAME,
+                                                                                  CONFIG_YAML_NAME))
+    click.secho("You can see the changes in {}".format(Path(mic_file).absolute()), fg="green")
+    click.secho("Before step3: ", fg="green")
+    click.secho("You must add a default value for the \"default-value\" field in {}. Just replace the 0 with your value"
+                "".format(CONFIG_YAML_NAME),
+                fg="green")
+    click.secho("It is recommended you also add a description for each input and parameter in {}".format(CONFIG_YAML_NAME),
+                fg="green")
+    click.secho("If you use a script to initialize or create visualizations of your model you must copy these into the "
+                "src directory", fg="green")
 
 
-@encapsulate.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
+@encapsulate.command(short_help="Create MINT wrapper using the {}".format(CONFIG_YAML_NAME))
 @click.option(
     "-f",
     "--mic_file",
@@ -210,9 +221,9 @@ def step2(mic_file, parameters):
 )
 def step3(mic_file):
     """
-    Create MINT wrapper using the mic.yaml
+    Create MINT wrapper using the mic.yaml. This command will handle adding inputs and parameters into the run file.
 
-    - You must pass the MIC_FILE (mic.yaml) using the option (-f).
+    - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
     mic encapsulate step3 -f <mic_file>
     """
@@ -228,8 +239,12 @@ def step3(mic_file):
     render_output(model_directory_path, [], False)
     spec = get_spec(config_path)
     write_step(config_path, spec, 3)
-    click.secho("The MIC Wrapper has been created at: {}".format(run_path))
-    click.secho("\"{}\" is the mic run file".format(RUN_FILE))
+    click.echo("The MIC Wrapper has been created at: {}".format(run_path))
+    click.secho("Before the next step you must add any (bash) commands needed to run your model between the two "
+                "comments in the wrapper file. This file is located in {}/{}".format(SRC_DIR, RUN_FILE), fg="green")
+    click.secho("If your model has a configuration file, you will need to edit the values to match {}\'s parameter "
+                "names then run step4 otherwise you can move on to step5. See the docs for more details"
+                "".format(CONFIG_YAML_NAME), fg="green")
 
 
 @encapsulate.command(short_help="If the configuration has config files, select them")
@@ -249,11 +264,11 @@ def step4(mic_file, configuration_files):
     """
     THIS IS STEP IS OPTIONAL
 
-    Select the inputs files that are configuration files
+    Specify the inputs and parameters of your model component from configuration file(s)
 
-    - You must pass the MIC_FILE (mic.yaml) using the option (-f).
+    - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
-    - And the files as arguments
+    - pass the configuration files as arguments
 
     mic encapsulate step4 -f <mic_file> [configuration_files]...
 
@@ -283,7 +298,7 @@ def step4(mic_file, configuration_files):
     write_step(config_path, spec, 4)
 
 
-@encapsulate.command(short_help="Optional - Run your model with your computational environment.")
+@encapsulate.command(short_help="Prepare Docker image")
 @click.option(
     "-f",
     "--mic_file",
@@ -292,7 +307,7 @@ def step4(mic_file, configuration_files):
 )
 def step5(mic_file):
     """
-    Editing the MIC Wrapper and building your environment
+    Detect if code is executable, then set up Docker Image for model.
     For example,
 
     mic encapsulate step5 -f <mic_file>
@@ -349,8 +364,7 @@ def step6(mic_file):
     write_spec(mic_config_path, STEP_KEY, 6)
 
 
-
-@encapsulate.command(short_help="Publish your code in GitHub and your image to Dockerhub")
+@encapsulate.command(short_help="Publish your code in GitHub and your image to DockerHub")
 @click.option(
     "-f",
     "--mic_file",
