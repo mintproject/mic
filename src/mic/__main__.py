@@ -151,6 +151,10 @@ def step1(model_configuration_name):
 
     The argument: `model_configuration_name` is the name of your model configuration
      """
+    new_directory = Path(".") / model_configuration_name
+    if new_directory.exists():
+        click.secho("The directory {} exists, please use another name".format(new_directory.name), fg="red")
+        exit(1)
     try:
         model_dir_path = create_directory(Path('.'), model_configuration_name)
     except Exception as e:
