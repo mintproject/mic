@@ -5,7 +5,7 @@ The directory of your model component
 Three subdirectories (data/, src/ and docker/) in the model component directory.
 A MIC file template (mic.yaml). This file (which will be completed in subsequent steps) contains the executable information and metadata  about your model component.
 
-#### How to perform this step?
+### How to perform this step?
 
 To run this step, you must type the following command (where <model_component> is the name of your model component):
 

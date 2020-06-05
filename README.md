@@ -15,6 +15,13 @@ Please report any issue [here](https://github.com/mintproject/mic/issues/new/cho
 - [x] Create a new model/model configuration entry including: Author, Contributors, Model Version, Model Configuration, Parameters, Inputs and Outputs.
 - [x] Save model metadata as a file
 - [x] Submit model metadata to the Model Catalog Server (you must have an account)
+- [x] Initializing a component making sure it is consistent with its metadata 
+- [x] Testing that a component can be executed with local data.
+- [x] Upload a valid component to GitHub
+- [x] Help initializing a Docker image for capturing the dependencies of a component
+- [x] Help building a Docker image
+- [x] Test a Docker image with a component
+- [x] Support uploading a tested Docker image to DockerHub
 
 # Usage
 
@@ -36,15 +43,7 @@ Full documentation available at: [https://mic-cli.readthedocs.io/en/latest/](htt
 
 ## Next Features
 
-![Next features](docs/figures/mic-v2.png)
-
-The figure above highlights the next features we will support in MIC:
-
-- [ ] Initializing a component making sure it is consistent with its metadata 
-- [ ] Validating component metadata
-- [ ] Testing that a component can be executed with local data, creating unit tests.
-- [ ] Upload a valid component to GitHub
-- [ ] Help initializing a Docker image for capturing the dependencies of a component
-- [ ] Help building a Docker image
-- [ ] Test a Docker image with a component
-- [ ] Support uploading a tested Docker image to DockerHub
+- [ ] Automatically capture the invocation command of your model component
+- [ ] Automatically creation of the Docker image needed to execute your model
+- [ ] Advanced guidance to select parameters and inputs to expose in a model component.
+ 

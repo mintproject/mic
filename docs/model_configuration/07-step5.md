@@ -1,6 +1,6 @@
-## Step 5: Define how to use your component in the command line
-
 In this step, MIC will guide you on how to set up the execution of your model using the command line.
+
+[Skip background explanation](#how-to-perform-this-step)
 
 ### Editing the MINT Wrapper file
 
@@ -135,18 +135,28 @@ The step5 is going to:
 Detect if your code is compatible with our environment
 Prepare your Docker Image. A Docker Image is used to encapsulate a software component and the corresponding dependencies. You don’t start from scratch or install all the software over and over. It contains independently deployable bits of code that can be used to build and run agile applications. It could be anything from a FASTA parser, a tree algorithm, or a simple visualization module.
 
-By typing the following command:
+### How to perform this step?
+
 ```
 $ mic encapsulate step5                                                   
 Dockerfile has been created: /Users/mosorio/tmp/swat_simulation/docker/Dockerfile
 ```
 MIC will create a Dockerfile. Docker can build images automatically by reading the instructions from a Dockerfile. A Dockerfile is a text document that contains all the commands a user could call on the command line to assemble an image. 
 
-In the next version, MIC is going to extract the dependencies and prepare for Python and Conda environments. Currently, your Dockerfile will look like:
+In the next release, **MIC is going to extract the dependencies and prepare for Python and Conda environments**. Currently, your Dockerfile will look like:
 ```
 FROM mintproject/generic:20.5.1
+```
+Which basically prepares a clean linux environment for you to define dependencies. If you want some tips for creating Docker images, check out this [best practices document](https://docs.docker.com/develop/develop-images/dockerfile_best-practices/).
+
+If you have a requirements.txt file with your python dependencies, you just have to extend the docker image with the following (for Python3):
 
 ```
-Which basically prepares a clean linux environment for you to define dependencies. 
+COPY requirements.txt /tmp/
+RUN pip3 install --requirement /tmp/requirements.txt
+```
+
+If you don't know how to create a `requirements.txt` file from your python environment, you just have to type `pip freeze > requirements.txt`. This will capture all the dependencies installed in your current environment. 
+
 ### Expected results 
-As a result of this step, you will have validated your component and created a draft docker image. You are very close to the finish line!
+As a result of this step, you will have defined how to invoke your component and created a docker image with the required dependencies to run it. You are very close to the finish line!

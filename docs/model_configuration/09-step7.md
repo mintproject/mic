@@ -1,5 +1,3 @@
-## Step 7: Publish your code in GitHub and your image to Dockerhub
-
 Now that you have finished testing your component, it is time to version appropriately and register it, so it can be reused by others. By typing `mic encapsulate step7` you will be shown the steps followed by MIC to publish your component.
 
 ### How to perform this step?
