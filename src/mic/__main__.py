@@ -79,7 +79,7 @@ def credentials(server, username, password, git_username, git_token, name, docke
     type=str,
     default=None,
     metavar="<profile-name>",
-    help="specify a specific profile to list"
+    help="specify a profile to list"
 )
 @click.option(
     "--short",
@@ -155,7 +155,7 @@ def step1(model_configuration_name):
     """
     new_directory = Path(".") / model_configuration_name
     if new_directory.exists():
-        click.secho("The directory {} exists, please use another name".format(new_directory.name), fg="red")
+        click.secho("The directory {} already exists, please use another name".format(new_directory.name), fg="red")
         exit(1)
     try:
         model_dir_path = create_directory(Path('.'), model_configuration_name)
@@ -166,9 +166,10 @@ def step1(model_configuration_name):
     render_gitignore(model_dir_path)
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
-    click.echo("Initialized local GitHub repository")
+    click.secho("MIC has initialized the component. {}/, {}/, {}/ and {} created".format(DATA_DIR, DOCKER_DIR, SRC_DIR,
+                                                                                         CONFIG_YAML_NAME))
     click.secho(
-        "Before step2 you must add any of your data (files or directories) into the {} directory: {}".format(
+        "Before step2 you must add your data (files or directories) into the {} directory: {}".format(
             DATA_DIR, model_dir_path / DATA_DIR),
         fg='green')
 
@@ -249,7 +250,7 @@ def step3(mic_file):
     click.secho("Before the next step you must add any (bash) commands needed to run your model between the two "
                 "comments in the wrapper file. This file is located in {}/{}".format(SRC_DIR, RUN_FILE), fg="green")
     click.secho("If your model has a configuration file, you will need to edit the values to match {}\'s parameter "
-                "names then run step4 otherwise you can move on to step5. See the docs for more details"
+                "names then run step4. Otherwise you can move on to step5. See the docs for more details"
                 "".format(CONFIG_YAML_NAME), fg="green")
 
 
@@ -268,13 +269,13 @@ def step3(mic_file):
 )
 def step4(mic_file, configuration_files):
     """
-    THIS IS STEP IS OPTIONAL
+    If your model does not use configuration files, you can skip this step
 
     Specify the inputs and parameters of your model component from configuration file(s)
 
     - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
-    - pass the configuration files as arguments
+    - Pass the configuration files as arguments
 
     mic encapsulate step4 -f <mic_file> [configuration_files]...
 
@@ -313,7 +314,7 @@ def step4(mic_file, configuration_files):
 )
 def step5(mic_file):
     """
-    Detect if code is executable, then set up Docker Image for model.
+    Set up Docker Image for model.
 
     Example:
     mic encapsulate step5 -f <mic_file>
