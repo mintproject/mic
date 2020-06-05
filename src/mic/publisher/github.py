@@ -11,7 +11,7 @@ from mic.config_yaml import write_spec
 from distutils.version import StrictVersion
 from github import Github
 from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
-    MINT_COMPONENT_KEY
+    MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
 from mic.credentials import get_credentials
 
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
@@ -187,7 +187,7 @@ def github_create_repo(profile, model_name):
         pass
     if repo:
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
-            click.echo("Please rename the directory")
+            click.secho("Please rename the directory", fg="green")
             exit(0)
     else:
         repo = user.create_repo(model_name)
@@ -201,8 +201,7 @@ def github_config(profile):
         git_username = credentials[GIT_USERNAME_KEY]
         git_token = credentials[GIT_TOKEN_KEY]
     except KeyError:
-        click.secho("WARNING: Could not find GitHub credentials in profile, "
-                    "please run:\nmic configure -p {}".format(profile), fg="yellow")
+        click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
         exit(1)
     return git_token, git_username
 

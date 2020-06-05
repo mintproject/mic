@@ -26,9 +26,8 @@ def create_directory(parent_directory: Path, name: str):
     src.mkdir(parents=True)
     docker.mkdir(parents=True)
     data.mkdir(parents=True)
-    click.secho("Created: {}".format(src.absolute()), fg="green")
-    click.secho("Created: {}".format(docker.absolute()), fg="green")
-    click.secho("Created: {}".format(data.absolute()), fg="green")
+
+    click.secho("Created: {}, {}, and {} directories".format(SRC_DIR, DATA_DIR, DOCKER_DIR))
     return parent_directory
 
 
@@ -41,7 +40,7 @@ def render_gitignore(directory: Path):
         gi.write(ignore)
 
     gitignore_file.chmod(0o755)
-    click.secho("Created: {}".format(gitignore_file.absolute()), fg="green")
+    click.secho("Created: {}".format(gitignore_file.absolute()))
     return gitignore_file
 
 
