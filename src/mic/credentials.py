@@ -1,7 +1,7 @@
 import configparser
 import os
 import pathlib
-
+from mic.constants import DEFAULT_CONFIGURATION_WARNING
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 
 import click
@@ -18,8 +18,7 @@ def get_credentials(profile: str) -> dict:
         credentials.read(credentials_file)
         return credentials[profile]
     elif credentials is not None and profile not in credentials and profile != ("%s" % DEFAULT_PROFILE):
-        click.secho("WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
-                    fg="yellow")
+        click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
     raise ValueError("Profile doesn't exists")
 
 
@@ -61,7 +60,7 @@ def print_list_credentials(profile, short):
     if credentials_file.exists():
         credentials.read(credentials_file)
     else:
-        click.secho("WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
+        click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile),
                     fg="yellow")
 
     profile_list = []
@@ -77,29 +76,31 @@ def print_list_credentials(profile, short):
         try:
             profile_list.append(get_credentials(profile))
         except KeyError as e:
-            click.secho(
-                "WARNING: That profile doesn't exists. To configure it, run:\nmic configure -p {}".format(profile),
-                fg="yellow")
+            click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
 
     click.echo("\n== Profiles ==")
     if not short:
         click.echo("")
     for prof in profile_list:
+        # list profile name
         # there is no way to get the key from the prof obj, so I have to manually format the tostring
-        click.echo("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]))
+        click.secho("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]),fg="blue")
 
         # Only show details if short is not used
         if not short:
             for field in prof:
                 # Dont print password or token
                 if field != "password" and field != "git_token":
-                    click.echo("   {}: {}".format(field, prof[field]))
+                    click.secho("   {}".format(field), nl=False, fg="green")
+                    click.secho(": {}".format(prof[field]))
                 # Dont print full token for security reasons
                 elif field == "git_token":
                     # Its safe to print if its obviously not a github token
                     if len(prof[field]) < 6:
-                        click.echo("   {}: {}".format(field, prof[field]))
-                    else:
-                        click.echo("   {}: Ending in \"...{}\"".format(field, (prof[field])[-5:]))
+                        click.secho("   {}".format(field), nl=False, fg="green")
+                        click.secho(": {}".format(prof[field]))
 
+                    else:
+                        click.secho("   {}".format(field), nl=False, fg="green")
+                        click.secho(": Ending in \"...{}\"".format((prof[field])[-5:]))
             click.echo("\n")
