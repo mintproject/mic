@@ -1,5 +1,7 @@
 # Step 4: Edit your model configuration files
 
+[Skip background explanation](#how-to-perform-this-step)
+
 Models tend to be complex, and it becomes impractical to configure their parameters through the command line. Instead, many models define their parameters in one or multiple configuration files.
 
 In our SWAT example used in previous steps, we defined two parameters related to the start year of the simulation and the number of years to run it:
@@ -34,14 +36,6 @@ fig.fig
 As shown above, the parameters NBYR and IYR correspond to `years` and `start_year` respectively. In the following steps we will cover how to map these values into .
 
 
-
-
-
-
-
-
-
-
 ### How to feed parameters in configuration files?
 
 The MINT wrapper can replace the values of the parameters in their right configuration files, but it needs to know where they are. Therefore, we need to define **placeholders** in the configuration files stating which value will be replaced.
@@ -70,6 +64,8 @@ Make sure that the names of the parameters match with the names we described in 
 
 ![Diagram](figures/06_01.png)
 
+
+### How to perform this step?
 
 Once the mapping has been completed, we just need to add the file as a configuration file of the model component:
 

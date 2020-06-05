@@ -1,5 +1,7 @@
 ## Step 3: Prepare the code to run your model component 
 
+[Skip background explanation](#how-to-perform-this-step)
+
 ### Step 3.1 Copy your scripts into the src folder
 
 First, you must copy any scripts you want to incorporate into your model component into the src directory. **You don’t need to copy any installed dependencies in your computer**. For example, if you have a script that you use to initialize your model, or a script that you use to create visualizations of your model and you want these visualizations to be part of your component, copy them as well. If you just invoke your model through the command line with no scripts, then no further action is required.
@@ -23,9 +25,6 @@ The commands in the MINT Wrapper are a mixture of commands we would normally typ
     Many models have graphical interfaces for data preparation purposes and set up. However, the scope of this effort is making your model available on any infrastructure. Cloud servers and supercomputers don’t usually provide graphical interfaces, and therefore we cannot assume a graphical interface to be available. It is a good engineering practice to deliver a component that can be used without a graphical interface.
 
 ### How to perform this step?
-
-The command `mic encapsulate step3` has one option:
-
 
 ```
 mic encapsulate step3 [OPTIONS]

@@ -3,19 +3,17 @@ from pathlib import Path
 
 import mic
 import semver
-from mic.component.python3 import freeze
 from dame.utils import obtain_id
 from mic import _utils, file
 from mic.cli_docs import *
 from mic.component.executor import execute_using_docker
 from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, \
     render_dockerfile, render_gitignore, detect_framework
+from mic.component.python3 import freeze
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, create_config_file_yaml, get_spec, write_step, write_spec
+    add_configuration_files, create_config_file_yaml, get_spec, write_spec, get_key_spec
 from mic.constants import *
 from mic.credentials import configure_credentials, print_list_credentials
-from mic.drawer import print_choices
-from mic.model_catalog_utils import get_label_from_response
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import create_local_repo_and_commit, push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
@@ -154,6 +152,10 @@ def step1(model_configuration_name):
 
     The argument: `model_configuration_name` is the name of your model configuration
      """
+    new_directory = Path(".") / model_configuration_name
+    if new_directory.exists():
+        click.secho("The directory {} exists, please use another name".format(new_directory.name), fg="red")
+        exit(1)
     try:
         model_dir_path = create_directory(Path('.'), model_configuration_name)
     except Exception as e:
@@ -195,7 +197,8 @@ def step2(mic_file, parameters):
      - the parameters and add them in the configuration file
 
     """
-    inputs_dir = Path(mic_file).parent / DATA_DIRECTORY_NAME
+    mic_config_path = Path(mic_file)
+    inputs_dir = mic_config_path.parent / DATA_DIRECTORY_NAME
     if not inputs_dir.exists():
         exit(1)
     fill_config_file_yaml(Path(mic_file), inputs_dir, parameters)
@@ -210,9 +213,10 @@ def step2(mic_file, parameters):
                 fg="green")
     click.secho("If you use a script to initialize or create visualizations of your model you must copy these into the "
                 "src directory", fg="green")
+    write_spec(mic_config_path, STEP_KEY, 2)
 
-
-@encapsulate.command(short_help="Create MINT wrapper using the {}".format(CONFIG_YAML_NAME))
+    
+@encapsulate.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
 @click.option(
     "-f",
     "--mic_file",
@@ -230,15 +234,15 @@ def step3(mic_file):
     if not Path(mic_file).exists():
         click.secho("Error: {} doesn't exists".format(mic_file), fg="red")
         exit(1)
-    config_path = Path(mic_file)
-    model_directory_path = config_path.parent
-    inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
-    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
+    mic_config_path = Path(mic_file)
+    model_directory_path = mic_config_path.parent
+    inputs, parameters, outputs, configs = get_inputs_parameters(mic_config_path)
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(mic_config_path)
     run_path = render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path, [], False)
     spec = get_spec(config_path)
-    write_step(config_path, spec, 3)
+    write_spec(mic_config_path, STEP_KEY, 3)
     click.echo("The MIC Wrapper has been created at: {}".format(run_path))
     click.secho("Before the next step you must add any (bash) commands needed to run your model between the two "
                 "comments in the wrapper file. This file is located in {}/{}".format(SRC_DIR, RUN_FILE), fg="green")
@@ -294,8 +298,8 @@ def step4(mic_file, configuration_files):
     render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path, [], False)
-    spec = get_spec(config_path)
-    write_step(config_path, spec, 4)
+    spec = get_spec(mic_config_path)
+    write_spec(mic_config_path, STEP_KEY, 4)
 
 
 @encapsulate.command(short_help="Prepare Docker image")
@@ -340,10 +344,11 @@ def step5(mic_file):
     elif framework == Framework.PYTHON37:
         requirements_file = Path(mic_file).parent / DOCKER_DIR / REQUIREMENTS_FILE
         freeze(requirements_file)
-        click.echo("Extracting the Python dependencies.\nYou can view or edit the dependencies file {} ".format(requirements_file))
+        click.echo("Extracting the Python dependencies.\nYou can view or edit the dependencies file {} ".format(
+            requirements_file))
     dockerfile = render_dockerfile(model_dir, framework)
     click.secho("Dockerfile has been created: {}".format(dockerfile))
-    spec = get_spec(mic_config_path)
+    write_spec(mic_config_path, STEP_KEY, 5)
 
 
 @encapsulate.command(short_help="Build and run the Docker Image")
@@ -428,9 +433,8 @@ def step8(mic_file, profile):
 )
 def status(mic_file):
     mic_config_path = Path(mic_file)
-
-    spec = get_spec(mic_config_path)
-    click.secho("Step {} of {}".format(spec[STEP_KEY], TOTAL_STEPS))
+    step = get_key_spec(mic_config_path, STEP_KEY)
+    click.secho("Step {} of {}".format(step, TOTAL_STEPS))
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):

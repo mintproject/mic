@@ -1,6 +1,6 @@
 # Creating a Model Component
 
-The `encapsulate` command  in MIC guides you through eight steps to create an executable component that encapsulates your model code as well as associated datasets and makes it available in the MINT Model Catalog. Once your model is available in the MINT Model Catalog, other users can easily access and run it in their own environments.
+The `encapsulate` command  in MIC guides you through eight steps to create an executable component that encapsulates your model code and makes it available in the MINT Model Catalog. Once your model is available in the MINT Model Catalog, other users can easily access and run it in their own environments.
 
 There are several reasons for creating a component out of a model:
 You will be able to create a simplified version of your model, only exposing the inputs and parameters that are more important for a user.
@@ -28,7 +28,6 @@ Options:
 
 Commands:
   status  Displays in which step you are in
-  test      Tests your component (only available after completing step 5)
   step1   Set up a MIC directory structure and MIC file template
   step2   Specify the inputs and parameters of your model component
   step3   Prepare the MIC wrapper for your model component
@@ -39,10 +38,15 @@ Commands:
   step8   Publish your model component in the MINT Model Catalog
 ```
 
-!!!info:
-    If you get lost and you don’t know in which stage of your model component you are,  just type`mic encapsulate status` to see which step you are currently on. If you want to know about the details of any step, just do `mic encapsulate stepY --help`, where `Y` represents a number 1..8.
+If you get lost and you don’t know in which stage of your model component you are,  just type`mic encapsulate status` to see which step you are currently on. If you want to know about the details of any step, just do `mic encapsulate stepY --help`, where `Y` represents a number 1..8.
 
-Creating a MINT model component involves eight major steps:
+
+Creating a MINT model component involves eight major steps. Below is an overview of the different steps and how they interact with each other: 
+
+![Diagram](figures/overview.png)
+
+!!! info
+    Currently, **MIC has been tested for steps 1 through 6**. We are testing the functionality for Steps 6, 7 and 8. Some of the steps described here (in particular, steps 3, 4 and 5) will be automated in next MIC releseases. Stay tuned!
 
 ### Step 1: Set up a MIC directory structure and MIC file template
 
@@ -56,32 +60,31 @@ Provide MIC with the invocation command’s inputs and parameters that you would
 
 **Expected outcome of this step**: The MIC file will be automatically edited to include information about the input datasets and parameters that you provided for your model component.
 
-### Step 3   Prepare MIC wrapper for your model component
+### Step 3   Prepare MIC wrapper template for your model component
 Create a *component interface wrapper* that indicates how the component interface specification from Step 2 corresponds to the specific invocation command in your model.
 
-**Expected outcome of this step**: MIC will create a file which captures the parameters to be used in your model and is almost ready for execution. We call this the MIC Wrapper.
+**Expected outcome of this step**: MIC will create several files (x y z) are placeholders that will be filled in subsequent steps.  We call these files the MIC Wrapper.
 
-### Step 4   Edit your model configuration files
-Some models have configuration files specifying particular values for all parameters used by the model. In this step MIC will guide you to edit these files in order to make sure the parameters that you chose to include in your model component are appropriately set
+### Step 4   Pre-populate your model configuration files
+You will edit your  model configuration files to include the  parameters you included in the component interface. In this step MIC will guide you to edit these files so the parameters that you specified  in your model component interface are appropriately set
 
-**Expected results after completing this step**: An updated MIC file.
+**Expected results after completing this step**: MIC will generate a revised MIC file that points to the model configuration files that set the  parameters in the model component interface.
 
-### Step 5   Define how to use your component in the command line
-MIC will help you define how to invoke your model and test your model component in your own computer, assuming all the dependencies are installed. 
+### Step 5   Specify the command line to invoke your model software 
+You will edit the “run” file to specify the command line invocation for your model software for this model component.  MIC will automatically create a component image assembly file (Dockerfile) template based on the “run” file you edited in this step, which you can edit to add runtime library dependencies (this will  be automated in future versions).
 
-**Expected results after completing this step**: A successful test of your model
+**Expected results after completing this step**:  There will be an updated “run” file mapping the component interface to the command line. A new file called Dockerfile will contain image assembly instructions.  
 
-### Step 6  Prepare, build, and run your Docker Image
-MIC will guide you in the process of creating a .Dockerfile capturing the software  dependencies of your model, testing your component as a result.
+### Step 6  Build and test your component image
+MIC will build a component  image based on the image assembly file.  MIC will test your component by running that image in your local computer.  You can fix any errors that come up when doing these runs.
+**Expected results after completing this step**: If the tests are successful, your component will be executable by others in their own local hosts or servers
 
-**Expected results after completing this step**: A complete docker file that has all the elements to be built and tested. If the tests are successful, your component is executable on any computational infrastructure
+### Step 7   Publish your model component implementation
+MIC will upload a snapshot of your MIC model wrapper and model software and a snapshot of your model component image in GitHub and DockerHub. 
 
-### Step 7   Publish your code in GitHub and Docker Image
-Mic will build and test your component as a Docker image. The result will be published to Dockerhub under a new version id. 
+**Expected results after completing this step**: Your model component wrapper will be archived in Github, and your model component  image in DockerHub. Both will receive a tag and will be versioned so that they are accessible by anyone anywhere.
 
-**Expected results after completing this step**: Your model configuration will be archived in Github, and your software image will be available and findable in DockerHub. Both will receive a tag and be versioned.
+### Step 8   Publish your model component in MINT
+MIC will create an entry for your model component to the MINT Model Catalog, which will make it accessible by others through MINT services and interfaces to be run in their own local hosts and servers
 
-### Step 8   Publish your model component in the MINT Model Catalog
-MIC will automatically push your code to GitHub, and your Docker image to DockerHub. 
-
-**Expected results after completing this step**: Your model configuration is successfully submitted and accessible.
+**Expected results after completing this step**: MINT will have an entry for your model configuration in the MINT Model Catalog, and anyone using DAME can easily access and run it.

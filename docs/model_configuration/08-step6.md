@@ -1,7 +1,12 @@
-## Step 6: Prepare, build, and run your Docker Image
 Now that your component is ready, let’s edit and build the Docker image that will capture the dependencies of your component.
 
-By typing `mic encapsulate step6`, MIC will attempt to build and test the resultant image, running your component. For example, for our SWAT example you should see the following on your terminal:
+### How to perform this step?
+
+```bash 
+mic encapsulate step6
+```
+
+MIC will attempt to build and test the resultant image, running your component. For example, for our SWAT example you should see the following on your terminal:
 
 ```
 MIC has created the execution directory /Users/mosorio/tmp/swat_simulation/executions/05_29_15_15_24/src
