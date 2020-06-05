@@ -9,8 +9,9 @@ from pathlib import Path
 import click
 import docker
 from dame.executor import build_parameter, build_output
+from docker.errors import APIError
 from mic.component.initialization import render_output
-from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs
+from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs, get_configuration_files
 from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, DOCKER_KEY, LAST_EXECUTION_DIR
 from mic.publisher.model_catalog import create_model_catalog_resource
 
@@ -86,14 +87,7 @@ def execute(mint_config_file: Path):
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
     click.echo("Downloading the base image and building your image")
-    try:
-        image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
-    except Exception as e:
-        click.secho("Error building the image", fg="red")
-        for i in e.build_log:
-            if "stream" in i:
-                print(i["stream"])
-        exit(1)
+    image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
     return image.tags[0]
 
 
@@ -101,7 +95,16 @@ def execute_using_docker(mint_config_file: Path):
     model_path = mint_config_file.parent
     name = model_path.name
     docker_path = model_path / DOCKER_DIR
-    image = build_docker(docker_path, name)
+    try:
+        image = build_docker(docker_path, name)
+    except APIError as e:
+        print(e)
+        click.secho("Error building the image", fg="red")
+        exit(1)
+    except Exception as e:
+        print(e)
+        click.secho("Error building the image", fg="red")
+        exit(1)
     now = datetime.now().timestamp()
 
     src_dir = create_execution_directory(mint_config_file, model_path)
@@ -158,13 +161,16 @@ def detect_news_file(src_directory: Path, mint_config_file: Path, time: datetime
     """
     model_name = mint_config_file.parent.name
     files_list = []
+    configuration_files = get_configuration_files(mint_config_file)
     for root, _, filenames in os.walk(src_directory, topdown=True):
         for filename in filenames:
             filepath = os.path.join(os.path.abspath(root), filename)
             created = os.path.getmtime(Path(filepath))
             modified = os.path.getmtime(Path(filepath))
-            if time < created or time < modified:
-                files_list.append(Path(filepath).relative_to(src_directory))
+            relative_to = Path(filepath).relative_to(src_directory)
+            if time < created or time < modified and relative_to not in configuration_files:
+                files_list.append(relative_to)
+
     if files_list:
         model_dir = mint_config_file.parent
         click.secho("The model has generated the following files")
