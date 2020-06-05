@@ -1,3 +1,4 @@
+import os
 import shutil
 from pathlib import Path
 from typing import List
@@ -76,13 +77,23 @@ def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list)
     run_file = directory / SRC_DIR / IO_FILE
     with open(run_file, "w") as f:
         content = render_template(template=template, inputs=inputs,
-                                  parameters=parameters, configs=[str(Path(directory / i).relative_to(data_dir)) for i in configs])
+                                  parameters=parameters,
+                                  configs=[str(Path(directory / i).relative_to(data_dir)) for i in configs])
         f.write(content)
     return run_file
 
 
 def detect_framework(src_dir: Path) -> Framework:
-    return None
+    files = {}
+    frameworks = []
+    for root, _, filenames in os.walk(src_dir, topdown=True):
+        for filename in filenames:
+            filepath = Path(os.path.join(os.path.abspath(root), filename))
+            if filepath.name not in [RUN_FILE, IO_FILE, OUTPUT_FILE]:
+                for name, member in Framework.__members__.items():
+                    if member.extension == filepath.suffix:
+                        frameworks.append(member)
+    return frameworks
 
 
 def render_dockerfile(model_directory: Path, language: Framework) -> Path:
