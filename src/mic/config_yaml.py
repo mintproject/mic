@@ -286,7 +286,7 @@ def add_configuration_files(config_yaml_path: Path, configurations: tuple):
 
 def get_configuration_files(config_yaml_path: Path):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    return spec[CONFIG_FILE_KEY]
+    return spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else []
 
 
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
