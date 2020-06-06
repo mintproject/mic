@@ -244,7 +244,7 @@ def step3(mic_file):
     run_path = render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path, [], False)
-    spec = get_spec(config_path)
+    spec = get_spec(mic_config_path)
     write_spec(mic_config_path, STEP_KEY, 3)
     click.echo("The MIC Wrapper has been created at: {}".format(run_path))
     click.secho("Before the next step you must add any (bash) commands needed to run your model between the two "
