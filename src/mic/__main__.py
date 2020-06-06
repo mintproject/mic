@@ -371,7 +371,7 @@ def step6(mic_file):
     mic_config_path = Path(mic_file)
     execute_using_docker(Path(mic_file))
     write_spec(mic_config_path, STEP_KEY, 6)
-
+    click.secho("Success", fg="green")
 
 @encapsulate.command(short_help="Publish your code in GitHub and your image to DockerHub")
 @click.option(

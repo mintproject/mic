@@ -137,9 +137,7 @@ def docker_run(image, resource, src_dir):
                                     stream=True,
                                     remove=True
                                     )
-        for chunk in res.logs(stream=True):
-            print(chunk)
-        click.secho("Success", fg="green")
+        click.secho("Run complete")
 
     except Exception as e:
         click.secho("Failed", fg="red")
