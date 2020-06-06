@@ -139,39 +139,35 @@ def encapsulate():
 
 @encapsulate.command(short_help="Set up a MIC directory structure and MIC file template")
 @click.argument(
-    "model_configuration_name",
-    type=click.Path(exists=False, dir_okay=True, file_okay=False, resolve_path=True),
+    "user_execution_directory",
+    type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
     required=True
 )
-def step1(model_configuration_name):
+@click.option(
+    "--name",
+    "-n",
+    required=True,
+    prompt="Please insert the name of your Model Configuration",
+    type=click.STRING,
+)
+@click.option(
+    "--description",
+    "-d",
+    required=True,
+    prompt="Please insert the description of your Model Configuration",
+    type=click.STRING,
+)
+def step1(user_execution_directory, name, description):
     """
     Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
     GitHub repository
 
     The argument: `model_configuration_name` is the name of your model configuration
+     """
+    mic_directory = Path.home() / MIC_DIR
+    if not mic_directory.exists():
+        mic_directory.mkdir()
 
-    Example:
-    mic encapsulate step1 <model_configuration_name>
-    """
-    new_directory = Path(".") / model_configuration_name
-    if new_directory.exists():
-        click.secho("The directory {} already exists, please use another name".format(new_directory.name), fg="red")
-        exit(1)
-    try:
-        model_dir_path = create_directory(Path('.'), model_configuration_name)
-    except Exception as e:
-        click.secho("Error: {} could not be created".format(model_configuration_name), fg="red")
-        exit(1)
-
-    render_gitignore(model_dir_path)
-    create_config_file_yaml(model_dir_path)
-    create_local_repo_and_commit(model_dir_path)
-    click.secho("MIC has initialized the component. {}/, {}/, {}/ and {} created".format(DATA_DIR, DOCKER_DIR, SRC_DIR,
-                                                                                         CONFIG_YAML_NAME))
-    click.secho(
-        "Before step2 you must add your data (files or directories) into the {} directory: {}".format(
-            DATA_DIR, model_dir_path / DATA_DIR),
-        fg='green')
 
 
 @encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
@@ -217,7 +213,7 @@ def step2(mic_file, parameters):
                 "src directory", fg="green")
     write_spec(mic_config_path, STEP_KEY, 2)
 
-    
+
 @encapsulate.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
 @click.option(
     "-f",
