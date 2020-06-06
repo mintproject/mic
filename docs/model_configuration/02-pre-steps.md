@@ -19,7 +19,7 @@ The `GitHub Token` is the user's [personal access token](https://help.github.com
  
  Writing "mic access token" under notes is also recommended
  
- When done click **Generate token** at the bottom of the page. Once the token is generated be sure to copy and save it in a secure location. Enter this key in the `GitHub API token` field when prompted.
+ When done click **Generate token** at the bottom of the page. Once the token is generated be sure to copy and save it in a secure location. Enter this key in the `GitHub API token` field when prompted by MIC.
 
 !!! warning
     If this token is lost you will have to generate a new one.
