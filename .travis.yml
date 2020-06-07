@@ -45,6 +45,7 @@ matrix:
     - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
   allow_failures:
     - os: windows
+    - os: osx
 install:
 - pip install coverage
 - pip install codecov
