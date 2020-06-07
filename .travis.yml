@@ -45,13 +45,14 @@ matrix:
     - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
   allow_failures:
   - os: windows
+  - os: osx
 install:
   - pip install -U pip
   - pip install coverage
   - pip install codecov
   - pip install -U pytest
   - pip install -U pytest-cov
-  - pip install --upgrade setuptools wheel
+- pip install --upgrade setuptools wheel
 script:
 - python setup.py install
 - pytest
