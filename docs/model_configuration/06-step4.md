@@ -76,7 +76,7 @@ mic encapsulate step4 -f mic.yaml [configuration_files]...
 
 In the example, we must run
 ```
-$ mic encapsulate step4 data/TxtInOut/file.cio                                                                      х INT Py mic
+$ mic encapsulate step4 data/TxtInOut/file.cio
 Added: data/TxtInOut/file.cio as a configuration file
 ```
 

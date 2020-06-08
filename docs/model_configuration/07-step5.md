@@ -132,8 +132,9 @@ Congratulations! If you reached this point then you are ready to test your model
 When you have finished the modifications of the MIC Wrapper. You can run step 5.
 
 The step5 is going to:
-Detect if your code is compatible with our environment
-Prepare your Docker Image. A Docker Image is used to encapsulate a software component and the corresponding dependencies. You don’t start from scratch or install all the software over and over. It contains independently deployable bits of code that can be used to build and run agile applications. It could be anything from a FASTA parser, a tree algorithm, or a simple visualization module.
+
+- Detect if your code is compatible with our environment
+- Prepare your Docker Image. A Docker Image is used to encapsulate a software component and the corresponding dependencies. This way you don’t have to start from scratch or install all the software with every new run. It contains **independently deployable** bits of code that can be used to build and run agile applications. It could be anything from a FASTA parser, a tree algorithm, or a simple visualization module.
 
 ### How to perform this step?
 
