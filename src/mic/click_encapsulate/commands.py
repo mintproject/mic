@@ -1,9 +1,9 @@
 import os
 from pathlib import Path
 
-from mic import _utils, file
 import mic
 import semver
+from mic import _utils
 from mic.cli_docs import *
 from mic.component.detect import detect_framework_main
 from mic.component.executor import build_docker
@@ -12,6 +12,7 @@ from mic.config_yaml import get_numbers_inputs_parameters, get_inputs_parameters
     add_configuration_files, write_spec
 from mic.constants import *
 from modelcatalog import DatasetSpecification, Parameter
+
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -34,6 +35,7 @@ def cli(verbose):
 You should consider upgrading via the 'pip install --upgrade mic' command.""",
             fg="yellow",
         )
+
 
 @cli.command(short_help="Set up a MIC directory structure and MIC file template")
 @click.argument(
@@ -81,18 +83,13 @@ def trace(command):
     """
     import reprozip.tracer.trace
     import reprozip.traceutils
-
-    argv = command[1:] if len(command) > 1 else []
-
-    status = reprozip.tracer.trace.trace(command[0],
-                                         argv,
-                                         Path('.'),
-                                         False
-                                         )
-    # reprozip.tracer.trace.write_configuration(Path(args.dir),
-    #                                           args.identify_packages,
-    #                                           args.find_inputs_outputs,
-    #                                           overwrite=False)
+    base_dir = ".reprozip-trace"
+    base = Path(".") / base_dir
+    identify_packages = True
+    identify_inputs_outputs = True
+    status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, None, 1)
+    reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
+    print(status)
     print(command)
 
 
