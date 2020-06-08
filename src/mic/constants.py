@@ -52,7 +52,7 @@ DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configu
 class Framework(Enum):
     PYTHON37 = ("python3", "mintproject/base-ubuntu18:latest", ".py")
     #CONDA = ("conda", "mintproject/conda:20.5.1", ".py")
-    GENERIC = ("general", "mintproject/base-ubuntu18:latest")
+    GENERIC = ("general", "mintproject/generic:latest")
 
     def __init__(self, label, image, extension=None):
         self.label = label

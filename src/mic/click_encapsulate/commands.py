@@ -53,7 +53,14 @@ def start(user_execution_directory):
     user_execution_directory = Path(user_execution_directory)
     detect_framework_main(user_execution_directory)
     image = build_docker(user_execution_directory / MIC_DIR / DOCKER_DIR, name)
-    click.echo("Now, you are using a Linux environment")
+    click.secho(f"""
+You are in a Linux environment Debian distribution
+We detect the following dependencies.
+
+- If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile {Path(MIC_DIR) / DOCKER_DIR / DOCKER_FILE}
+- If you install new dependencies using conda, MIC is going to detect them
+- If you install new dependencies using python, MIC is going to detect them
+""", fg="green")
     click.echo("Please, run your Model Component.")
     os.system(f"""docker run --rm -ti -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
