@@ -241,7 +241,6 @@ def step3(mic_file):
     run_path = render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path, [], False)
-    spec = get_spec(config_path)
     write_spec(mic_config_path, STEP_KEY, 3)
     click.echo("The MIC Wrapper has been created at: {}".format(run_path))
     click.secho("Before the next step you must add any (bash) commands needed to run your model between the two "
@@ -279,8 +278,8 @@ def step4(mic_file, configuration_files):
     For example,
     mic encapsulate step4 -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
-    config_path = Path(mic_file)
-    if not config_path.exists():
+    mic_config_path = Path(mic_file)
+    if not mic_config_path.exists():
         click.secho("Error: that configuration path does not exist", fg="red")
         exit(1)
 
@@ -291,14 +290,13 @@ def step4(mic_file, configuration_files):
             click.secho("Error: Configuration file must be stored within {} directory".format(DATA_DIR), fg="red")
             click.secho("Bad path input: {}".format(cp))
             exit(1)
-    add_configuration_files(config_path, configuration_files)
-    model_directory_path = config_path.parent
-    inputs, parameters, outputs, configs = get_inputs_parameters(config_path)
-    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(config_path)
+    add_configuration_files(mic_config_path, configuration_files)
+    model_directory_path = mic_config_path.parent
+    inputs, parameters, outputs, configs = get_inputs_parameters(mic_config_path)
+    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(mic_config_path)
     render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
     render_io_sh(model_directory_path, inputs, parameters, configs)
     render_output(model_directory_path, [], False)
-    spec = get_spec(mic_config_path)
     write_spec(mic_config_path, STEP_KEY, 4)
 
 
