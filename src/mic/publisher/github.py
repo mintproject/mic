@@ -3,6 +3,7 @@ import logging
 import re
 import shutil
 from pathlib import Path
+import os
 
 import click
 import pygit2 as pygit2
@@ -40,7 +41,7 @@ def push(model_directory: Path, mic_config_path: Path, profile):
     click.secho("Creating a new commit")
     git_commit(repo)
     click.secho("Creating or using the GitHub repository")
-    url = check_create_remote_repo(repo, profile, model_directory.name)
+    url = check_create_remote_repo(repo, profile, model_directory.name, model_directory)
     click.secho("Creating a new version")
     _version = git_tag(repo, author)
     click.secho("Pushing your changes to the server")
@@ -56,8 +57,7 @@ def push(model_directory: Path, mic_config_path: Path, profile):
     write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
-
-
+    remove_temp_files(mic_config_path)
 
 
 def git_commit(repo):
@@ -88,11 +88,17 @@ def compress_src_dir(model_path: Path):
     """
     zip_file_name = model_path / MINT_COMPONENT_ZIP
     tmp_dir = model_path / "{}_component".format(model_path.name)
-    shutil.copytree(model_path / SRC_DIR, tmp_dir / SRC_DIR)
-    zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path, base_dir=tmp_dir.name)
+    try:
+        shutil.copytree(model_path / SRC_DIR, tmp_dir / SRC_DIR)
+        zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path, base_dir=tmp_dir.name)
+    except FileExistsError:
+        click.secho("Error: {} is already populated. Please remove it and rerun."
+                    "".format(model_path / "{}_component".format(model_path.name)), fg="red")
+        exit(1)
     return zip_file_path
 
-def check_create_remote_repo(repo, profile, model_name):
+
+def check_create_remote_repo(repo, profile, model_name, model_path: Path):
     if "origin" in repo.remotes:
         try:
             return repo.remotes["origin"].url
@@ -101,7 +107,7 @@ def check_create_remote_repo(repo, profile, model_name):
     try:
         return repo.remotes["origin"].url
     except:
-        repo = github_create_repo(profile, model_name)
+        repo = github_create_repo(profile, model_name, model_path)
         url = repo.clone_url
         repo.remotes.create("origin", url)
         return url
@@ -164,7 +170,7 @@ def get_next_tag(repo):
     return version_today
 
 
-def github_create_repo(profile, model_name):
+def github_create_repo(profile, model_name, model_path: Path):
     """
     Publish the directory on git
     If the directory is not a git directory, create it
@@ -188,10 +194,25 @@ def github_create_repo(profile, model_name):
     if repo:
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
             click.secho("Please rename the directory", fg="green")
+            remove_temp_files(model_path)
             exit(0)
     else:
         repo = user.create_repo(model_name)
     return repo
+
+
+def remove_temp_files(model_path: Path):
+    component_folder = model_path / "{}_component".format(model_path.name)
+    zip_folder = model_path / "{}.zip".format(MINT_COMPONENT_ZIP)
+    try:
+        if component_folder.exists():
+            shutil.rmtree(component_folder)
+
+        if zip_folder.exists():
+            os.remove(zip_folder)
+
+    except:
+        click.secho("Warning: error when removing temporary files", fg="yellow")
 
 
 def github_config(profile):
