@@ -1,10 +1,10 @@
-# Model Insertion Checker (MIC) 
+# Model Insertion Checker (MIC) [![Build Status](https://travis-ci.com/mintproject/mic.svg?branch=master)](https://travis-ci.com/mintproject/mic)
 
 Model Insertion Checker (MIC) is a command line wizard for users to add new calibrated models and their metadata.
 
 MIC is an application that asks the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contributors.
 
-MIC has been tested in OSX and Windows (currently under test in Linux). Mic is installed through a simple pip command:
+MIC has been tested in OSX and Linux. Windows is not currently supported. It is installed through a simple pip command.
 
 `pip install mic`
 

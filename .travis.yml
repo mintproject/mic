@@ -13,6 +13,7 @@ matrix:
     before_install:
     - brew upgrade pyenv
     - brew install pyenv-virtualenv
+    - brew install libgit2
     - export CFLAGS="-I$(brew --prefix openssl)/include"
     - export LDFLAGS="-L$(brew --prefix openssl)/lib"
     - pyenv install 3.6.7
@@ -25,6 +26,7 @@ matrix:
     before_install:
     - brew upgrade pyenv
     - brew install pyenv-virtualenv
+    - brew install libgit2
     - export CFLAGS="-I$(brew --prefix openssl)/include"
     - export LDFLAGS="-L$(brew --prefix openssl)/lib"
     - pyenv install 3.7.2
@@ -45,15 +47,17 @@ matrix:
     - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
   allow_failures:
     - os: windows
+    - os: osx
 install:
-- pip install coverage
-- pip install codecov
-- pip install -U pytest
-- pip install -U pytest-cov
-- pip install --upgrade setuptools wheel
+  - pip install -U pip
+  - pip install coverage
+  - pip install codecov
+  - pip install -U pytest
+  - pip install -U pytest-cov
+  - pip install --upgrade setuptools wheel
 script:
-  - python setup.py install
-  - pytest
+- python setup.py install
+- pytest
 after_success:
 - codecov
 deploy:
@@ -64,3 +68,6 @@ deploy:
     distributions: sdist bdist_wheel
   password:
     secure: DSwJsbYir1RIC2iOApbnfF5tQiyXHFSJ7mmvMbZ+yHSo6OjFsmL7LJnfPJF0M8mfUo/UPdlYff93EBbqR6KsgH0eRgmXS31jepjJga1vQG3jViV4tbbhBAfTIuehP2yogD0RDw/NCfbW/Guu3pHoIiMyl0UoIhwLnQno0gKBt0g8qoNmfwGFLPQl+Yb9kpSgDN8/3ZkJ/MOJytyBuM0mzcrtaCTgLRSZg+xx0uq+qzfV6dwlomXzM9uS1uWhBoX+XK0OsOLCCKEonLSrqB69cQ29w4c1DuFfA1DuG5WeXZdLu6tCvpJ4Bh6AR0p06eP9uyPVDZV0NvPc00cXwEJkmrED1EyDJfK33QbkuTIvpZkXaT5w1bsRXlh6tkj0MxF25SjoASiAhIjqiQhuna25DMnx1Hp0x+jtlBcOv9fmdtLHSqk9BQ5RS3AosGMt8VaH3eJ9EusrJ0k3ez/QW80APDge98UAQcuv/Lvv1tlqENMltnuyjxXmVxnXYxqIiOdSBFBpDZh0JQVZklFGOItd3PJf5LwKfp1uC6t/5XI9/0m5+JDEdAABZ7X1EZ/X+nB/FohQuSaWWAfCP+6YSdVmIoDc19HXuf9aAGkoH5BVX8YzNs39TT8Z4bPRx8tKrF/APd7WpUgqZNqNIpnRjKhacAyNtdeMS71DNqh8Vym2w00=
+env:
+  global:
+    secure: MxHGXDjl3Dom8NE/vDDiJSOOlB4o8RtkQT8E85c3vm3ZP8P16Om5hhXKDGP7vVbW0xeKu2TH0D1DIYkj9d5b/ytdp9NnhwULDToJpZZEMVrz71cG+jEvKFwpN/7s0f2qCMChdVusaSY4PGRXA6OT8Tjb3fDCTZLGW4fKRe7eaayd/h3O26xOyrMfPiPlSic3uQSd4rw6SFAk9OXnOpBoAlgAX4ELbo8cQq5VewMkE+rKJg+V/qGlUJ54SI7xlOE52GAJ/BPge/cK0nYJ+54Q5swW3RMSw0c3VKWext46TncS60SPUt0XSw2I2pLOVyCHguuKVLjWgDi9kZAhp0yX42o6dBiPBXiK8fBv91hXFr8Z+T72sSAvvjSINneNbhr2nCroMA+oW1S7/uasgFxk0LU2+KHPzlM/0Gf9iQI7j2170N16U0UqVE5wDJW1TlmAVvBbj8KlsolLJkyzHdy9u7C+KarbYPbAoGc67S268ym721UBNQ0OUKqLO5ck6dNXdRJ7TKyMn66DhHvwceoKQcJ/ChAa69qK+ELJ+fIJCFzmtk22ETZo3/GxSbgdEAFIrhwDMb5VGp/tri2tvcHJxll62HHqvpiNlS9YYvltA86wUds5sCaom5wDbhoHMOs9ZdeCwvK6WDlYwkA8jGP4kly+12VK6JOR/BZGd8/sLQ8=
