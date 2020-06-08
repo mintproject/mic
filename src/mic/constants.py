@@ -1,5 +1,6 @@
 from enum import Enum
 MIC_DIR = "mic"
+MIC_HIDDEN_DIR = ".mic"
 CONFIG_FILE = "config.json"
 CONFIG_YAML_NAME = "mic.yaml"
 INPUTS_KEY = "inputs"

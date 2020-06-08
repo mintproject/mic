@@ -8,12 +8,19 @@ from pathlib import Path
 
 import click
 import docker
+from mic.component.python3 import freeze
 from dame.executor import build_parameter, build_output
 from docker.errors import APIError
-from mic.component.initialization import render_output
+from mic.component.initialization import render_output, detect_framework, render_dockerfile
 from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs, get_configuration_files
-from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, DOCKER_KEY, LAST_EXECUTION_DIR
+from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, DOCKER_KEY, LAST_EXECUTION_DIR, Framework, \
+    REQUIREMENTS_FILE, MIC_DIR, handle
 from mic.publisher.model_catalog import create_model_catalog_resource
+
+
+
+
+
 
 
 def copy_file(input_path: Path, src_dir_path: Path):
@@ -113,28 +120,32 @@ def execute_using_docker(mint_config_file: Path):
     except ValueError:
         logging.error(exc_info=True)
         pass
-    docker_run(image, resource, src_dir)
+    docker_run(image, src_dir, resource)
     detect_news_file(src_dir, mint_config_file, now)
     write_spec(mint_config_file, LAST_EXECUTION_DIR, str(src_dir.absolute()))
     return src_dir
 
 
-def docker_run(image, resource, src_dir):
+def docker_run(image, src_dir, resource=None, detach=True, stream=True, tty=False, command=None):
     mint_volumes = {str(src_dir.absolute()): {'bind': '/tmp/mint', 'mode': 'rw'}}
-    try:
-        line = get_command_line(resource)
-    except:
-        logging.error("Unable to get cmd_line", exc_info=True)
-        exit(1)
-    click.secho("Running \n {}".format(line))
+    if command:
+        try:
+            command = get_command_line(resource)
+        except:
+            logging.error("Unable to get cmd_line", exc_info=True)
+            exit(1)
+        click.secho("Running \n {}".format(command))
+    else:
+        command = "bash"
     try:
         client = docker.from_env()
-        res = client.containers.run(command=line,
+        res = client.containers.run(command=command,
                                     image=image,
                                     volumes=mint_volumes,
                                     working_dir='/tmp/mint',
-                                    detach=True,
-                                    stream=True,
+                                    detach=detach,
+                                    stream=stream,
+                                    tty=tty,
                                     remove=True
                                     )
         click.secho("Run complete")
@@ -142,7 +153,7 @@ def docker_run(image, resource, src_dir):
     except Exception as e:
         click.secho("Failed", fg="red")
         logging.error(e, exc_info=True)
-
+    return res
 
 def compress_file(detected_files):
     return click.confirm("Do you want to create one zip files with the files?", default=False)
