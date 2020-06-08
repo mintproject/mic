@@ -1,4 +1,4 @@
-# Model Insertion Checker (MIC) 
+# Model Insertion Checker (MIC) [![Build Status](https://travis-ci.com/mintproject/mic.svg?branch=master)](https://travis-ci.com/mintproject/mic)
 
 Model Insertion Checker (MIC) is a command line wizard for users to add new calibrated models and their metadata.
 
