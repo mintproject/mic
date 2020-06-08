@@ -55,7 +55,10 @@ def init_logger():
 
 
 def get_latest_version():
-    return requests.get("https://pypi.org/pypi/mic/json").json()["info"]["version"]
+    try:
+        return requests.get("https://pypi.org/pypi/mic/json").json()["info"]["version"]
+    except Exception as e:
+       raise e
 
 
 def validate_metadata(default_type, value):

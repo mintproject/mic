@@ -16,18 +16,15 @@ env = Environment(
 )
 
 
-def create_directory(parent_directory: Path, name: str):
-    parent_directory = parent_directory / name
-    if parent_directory.exists():
-        shutil.rmtree(parent_directory)
-    src = parent_directory / SRC_DIR
-    docker = parent_directory / DOCKER_DIR
-    data = parent_directory / DATA_DIR
+def create_base_directories(mic_component_dir: Path):
+    if mic_component_dir.exists():
+        shutil.rmtree(mic_component_dir)
+    src = mic_component_dir / SRC_DIR
+    docker = mic_component_dir / DOCKER_DIR
+    data = mic_component_dir / DATA_DIR
     src.mkdir(parents=True)
     docker.mkdir(parents=True)
     data.mkdir(parents=True)
-
-    return parent_directory
 
 
 def render_gitignore(directory: Path):

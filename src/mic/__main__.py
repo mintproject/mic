@@ -7,11 +7,11 @@ from dame.utils import obtain_id
 from mic import _utils, file
 from mic.cli_docs import *
 from mic.component.executor import execute_using_docker
-from mic.component.initialization import create_directory, render_run_sh, render_io_sh, render_output, \
+from mic.component.initialization import create_base_directories, render_run_sh, render_io_sh, render_output, \
     render_dockerfile, render_gitignore, detect_framework
 from mic.component.python3 import freeze
 from mic.config_yaml import fill_config_file_yaml, get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, create_config_file_yaml, get_spec, write_spec, get_key_spec
+    add_configuration_files, create_config_file_yaml, write_spec, get_key_spec
 from mic.constants import *
 from mic.credentials import configure_credentials, print_list_credentials
 from mic.publisher.docker import publish_docker
@@ -25,7 +25,15 @@ from modelcatalog import Configuration, DatasetSpecification, Parameter
 @click.option("--verbose", "-v", default=0, count=True)
 def cli(verbose):
     _utils.init_logger()
-    lv = ".".join(_utils.get_latest_version().split(".")[:3])
+    try:
+        lv = ".".join(_utils.get_latest_version().split(".")[:3])
+    except Exception as e:
+        click.secho(
+            f"""WARNING: Unable to check if MIC is updated""",
+            fg="yellow",
+        )
+        return
+
     cv = ".".join(mic.__version__.split(".")[:3])
 
     if semver.compare(lv, cv) > 0:
@@ -168,6 +176,22 @@ def step1(user_execution_directory, name, description):
     if not mic_directory.exists():
         mic_directory.mkdir()
 
+    mic_component_dir = mic_directory / name
+    if mic_component_dir.exists():
+        click.secho("The directory {} already exists, please use another name".format(mic_component_dir.name), fg="red")
+        exit(1)
+
+    mic_component_dir.mkdir()
+    try:
+        create_base_directories(mic_component_dir)
+    except Exception as e:
+        click.secho("Error: {} could not be created".format(mic_component_dir), fg="red")
+        exit(1)
+    render_gitignore(mic_component_dir)
+    create_config_file_yaml(mic_component_dir)
+    create_local_repo_and_commit(mic_component_dir)
+    click.secho("MIC has initialized the component. {}/, {}/, {}/ and {} created".format(DATA_DIR, DOCKER_DIR, SRC_DIR,
+                                                                                         CONFIG_YAML_NAME))
 
 
 @encapsulate.command(short_help="Pass the inputs and parameters for your Model Configuration")
@@ -207,8 +231,9 @@ def step2(mic_file, parameters):
     click.secho("You must add a default value for the \"default-value\" field in {}. Just replace the 0 with your value"
                 "".format(CONFIG_YAML_NAME),
                 fg="green")
-    click.secho("It is recommended you also add a description for each input and parameter in {}".format(CONFIG_YAML_NAME),
-                fg="green")
+    click.secho(
+        "It is recommended you also add a description for each input and parameter in {}".format(CONFIG_YAML_NAME),
+        fg="green")
     click.secho("If you use a script to initialize or create visualizations of your model you must copy these into the "
                 "src directory", fg="green")
     write_spec(mic_config_path, STEP_KEY, 2)
@@ -366,6 +391,7 @@ def step6(mic_file):
     execute_using_docker(Path(mic_file))
     write_spec(mic_config_path, STEP_KEY, 6)
     click.secho("Success", fg="green")
+
 
 @encapsulate.command(short_help="Publish your code in GitHub and your image to DockerHub")
 @click.option(
