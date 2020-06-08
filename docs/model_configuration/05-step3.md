@@ -20,7 +20,7 @@ Copy and extract your inputs in the src directory
 Feed the parameter values to your models.
 Detect errors on execution time.
 
-The commands in the MINT Wrapper are a mixture of commands we would normally type ourselves on the command line (such as ls or cp for example). If this sequence of commands is needed to execute your model, we need to preserve it in your model component. Remember that anything you can run normally on the command line can be put into a script with equivalent functionality. 
+The commands in the MINT Wrapper are a mixture of commands we would normally type ourselves on the command line (such as ls or cp). If this sequence of commands is needed to execute your model, we need to preserve it in your model component. Remember that anything you can run normally on the command line can be put into a script with equivalent functionality. 
 !!! info
     Many models have graphical interfaces for data preparation purposes and set up. However, the scope of this effort is making your model available on any infrastructure. Cloud servers and supercomputers don’t usually provide graphical interfaces, and therefore we cannot assume a graphical interface to be available. It is a good engineering practice to deliver a component that can be used without a graphical interface.
 

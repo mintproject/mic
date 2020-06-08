@@ -6,7 +6,7 @@ Now that your component is ready, let’s edit and build the Docker image that w
 mic encapsulate step6
 ```
 
-MIC will attempt to build and test the resultant image, running your component. For example, for our SWAT example you should see the following on your terminal:
+MIC will attempt to build and test the resultant image, running your component. For example, with our SWAT example you should see the following on your terminal:
 
 ```
 MIC has created the execution directory /Users/mosorio/tmp/swat_simulation/executions/05_29_15_15_24/src
