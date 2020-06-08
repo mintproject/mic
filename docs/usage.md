@@ -14,15 +14,18 @@ Options:
   --help         Show this message and exit.
 
 Commands:
-  configure           Configure your credentials to access the Model
-                      Catalog...
-
-  model               Command to create and edit Models
-  modelconfiguration  Command to create and edit ModelConfigurations
-  version             Show mic version.
+  credentials       Configure credentials
+  encapsulate       Command to encapsulate your Model Configuration
+  list-credentials  List credentials profiles
+  model             Command to create and edit Models
+  version           Show mic version
 ```
-The `configure` command allows setting up the credentials to be able to modify the catalog.
+The `credentials` command allows setting up the credentials to be able to modify the catalog.
 
-The `model` and `modelConfiguration` commands allow adding a new [model](https://mintproject.readthedocs.io/en/latest/modelcatalog/#making-your-model-findable) or [model configuration](https://mintproject.readthedocs.io/en/latest/modelcatalog/#model-configuration) metadata. 
+The `encapsulate` command will walk you through 8 steps to encapsulate your model component so it can be run in any infrastructure.
+
+The `list-credentials` command will allow you to see which credentials have been added for mic.
+
+The `model` command allows adding a new [model](https://mintproject.readthedocs.io/en/latest/modelcatalog/#making-your-model-findable) metadata. 
 
 The `version` command lists the current version of mic.
