@@ -76,8 +76,23 @@ def trace(command):
      - the parameters and add them in the configuration file
 
     Example:
-    mic encapsulate step2 -f <mic_file> -p <number_of_parameters>
+    mic encapsulate trace python main.py
+    mic encapsulate trace ./your_program
     """
+    import reprozip.tracer.trace
+    import reprozip.traceutils
+
+    argv = command[1:] if len(command) > 1 else []
+
+    status = reprozip.tracer.trace.trace(command[0],
+                                         argv,
+                                         Path('.'),
+                                         False
+                                         )
+    # reprozip.tracer.trace.write_configuration(Path(args.dir),
+    #                                           args.identify_packages,
+    #                                           args.find_inputs_outputs,
+    #                                           overwrite=False)
     print(command)
 
 
