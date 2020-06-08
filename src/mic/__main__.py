@@ -79,7 +79,7 @@ def credentials(server, username, password, git_username, git_token, name, docke
     type=str,
     default=None,
     metavar="<profile-name>",
-    help="specify a specific profile to list"
+    help="specify a profile to list"
 )
 @click.option(
     "--short",
@@ -147,14 +147,15 @@ def step1(model_configuration_name):
     """
     Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
     GitHub repository
-    
-    mic encapsulate step1 <model_configuration_name>
 
     The argument: `model_configuration_name` is the name of your model configuration
-     """
+
+    Example:
+    mic encapsulate step1 <model_configuration_name>
+    """
     new_directory = Path(".") / model_configuration_name
     if new_directory.exists():
-        click.secho("The directory {} exists, please use another name".format(new_directory.name), fg="red")
+        click.secho("The directory {} already exists, please use another name".format(new_directory.name), fg="red")
         exit(1)
     try:
         model_dir_path = create_directory(Path('.'), model_configuration_name)
@@ -165,9 +166,10 @@ def step1(model_configuration_name):
     render_gitignore(model_dir_path)
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
-    click.echo("Initialized local GitHub repository")
+    click.secho("MIC has initialized the component. {}/, {}/, {}/ and {} created".format(DATA_DIR, DOCKER_DIR, SRC_DIR,
+                                                                                         CONFIG_YAML_NAME))
     click.secho(
-        "Before step2 you must add any of your data (files or directories) into the {} directory: {}".format(
+        "Before step2 you must add your data (files or directories) into the {} directory: {}".format(
             DATA_DIR, model_dir_path / DATA_DIR),
         fg='green')
 
@@ -190,12 +192,12 @@ def step2(mic_file, parameters):
     """
     Fill the MIC configuration file with the information about the parameters and inputs
 
-    mic encapsulate step2 -f <mic_file> -p <number_of_parameters>
-
     MIC is going to detect:
      - the inputs (files and directory) and add them in the MIC configuration file.
      - the parameters and add them in the configuration file
 
+    Example:
+    mic encapsulate step2 -f <mic_file> -p <number_of_parameters>
     """
     mic_config_path = Path(mic_file)
     inputs_dir = mic_config_path.parent / DATA_DIRECTORY_NAME
@@ -229,6 +231,7 @@ def step3(mic_file):
 
     - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
+    Example:
     mic encapsulate step3 -f <mic_file>
     """
     if not Path(mic_file).exists():
@@ -246,11 +249,11 @@ def step3(mic_file):
     click.secho("Before the next step you must add any (bash) commands needed to run your model between the two "
                 "comments in the wrapper file. This file is located in {}/{}".format(SRC_DIR, RUN_FILE), fg="green")
     click.secho("If your model has a configuration file, you will need to edit the values to match {}\'s parameter "
-                "names then run step4 otherwise you can move on to step5. See the docs for more details"
+                "names then run step4. Otherwise you can move on to step5. See the docs for more details"
                 "".format(CONFIG_YAML_NAME), fg="green")
 
 
-@encapsulate.command(short_help="If the configuration has config files, select them")
+@encapsulate.command(short_help="Select configuration file(s) for your model. If there are any")
 @click.argument(
     "configuration_files",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
@@ -265,17 +268,17 @@ def step3(mic_file):
 )
 def step4(mic_file, configuration_files):
     """
-    THIS IS STEP IS OPTIONAL
+    If your model does not use configuration files, you can skip this step
 
     Specify the inputs and parameters of your model component from configuration file(s)
 
     - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
-    - pass the configuration files as arguments
+    - Pass the configuration files as arguments
 
     mic encapsulate step4 -f <mic_file> [configuration_files]...
 
-    For example,
+    Example:
     mic encapsulate step4 -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
     mic_config_path = Path(mic_file)
@@ -300,7 +303,7 @@ def step4(mic_file, configuration_files):
     write_spec(mic_config_path, STEP_KEY, 4)
 
 
-@encapsulate.command(short_help="Prepare Docker image")
+@encapsulate.command(short_help="Create Docker image")
 @click.option(
     "-f",
     "--mic_file",
@@ -309,9 +312,9 @@ def step4(mic_file, configuration_files):
 )
 def step5(mic_file):
     """
-    Detect if code is executable, then set up Docker Image for model.
-    For example,
+    Set up Docker Image for model.
 
+    Example:
     mic encapsulate step5 -f <mic_file>
     """
     mic_config_path = Path(mic_file)
@@ -360,12 +363,13 @@ def step6(mic_file):
     """
     Build and run the Docker image
 
+    Example:
     mic encapsulate step6 -f <mic_file>
     """
     mic_config_path = Path(mic_file)
     execute_using_docker(Path(mic_file))
     write_spec(mic_config_path, STEP_KEY, 6)
-
+    click.secho("Success", fg="green")
 
 @encapsulate.command(short_help="Publish your code in GitHub and your image to DockerHub")
 @click.option(
@@ -386,6 +390,7 @@ def step7(mic_file, profile):
     """
     Publish your code and MIC wrapper on GitHub and the Docker Image on DockerHub
 
+    Example:
     mic encapsulate step7 -f <mic_file>
     """
     info_step8()
@@ -413,6 +418,12 @@ def step7(mic_file, profile):
     metavar="<profile-name>",
 )
 def step8(mic_file, profile):
+    """
+    Publish your model into the Model Catalog
+
+    Example:
+    mic encapsulate step8 -f <mic_file>
+    """
     mic_config_path = Path(mic_file)
     model_configuration = create_model_catalog_resource(Path(mic_file), allow_local_path=False)
 

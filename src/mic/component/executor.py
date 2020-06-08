@@ -31,6 +31,7 @@ def _copy_directory(src: Path, dest: Path) -> Path:
 def copy_inputs(mint_config_file: Path, src_dir_path: Path):
     model_path = mint_config_file.parent
     inputs, parameters, _, _ = get_inputs_parameters(mint_config_file)
+    click.secho("Adding inputs")
     for _, item in inputs.items():
         input_path = model_path / item['path']
         is_directory = True if input_path.is_dir() else False
@@ -39,7 +40,6 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
                 shutil.copytree(input_path, src_dir_path / input_path.name)
             else:
                 shutil.copy(input_path, src_dir_path / input_path.name)
-            click.secho("Added: {} into the execution directory".format(input_path.name))
         except OSError as e:
             click.secho("Failed: Error message {}".format(e), fg="red")
         except Exception as e:
@@ -98,12 +98,12 @@ def execute_using_docker(mint_config_file: Path):
     try:
         image = build_docker(docker_path, name)
     except APIError as e:
-        print(e)
         click.secho("Error building the image", fg="red")
+        click.echo(e)
         exit(1)
     except Exception as e:
-        print(e)
         click.secho("Error building the image", fg="red")
+        click.echo(e)
         exit(1)
     now = datetime.now().timestamp()
 
@@ -137,9 +137,7 @@ def docker_run(image, resource, src_dir):
                                     stream=True,
                                     remove=True
                                     )
-        for chunk in res.logs(stream=True):
-            print(chunk)
-        click.secho("Success", fg="green")
+        click.secho("Run complete")
 
     except Exception as e:
         click.secho("Failed", fg="red")
