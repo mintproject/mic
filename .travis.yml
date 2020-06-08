@@ -46,7 +46,8 @@ matrix:
     - choco install python --version 3.7.2
     - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
   allow_failures:
-  - os: windows
+    - os: windows
+    - os: osx
 install:
   - pip install -U pip
   - pip install coverage
