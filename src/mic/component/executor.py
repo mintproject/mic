@@ -31,20 +31,22 @@ def _copy_directory(src: Path, dest: Path) -> Path:
 def copy_inputs(mint_config_file: Path, src_dir_path: Path):
     model_path = mint_config_file.parent
     inputs, parameters, _, _ = get_inputs_parameters(mint_config_file)
-    click.secho("Adding inputs")
-    for _, item in inputs.items():
-        input_path = model_path / item['path']
-        is_directory = True if input_path.is_dir() else False
-        try:
-            if is_directory:
-                shutil.copytree(input_path, src_dir_path / input_path.name)
-            else:
-                shutil.copy(input_path, src_dir_path / input_path.name)
-        except OSError as e:
-            click.secho("Failed: Error message {}".format(e), fg="red")
-        except Exception as e:
-            click.secho("Failed: Error message {}".format(e), fg="red")
-    click.secho("The execution directory is available {}".format(src_dir_path), fg="green")
+
+    if inputs:
+        click.secho("Adding inputs")
+        for _, item in inputs.items():
+            input_path = model_path / item['path']
+            is_directory = True if input_path.is_dir() else False
+            try:
+                if is_directory:
+                    shutil.copytree(input_path, src_dir_path / input_path.name)
+                else:
+                    shutil.copy(input_path, src_dir_path / input_path.name)
+            except OSError as e:
+                click.secho("Failed: Error message {}".format(e), fg="red")
+            except Exception as e:
+                click.secho("Failed: Error message {}".format(e), fg="red")
+        click.secho("The execution directory is available {}".format(src_dir_path), fg="green")
 
 
 def create_execution_directory(mint_config_file: Path, model_path: Path):
