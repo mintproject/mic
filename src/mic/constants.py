@@ -1,4 +1,6 @@
 from enum import Enum
+REPRO_ZIP_TRACE_DIR = ".reprozip-trace"
+REPRO_ZIP_CONFIG_FILE= "config.yml"
 MIC_DIR = "mic"
 MIC_HIDDEN_DIR = ".mic"
 CONFIG_FILE = "config.json"

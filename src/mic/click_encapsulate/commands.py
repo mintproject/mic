@@ -87,9 +87,9 @@ def trace(command, append):
     """
     import reprozip.tracer.trace
     import reprozip.traceutils
-    base_dir = ".reprozip-trace"
+    base_dir = REPRO_ZIP_TRACE_DIR
     base = Path(".") / base_dir
-    output_reprozip = base / "config.yaml"
+    output_reprozip = base / REPRO_ZIP_CONFIG_FILE
 
     identify_packages = True
     identify_inputs_outputs = True
@@ -101,7 +101,7 @@ def trace(command, append):
 
     outputs = [str(i.absolute()) for i in detect_news_reprozip(Path("."), now)]
     reprozip_spec = get_spec(output_reprozip)
-    reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip and reprozip_spec[OUTPUTS_KEY] else outputs
+    reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and reprozip_spec[OUTPUTS_KEY] else outputs
     write_to_yaml(output_reprozip, reprozip_spec)
     print(status)
     print(command)

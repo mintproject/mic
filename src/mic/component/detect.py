@@ -6,12 +6,15 @@ import click
 from mic.component.conda import freeze as conda_freeze
 from mic.component.initialization import detect_framework, render_dockerfile
 from mic.component.python3 import freeze
-from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, ENVIRONMENT_FILE
+from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, ENVIRONMENT_FILE, \
+    REPRO_ZIP_TRACE_DIR
 
 
-def detect_news_reprozip(src_directory: Path, time: datetime):
+def detect_news_reprozip(src_directory: Path, time: datetime, ignore_dir=[REPRO_ZIP_TRACE_DIR]):
     """
     Get the files by a modification timestamp.
+    :param ignore_dir:
+    :type ignore_dir:
     :param src_directory: The src execution dir
     :type src_directory: Path
     :param time: Execution time
@@ -19,13 +22,14 @@ def detect_news_reprozip(src_directory: Path, time: datetime):
     """
     files_list = []
     for root, _, filenames in os.walk(src_directory, topdown=True):
-        for filename in filenames:
-            filepath = os.path.join(os.path.abspath(root), filename)
-            file_path = Path(filepath)
-            created = os.path.getmtime(file_path)
-            modified = os.path.getmtime(file_path)
-            if time < created or time < modified:
-                files_list.append(file_path)
+        if root not in ignore_dir:
+            for filename in filenames:
+                filepath = os.path.join(os.path.abspath(root), filename)
+                file_path = Path(filepath)
+                created = os.path.getmtime(file_path)
+                modified = os.path.getmtime(file_path)
+                if time < created or time < modified:
+                    files_list.append(file_path)
     return files_list
 
 
