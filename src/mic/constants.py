@@ -22,6 +22,7 @@ DOCKER_DIR = "docker"
 MIC_CONFIG_FILE_NAME = "MIC file"
 DATA_DIR = "data"
 REQUIREMENTS_FILE = "requirements.txt"
+ENVIRONMENT_FILE = "environment.yml"
 EXECUTIONS_DIR = "executions"
 TOTAL_STEPS = 8
 MINT_COMPONENT_ZIP = "mint_component"
@@ -51,7 +52,7 @@ DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configu
 
 class Framework(Enum):
     PYTHON37 = ("python3", "mintproject/base-ubuntu18:latest", ".py")
-    #CONDA = ("conda", "mintproject/conda:20.5.1", ".py")
+    CONDA = ("conda", "mintproject/conda:4.7.12", ".py")
     GENERIC = ("general", "mintproject/generic:latest")
 
     def __init__(self, label, image, extension=None):

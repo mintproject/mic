@@ -86,7 +86,7 @@ def detect_framework(src_dir: Path) -> Framework:
             filepath = Path(os.path.join(os.path.abspath(root), filename))
             if filepath.name not in [RUN_FILE, IO_FILE, OUTPUT_FILE]:
                 for name, member in Framework.__members__.items():
-                    if member.extension == filepath.suffix:
+                    if member.extension == filepath.suffix and member not in frameworks:
                         frameworks.append(member)
     return frameworks
 

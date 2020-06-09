@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from pathlib import Path
 
 import mic
@@ -6,10 +7,10 @@ import semver
 from mic import _utils
 from mic.cli_docs import *
 from mic.component.detect import detect_framework_main
-from mic.component.executor import build_docker
+from mic.component.executor import build_docker, detect_news_file
 from mic.component.initialization import render_run_sh, render_io_sh, render_output
 from mic.config_yaml import get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, write_spec
+    add_configuration_files, write_spec, write_to_yaml
 from mic.constants import *
 from modelcatalog import DatasetSpecification, Parameter
 
@@ -44,7 +45,8 @@ You should consider upgrading via the 'pip install --upgrade mic' command.""",
     default=Path('.'),
     required=True
 )
-def start(user_execution_directory):
+@click.option('--dependencies/--no-dependencies', default=True)
+def start(user_execution_directory, dependencies):
     """
     Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
     GitHub repository
@@ -53,7 +55,8 @@ def start(user_execution_directory):
      """
     name = "test"
     user_execution_directory = Path(user_execution_directory)
-    detect_framework_main(user_execution_directory)
+    if dependencies:
+        detect_framework_main(user_execution_directory)
     image = build_docker(user_execution_directory / MIC_DIR / DOCKER_DIR, name)
     click.secho(f"""
 You are in a Linux environment Debian distribution
@@ -87,8 +90,15 @@ def trace(command):
     base = Path(".") / base_dir
     identify_packages = True
     identify_inputs_outputs = True
+
+    now = datetime.now().timestamp()
+
     status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, None, 1)
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
+
+    outputs = detect_news_file(Path("."), now)
+    output_reprozip = base / "outputs.yaml"
+    write_to_yaml(output_reprozip, outputs)
     print(status)
     print(command)
 
