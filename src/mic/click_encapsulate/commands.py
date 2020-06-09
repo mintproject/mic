@@ -6,8 +6,8 @@ import mic
 import semver
 from mic import _utils
 from mic.cli_docs import *
-from mic.component.detect import detect_framework_main
-from mic.component.executor import build_docker, detect_news_file
+from mic.component.detect import detect_framework_main, detect_news_reprozip
+from mic.component.executor import build_docker
 from mic.component.initialization import render_run_sh, render_io_sh, render_output
 from mic.config_yaml import get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files, write_spec, write_to_yaml
@@ -96,7 +96,7 @@ def trace(command):
     status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, None, 1)
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
-    outputs = detect_news_file(Path("."), now)
+    outputs = detect_news_reprozip(Path("."), now)
     output_reprozip = base / "outputs.yaml"
     write_to_yaml(output_reprozip, outputs)
     print(status)

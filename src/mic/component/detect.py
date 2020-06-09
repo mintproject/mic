@@ -9,7 +9,7 @@ from mic.component.python3 import freeze
 from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, ENVIRONMENT_FILE
 
 
-def detect_news_file(src_directory: Path, time: datetime):
+def detect_news_reprozip(src_directory: Path, time: datetime):
     """
     Get the files by a modification timestamp.
     :param src_directory: The src execution dir
