@@ -137,6 +137,15 @@ def docker_run(image, resource, src_dir):
                                     stream=True,
                                     remove=True
                                     )
+
+        click.echo("+++ Run Log +++")
+
+        # Print run logs
+        for chunk in res.logs(stream=True):
+            line = chunk.decode('utf8').replace("+ ", "", 1)
+            click.echo("| {}".format(line), nl=False)
+
+        click.echo("+++ End Log +++")
         click.secho("Run complete")
 
     except Exception as e:
