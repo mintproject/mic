@@ -22,7 +22,7 @@ def detect_news_reprozip(src_directory: Path, time: datetime, ignore_dir=[REPRO_
     """
     files_list = []
     for root, _, filenames in os.walk(src_directory, topdown=True):
-        if root not in ignore_dir:
+        if root.split(os.path.sep)[-1] not in ignore_dir:
             for filename in filenames:
                 filepath = os.path.join(os.path.abspath(root), filename)
                 file_path = Path(filepath)
@@ -39,6 +39,7 @@ def detect_framework_main(user_execution_directory):
     user_execution_directory_mic.mkdir(exist_ok=True)
     user_execution_directory_docker.mkdir(exist_ok=True)
     frameworks = detect_framework(user_execution_directory)
+    click.echo("You can disable the detection of dependencies using the option --no-dependencies ")
     if len(frameworks) > 1:
         click.secho("MIC has detect {} possible framework/language on component: {}".format(
             len(frameworks), ",".join([i.label for i in frameworks])))
