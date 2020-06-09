@@ -10,7 +10,7 @@ from mic.component.detect import detect_framework_main, detect_news_reprozip
 from mic.component.executor import build_docker
 from mic.component.initialization import render_run_sh, render_io_sh, render_output
 from mic.config_yaml import get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, write_spec, write_to_yaml
+    add_configuration_files, write_spec, write_to_yaml, get_spec
 from mic.constants import *
 from modelcatalog import DatasetSpecification, Parameter
 
@@ -72,7 +72,8 @@ We detect the following dependencies.
 
 @cli.command(short_help="Pass the inputs and parameters for your Model Configuration")
 @click.argument('command', nargs=-1)
-def trace(command):
+@click.option('--continue/--overwrite', 'append', default=None)
+def trace(command, append):
     """
     Fill the MIC configuration file with the information about the parameters and inputs
 
@@ -88,17 +89,20 @@ def trace(command):
     import reprozip.traceutils
     base_dir = ".reprozip-trace"
     base = Path(".") / base_dir
+    output_reprozip = base / "config.yaml"
+
     identify_packages = True
     identify_inputs_outputs = True
 
     now = datetime.now().timestamp()
 
-    status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, None, 1)
+    status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, append, 1)
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
-    outputs = detect_news_reprozip(Path("."), now)
-    output_reprozip = base / "outputs.yaml"
-    write_to_yaml(output_reprozip, outputs)
+    outputs = [str(i.absolute()) for i in detect_news_reprozip(Path("."), now)]
+    reprozip_spec = get_spec(output_reprozip)
+    reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip and reprozip_spec[OUTPUTS_KEY] else outputs
+    write_to_yaml(output_reprozip, reprozip_spec)
     print(status)
     print(command)
 

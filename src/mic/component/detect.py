@@ -26,6 +26,7 @@ def detect_news_reprozip(src_directory: Path, time: datetime):
             modified = os.path.getmtime(file_path)
             if time < created or time < modified:
                 files_list.append(file_path)
+    return files_list
 
 
 def detect_framework_main(user_execution_directory):
