@@ -166,8 +166,16 @@ def step1(model_configuration_name):
     render_gitignore(model_dir_path)
     create_config_file_yaml(model_dir_path)
     create_local_repo_and_commit(model_dir_path)
-    click.secho("MIC has initialized the component. {}/, {}/, {}/ and {} created".format(DATA_DIR, DOCKER_DIR, SRC_DIR,
-                                                                                         CONFIG_YAML_NAME))
+
+    click.secho("MIC has initialized the component.")
+
+    # White spaces below are to align paths. Remove or edit if constants change
+    click.secho("[Created] {}:      {}".format(DATA_DIR, new_directory / DATA_DIR))
+    click.secho("[Created] {}:    {}".format(DOCKER_DIR, new_directory / DOCKER_DIR))
+    click.secho("[Created] {}:       {}".format(SRC_DIR, new_directory / SRC_DIR))
+    click.secho("[Created] {}:  {}".format(CONFIG_YAML_NAME, new_directory / CONFIG_YAML_NAME))
+
+
     click.secho(
         "Before step2 you must add your data (files or directories) into the {} directory: {}".format(
             DATA_DIR, model_dir_path / DATA_DIR),
