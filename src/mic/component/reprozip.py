@@ -10,6 +10,7 @@ DEFAULT_PATH = "/tmp/mint/"
 def convert_reprozip_to_mic():
     pass
 
+
 def relative(files: List[Path]):
     response = {}
     for i in files:
@@ -45,6 +46,19 @@ pushd {run[REPRO_ZIP_WORKING_DIR]}
 {' '.join(map(str, run[REPRO_ZIP_ARGV]))}
 popd"""
     return code
+
+
+def find_code_files(spec, inputs):
+    code_files = []
+    for run in spec[REPRO_ZIP_RUNS]:
+        for _input in inputs:
+            argv = run[REPRO_ZIP_ARGV] if isinstance(run[REPRO_ZIP_ARGV], list) else run[REPRO_ZIP_ARGV].split(' ')
+            for arg in argv:
+                files_path = Path(_input)
+                if files_path.name in arg and files_path.suffix not in [".txt", ".json", "*.png"]:
+                    code_files.append(_input)
+
+    return list(set(code_files))
 
 
 def extract_parameters_from_command(command_line):

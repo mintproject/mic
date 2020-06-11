@@ -275,7 +275,7 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
 
 def add_configuration_files(config_yaml_path: Path, configurations: tuple):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    spec[CONFIG_FILE_KEY] = [str(Path(x).relative_to(config_yaml_path.parent)) for x in list(configurations)]
+    spec[CONFIG_FILE_KEY] = [str(Path(x).absolute()) for x in list(configurations)]
 
     try:
         write_to_yaml(config_yaml_path, spec)

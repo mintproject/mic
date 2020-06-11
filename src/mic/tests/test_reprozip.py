@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from component.reprozip import get_outputs, get_inputs, generate_runner, extract_parameters_from_command
+from component.reprozip import get_outputs, get_inputs, generate_runner, extract_parameters_from_command, \
+    find_code_files
 from mic.config_yaml import get_spec
 
 RESOURCES = "resources"
@@ -793,3 +794,17 @@ popd"""
 def test_extract_parameters_from_command():
     a = extract_parameters_from_command("python test.py -p1 -p2")
     assert False
+
+
+def test_find_code_files():
+    yml = "swat_test_v2.yml"
+    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+    inputs = get_inputs(spec)
+    inputs = ["/tmp/mint/example.txt", "/tmp/mint/TxtInOut/swat670"]
+    find_code_files(spec, inputs)
+
+
+def test_find_code_files():
+    spec = {'runs': [{"argv": ["python", "./code.py", "config.txt"]}]}
+    inputs = ["/tmp/mint/code.py", "/tmp/mint/config.txt"]
+    assert ["/tmp/mint/code.py"] == find_code_files(spec, inputs)

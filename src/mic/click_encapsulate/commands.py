@@ -4,13 +4,13 @@ from pathlib import Path
 
 import mic
 import semver
-from mic._utils import find_dir
-from mic.component.reprozip import get_inputs, get_outputs, generate_runner, relative
 from mic import _utils
+from mic._utils import find_dir
 from mic.cli_docs import *
 from mic.component.detect import detect_framework_main, detect_news_reprozip
 from mic.component.executor import build_docker
-from mic.component.initialization import render_run_sh, render_io_sh, render_output
+from mic.component.initialization import render_run_sh, render_io_sh, render_output, render_gitignore
+from mic.component.reprozip import get_inputs, get_outputs, generate_runner, relative, find_code_files
 from mic.config_yaml import get_numbers_inputs_parameters, get_inputs_parameters, \
     add_configuration_files, write_spec, write_to_yaml, get_spec, create_config_file_yaml
 from mic.constants import *
@@ -59,7 +59,8 @@ def start(user_execution_directory, dependencies):
     user_execution_directory = Path(user_execution_directory)
     if dependencies:
         detect_framework_main(user_execution_directory)
-    image = build_docker(user_execution_directory / MIC_DIR / DOCKER_DIR, name)
+    mic_dir = user_execution_directory / MIC_DIR
+    image = build_docker(mic_dir / DOCKER_DIR, name)
     click.secho(f"""
 You are in a Linux environment Debian distribution
 We detect the following dependencies.
@@ -72,13 +73,11 @@ We detect the following dependencies.
     os.system(f"""docker run --rm -ti -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
     click.secho("Writing the MIC Wrapper", fg="blue")
-    repro_zip_trace_dir = find_dir( REPRO_ZIP_TRACE_DIR, user_execution_directory)
-    print(repro_zip_trace_dir)
+    repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
-    mic_config_file = user_execution_directory / MIC_DIR / CONFIG_YAML_NAME
+    mic_config_file = mic_dir / CONFIG_YAML_NAME
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
-    print(repro_zip_config_file)
-    create_config_file_yaml(user_execution_directory / MIC_DIR)
+    create_config_file_yaml(mic_dir)
     spec = get_spec(repro_zip_config_file)
     inputs = get_inputs(spec)
     click.secho('Writing inputs metadata', fg="green")
@@ -86,6 +85,15 @@ We detect the following dependencies.
     click.secho("Writing outputs metadata", fg="green")
     runner = generate_runner(spec)
     click.secho("Writing MIC Wrapper", fg="green")
+    code_files = find_code_files(spec, inputs)
+
+    render_gitignore(mic_dir)
+    src = mic_dir / SRC_DIR
+    data = mic_dir / DATA_DIR
+    src.mkdir(parents=True)
+    data.mkdir(parents=True)
+
+    write_spec(mic_config_file, CODE_KEY, relative(code_files))
     write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs))
     write_spec(mic_config_file, COMMANDS_RUNNER, runner)
@@ -122,24 +130,9 @@ def trace(command, append):
 
     outputs = [str(i.absolute()) for i in detect_news_reprozip(Path("."), now)]
     reprozip_spec = get_spec(output_reprozip)
-    reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and reprozip_spec[OUTPUTS_KEY] else outputs
+    reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
+                                                                               reprozip_spec[OUTPUTS_KEY] else outputs
     write_to_yaml(output_reprozip, reprozip_spec)
-
-
-@cli.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
-@click.option('--add_parameter', type=(str, str))
-@click.option('--list_parameter', 'list', flag_value=True)
-def parameters(add_parameter, list):
-    """
-    Create MINT wrapper using the mic.yaml. This command will handle adding inputs and parameters into the run file.
-
-    - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
-
-    Example:
-    mic encapsulate step3 -f <mic_file>
-    """
-    print(add_parameter)
-    print(list)
 
 
 @cli.command(short_help="Select configuration file(s) for your model. If there are any")
@@ -170,26 +163,30 @@ def config_files(mic_file, configuration_files):
     Example:
     mic encapsulate step4 -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
-    mic_config_path = Path(mic_file)
-    if not mic_config_path.exists():
+    mic_config_file = Path(mic_file)
+    if not mic_config_file.exists():
         click.secho("Error: that configuration path does not exist", fg="red")
         exit(1)
+    configuration_files = [str(Path(x).absolute()) for x in list(configuration_files)]
+    write_spec(mic_config_file, CONFIG_FILE_KEY, relative(configuration_files))
+    write_spec(mic_config_file, STEP_KEY, 4)
 
-    # loop through configuration_files list
-    for cp in configuration_files:
-        # The program will crash if the users configuration file is not in the data dir. This checks for that
-        if DATA_DIR not in Path(cp).absolute().parts:
-            click.secho("Error: Configuration file must be stored within {} directory".format(DATA_DIR), fg="red")
-            click.secho("Bad path input: {}".format(cp))
-            exit(1)
-    add_configuration_files(mic_config_path, configuration_files)
-    model_directory_path = mic_config_path.parent
-    inputs, parameters, outputs, configs = get_inputs_parameters(mic_config_path)
-    number_inputs, number_parameters, number_outputs = get_numbers_inputs_parameters(mic_config_path)
-    render_run_sh(model_directory_path, inputs, parameters, number_inputs, number_parameters)
-    render_io_sh(model_directory_path, inputs, parameters, configs)
-    render_output(model_directory_path, [], False)
-    write_spec(mic_config_path, STEP_KEY, 4)
+
+@cli.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
+@click.option('--add_parameter', type=(str, str))
+@click.option('--list_parameter', 'list', flag_value=True)
+def parameters(add_parameter, list):
+    """
+    Create MINT wrapper using the mic.yaml. This command will handle adding inputs and parameters into the run file.
+
+    - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
+
+    Example:
+    mic encapsulate step3 -f <mic_file>
+    """
+    print(add_parameter)
+    print(list)
+
 
 
 def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
