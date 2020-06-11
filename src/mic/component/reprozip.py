@@ -24,6 +24,15 @@ def get_inputs(spec):
             inputs.append(i)
     return inputs
 
+def generate_runner(spec):
+    code = ''
+    for run in spec[REPRO_ZIP_RUNS]:
+        code = f"""{code}
+pushd {run[REPRO_ZIP_WORKING_DIR]}
+{' '.join(map(str, run[REPRO_ZIP_ARGV]))}
+popd"""
+    return code
+
 
 def get_outputs(spec):
     """
