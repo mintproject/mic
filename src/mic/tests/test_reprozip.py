@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from component.reprozip import get_outputs, get_inputs, generate_runner
+from component.reprozip import get_outputs, get_inputs, generate_runner, extract_parameters_from_command
 from mic.config_yaml import get_spec
 
 RESOURCES = "resources"
@@ -775,6 +775,7 @@ pushd /tmp/mint/TxtInOut
 popd"""
     assert expected == result
 
+
 def test_generate_runner_v1():
     yml = "swat_test_v2.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
@@ -787,3 +788,8 @@ pushd /tmp/mint/TxtInOut
 ./swat670 -p 1
 popd"""
     assert expected == result
+
+
+def test_extract_parameters_from_command():
+    a = extract_parameters_from_command("python test.py -p1 -p2")
+    assert False

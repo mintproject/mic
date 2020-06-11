@@ -4,6 +4,7 @@ from pathlib import Path
 
 import mic
 import semver
+from mic.component.reprozip import get_inputs, get_outputs, generate_runner
 from mic import _utils
 from mic.cli_docs import *
 from mic.component.detect import detect_framework_main, detect_news_reprozip
@@ -69,6 +70,15 @@ We detect the following dependencies.
     click.echo("Please, run your Model Component.")
     os.system(f"""docker run --rm -ti -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
+    mic_config_file = user_execution_directory / MIC_DIR / MIC_CONFIG_FILE_NAME
+    spec = get_spec(user_execution_directory / MIC_DIR / REPRO_ZIP_TRACE_DIR / REPRO_ZIP_CONFIG_FILE)
+    inputs = get_inputs(spec)
+    outputs = get_outputs(spec)
+    runner = generate_runner(spec)
+    write_spec(mic_config_file, INPUTS_KEY, inputs)
+    write_spec(mic_config_file, OUTPUTS_KEY, outputs)
+    write_spec(mic_config_file, COMMANDS_RUNNER, runner)
+
 
 @cli.command(short_help="Pass the inputs and parameters for your Model Configuration")
 @click.argument('command', nargs=-1)
@@ -103,8 +113,6 @@ def trace(command, append):
     reprozip_spec = get_spec(output_reprozip)
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and reprozip_spec[OUTPUTS_KEY] else outputs
     write_to_yaml(output_reprozip, reprozip_spec)
-    print(status)
-    print(command)
 
 
 @cli.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
