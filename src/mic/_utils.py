@@ -71,3 +71,9 @@ def validate_metadata(default_type, value):
             return True
         except ValueError as ve:
             return False
+
+
+def find_dir(name, path):
+    for root, dirs, files in os.walk(path):
+        if os.path.basename(root) == name:
+            return root

@@ -41,6 +41,7 @@ def create_config_file_yaml(model_path: Path) -> Path:
     if not model_path.exists():
         click.secho("Failed: Directory {} doesn't exist".format(model_path), fg="red")
         exit(1)
+    click.secho(f"{config_yaml_path} created", fg="green")
     spec = {}
     write_step(config_yaml_path, spec, step=1)
 

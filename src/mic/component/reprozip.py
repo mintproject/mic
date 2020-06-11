@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from typing import List
 
 from mic.constants import *
 
@@ -8,6 +9,16 @@ DEFAULT_PATH = "/tmp/mint/"
 
 def convert_reprozip_to_mic():
     pass
+
+def relative(files: List[Path]):
+    response = {}
+    for i in files:
+        path = Path(i).relative_to(Path(DEFAULT_PATH))
+        response[path.name] = {
+            PATH_KEY: str(path),
+            'format': str(path.suffix)
+        }
+    return response
 
 
 def get_inputs(spec):

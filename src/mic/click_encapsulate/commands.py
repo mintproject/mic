@@ -4,14 +4,15 @@ from pathlib import Path
 
 import mic
 import semver
-from mic.component.reprozip import get_inputs, get_outputs, generate_runner
+from mic._utils import find_dir
+from mic.component.reprozip import get_inputs, get_outputs, generate_runner, relative
 from mic import _utils
 from mic.cli_docs import *
 from mic.component.detect import detect_framework_main, detect_news_reprozip
 from mic.component.executor import build_docker
 from mic.component.initialization import render_run_sh, render_io_sh, render_output
 from mic.config_yaml import get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, write_spec, write_to_yaml, get_spec
+    add_configuration_files, write_spec, write_to_yaml, get_spec, create_config_file_yaml
 from mic.constants import *
 from modelcatalog import DatasetSpecification, Parameter
 
@@ -70,13 +71,23 @@ We detect the following dependencies.
     click.echo("Please, run your Model Component.")
     os.system(f"""docker run --rm -ti -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
-    mic_config_file = user_execution_directory / MIC_DIR / MIC_CONFIG_FILE_NAME
-    spec = get_spec(user_execution_directory / MIC_DIR / REPRO_ZIP_TRACE_DIR / REPRO_ZIP_CONFIG_FILE)
+    click.secho("Writing the MIC Wrapper", fg="blue")
+    repro_zip_trace_dir = find_dir( REPRO_ZIP_TRACE_DIR, user_execution_directory)
+    print(repro_zip_trace_dir)
+    repro_zip_trace_dir = Path(repro_zip_trace_dir)
+    mic_config_file = user_execution_directory / MIC_DIR / CONFIG_YAML_NAME
+    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+    print(repro_zip_config_file)
+    create_config_file_yaml(user_execution_directory / MIC_DIR)
+    spec = get_spec(repro_zip_config_file)
     inputs = get_inputs(spec)
+    click.secho('Writing inputs metadata', fg="green")
     outputs = get_outputs(spec)
+    click.secho("Writing outputs metadata", fg="green")
     runner = generate_runner(spec)
-    write_spec(mic_config_file, INPUTS_KEY, inputs)
-    write_spec(mic_config_file, OUTPUTS_KEY, outputs)
+    click.secho("Writing MIC Wrapper", fg="green")
+    write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
+    write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs))
     write_spec(mic_config_file, COMMANDS_RUNNER, runner)
 
 

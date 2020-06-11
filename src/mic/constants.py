@@ -6,6 +6,7 @@ REPRO_ZIP_INPUTS_OUTPUTS = "inputs_outputs"
 REPRO_ZIP_RUNS = "runs"
 REPRO_ZIP_WORKING_DIR = 'workingdir'
 REPRO_ZIP_ARGV = "argv"
+INPUTS_FORMAT_KEY: 'format'
 MIC_DIR = "mic"
 MIC_HIDDEN_DIR = ".mic"
 CONFIG_FILE = "config.json"
