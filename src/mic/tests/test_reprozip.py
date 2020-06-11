@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from component.reprozip import get_outputs, get_inputs
+from component.reprozip import get_outputs, get_inputs, generate_runner
 from mic.config_yaml import get_spec
 
 RESOURCES = "resources"
@@ -752,6 +752,7 @@ def test_get_inputs():
     get_inputs(spec)
     assert swat_inputs == get_inputs(spec)
 
+
 def test_get_inputs_v1():
     swat_inputs_v1 = swat_inputs.copy()
     swat_inputs_v1.append("/tmp/mint/example.txt")
@@ -759,3 +760,30 @@ def test_get_inputs_v1():
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
     inputs = get_inputs(spec)
     assert sorted(swat_inputs_v1) == sorted(inputs)
+
+
+def test_generate_runner():
+    yml = "swat_test.yml"
+    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+    result = generate_runner(spec)
+    expected = """
+pushd /tmp/mint/TxtInOut
+./swat670
+popd
+pushd /tmp/mint/TxtInOut
+./swat670
+popd"""
+    assert expected == result
+
+def test_generate_runner_v1():
+    yml = "swat_test_v2.yml"
+    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+    result = generate_runner(spec)
+    expected = """
+pushd /tmp/mint/TxtInOut
+./swat670
+popd
+pushd /tmp/mint/TxtInOut
+./swat670 -p 1
+popd"""
+    assert expected == result

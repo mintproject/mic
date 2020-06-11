@@ -38,7 +38,7 @@ runs:
   workingdir: /tmp/mint/TxtInOut
 - architecture: x86_64
   argv:
-  - ./swat670
+  - ./swat670 -p 1
   binary: /tmp/mint/TxtInOut/./swat670
 # Run 1
   distribution:
