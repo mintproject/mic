@@ -69,7 +69,7 @@ def print_list_credentials(profile, short):
     if profile is None:
         for p in credentials:
             # configparser has both DEFAULT and default read, no need to get both
-            if p is not "DEFAULT":
+            if p != "DEFAULT":
                 profile_list.append(get_credentials(p))
     # list given profile
     else:
@@ -84,7 +84,7 @@ def print_list_credentials(profile, short):
     for prof in profile_list:
         # list profile name
         # there is no way to get the key from the prof obj, so I have to manually format the tostring
-        click.secho("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]),fg="blue")
+        click.secho("[{}]".format(prof.__str__().split(" ")[1].split(">")[0]), fg="blue")
 
         # Only show details if short is not used
         if not short:
