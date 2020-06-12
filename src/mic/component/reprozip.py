@@ -64,7 +64,7 @@ popd"""
     return code
 
 
-def find_code_files(spec, inputs):
+def find_code_files(spec, inputs, config_files):
     code_files = []
     for run in spec[REPRO_ZIP_RUNS]:
         for _input in inputs:

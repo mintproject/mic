@@ -10,7 +10,8 @@ from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
 from mic.component.executor import build_docker, copy_code_to_src
-from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner
+from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
+    find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
 from mic.constants import *
 from mic.constants import MIC_DEFAULT_PATH
@@ -186,6 +187,8 @@ def add_parameters(mic_file, name, value):
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
+
+
 @cli.command(short_help=f"""Write inputs into {CONFIG_YAML_NAME}""")
 @click.argument(
     "custom_inputs",
@@ -193,7 +196,6 @@ def add_parameters(mic_file, name, value):
     required=False,
     nargs=-1
 )
-# @click.option('--aggregate/--no-aggregate', default=True)
 @click.option(
     "-f",
     "--mic_file",
@@ -212,7 +214,7 @@ def inputs(mic_file, custom_inputs):
     click.secho('Writing inputs metadata', fg="blue")
     for i in inputs:
         click.secho(f"""Input added: {i} """, fg="green")
-
+    find_code_files(spec, inputs)
     write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
 
 
