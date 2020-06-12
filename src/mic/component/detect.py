@@ -70,3 +70,5 @@ def detect_framework_main(user_execution_directory):
             requirements_file))
     dockerfile = render_dockerfile(user_execution_directory_mic, framework)
     click.secho("Dockerfile has been created: {}".format(dockerfile))
+
+

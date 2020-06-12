@@ -9,7 +9,7 @@ from mic.component.initialization import render_run_sh, render_io_sh, render_out
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
-from mic.component.executor import build_docker
+from mic.component.executor import build_docker, copy_code_to_src
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
 from mic.constants import *
@@ -256,16 +256,23 @@ def outputs(mic_file, aggregate, custom_outputs):
 def test(mic_file):
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
+
+    repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
+    repro_zip_trace_dir = Path(repro_zip_trace_dir)
+    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+
+
     mic_directory_path = mic_config_file.parent
     parameters = get_key_spec(mic_config_file, PARAMETERS_KEY)
     inputs = get_key_spec(mic_config_file, INPUTS_KEY)
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
     configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
     spec = get_spec(mic_config_file)
-
+    reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec)}
-{generate_runner(spec)}"""
-
+{generate_runner(reprozip_spec)}"""
+    write_spec(mic_config_file, COMMANDS_RUNNER, code)
     render_run_sh(mic_directory_path, inputs, parameters, outputs, code)
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
+    copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)

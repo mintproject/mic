@@ -14,7 +14,7 @@ from docker.errors import APIError
 from mic.component.initialization import render_output, detect_framework, render_dockerfile
 from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs, get_configuration_files
 from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, DOCKER_KEY, LAST_EXECUTION_DIR, Framework, \
-    REQUIREMENTS_FILE, MIC_DIR, handle
+    REQUIREMENTS_FILE, MIC_DIR, handle, PATH_KEY
 from mic.publisher.model_catalog import create_model_catalog_resource
 
 
@@ -222,3 +222,9 @@ def build_input(inputs):
         position = _input.position[0]
         line += " -i{} {}".format(position, file_name)
     return line
+
+def copy_code_to_src(code_files, src_dir):
+    for key, item in code_files.items():
+        file_path = Path(item[PATH_KEY])
+        click.secho(f"""Copy the code: {file_path.name} to the MIC Wrapper directory""")
+        shutil.copyfile(file_path, src_dir / file_path.name)

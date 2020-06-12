@@ -48,9 +48,10 @@ def generate_pre_runner(spec):
     code = ''
     for key, file in spec[CODE_KEY].items():
         path = Path(file[PATH_KEY])
-        if isinstance(path.parts, str):
+        if isinstance(path.parts, tuple):
             code = f"""{code}
 cp -rv {path.name} {str(path)}"""
+    print(code)
     return code
 
 def generate_runner(spec):
