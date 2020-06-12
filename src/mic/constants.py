@@ -1,4 +1,7 @@
 from enum import Enum
+
+import click
+MIC_DEFAULT_PATH = "/tmp/mint/"
 REPRO_ZIP_TRACE_DIR = ".reprozip-trace"
 REPRO_ZIP_CONFIG_FILE= "config.yml"
 REPRO_ZIP_OTHER_FILES = "other_files"
@@ -6,7 +9,6 @@ REPRO_ZIP_INPUTS_OUTPUTS = "inputs_outputs"
 REPRO_ZIP_RUNS = "runs"
 REPRO_ZIP_WORKING_DIR = 'workingdir'
 REPRO_ZIP_ARGV = "argv"
-INPUTS_FORMAT_KEY: 'format'
 MIC_DIR = "mic"
 MIC_HIDDEN_DIR = ".mic"
 CONFIG_FILE = "config.json"
@@ -78,3 +80,6 @@ def handle(value):
     for i in Framework:
         if value == i.label:
             return i
+
+
+

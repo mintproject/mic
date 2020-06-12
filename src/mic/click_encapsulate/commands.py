@@ -1,3 +1,4 @@
+import ast
 import os
 from datetime import datetime
 from pathlib import Path
@@ -6,16 +7,13 @@ import mic
 import semver
 from mic import _utils
 from mic._utils import find_dir
-from mic.cli_docs import *
 from mic.component.detect import detect_framework_main, detect_news_reprozip
 from mic.component.executor import build_docker
-from mic.component.initialization import render_run_sh, render_io_sh, render_output, render_gitignore
+from mic.component.initialization import render_gitignore
 from mic.component.reprozip import get_inputs, get_outputs, generate_runner, relative, find_code_files
-from mic.config_yaml import get_numbers_inputs_parameters, get_inputs_parameters, \
-    add_configuration_files, write_spec, write_to_yaml, get_spec, create_config_file_yaml
+from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml
 from mic.constants import *
-from modelcatalog import DatasetSpecification, Parameter
-
+from mic.constants import MIC_DEFAULT_PATH
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -40,7 +38,8 @@ You should consider upgrading via the 'pip install --upgrade mic' command.""",
         )
 
 
-@cli.command(short_help="Set up a MIC directory structure and MIC file template")
+@cli.command(short_help="Create a Linux environment. The working directory must contains all the files required in the"
+                        " execution")
 @click.argument(
     "user_execution_directory",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
@@ -61,6 +60,9 @@ def start(user_execution_directory, dependencies):
         detect_framework_main(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
     image = build_docker(mic_dir / DOCKER_DIR, name)
+    mic_config_file = mic_dir / CONFIG_YAML_NAME
+    create_config_file_yaml(mic_dir)
+
     click.secho(f"""
 You are in a Linux environment Debian distribution
 We detect the following dependencies.
@@ -72,34 +74,8 @@ We detect the following dependencies.
     click.echo("Please, run your Model Component.")
     os.system(f"""docker run --rm -ti -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
-    click.secho("Writing the MIC Wrapper", fg="blue")
-    repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
-    repro_zip_trace_dir = Path(repro_zip_trace_dir)
-    mic_config_file = mic_dir / CONFIG_YAML_NAME
-    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
-    create_config_file_yaml(mic_dir)
-    spec = get_spec(repro_zip_config_file)
-    inputs = get_inputs(spec)
-    click.secho('Writing inputs metadata', fg="green")
-    outputs = get_outputs(spec)
-    click.secho("Writing outputs metadata", fg="green")
-    runner = generate_runner(spec)
-    click.secho("Writing MIC Wrapper", fg="green")
-    code_files = find_code_files(spec, inputs)
 
-    render_gitignore(mic_dir)
-    src = mic_dir / SRC_DIR
-    data = mic_dir / DATA_DIR
-    src.mkdir(parents=True)
-    data.mkdir(parents=True)
-
-    write_spec(mic_config_file, CODE_KEY, relative(code_files))
-    write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
-    write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs))
-    write_spec(mic_config_file, COMMANDS_RUNNER, runner)
-
-
-@cli.command(short_help="Pass the inputs and parameters for your Model Configuration")
+@cli.command(short_help="Trace any command line and extract the information about the execution")
 @click.argument('command', nargs=-1)
 @click.option('--continue/--overwrite', 'append', default=None)
 def trace(command, append):
@@ -148,7 +124,7 @@ def trace(command, append):
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def config_files(mic_file, configuration_files):
+def configs(mic_file, configuration_files):
     """
     If your model does not use configuration files, you can skip this step
 
@@ -158,51 +134,90 @@ def config_files(mic_file, configuration_files):
 
     - Pass the configuration files as arguments
 
-    mic encapsulate step4 -f <mic_file> [configuration_files]...
+    mic encapsulate configs -f <mic_file> [configuration_files]...
 
     Example:
-    mic encapsulate step4 -f mic.yaml data/example_dir/file1.txt  data/file2.txt
+
+    mic encapsulate configs -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
     mic_config_file = Path(mic_file)
     if not mic_config_file.exists():
         click.secho("Error: that configuration path does not exist", fg="red")
         exit(1)
     configuration_files = [str(Path(x).absolute()) for x in list(configuration_files)]
-    write_spec(mic_config_file, CONFIG_FILE_KEY, relative(configuration_files))
-    write_spec(mic_config_file, STEP_KEY, 4)
+    try:
+        write_spec(mic_config_file, CONFIG_FILE_KEY, relative(configuration_files))
+    except Exception as e:
+        click.secho("Failed: Error message {}".format(e), fg="red")
+    for item in configuration_files:
+        click.secho("Added: {} as a configuration file".format(item))
+    write_spec(mic_config_file, STEP_KEY, 2)
 
 
-@cli.command(short_help="Create MINT wrapper using the " + CONFIG_YAML_NAME)
-@click.option('--add_parameter', type=(str, str))
-@click.option('--list_parameter', 'list', flag_value=True)
-def parameters(add_parameter, list):
+@cli.command(short_help="Add parameters " + CONFIG_YAML_NAME, name="parameters")
+@click.argument("name", required=True, type=str)
+@click.argument("value", required=True)
+@click.option(
+    "-f",
+    "--mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default=CONFIG_YAML_NAME
+)
+def add_parameters(mic_file, name, value):
     """
-    Create MINT wrapper using the mic.yaml. This command will handle adding inputs and parameters into the run file.
+    Add a parameter into the MIC file (mic.yaml).
 
     - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
     Example:
-    mic encapsulate step3 -f <mic_file>
+
+    mic encapsulate parameters -f <mic_file> PARAMETER_NAME PARAMETER_VALUE
     """
-    print(add_parameter)
-    print(list)
+    path = Path(mic_file)
+    spec = get_spec(path)
+    if PARAMETERS_KEY not in spec:
+        spec[PARAMETERS_KEY] = {}
+
+    if name in spec[PARAMETERS_KEY]:
+        click.echo("The parameter exists")
+    else:
+        spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: ast.literal_eval(value)}})
+    write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
+@cli.command(short_help=f"""Write inputs, outputs, parameters, configuration files  {CONFIG_YAML_NAME}""")
+@click.argument("name", required=True, type=str)
+@click.argument("value", required=True)
+@click.option(
+    "-f",
+    "--mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default=CONFIG_YAML_NAME
+)
+def write(mic_file):
+    mic_config_file = Path(mic_file)
+    user_execution_directory = Path(MIC_DEFAULT_PATH)
+    mic_dir = user_execution_directory / MIC_DIR
+    click.secho("Writing the MIC Wrapper", fg="blue")
+    repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
+    repro_zip_trace_dir = Path(repro_zip_trace_dir)
+    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+    spec = get_spec(repro_zip_config_file)
+    inputs = get_inputs(spec)
+    click.secho('Writing inputs metadata', fg="green")
+    outputs = get_outputs(spec)
+    click.secho("Writing outputs metadata", fg="green")
+    runner = generate_runner(spec)
+    click.secho("Writing MIC Wrapper", fg="green")
+    code_files = find_code_files(spec, inputs)
 
-def prepare_inputs_outputs_parameters(inputs, model_configuration, name):
-    _inputs = []
-    _outputs = []
-    _parameters = []
-    for i in range(0, inputs):
-        _inputs.append(DatasetSpecification(label="Input {}".format(i + 1), position=i + 1))
-    for i in range(0, inputs):
-        _outputs.append(DatasetSpecification(label="Output {}".format(i + 1), position=i + 1))
-    for i in range(0, inputs):
-        _parameters.append(Parameter(label="Parameter {}".format(i + 1), position=i + 1))
-    if _inputs:
-        model_configuration.has_input = _inputs
-    if _outputs:
-        model_configuration.has_output = _outputs
-    if _parameters:
-        model_configuration.has_parameter = _parameters
-    model_configuration.label = name
+    render_gitignore(mic_dir)
+    src = mic_dir / SRC_DIR
+    data = mic_dir / DATA_DIR
+    src.mkdir(parents=True)
+    data.mkdir(parents=True)
+
+    write_spec(mic_config_file, CODE_KEY, relative(code_files))
+    write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
+    write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs))
+    write_spec(mic_config_file, COMMANDS_RUNNER, runner)

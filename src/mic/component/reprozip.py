@@ -4,9 +4,6 @@ from typing import List
 
 from mic.constants import *
 
-DEFAULT_PATH = "/tmp/mint/"
-
-
 def convert_reprozip_to_mic():
     pass
 
