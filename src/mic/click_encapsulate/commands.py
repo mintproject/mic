@@ -5,15 +5,16 @@ from pathlib import Path
 
 import mic
 import semver
+from mic.component.initialization import render_run_sh, render_io_sh, render_output
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
 from mic.component.executor import build_docker
-from mic.component.initialization import render_gitignore
-from mic.component.reprozip import get_inputs, get_outputs, generate_runner, relative, find_code_files
-from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml
+from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner
+from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
 from mic.constants import *
 from mic.constants import MIC_DEFAULT_PATH
+
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -185,39 +186,86 @@ def add_parameters(mic_file, name, value):
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
-@cli.command(short_help=f"""Write inputs, outputs, parameters, configuration files  {CONFIG_YAML_NAME}""")
-@click.argument("name", required=True, type=str)
-@click.argument("value", required=True)
+@cli.command(short_help=f"""Write inputs into {CONFIG_YAML_NAME}""")
+@click.argument(
+    "custom_inputs",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    required=False,
+    nargs=-1
+)
+# @click.option('--aggregate/--no-aggregate', default=True)
 @click.option(
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def write(mic_file):
+def inputs(mic_file, custom_inputs):
     mic_config_file = Path(mic_file)
-    user_execution_directory = Path(MIC_DEFAULT_PATH)
-    mic_dir = user_execution_directory / MIC_DIR
-    click.secho("Writing the MIC Wrapper", fg="blue")
+    user_execution_directory = mic_config_file.parent.parent
     repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     spec = get_spec(repro_zip_config_file)
-    inputs = get_inputs(spec)
-    click.secho('Writing inputs metadata', fg="green")
-    outputs = get_outputs(spec)
-    click.secho("Writing outputs metadata", fg="green")
-    runner = generate_runner(spec)
-    click.secho("Writing MIC Wrapper", fg="green")
-    code_files = find_code_files(spec, inputs)
+    custom_inputs = [str(MIC_DEFAULT_PATH / Path(i).relative_to(user_execution_directory)) for i in list(custom_inputs)]
+    inputs = get_inputs(spec) + list(custom_inputs)
+    click.secho('Writing inputs metadata', fg="blue")
+    for i in inputs:
+        click.secho(f"""Input added: {i} """, fg="green")
 
-    render_gitignore(mic_dir)
-    src = mic_dir / SRC_DIR
-    data = mic_dir / DATA_DIR
-    src.mkdir(parents=True)
-    data.mkdir(parents=True)
-
-    write_spec(mic_config_file, CODE_KEY, relative(code_files))
     write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
+
+
+@cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
+@click.argument(
+    "custom_outputs",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    required=False,
+    nargs=-1
+)
+@click.option('--aggregate/--no-aggregate', default=False)
+@click.option(
+    "-f",
+    "--mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default=CONFIG_YAML_NAME
+)
+def outputs(mic_file, aggregate, custom_outputs):
+    mic_config_file = Path(mic_file)
+    user_execution_directory = mic_config_file.parent.parent
+    repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
+    repro_zip_trace_dir = Path(repro_zip_trace_dir)
+    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+    spec = get_spec(repro_zip_config_file)
+    custom_outputs = [str(MIC_DEFAULT_PATH / Path(i).relative_to(user_execution_directory)) for i in
+                      list(custom_outputs)]
+    outputs = get_outputs(spec, aggregrate=aggregate) + list(custom_outputs)
+    click.secho('Writing output metadata', fg="blue")
+    for i in outputs:
+        click.secho(f"""Output added: {i} """, fg="green")
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs))
-    write_spec(mic_config_file, COMMANDS_RUNNER, runner)
+
+
+@cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")
+@click.option(
+    "-f",
+    "--mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default=CONFIG_YAML_NAME
+)
+def test(mic_file):
+    mic_config_file = Path(mic_file)
+    user_execution_directory = mic_config_file.parent.parent
+    mic_directory_path = mic_config_file.parent
+    parameters = get_key_spec(mic_config_file, PARAMETERS_KEY)
+    inputs = get_key_spec(mic_config_file, INPUTS_KEY)
+    outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
+    configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
+    spec = get_spec(mic_config_file)
+
+    code = f"""{generate_pre_runner(spec)}
+{generate_runner(spec)}"""
+
+    render_run_sh(mic_directory_path, inputs, parameters, outputs, code)
+    render_io_sh(mic_directory_path, inputs, parameters, configs)
+    render_output(mic_directory_path, [], False)

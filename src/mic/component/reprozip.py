@@ -4,6 +4,9 @@ from typing import List
 
 from mic.constants import *
 
+default_path = Path(MIC_DEFAULT_PATH)
+
+
 def convert_reprozip_to_mic():
     pass
 
@@ -11,7 +14,7 @@ def convert_reprozip_to_mic():
 def relative(files: List[Path]):
     response = {}
     for i in files:
-        path = Path(i).relative_to(Path(DEFAULT_PATH))
+        path = Path(i).relative_to(Path(MIC_DEFAULT_PATH))
         response[path.name] = {
             PATH_KEY: str(path),
             'format': str(path.suffix)
@@ -19,21 +22,36 @@ def relative(files: List[Path]):
     return response
 
 
-def get_inputs(spec):
-    default_path = Path(DEFAULT_PATH)
+def get_inputs(spec, aggregrate=True):
     inputs = []
-
-    outputs_ = spec[REPRO_ZIP_INPUTS_OUTPUTS] if spec[REPRO_ZIP_INPUTS_OUTPUTS] else []
-    for i in outputs_:
+    inputs_outputs_ = spec[REPRO_ZIP_INPUTS_OUTPUTS] if spec[REPRO_ZIP_INPUTS_OUTPUTS] else []
+    for i in inputs_outputs_:
         if default_path in Path(i).parents:
-            inputs.append(i)
+            parts = Path(i).relative_to(default_path).parts
+            if isinstance(parts, str):
+                inputs.append(i)
+            elif isinstance(parts, tuple):
+                inputs.append(str(default_path / parts[0]))
 
     other_files_ = spec[REPRO_ZIP_OTHER_FILES] if spec[REPRO_ZIP_OTHER_FILES] else []
     for i in other_files_:
         if default_path in Path(i).parents:
-            inputs.append(i)
-    return inputs
+            parts = Path(i).relative_to(default_path).parts
+            if isinstance(parts, str):
+                inputs.append(i)
+            elif isinstance(parts, tuple):
+                inputs.append(str(default_path / parts[0]))
+    return list(set(inputs))
 
+
+def generate_pre_runner(spec):
+    code = ''
+    for key, file in spec[CODE_KEY].items():
+        path = Path(file[PATH_KEY])
+        if isinstance(path.parts, str):
+            code = f"""{code}
+cp -rv {path.name} {str(path)}"""
+    return code
 
 def generate_runner(spec):
     code = ''
@@ -65,10 +83,22 @@ def extract_parameters_from_command(command_line):
         print(match.group())
 
 
-def get_outputs(spec):
+def get_outputs(spec, aggregrate=False):
     """
 
     :param spec:
     :type spec:
     """
-    return spec[OUTPUTS_KEY]
+    outputs = []
+    repro_zip_outputs = spec[OUTPUTS_KEY] if spec[OUTPUTS_KEY] else []
+    for i in repro_zip_outputs:
+        if default_path in Path(i).parents:
+            parts = Path(i).relative_to(default_path).parts
+            if isinstance(parts, str) and not aggregrate:
+                outputs.append(i)
+            if isinstance(parts, tuple):
+                if aggregrate:
+                    outputs.append(str(default_path / parts[0]))
+                else:
+                    outputs.append(str(i))
+    return list(set(outputs))

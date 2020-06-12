@@ -3,7 +3,6 @@ import shutil
 from pathlib import Path
 from typing import List
 
-import click
 from jinja2 import Environment, PackageLoader, select_autoescape
 from mic.component.python3 import freeze
 from mic.constants import *
@@ -41,8 +40,10 @@ def render_gitignore(directory: Path):
 
 
 def render_run_sh(directory: Path,
-                  inputs: dict, parameters: dict,
-                  number_inputs: int = 0, number_parameters: int = 0) -> Path:
+                  inputs: dict,
+                  parameters: dict,
+                  outputs: dict,
+                  code: str) -> Path:
     """
 
     @param number_parameters:
@@ -55,12 +56,22 @@ def render_run_sh(directory: Path,
     @type inputs:
     @param parameters:
     @type parameters:
+    :param outputs:
+    :type outputs:
     """
     template = env.get_template(RUN_FILE)
     run_file = directory / SRC_DIR / RUN_FILE
+    number_inputs = len(inputs) if inputs else 0
+    number_parameters = len(parameters) if parameters else 0
+    number_outputs = len(outputs) if outputs else 0
     with open(run_file, "w") as f:
-        content = render_template(template=template, inputs=inputs, parameters=parameters,
-                                  number_inputs=number_inputs, number_parameters=number_parameters, number_outputs=0)
+        content = render_template(template=template,
+                                  inputs=inputs,
+                                  parameters=parameters,
+                                  number_inputs=number_inputs,
+                                  number_parameters=number_parameters,
+                                  number_outputs=number_outputs,
+                                  code=code)
         f.write(content)
     run_file.chmod(0o755)
     return run_file
@@ -70,10 +81,11 @@ def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list)
     template = env.get_template(IO_FILE)
     data_dir = directory / DATA_DIR
     run_file = directory / SRC_DIR / IO_FILE
+    if configs is None: configs = []
     with open(run_file, "w") as f:
         content = render_template(template=template, inputs=inputs,
                                   parameters=parameters,
-                                  configs=[str(Path(directory / i).relative_to(data_dir)) for i in configs])
+                                  configs=configs)
         f.write(content)
     return run_file
 
@@ -101,7 +113,7 @@ def render_dockerfile(model_directory: Path, language: Framework) -> Path:
     return run_file
 
 
-def render_output(directory: Path, files: List[Path], compress: str) -> Path:
+def render_output(directory: Path, files: List[Path], compress: bool) -> Path:
     template = env.get_template(OUTPUT_FILE)
     run_file = directory / SRC_DIR / OUTPUT_FILE
     with open(run_file, "w") as f:

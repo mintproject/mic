@@ -750,8 +750,8 @@ def test_get_outputs():
 def test_get_inputs():
     yml = "swat_test.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    get_inputs(spec)
-    assert swat_inputs == get_inputs(spec)
+    get_inputs(spec, aggregrate=True)
+    assert ["/tmp/mint/TxtInOut"] == get_inputs(spec)
 
 
 def test_get_inputs_v1():
