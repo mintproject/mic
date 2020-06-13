@@ -54,7 +54,8 @@ def generate_pre_runner(spec):
         paths.append(Path(file[PATH_KEY]))
 
     for path in paths:
-        if isinstance(path.parts, tuple):
+        parts = path.parts
+        if isinstance(parts, tuple) and len(parts) > 1:
             code = f"""{code}
 cp -rv {path.name} {str(path)}"""
     return code
