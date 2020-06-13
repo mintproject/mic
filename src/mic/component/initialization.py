@@ -16,8 +16,6 @@ env = Environment(
 
 
 def create_base_directories(mic_component_dir: Path):
-    if mic_component_dir.exists():
-        shutil.rmtree(mic_component_dir)
     src = mic_component_dir / SRC_DIR
     docker = mic_component_dir / DOCKER_DIR
     data = mic_component_dir / DATA_DIR
