@@ -274,9 +274,10 @@ def test(mic_file):
     for key, _input in inputs.items():
         item = user_execution_directory / _input[PATH_KEY]
         if item.is_dir():
+            click.secho(f"""Compressing the input {key} """, fg="blue")
             zip_file = compress_directory(item)
             dst_file = mic_directory_path / DATA_DIR / zip_file
-            click.secho(f"""Compressing the input {key}, dst: {dst_file} """, fg="blue")
+            click.secho(f"""Moving the zip file {key}: mv {zip_file} {dst_file}  """, fg="blue")
             shutil.move(zip_file, dst_file)
         else:
             dst_file = mic_directory_path / DATA_DIR / str(item.name)
