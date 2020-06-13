@@ -15,7 +15,6 @@ from mic.component.reprozip import get_inputs, get_outputs, relative, generate_r
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
 from mic.constants import *
 from mic.constants import MIC_DEFAULT_PATH
-from publisher.model_catalog import create_model_catalog_resource
 
 
 @click.group()
