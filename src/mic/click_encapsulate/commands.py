@@ -287,8 +287,8 @@ def test(mic_file):
             shutil.move(zip_file, mic_directory_path / DATA_DIR / zip_file)
         else:
             click.secho(f"""Compressing the input {key} """, fg="blue")
-            input_file = mic_directory_path / DATA_DIR / str(item)
-            shutil.copy(item, input_file)
+            dst_file = mic_directory_path / DATA_DIR / str(item)
+            shutil.copy(item, dst_file)
         click.secho(f"""Input added: {key} """, fg="green")
 
 
