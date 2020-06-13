@@ -5,7 +5,7 @@ from pathlib import Path
 
 import mic
 import semver
-from mic.component.initialization import render_run_sh, render_io_sh, render_output
+from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
@@ -264,9 +264,9 @@ def test(mic_file):
     repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
-
-
     mic_directory_path = mic_config_file.parent
+
+    create_base_directories(mic_directory_path)
     parameters = get_key_spec(mic_config_file, PARAMETERS_KEY)
     inputs = get_key_spec(mic_config_file, INPUTS_KEY)
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)

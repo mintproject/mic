@@ -21,9 +21,9 @@ def create_base_directories(mic_component_dir: Path):
     src = mic_component_dir / SRC_DIR
     docker = mic_component_dir / DOCKER_DIR
     data = mic_component_dir / DATA_DIR
-    src.mkdir(parents=True)
-    docker.mkdir(parents=True)
-    data.mkdir(parents=True)
+    src.mkdir(parents=True, exist_ok=True)
+    docker.mkdir(parents=True, exist_ok=True)
+    data.mkdir(parents=True, exist_ok=True)
 
 
 def render_gitignore(directory: Path):
