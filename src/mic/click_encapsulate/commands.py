@@ -279,17 +279,17 @@ def test(mic_file):
 
 
 
-    for i in inputs:
-        item = user_execution_directory / i
+    for key, _input in inputs.items():
+        item = user_execution_directory / _input[PATH_KEY]
         if item.is_dir():
-            click.secho(f"""Compressing the input {i} to the data directory {mic_directory_path / DATA_DIR} """, fg="blue")
+            click.secho(f"""Compressing the input {key} to the data directory {mic_directory_path / DATA_DIR} """, fg="blue")
             zip_file = compress_directory(item)
             shutil.move(zip_file, mic_directory_path / DATA_DIR / zip_file)
         else:
-            click.secho(f"""Compressing the input {i} """, fg="blue")
+            click.secho(f"""Compressing the input {key} """, fg="blue")
             input_file = mic_directory_path / DATA_DIR / str(item)
             shutil.copy(item, input_file)
-        click.secho(f"""Input added: {i} """, fg="green")
+        click.secho(f"""Input added: {key} """, fg="green")
 
 
     spec = get_spec(mic_config_file)
