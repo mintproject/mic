@@ -284,7 +284,7 @@ def test(mic_file):
         if item.is_dir():
             click.secho(f"""Compressing the input {i} to the data directory {mic_directory_path / DATA_DIR} """, fg="blue")
             zip_file = compress_directory(item)
-            shutil.move(zip_file, mic_directory_path / DATA_DIR / zip_file.name)
+            shutil.move(zip_file, mic_directory_path / DATA_DIR / zip_file)
         else:
             click.secho(f"""Compressing the input {i} """, fg="blue")
             input_file = mic_directory_path / DATA_DIR / item.name
