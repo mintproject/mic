@@ -282,12 +282,13 @@ def test(mic_file):
     for key, _input in inputs.items():
         item = user_execution_directory / _input[PATH_KEY]
         if item.is_dir():
-            click.secho(f"""Compressing the input {key} to the data directory {mic_directory_path / DATA_DIR} """, fg="blue")
             zip_file = compress_directory(item)
-            shutil.move(zip_file, mic_directory_path / DATA_DIR / zip_file)
+            dst_file = mic_directory_path / DATA_DIR / zip_file
+            click.secho(f"""Compressing the input {key}, dst: {dst_file} """, fg="blue")
+            shutil.move(zip_file, dst_file)
         else:
-            click.secho(f"""Compressing the input {key} """, fg="blue")
-            dst_file = mic_directory_path / DATA_DIR / str(item)
+            dst_file = mic_directory_path / DATA_DIR / str(item.name)
+            click.secho(f"""Copy the input {key}: cp {item} {dst_file}  """, fg="blue")
             shutil.copy(item, dst_file)
         click.secho(f"""Input added: {key} """, fg="green")
 
