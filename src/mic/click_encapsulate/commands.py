@@ -9,12 +9,13 @@ from mic.component.initialization import render_run_sh, render_io_sh, render_out
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
-from mic.component.executor import build_docker, copy_code_to_src
+from mic.component.executor import build_docker, copy_code_to_src, compress_directory
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
 from mic.constants import *
 from mic.constants import MIC_DEFAULT_PATH
+from publisher.model_catalog import create_model_catalog_resource
 
 
 @click.group()
@@ -211,10 +212,16 @@ def inputs(mic_file, custom_inputs):
     spec = get_spec(repro_zip_config_file)
     custom_inputs = [str(MIC_DEFAULT_PATH / Path(i).relative_to(user_execution_directory)) for i in list(custom_inputs)]
     inputs = get_inputs(spec) + list(custom_inputs)
+
     config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
     config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
+
+
     click.secho('Writing inputs metadata', fg="blue")
     for i in inputs:
+        item = user_execution_directory / i
+        if item.is_dir():
+            i = str(compress_directory(item))
         click.secho(f"""Input added: {i} """, fg="green")
     find_code_files(spec, inputs, config_files)
     write_spec(mic_config_file, INPUTS_KEY, relative(inputs))

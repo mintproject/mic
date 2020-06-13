@@ -27,8 +27,9 @@ def copy_file(input_path: Path, src_dir_path: Path):
     return shutil.copyfile(input_path, src_dir_path / input_path.name)
 
 
-def compress_directory(mint_config_file: Path):
-    pass
+def compress_directory(directory_path: Path):
+    zip_file_path = shutil.make_archive(directory_path.name, 'zip', root_dir=directory_path.parent, base_dir=directory_path.name)
+    return zip_file_path
 
 
 def _copy_directory(src: Path, dest: Path) -> Path:
