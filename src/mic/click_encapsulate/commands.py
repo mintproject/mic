@@ -211,10 +211,12 @@ def inputs(mic_file, custom_inputs):
     spec = get_spec(repro_zip_config_file)
     custom_inputs = [str(MIC_DEFAULT_PATH / Path(i).relative_to(user_execution_directory)) for i in list(custom_inputs)]
     inputs = get_inputs(spec) + list(custom_inputs)
+    config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
+    config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
     click.secho('Writing inputs metadata', fg="blue")
     for i in inputs:
         click.secho(f"""Input added: {i} """, fg="green")
-    find_code_files(spec, inputs)
+    find_code_files(spec, inputs, config_files)
     write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
 
 
