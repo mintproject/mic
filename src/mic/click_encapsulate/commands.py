@@ -278,16 +278,17 @@ def test(mic_file):
     configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
 
 
+
     for i in inputs:
         item = user_execution_directory / i
         if item.is_dir():
             click.secho(f"""Compressing the input {i} to the data directory {mic_directory_path / DATA_DIR} """, fg="blue")
             zip_file = compress_directory(item)
-            shutil.move(zip_file, mic_directory_path / DATA_DIR)
+            shutil.move(zip_file, mic_directory_path / DATA_DIR / zip_file.name)
         else:
             click.secho(f"""Compressing the input {i} """, fg="blue")
-            shutil.copyfile(item, mic_directory_path / DATA_DIR / item.name)
-
+            input_file = mic_directory_path / DATA_DIR / item.name
+            shutil.copy(item, input_file)
         click.secho(f"""Input added: {i} """, fg="green")
 
 
