@@ -1,5 +1,6 @@
 import ast
 import os
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -217,11 +218,6 @@ def inputs(mic_file, custom_inputs):
 
 
     click.secho('Writing inputs metadata', fg="blue")
-    for i in inputs:
-        item = user_execution_directory / i
-        if item.is_dir():
-            i = str(compress_directory(item))
-        click.secho(f"""Input added: {i} """, fg="green")
     find_code_files(spec, inputs, config_files)
     write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
 
@@ -272,11 +268,29 @@ def test(mic_file):
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     mic_directory_path = mic_config_file.parent
 
+
+
+
     create_base_directories(mic_directory_path)
     parameters = get_key_spec(mic_config_file, PARAMETERS_KEY)
     inputs = get_key_spec(mic_config_file, INPUTS_KEY)
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
     configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
+
+
+    for i in inputs:
+        item = user_execution_directory / i
+        if item.is_dir():
+            click.secho(f"""Compressing the input {i} to the data directory {mic_directory_path / DATA_DIR} """, fg="blue")
+            zip_file = compress_directory(item)
+            shutil.move(zip_file, mic_directory_path / DATA_DIR)
+        else:
+            click.secho(f"""Compressing the input {i} """, fg="blue")
+            shutil.copyfile(item, mic_directory_path / DATA_DIR / item.name)
+
+        click.secho(f"""Input added: {i} """, fg="green")
+
+
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec)}
