@@ -46,12 +46,17 @@ def get_inputs(spec, aggregrate=True):
 
 def generate_pre_runner(spec):
     code = ''
+    paths = []
     for key, file in spec[CODE_KEY].items():
-        path = Path(file[PATH_KEY])
+        paths.append(Path(file[PATH_KEY]))
+
+    for key, file in spec[INPUTS_KEY].items():
+        paths.append(Path(file[PATH_KEY]))
+
+    for path in paths:
         if isinstance(path.parts, tuple):
             code = f"""{code}
 cp -rv {path.name} {str(path)}"""
-    print(code)
     return code
 
 def generate_runner(spec):

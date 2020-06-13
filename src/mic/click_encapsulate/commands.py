@@ -6,11 +6,11 @@ from pathlib import Path
 
 import mic
 import semver
-from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
 from mic.component.executor import build_docker, copy_code_to_src, compress_directory
+from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
@@ -188,8 +188,6 @@ def add_parameters(mic_file, name, value):
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
-
-
 @cli.command(short_help=f"""Write inputs into {CONFIG_YAML_NAME}""")
 @click.argument(
     "custom_inputs",
@@ -215,7 +213,6 @@ def inputs(mic_file, custom_inputs):
 
     config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
     config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
-
 
     click.secho('Writing inputs metadata', fg="blue")
     find_code_files(spec, inputs, config_files)
@@ -268,16 +265,11 @@ def test(mic_file):
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     mic_directory_path = mic_config_file.parent
 
-
-
-
     create_base_directories(mic_directory_path)
     parameters = get_key_spec(mic_config_file, PARAMETERS_KEY)
     inputs = get_key_spec(mic_config_file, INPUTS_KEY)
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
     configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
-
-
 
     for key, _input in inputs.items():
         item = user_execution_directory / _input[PATH_KEY]
@@ -291,7 +283,6 @@ def test(mic_file):
             click.secho(f"""Copy the input {key}: cp {item} {dst_file}  """, fg="blue")
             shutil.copy(item, dst_file)
         click.secho(f"""Input added: {key} """, fg="green")
-
 
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
