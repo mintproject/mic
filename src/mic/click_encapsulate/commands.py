@@ -258,7 +258,7 @@ def outputs(mic_file, aggregate, custom_outputs):
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def test(mic_file):
+def create(mic_file):
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
 
@@ -295,10 +295,19 @@ def test(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)
-    execute_local(mic_config_file)
+
+@cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")
+@click.option(
+    "-f",
+    "--mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default=CONFIG_YAML_NAME
+)
+def run(mic_file):
+    execute_local(Path(mic_file))
 
 
-@cli.command(short_help="Test and publish your code in GitHub and your image to DockerHub")
+@cli.command(short_help="Publish your code in GitHub and your image to DockerHub")
 @click.option(
     "-f",
     "--mic_file",
