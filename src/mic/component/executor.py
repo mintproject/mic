@@ -77,7 +77,7 @@ def run_execution(line, execution_dir):
     return proc.returncode
 
 
-def execute(mint_config_file: Path):
+def execute_local(mint_config_file: Path):
     model_path = mint_config_file.parent
     execution_dir = create_execution_directory(mint_config_file, model_path)
     resource = create_model_catalog_resource(mint_config_file)

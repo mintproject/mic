@@ -10,7 +10,7 @@ from mic.cli_docs import info_step8
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
-from mic.component.executor import build_docker, copy_code_to_src, compress_directory
+from mic.component.executor import build_docker, copy_code_to_src, compress_directory, execute_local
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
@@ -67,8 +67,6 @@ def start(user_execution_directory, dependencies):
     if dependencies:
         detect_framework_main(user_execution_directory)
     image = build_docker(mic_dir / DOCKER_DIR, name)
-    mic_config_file = mic_dir / CONFIG_YAML_NAME
-    create_config_file_yaml(mic_dir)
 
     click.secho(f"""
 You are in a Linux environment Debian distribution
@@ -297,6 +295,7 @@ def test(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)
+    execute_local(mic_config_file)
 
 
 @cli.command(short_help="Publish your code in GitHub and your image to DockerHub")

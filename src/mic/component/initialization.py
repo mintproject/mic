@@ -15,15 +15,17 @@ env = Environment(
 )
 
 
-def create_base_directories(mic_component_dir: Path):
+def create_base_directories(mic_component_dir: Path, force=False):
     if mic_component_dir.exists():
-        click.secho("The directory {} already exists".format(mic_component_dir.name), fg="yellow")
+        click.secho("The directory {} already exists. If you continue, you can lost a previous component".format(mic_component_dir.name), fg="yellow")
+        if force or not click.confirm("Do you want to continue?", default=True, show_default=True):
+            click.secho("Initialization aborted", fg="blue")
+            exit(0)
     try:
         mic_component_dir.mkdir(exist_ok=True)
     except Exception as e:
         click.secho("Error: {} could not be created".format(mic_component_dir), fg="red")
         exit(1)
-
 
     src = mic_component_dir / SRC_DIR
     docker = mic_component_dir / DOCKER_DIR
@@ -33,7 +35,6 @@ def create_base_directories(mic_component_dir: Path):
     data.mkdir(parents=True, exist_ok=True)
     get_or_create_repo(mic_component_dir)
     click.secho("MIC has initialized the component.")
-    # White spaces below are to align paths. Remove or edit if constants change
     click.secho("[Created] {}:      {}".format(DATA_DIR, mic_component_dir / DATA_DIR))
     click.secho("[Created] {}:    {}".format(DOCKER_DIR, mic_component_dir / DOCKER_DIR))
     click.secho("[Created] {}:       {}".format(SRC_DIR, mic_component_dir / SRC_DIR))
