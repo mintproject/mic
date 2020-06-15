@@ -63,8 +63,8 @@ Source: {model_path / DATA_DIR}
 Destination: {src_executions_dir}""")
     spec = get_key_spec(mic_config_file, INPUTS_KEY)
     for key, value in spec.items():
-        file = Path(value[PATH_KEY])
-        copy_file(file, src_executions_dir )
+        file = model_path / DATA_DIR / str(Path(value[PATH_KEY]).name)
+        copy_file(file, src_executions_dir)
 
     return src_executions_dir
 
@@ -228,8 +228,9 @@ def build_input(inputs):
     return line
 
 
-def copy_code_to_src(code_files, src_dir):
+def copy_code_to_src(code_files, user_execution_directory, src_dir):
     for key, item in code_files.items():
-        file_path = Path(item[PATH_KEY])
+        file_path = user_execution_directory/ item[PATH_KEY]
+        print(file_path)
         click.secho(f"""Copy the code: {file_path.name} to the MIC Wrapper directory""")
         shutil.copyfile(file_path, src_dir / file_path.name)

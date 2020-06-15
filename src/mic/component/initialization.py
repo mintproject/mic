@@ -95,14 +95,16 @@ def render_run_sh(directory: Path,
 def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list) -> Path:
     template = env.get_template(IO_FILE)
     data_dir = directory / DATA_DIR
-    run_file = directory / SRC_DIR / IO_FILE
+    file = directory / SRC_DIR / IO_FILE
     if configs is None: configs = []
-    with open(run_file, "w") as f:
+
+    list_config = [value[PATH_KEY] for key, value in configs.items()]
+    with open(file, "w") as f:
         content = render_template(template=template, inputs=inputs,
                                   parameters=parameters,
-                                  configs=configs)
+                                  configs=list_config)
         f.write(content)
-    return run_file
+    return file
 
 
 def detect_framework(src_dir: Path) -> Framework:

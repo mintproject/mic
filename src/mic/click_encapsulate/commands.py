@@ -218,14 +218,18 @@ def inputs(mic_file, custom_inputs):
         if item.is_dir():
             click.secho(f"""Compressing the input {_input} """, fg="blue")
             zip_file = compress_directory(item)
-            dst_file = mic_directory_path / DATA_DIR / zip_file
+            dst_dir = mic_directory_path.absolute() / DATA_DIR
             new_inputs.append(zip_file)
-            shutil.move(zip_file, dst_file)
+            dst_file = dst_dir / Path(zip_file).name
+            if dst_file.exists():
+                print("exists")
+                os.remove(dst_file)
+            shutil.move(zip_file, dst_dir)
         else:
             new_inputs.append(item)
             dst_file = mic_directory_path / DATA_DIR / str(item.name)
             shutil.copy(item, dst_file)
-        click.secho(f"""Input added: {_input} """, fg="green")
+        click.secho(f"""Input added: {dst_file} """, fg="green")
 
     config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
     config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
@@ -287,13 +291,13 @@ def create(mic_file):
 
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
-    code = f"""{generate_pre_runner(spec)}
-{generate_runner(reprozip_spec)}"""
+    code = f"""{generate_pre_runner(spec, user_execution_directory)}
+{generate_runner(reprozip_spec, user_execution_directory)}"""
     write_spec(mic_config_file, COMMANDS_RUNNER, code)
     render_run_sh(mic_directory_path, inputs, parameters, outputs, code)
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
-    copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)
+    copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), user_execution_directory, mic_directory_path / SRC_DIR)
 
 
 @cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")

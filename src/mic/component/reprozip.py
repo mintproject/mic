@@ -45,7 +45,7 @@ def get_inputs(spec, user_execution_directory, aggregrate=True):
     return list(set(inputs))
 
 
-def generate_pre_runner(spec):
+def generate_pre_runner(spec, user_execution_directory):
     code = ''
     paths = []
     for key, file in spec[CODE_KEY].items():
@@ -61,11 +61,12 @@ def generate_pre_runner(spec):
 cp -rv {path.name} {str(path)}"""
     return code
 
-def generate_runner(spec):
+def generate_runner(spec, user_execution_directory):
     code = ''
     for run in spec[REPRO_ZIP_RUNS]:
+        dir_ = str(Path(run[REPRO_ZIP_WORKING_DIR]).relative_to(default_path))
         code = f"""{code}
-pushd {run[REPRO_ZIP_WORKING_DIR]}
+pushd {dir_}
 {' '.join(map(str, run[REPRO_ZIP_ARGV]))}
 popd"""
     return code
