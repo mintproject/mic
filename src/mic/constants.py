@@ -2,6 +2,7 @@ from enum import Enum
 
 import click
 GIT_DIRECTORY = ".git"
+FORMAT_KEY = "format"
 MIC_DEFAULT_PATH = "/tmp/mint/"
 REPRO_ZIP_TRACE_DIR = ".reprozip-trace"
 REPRO_ZIP_CONFIG_FILE= "config.yml"

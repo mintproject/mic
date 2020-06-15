@@ -256,13 +256,12 @@ def outputs(mic_file, aggregate, custom_outputs):
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     spec = get_spec(repro_zip_config_file)
-    custom_outputs = [str(MIC_DEFAULT_PATH / Path(i).relative_to(user_execution_directory)) for i in
-                      list(custom_outputs)]
+    custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in list(custom_outputs)]
     outputs = get_outputs(spec, aggregrate=aggregate) + list(custom_outputs)
     click.secho('Writing output metadata', fg="blue")
     for i in outputs:
         click.secho(f"""Output added: {i} """, fg="green")
-    write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs))
+    write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
 
 
 @cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")

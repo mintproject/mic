@@ -14,8 +14,6 @@ def convert_reprozip_to_mic():
 def relative(files: List[Path], user_execution_directory):
     response = {}
     for i in files:
-        print(i)
-        print(user_execution_directory)
         path = Path(i).relative_to(user_execution_directory)
         response[path.name] = {
             PATH_KEY: str(path),

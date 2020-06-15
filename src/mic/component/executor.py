@@ -11,8 +11,8 @@ import docker
 from dame.executor import build_parameter, build_output
 from docker.errors import APIError
 from mic.component.initialization import render_output
-from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs, get_configuration_files
-from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, LAST_EXECUTION_DIR, PATH_KEY, DATA_DIR
+from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs, get_configuration_files, get_key_spec
+from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, LAST_EXECUTION_DIR, PATH_KEY, DATA_DIR, INPUTS_KEY
 from mic.publisher.model_catalog import create_model_catalog_resource
 
 
@@ -49,22 +49,23 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
     click.secho("The execution directory is available {}".format(src_dir_path), fg="green")
 
 
-def create_execution_directory(model_path: Path):
+def create_execution_directory(mic_config_file: Path):
     from datetime import datetime
+    model_path = mic_config_file.parent
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
     execution_dir = model_path / EXECUTIONS_DIR / execution_name
     execution_dir.mkdir(parents=True)
     click.secho("Create a execution directory {}".format(execution_dir))
     src_executions_dir = execution_dir / SRC_DIR
-    click.secho("Copying the source to {}".format(src_executions_dir))
     _copy_directory(model_path / SRC_DIR, src_executions_dir)
-    for x in (model_path / DATA_DIR).iterdir():
-        if x.is_file():
-            copy_file(x, src_executions_dir)
-        else:
-            click.secho("Error")
+    click.secho(f"""Copying the inputs
+Source: {model_path / DATA_DIR}
+Destination: {src_executions_dir}""")
+    spec = get_key_spec(mic_config_file, INPUTS_KEY)
+    for key, value in spec.items():
+        file = Path(value[PATH_KEY])
+        copy_file(file, src_executions_dir )
 
-    click.secho("Copying the inputs to {}".format(model_path / DATA_DIR))
     return src_executions_dir
 
 
@@ -80,9 +81,8 @@ def run_execution(line, execution_dir):
 
 
 def execute_local(mint_config_file: Path):
-    model_path = mint_config_file.parent
-    execution_dir = create_execution_directory(model_path)
-    resource = create_model_catalog_resource(mint_config_file)
+    execution_dir = create_execution_directory(mint_config_file)
+    resource = create_model_catalog_resource(mint_config_file, execution_dir)
     try:
         line = get_command_line(resource)
     except:
@@ -117,7 +117,7 @@ def execute_using_docker(mint_config_file: Path):
         exit(1)
     now = datetime.now().timestamp()
 
-    src_dir = create_execution_directory(model_path)
+    src_dir = create_execution_directory(mint_config_file)
     try:
         resource = create_model_catalog_resource(mint_config_file)
     except ValueError:

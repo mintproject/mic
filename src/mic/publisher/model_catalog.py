@@ -11,7 +11,7 @@ from mic._menu import parse
 from mic._utils import obtain_id
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
-    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, DATA_DIR
+    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, DATA_DIR, FORMAT_KEY, PATH_KEY
 from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
 from mic.resources.model import ModelCli
@@ -24,13 +24,13 @@ def generate_uuid():
     return "https://w3id.org/okn/i/mint/{}".format(str(uuid.uuid4()))
 
 
-def create_model_catalog_resource(mint_config_file, allow_local_path=True):
+def create_model_catalog_resource(mint_config_file, execution_dir, allow_local_path=True):
     name = mint_config_file.parent.name
     inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
 
 
     model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
-                                                    mint_config_file.parent) if inputs else None
+                                                    execution_dir) if inputs else None
     model_catalog_outputs = create_data_set_resource(False, outputs,
                                                      mint_config_file.parent) if outputs else None
     model_catalog_parameters = create_parameter_resource(parameters)
@@ -73,21 +73,15 @@ def create_parameter_resource(parameters):
     return model_catalog_parameters
 
 
-def create_data_set_resource(allow_local_path, inputs, component_dir):
+def create_data_set_resource(allow_local_path, inputs, execution_dir):
     model_catalog_inputs = []
     position = 1
     for key, item in inputs.items():
-        try:
-            if Path(item["path"]).is_dir():
-                _format = "zip"
-            else:
-                _format = item["path"].name.split('.')[-1]
-        except:
-            _format = "unknown"
+        _format = item[FORMAT_KEY] if FORMAT_KEY in item else "unknown"
         _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
         if allow_local_path:
-            p = Path(component_dir) / item["path"]
-            create_sample_resource(_input, str(p.relative_to(component_dir / DATA_DIR)))
+            p = Path(execution_dir) / item[PATH_KEY]
+            create_sample_resource(_input, str(p))
         model_catalog_inputs.append(_input)
         position += 1
     if not model_catalog_inputs:
