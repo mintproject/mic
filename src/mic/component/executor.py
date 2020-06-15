@@ -14,7 +14,7 @@ from docker.errors import APIError
 from mic.component.initialization import render_output, detect_framework, render_dockerfile
 from mic.config_yaml import get_inputs_parameters, write_spec, add_outputs, get_configuration_files
 from mic.constants import SRC_DIR, EXECUTIONS_DIR, DOCKER_DIR, DOCKER_KEY, LAST_EXECUTION_DIR, Framework, \
-    REQUIREMENTS_FILE, MIC_DIR, handle, PATH_KEY
+    REQUIREMENTS_FILE, MIC_DIR, handle, PATH_KEY, DATA_DIR
 from mic.publisher.model_catalog import create_model_catalog_resource
 
 
@@ -55,14 +55,14 @@ def copy_inputs(mint_config_file: Path, src_dir_path: Path):
     click.secho("The execution directory is available {}".format(src_dir_path), fg="green")
 
 
-def create_execution_directory(mint_config_file: Path, model_path: Path):
+def create_execution_directory(model_path: Path):
     from datetime import datetime
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
     execution_dir = model_path / EXECUTIONS_DIR / execution_name
     execution_dir.mkdir(parents=True)
     src_executions_dir = execution_dir / SRC_DIR
     _copy_directory(model_path / SRC_DIR, src_executions_dir)
-    copy_inputs(mint_config_file, src_executions_dir)
+    _copy_directory(model_path / DATA_DIR, src_executions_dir)
     return src_executions_dir
 
 
@@ -78,7 +78,7 @@ def run_execution(line, execution_dir):
 
 
 def execute_local(mint_config_file: Path):
-    model_path = mint_config_file.parent
+    model_path = mint_config_file
     execution_dir = create_execution_directory(mint_config_file, model_path)
     resource = create_model_catalog_resource(mint_config_file)
     try:

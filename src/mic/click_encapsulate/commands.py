@@ -295,10 +295,9 @@ def test(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)
-    execute_local(mic_config_file)
 
 
-@cli.command(short_help="Publish your code in GitHub and your image to DockerHub")
+@cli.command(short_help="Test and publish your code in GitHub and your image to DockerHub")
 @click.option(
     "-f",
     "--mic_file",
@@ -313,13 +312,15 @@ def test(mic_file):
     default="default",
     metavar="<profile-name>",
 )
-def step7(mic_file, profile):
+def publish(mic_file, profile):
     """
     Publish your code and MIC wrapper on GitHub and the Docker Image on DockerHub
     Example:
     mic encapsulate step7 -f <mic_file>
     """
-    info_step8()
+    mic_config_file = Path(mic_file)
+    execute_local(mic_config_file)
+
     mic_config_path = Path(mic_file)
     model_dir = mic_config_path.parent
     click.secho("Deleting the executions")
