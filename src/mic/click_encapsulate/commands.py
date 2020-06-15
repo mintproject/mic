@@ -336,10 +336,9 @@ def publish(mic_file, profile, name):
     mic encapsulate step7 -f <mic_file>
     """
     mic_config_path = Path(mic_file)
-    model_dir = mic_config_path.parent
     click.secho("Deleting the executions")
-    #push(model_dir, mic_config_path, name, profile)
-    #publish_docker(mic_config_path, name, profile)
+    push(mic_config_path.parent, mic_config_path, name, profile)
+    publish_docker(mic_config_path, name, profile)
     model_configuration = create_model_catalog_resource(Path(mic_file), allow_local_path=False)
     api_response_model, api_response_mc = publish_model_configuration(model_configuration, profile)
     print(api_response_mc.id)
