@@ -95,7 +95,6 @@ def publish_model_configuration(model_configuration, profile):
 
     if not validators.url(api_response_mc.id):
         api_response_mc.id = "{}{}".format(MINT_INSTANCE, api_response_mc.id)
-    print(api_response_mc.id)
     click.echo("A model component must be associated with a model")
     model_cli = ModelCli(profile=profile)
     models = model_cli.get()
@@ -103,7 +102,6 @@ def publish_model_configuration(model_configuration, profile):
     if click.confirm("Do you want to use an existing model?", default=True):
         api_response = handle_existing_model(profile, api_response_mc, labels, model_cli)
     else:
-        # todo: change to api_response_mc
         api_response = create_new_model(model_cli, api_response_mc)
     click.secho("Your Model Component has been published", fg="green")
     return api_response, api_response_mc
@@ -128,7 +126,6 @@ def handle_existing_model(profile, api_response_mc, labels, model_cli):
         selected_model.has_version.append(software_version)
     else:
         selected_model.has_version = [software_version]
-    print(selected_model)
     return model_cli.put(selected_model)
 
 

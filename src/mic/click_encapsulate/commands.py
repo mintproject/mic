@@ -15,9 +15,9 @@ from mic.component.reprozip import get_inputs, get_outputs, relative, generate_r
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec
 from mic.constants import *
-from mic.constants import MIC_DEFAULT_PATH
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import push
+from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
 
 
 @click.group()
@@ -210,7 +210,8 @@ def inputs(mic_file, custom_inputs):
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     spec = get_spec(repro_zip_config_file)
-    custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in list(custom_inputs)]
+    custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
+                     list(custom_inputs)]
     inputs = get_inputs(spec, user_execution_directory) + list(custom_inputs)
     new_inputs = []
     for _input in inputs:
@@ -260,7 +261,8 @@ def outputs(mic_file, aggregate, custom_outputs):
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     spec = get_spec(repro_zip_config_file)
-    custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in list(custom_outputs)]
+    custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
+                      list(custom_outputs)]
     outputs = get_outputs(spec, aggregrate=aggregate) + list(custom_outputs)
     click.secho('Writing output metadata', fg="blue")
     for i in outputs:
@@ -332,12 +334,10 @@ def publish(mic_file, profile):
     Example:
     mic encapsulate step7 -f <mic_file>
     """
-    mic_config_file = Path(mic_file)
-    execute_local(mic_config_file)
-
     mic_config_path = Path(mic_file)
     model_dir = mic_config_path.parent
     click.secho("Deleting the executions")
     push(model_dir, mic_config_path, profile)
     publish_docker(mic_config_path, profile)
-    write_spec(mic_config_path, STEP_KEY, 7)
+    model_configuration = create_model_catalog_resource(Path(mic_file), allow_local_path=False)
+    api_response_model, api_response_mc = publish_model_configuration(model_configuration, profile)
