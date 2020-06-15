@@ -6,6 +6,7 @@ from pathlib import Path
 
 import mic
 import semver
+from mic.cli_docs import info_step8
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
@@ -16,6 +17,8 @@ from mic.component.reprozip import get_inputs, get_outputs, relative, generate_r
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
 from mic.constants import *
 from mic.constants import MIC_DEFAULT_PATH
+from mic.publisher.docker import publish_docker
+from mic.publisher.github import push, get_or_create_repo
 
 
 @click.group()
@@ -59,9 +62,10 @@ def start(user_execution_directory, dependencies):
      """
     name = "test"
     user_execution_directory = Path(user_execution_directory)
+    mic_dir = user_execution_directory / MIC_DIR
+    create_base_directories(mic_dir)
     if dependencies:
         detect_framework_main(user_execution_directory)
-    mic_dir = user_execution_directory / MIC_DIR
     image = build_docker(mic_dir / DOCKER_DIR, name)
     mic_config_file = mic_dir / CONFIG_YAML_NAME
     create_config_file_yaml(mic_dir)
@@ -265,7 +269,6 @@ def test(mic_file):
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     mic_directory_path = mic_config_file.parent
 
-    create_base_directories(mic_directory_path)
     parameters = get_key_spec(mic_config_file, PARAMETERS_KEY)
     inputs = get_key_spec(mic_config_file, INPUTS_KEY)
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
@@ -294,3 +297,33 @@ def test(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)
+
+
+@cli.command(short_help="Publish your code in GitHub and your image to DockerHub")
+@click.option(
+    "-f",
+    "--mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default=CONFIG_YAML_NAME
+)
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default="default",
+    metavar="<profile-name>",
+)
+def step7(mic_file, profile):
+    """
+    Publish your code and MIC wrapper on GitHub and the Docker Image on DockerHub
+    Example:
+    mic encapsulate step7 -f <mic_file>
+    """
+    info_step8()
+    mic_config_path = Path(mic_file)
+    model_dir = mic_config_path.parent
+    click.secho("Deleting the executions")
+    push(model_dir, mic_config_path, profile)
+    publish_docker(mic_config_path, profile)
+    write_spec(mic_config_path, STEP_KEY, 7)

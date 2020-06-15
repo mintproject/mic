@@ -1,11 +1,11 @@
 import os
-import shutil
 from pathlib import Path
 from typing import List
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 from mic.component.python3 import freeze
 from mic.constants import *
+from mic.publisher.github import get_or_create_repo
 
 env = Environment(
     loader=PackageLoader('mic', 'templates'),
@@ -16,12 +16,28 @@ env = Environment(
 
 
 def create_base_directories(mic_component_dir: Path):
+    if mic_component_dir.exists():
+        click.secho("The directory {} already exists".format(mic_component_dir.name), fg="yellow")
+    try:
+        mic_component_dir.mkdir(exist_ok=True)
+    except Exception as e:
+        click.secho("Error: {} could not be created".format(mic_component_dir), fg="red")
+        exit(1)
+
+
     src = mic_component_dir / SRC_DIR
     docker = mic_component_dir / DOCKER_DIR
     data = mic_component_dir / DATA_DIR
     src.mkdir(parents=True, exist_ok=True)
     docker.mkdir(parents=True, exist_ok=True)
     data.mkdir(parents=True, exist_ok=True)
+    get_or_create_repo(mic_component_dir)
+    click.secho("MIC has initialized the component.")
+    # White spaces below are to align paths. Remove or edit if constants change
+    click.secho("[Created] {}:      {}".format(DATA_DIR, mic_component_dir / DATA_DIR))
+    click.secho("[Created] {}:    {}".format(DOCKER_DIR, mic_component_dir / DOCKER_DIR))
+    click.secho("[Created] {}:       {}".format(SRC_DIR, mic_component_dir / SRC_DIR))
+    click.secho("[Created] {}:  {}".format(CONFIG_YAML_NAME, mic_component_dir / CONFIG_YAML_NAME))
 
 
 def render_gitignore(directory: Path):

@@ -1,6 +1,7 @@
 from enum import Enum
 
 import click
+GIT_DIRECTORY = ".git"
 MIC_DEFAULT_PATH = "/tmp/mint/"
 REPRO_ZIP_TRACE_DIR = ".reprozip-trace"
 REPRO_ZIP_CONFIG_FILE= "config.yml"
@@ -63,8 +64,9 @@ DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configu
 
 
 class Framework(Enum):
-    PYTHON37 = ("python3", "mintproject/python:37", ".py")
-    CONDA = ("conda", "mintproject/conda:4.7.12", ".py")
+    PYTHON37 = ("python3.7", "mintproject/python:37", ".py")
+    PYTHON38 = ("python3.8", "mintproject/python:38", ".py")
+    CONDA = ("conda4.7.12", "mintproject/conda:4.7.12", ".py")
     GENERIC = ("general", "mintproject/generic:latest")
 
     def __init__(self, label, image, extension=None):

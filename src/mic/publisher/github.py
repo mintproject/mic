@@ -7,11 +7,11 @@ from pathlib import Path
 import click
 import pygit2 as pygit2
 import semver
-from mic.config_yaml import write_spec
 from distutils.version import StrictVersion
 from github import Github
+from mic.config_yaml import write_spec
 from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
-    MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
+    MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING, GIT_DIRECTORY
 from mic.credentials import get_credentials
 
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
@@ -58,8 +58,6 @@ def push(model_directory: Path, mic_config_path: Path, profile):
     click.secho("Version: {}".format(_version))
 
 
-
-
 def git_commit(repo):
     repo.index.add_all()
     repo.index.write()
@@ -77,6 +75,8 @@ def git_commit(repo):
 
 
 def get_or_create_repo(model_path: Path):
+    if (model_path / GIT_DIRECTORY).exists():
+        click.secho("WARNING: Git directory ")
     return pygit2.Repository(pygit2.discover_repository(model_path)) if pygit2.discover_repository(
         model_path) else pygit2.init_repository(
         model_path, False)
@@ -91,6 +91,7 @@ def compress_src_dir(model_path: Path):
     shutil.copytree(model_path / SRC_DIR, tmp_dir / SRC_DIR)
     zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path, base_dir=tmp_dir.name)
     return zip_file_path
+
 
 def check_create_remote_repo(repo, profile, model_name):
     if "origin" in repo.remotes:
