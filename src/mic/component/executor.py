@@ -82,7 +82,7 @@ def run_execution(line, execution_dir):
 
 def execute_local(mint_config_file: Path):
     model_path = mint_config_file
-    execution_dir = create_execution_directory(mint_config_file, model_path)
+    execution_dir = create_execution_directory(model_path)
     resource = create_model_catalog_resource(mint_config_file)
     try:
         line = get_command_line(resource)
@@ -118,7 +118,7 @@ def execute_using_docker(mint_config_file: Path):
         exit(1)
     now = datetime.now().timestamp()
 
-    src_dir = create_execution_directory(mint_config_file, model_path)
+    src_dir = create_execution_directory(model_path)
     try:
         resource = create_model_catalog_resource(mint_config_file)
     except ValueError:
