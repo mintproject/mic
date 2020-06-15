@@ -82,7 +82,7 @@ def run_execution(line, execution_dir):
 
 def execute_local(mint_config_file: Path):
     execution_dir = create_execution_directory(mint_config_file)
-    resource = create_model_catalog_resource(mint_config_file, execution_dir)
+    resource = create_model_catalog_resource(mint_config_file, name=None, execution_dir=execution_dir)
     try:
         line = get_command_line(resource)
     except:
