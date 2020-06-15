@@ -6,7 +6,6 @@ from pathlib import Path
 
 import mic
 import semver
-from mic.cli_docs import info_step8
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
@@ -14,11 +13,11 @@ from mic.component.executor import build_docker, copy_code_to_src, compress_dire
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
-from mic.config_yaml import write_spec, write_to_yaml, get_spec, create_config_file_yaml, get_key_spec
+from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec
 from mic.constants import *
 from mic.constants import MIC_DEFAULT_PATH
 from mic.publisher.docker import publish_docker
-from mic.publisher.github import push, get_or_create_repo
+from mic.publisher.github import push
 
 
 @click.group()
@@ -295,6 +294,7 @@ def create(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)
+
 
 @cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")
 @click.option(

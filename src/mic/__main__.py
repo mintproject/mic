@@ -6,7 +6,8 @@ import mic
 import semver
 from mic import _utils, file
 from mic.cli_docs import *
-from mic.click_encapsulate.commands import start, trace, configs, add_parameters, inputs, outputs, test
+from mic.click_encapsulate.commands import start, trace, configs, add_parameters, inputs, outputs, run, create, \
+    publish
 from mic.credentials import configure_credentials, print_list_credentials
 from mic.resources.model import create as create_model
 from modelcatalog import Configuration
@@ -152,4 +153,6 @@ encapsulate.add_command(add_parameters)
 encapsulate.add_command(configs)
 encapsulate.add_command(inputs)
 encapsulate.add_command(outputs)
-encapsulate.add_command(test)
+encapsulate.add_command(create)
+encapsulate.add_command(run)
+encapsulate.add_command(publish)

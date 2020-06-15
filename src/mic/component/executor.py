@@ -60,8 +60,11 @@ def create_execution_directory(model_path: Path):
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
     execution_dir = model_path / EXECUTIONS_DIR / execution_name
     execution_dir.mkdir(parents=True)
+    click.secho("Create a execution directory {}".format(execution_dir))
     src_executions_dir = execution_dir / SRC_DIR
+    click.secho("Copying the source to {}".format(src_executions_dir))
     _copy_directory(model_path / SRC_DIR, src_executions_dir)
+    click.secho("Copying the inputs to {}".format(model_path / DATA_DIR))
     _copy_directory(model_path / DATA_DIR, src_executions_dir)
     return src_executions_dir
 
