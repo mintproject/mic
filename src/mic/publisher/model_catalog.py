@@ -24,8 +24,8 @@ def generate_uuid():
     return "https://w3id.org/okn/i/mint/{}".format(str(uuid.uuid4()))
 
 
-def create_model_catalog_resource(mint_config_file, execution_dir, allow_local_path=True):
-    name = mint_config_file.parent.name
+def create_model_catalog_resource(mint_config_file, name=None, execution_dir=None, allow_local_path=True):
+    name = name if name else mint_config_file.parent.name
     inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
 
 
@@ -139,13 +139,11 @@ def handle_new_existing_software_version(labels, api_response_mc, selected_model
                               )
         model_version = selected_model.has_version[choice - 1]
         model_version = software_version_cli.get_one(obtain_id(model_version.id))
-        click.confirm(model_version.has_configuration)
-
         if model_version.has_configuration:
-            model_version.has_configuration = model_version.has_configuration.append(api_response_mc)
+            model_version.has_configuration.append(api_response_mc)
         else:
             model_version.has_configuration = [api_response_mc]
-        print(model_version.has_configuration)
+        click.confirm(model_version.has_configuration)
         return software_version_cli.put(model_version)
     else:
         click.echo("Please, enter the information about the new version")

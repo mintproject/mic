@@ -1,13 +1,33 @@
 import click
 import docker
+from docker.errors import APIError
 from mic.config_yaml import get_key_spec, write_spec
-from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY
+from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR
 from mic.credentials import get_credentials
 
+def build_image(mic_config_path, name):
+    model_path = mic_config_path.parent
+    docker_path = model_path / DOCKER_DIR
+    try:
+        client = docker.from_env()
+        click.echo("Downloading the base image and building your image")
+        image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
+        return image.tags[0]
+    except APIError as e:
+        click.secho("Error building the image", fg="red")
+        click.echo(e)
+        exit(1)
+    except Exception as e:
+        click.secho("Error building the image", fg="red")
+        click.echo(e)
+        exit(1)
 
-def publish_docker(mic_config_path, profile):
+
+def publish_docker(mic_config_path, image_name, profile):
     version = get_key_spec(mic_config_path, VERSION_KEY)
-    image_name = get_key_spec(mic_config_path, DOCKER_KEY)
+    write_spec(mic_config_path, DOCKER_KEY, image_name)
+
+    build_image(mic_config_path, image_name)
     credentials = get_credentials(profile)
     click.secho("Publishing the Docker Image")
 

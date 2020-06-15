@@ -32,7 +32,7 @@ def create_local_repo_and_commit(model_directory: Path):
         raise e
 
 
-def push(model_directory: Path, mic_config_path: Path, profile):
+def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     click.secho("Creating the git repository")
     repo = get_or_create_repo(model_directory)
     click.secho("Compressing your code")
@@ -40,12 +40,12 @@ def push(model_directory: Path, mic_config_path: Path, profile):
     click.secho("Creating a new commit")
     git_commit(repo)
     click.secho("Creating or using the GitHub repository")
-    url = check_create_remote_repo(repo, profile, model_directory.name)
+    url = check_create_remote_repo(repo, profile, name)
     click.secho("Creating a new version")
     _version = git_tag(repo, author)
     click.secho("Pushing your changes to the server")
     git_push(repo, profile, _version)
-    repo = get_github_repo(profile, model_directory.name)
+    repo = get_github_repo(profile, name)
     for i in repo.get_contents(""):
         if i.name == "{}.zip".format(MINT_COMPONENT_ZIP):
             file = i
@@ -101,8 +101,8 @@ def check_create_remote_repo(repo, profile, model_name):
     try:
         return repo.remotes["origin"].url
     except:
-        repo = github_create_repo(profile, model_name)
-        url = repo.clone_url
+        repo_github = github_create_repo(profile, model_name)
+        url = repo_github.clone_url
         repo.remotes.create("origin", url)
         return url
 
