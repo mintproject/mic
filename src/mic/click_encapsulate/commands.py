@@ -295,6 +295,7 @@ def test(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), mic_directory_path / SRC_DIR)
+    execute_local(mic_config_file)
 
 
 @cli.command(short_help="Test and publish your code in GitHub and your image to DockerHub")
