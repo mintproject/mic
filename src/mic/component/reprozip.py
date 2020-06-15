@@ -11,10 +11,12 @@ def convert_reprozip_to_mic():
     pass
 
 
-def relative(files: List[Path]):
+def relative(files: List[Path], user_execution_directory):
     response = {}
     for i in files:
-        path = Path(i).relative_to(Path(MIC_DEFAULT_PATH))
+        print(i)
+        print(user_execution_directory)
+        path = Path(i).relative_to(user_execution_directory)
         response[path.name] = {
             PATH_KEY: str(path),
             'format': str(path.suffix)
@@ -22,16 +24,17 @@ def relative(files: List[Path]):
     return response
 
 
-def get_inputs(spec, aggregrate=True):
+def get_inputs(spec, user_execution_directory, aggregrate=True):
     inputs = []
     inputs_outputs_ = spec[REPRO_ZIP_INPUTS_OUTPUTS] if spec[REPRO_ZIP_INPUTS_OUTPUTS] else []
     for i in inputs_outputs_:
+        print(inputs_outputs_)
         if default_path in Path(i).parents:
             parts = Path(i).relative_to(default_path).parts
             if isinstance(parts, str):
                 inputs.append(i)
             elif isinstance(parts, tuple):
-                inputs.append(str(default_path / parts[0]))
+                inputs.append(str(user_execution_directory / parts[0]))
 
     other_files_ = spec[REPRO_ZIP_OTHER_FILES] if spec[REPRO_ZIP_OTHER_FILES] else []
     for i in other_files_:
@@ -40,7 +43,7 @@ def get_inputs(spec, aggregrate=True):
             if isinstance(parts, str):
                 inputs.append(i)
             elif isinstance(parts, tuple):
-                inputs.append(str(default_path / parts[0]))
+                inputs.append(str(user_execution_directory / parts[0]))
     return list(set(inputs))
 
 

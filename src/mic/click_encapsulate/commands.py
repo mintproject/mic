@@ -204,20 +204,35 @@ def add_parameters(mic_file, name, value):
 )
 def inputs(mic_file, custom_inputs):
     mic_config_file = Path(mic_file)
+    mic_directory_path = mic_config_file.parent
     user_execution_directory = mic_config_file.parent.parent
     repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     spec = get_spec(repro_zip_config_file)
-    custom_inputs = [str(MIC_DEFAULT_PATH / Path(i).relative_to(user_execution_directory)) for i in list(custom_inputs)]
-    inputs = get_inputs(spec) + list(custom_inputs)
+    custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in list(custom_inputs)]
+    inputs = get_inputs(spec, user_execution_directory) + list(custom_inputs)
+    new_inputs = []
+    for _input in inputs:
+        item = user_execution_directory / _input
+        if item.is_dir():
+            click.secho(f"""Compressing the input {_input} """, fg="blue")
+            zip_file = compress_directory(item)
+            dst_file = mic_directory_path / DATA_DIR / zip_file
+            new_inputs.append(zip_file)
+            shutil.move(zip_file, dst_file)
+        else:
+            new_inputs.append(item)
+            dst_file = mic_directory_path / DATA_DIR / str(item.name)
+            shutil.copy(item, dst_file)
+        click.secho(f"""Input added: {_input} """, fg="green")
 
     config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
     config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
 
     click.secho('Writing inputs metadata', fg="blue")
-    find_code_files(spec, inputs, config_files)
-    write_spec(mic_config_file, INPUTS_KEY, relative(inputs))
+    find_code_files(spec, new_inputs, config_files)
+    write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
 
 
 @cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
@@ -270,20 +285,6 @@ def create(mic_file):
     inputs = get_key_spec(mic_config_file, INPUTS_KEY)
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
     configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
-
-    for key, _input in inputs.items():
-        item = user_execution_directory / _input[PATH_KEY]
-        if item.is_dir():
-            click.secho(f"""Compressing the input {key} """, fg="blue")
-            zip_file = compress_directory(item)
-            dst_file = mic_directory_path / DATA_DIR / zip_file
-            click.secho(f"""Moving the zip file {key}: mv {zip_file} {dst_file}  """, fg="blue")
-            shutil.move(zip_file, dst_file)
-        else:
-            dst_file = mic_directory_path / DATA_DIR / str(item.name)
-            click.secho(f"""Copy the input {key}: cp {item} {dst_file}  """, fg="blue")
-            shutil.copy(item, dst_file)
-        click.secho(f"""Input added: {key} """, fg="green")
 
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
