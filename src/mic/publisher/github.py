@@ -87,9 +87,8 @@ def compress_src_dir(model_path: Path):
     Compress the directory src and create a zip file
     """
     zip_file_name = model_path / MINT_COMPONENT_ZIP
-    tmp_dir = model_path / "{}_component".format(model_path.name)
-    shutil.copytree(model_path / SRC_DIR, tmp_dir / SRC_DIR)
-    zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path, base_dir=tmp_dir.name)
+    src_dir = model_path/ SRC_DIR
+    zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path, base_dir=src_dir)
     return zip_file_path
 
 
