@@ -2,6 +2,7 @@ import re
 from pathlib import Path
 from typing import List
 
+from mic.config_yaml import slugify
 from mic.constants import *
 
 default_path = Path(MIC_DEFAULT_PATH)
@@ -15,9 +16,11 @@ def relative(files: List[Path], user_execution_directory):
     response = {}
     for i in files:
         path = Path(i).relative_to(user_execution_directory)
-        response[path.name] = {
-            PATH_KEY: str(path),
-            'format': str(path.suffix)
+        name = slugify(str(path.name).replace('.', "_"))
+
+        response[name] = {
+            PATH_KEY: str(path.name),
+            FORMAT_KEY: str(path.suffix).replace('.', '')
         }
     return response
 
