@@ -313,6 +313,7 @@ def wrapper(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), user_execution_directory, mic_directory_path / SRC_DIR)
+    copy_code_to_src(get_key_spec(mic_config_file, CONFIG_FILE_KEY), user_execution_directory, mic_directory_path / SRC_DIR)
 
 
 @cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")

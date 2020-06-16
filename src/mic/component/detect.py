@@ -67,8 +67,12 @@ def detect_framework_main(user_execution_directory, dependencies):
         click.echo("Extracting the Python dependencies.\nYou can view or edit the dependencies file {} ".format(
             requirements_file))
     elif framework == Framework.CONDA:
-        reqs = subprocess.check_output(['conda', 'env', 'export', '--from-history'])
-        click.echo(reqs)
+        try:
+            reqs = subprocess.check_output(['conda', 'env', 'export', '--from-history'])
+            click.echo(reqs)
+
+        except:
+            click.secho("Unable to obtain conda dependencies")
         render_conda(user_execution_directory_docker)
     dockerfile = render_dockerfile(user_execution_directory_mic, framework)
     click.secho("Dockerfile has been created: {}".format(dockerfile))
