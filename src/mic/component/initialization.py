@@ -17,7 +17,8 @@ env = Environment(
 
 def create_base_directories(mic_component_dir: Path, interactive=True):
     if mic_component_dir.exists():
-        click.secho("The directory {} already exists. If you continue, you can lost a previous component".format(mic_component_dir.name), fg="yellow")
+        click.secho("The directory {} already exists. If you continue, you can lost a previous component".format(
+            mic_component_dir.name), fg="yellow")
         if interactive and not click.confirm("Do you want to continue?", default=True, show_default=True):
             click.secho("Initialization aborted", fg="blue")
             exit(0)
@@ -41,6 +42,7 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
     click.secho("[Created] {}:  {}".format(CONFIG_YAML_NAME, mic_component_dir / CONFIG_YAML_NAME))
     return mic_component_dir
 
+
 def render_gitignore(directory: Path):
     template = env.get_template(GITIGNORE_FILE)
     gitignore_file = directory / GITIGNORE_FILE
@@ -61,6 +63,7 @@ def render_conda(directory: Path):
         ignore = render_template(template=template)
         gi.write(ignore)
     return conda
+
 
 def render_run_sh(directory: Path,
                   inputs: dict,
@@ -150,13 +153,6 @@ def render_output(directory: Path, files: List[Path], compress: bool) -> Path:
             content = render_template(template=template, files=[], compress=None)
         f.write(content)
     return run_file
-
-
-def language_tasks(directory, language):
-    if language == "python3":
-        run_file = directory / DOCKER_DIR / REQUIREMENTS_FILE
-        freeze(run_file)
-
 
 def render_template(template, **kwargs):
     return template.render(**kwargs)

@@ -4,10 +4,11 @@ from datetime import datetime
 from pathlib import Path
 
 import click
-from mic.component.initialization import detect_framework, render_dockerfile, render_conda
+from mic.component.initialization import detect_framework, render_dockerfile, render_conda, render_output
 from mic.component.python3 import freeze
-from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, ENVIRONMENT_FILE, \
-    REPRO_ZIP_TRACE_DIR
+from mic.config_yaml import get_key_spec, add_outputs
+from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, REPRO_ZIP_TRACE_DIR, \
+    CONFIG_FILE_KEY
 
 
 def detect_news_reprozip(src_directory: Path, time: datetime, ignore_dir=[REPRO_ZIP_TRACE_DIR]):
@@ -71,3 +72,34 @@ def detect_framework_main(user_execution_directory, dependencies):
         render_conda(user_execution_directory_docker)
     dockerfile = render_dockerfile(user_execution_directory_mic, framework)
     click.secho("Dockerfile has been created: {}".format(dockerfile))
+
+
+def detect_news_file(src_directory: Path, mint_config_file: Path, time: datetime):
+    """
+    Get the files by a modification timestamp.
+    :param src_directory: The src execution dir
+    :type src_directory: Path
+    :param mint_config_file: The mic configuration file
+    :type mint_config_file: Path
+    :param time: Execution time
+    :type time: datetime
+    """
+    model_name = mint_config_file.parent.name
+    files_list = []
+    configuration_files = get_key_spec(mint_config_file, CONFIG_FILE_KEY)
+    for root, _, filenames in os.walk(src_directory, topdown=True):
+        for filename in filenames:
+            filepath = os.path.join(os.path.abspath(root), filename)
+            created = os.path.getmtime(Path(filepath))
+            modified = os.path.getmtime(Path(filepath))
+            relative_to = Path(filepath).relative_to(src_directory)
+            if time < created or time < modified and relative_to not in configuration_files:
+                files_list.append(relative_to)
+
+    if files_list:
+        model_dir = mint_config_file.parent
+        click.secho("The model has generated the following files:")
+        for file in files_list:
+            click.secho("   {}".format(file))
+        render_output(model_dir, files_list, None)
+        add_outputs(mint_config_file, files_list)

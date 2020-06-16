@@ -1,9 +1,12 @@
+from pathlib import Path
+
 import click
 import docker
 from docker.errors import APIError
 from mic.config_yaml import get_key_spec, write_spec
 from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR
 from mic.credentials import get_credentials
+
 
 def build_image(mic_config_path, name):
     model_path = mic_config_path.parent
@@ -21,6 +24,13 @@ def build_image(mic_config_path, name):
         click.secho("Error building the image", fg="red")
         click.echo(e)
         exit(1)
+
+
+def build_docker(docker_path: Path, name: str):
+    client = docker.from_env()
+    click.echo("Downloading the base image and building your image")
+    image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
+    return image.tags[0]
 
 
 def publish_docker(mic_config_path, image_name, profile):
@@ -46,4 +56,3 @@ def publish_docker(mic_config_path, image_name, profile):
     docker_image = "{}:{}".format(repository, version)
     click.secho("Docker Image: {}".format(docker_image))
     write_spec(mic_config_path, DOCKER_KEY, docker_image)
-

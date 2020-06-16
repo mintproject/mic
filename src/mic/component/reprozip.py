@@ -8,10 +8,6 @@ from mic.constants import *
 default_path = Path(MIC_DEFAULT_PATH)
 
 
-def convert_reprozip_to_mic():
-    pass
-
-
 def relative(files: List[Path], user_execution_directory):
     response = {}
     for i in files:

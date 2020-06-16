@@ -17,21 +17,6 @@ from mic.credentials import get_credentials
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
 
 
-def create_local_repo_and_commit(model_directory: Path):
-    """
-    Publish the directory on git
-    If the directory is not a git directory, create it
-    If the git directory doesn't have a remote origin, create a github repository
-    @param directory:
-    @type directory:
-    """
-    try:
-        repo = get_or_create_repo(model_directory)
-        git_commit(repo)
-    except Exception as e:
-        raise e
-
-
 def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     click.secho("Creating the git repository")
     repo = get_or_create_repo(model_directory)
@@ -88,7 +73,8 @@ def compress_src_dir(model_path: Path):
     """
     zip_file_name = model_path / MINT_COMPONENT_ZIP
     src_dir = model_path / SRC_DIR
-    zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent, base_dir=src_dir.relative_to(model_path.parent))
+    zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
+                                        base_dir=src_dir.relative_to(model_path.parent))
     return zip_file_path
 
 

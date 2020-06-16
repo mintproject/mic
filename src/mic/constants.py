@@ -1,11 +1,10 @@
 from enum import Enum
 
-import click
 GIT_DIRECTORY = ".git"
 FORMAT_KEY = "format"
 MIC_DEFAULT_PATH = "/tmp/mint/"
 REPRO_ZIP_TRACE_DIR = ".reprozip-trace"
-REPRO_ZIP_CONFIG_FILE= "config.yml"
+REPRO_ZIP_CONFIG_FILE = "config.yml"
 REPRO_ZIP_OTHER_FILES = "other_files"
 REPRO_ZIP_INPUTS_OUTPUTS = "inputs_outputs"
 REPRO_ZIP_RUNS = "runs"
@@ -84,6 +83,3 @@ def handle(value):
     for i in Framework:
         if value == i.label:
             return i
-
-
-
