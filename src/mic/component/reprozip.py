@@ -43,8 +43,11 @@ def get_inputs(spec, user_execution_directory, aggregrate=True):
             parts = Path(i).relative_to(default_path).parts
             if isinstance(parts, str):
                 inputs.append(i)
-            elif isinstance(parts, tuple):
+            elif isinstance(parts, tuple) and aggregrate:
                 inputs.append(str(user_execution_directory / parts[0]))
+            elif isinstance(parts, tuple) and not aggregrate:
+                inputs.append(str(user_execution_directory / Path(i).relative_to(default_path)))
+
     return list(set(inputs))
 
 

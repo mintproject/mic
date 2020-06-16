@@ -52,14 +52,14 @@ You should consider upgrading via the 'pip install --upgrade mic' command.""",
     required=True
 )
 @click.option('--dependencies/--no-dependencies', default=True)
-def start(user_execution_directory, dependencies):
+@click.option('--name', prompt="Model Configuration name")
+def start(user_execution_directory, dependencies, name):
     """
     Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
     GitHub repository
 
     The argument: `model_configuration_name` is the name of your model configuration
      """
-    name = "test"
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
@@ -76,7 +76,8 @@ We detect the following dependencies.
 - If you install new dependencies using python, MIC is going to detect them
 """, fg="green")
     click.echo("Please, run your Model Component.")
-    os.system(f"""docker run --rm -ti -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
+    os.system(
+        f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
 
 @cli.command(short_help="Trace any command line and extract the information about the execution")
@@ -215,7 +216,6 @@ def inputs(mic_file, custom_inputs):
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
     inputs = get_inputs(spec, user_execution_directory) + list(custom_inputs)
-    print(inputs)
     new_inputs = []
     for _input in inputs:
         item = user_execution_directory / _input
@@ -234,9 +234,9 @@ def inputs(mic_file, custom_inputs):
             shutil.copy(item, dst_file)
         click.secho(f"""Input added: {dst_file} """, fg="green")
 
-    # config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
-    # config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
-    # find_code_files(spec, new_inputs, config_files)
+    config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
+    config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
+    find_code_files(spec, new_inputs, config_files)
 
     click.secho('Writing inputs metadata', fg="blue")
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
@@ -263,13 +263,9 @@ def outputs(mic_file, aggregate, custom_outputs):
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     spec = get_spec(repro_zip_config_file)
-
-
-
     custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                       list(custom_outputs)]
     outputs = get_outputs(spec, user_execution_directory, aggregrate=aggregate) + list(custom_outputs)
-    print(outputs)
     click.secho('Writing output metadata', fg="blue")
     for i in outputs:
         click.secho(f"""Output added: {i} """, fg="green")
@@ -283,7 +279,7 @@ def outputs(mic_file, aggregate, custom_outputs):
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def create(mic_file):
+def wrapper(mic_file):
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
 
@@ -334,7 +330,6 @@ def run(mic_file):
     default="default",
     metavar="<profile-name>",
 )
-@click.option('--name', prompt="Model Configuration name")
 def publish(mic_file, profile, name):
     """
     Publish your code and MIC wrapper on GitHub and the Docker Image on DockerHub

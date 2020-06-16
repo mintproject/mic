@@ -15,10 +15,10 @@ env = Environment(
 )
 
 
-def create_base_directories(mic_component_dir: Path, force=False):
+def create_base_directories(mic_component_dir: Path, interactive=True):
     if mic_component_dir.exists():
         click.secho("The directory {} already exists. If you continue, you can lost a previous component".format(mic_component_dir.name), fg="yellow")
-        if force or not click.confirm("Do you want to continue?", default=True, show_default=True):
+        if interactive and not click.confirm("Do you want to continue?", default=True, show_default=True):
             click.secho("Initialization aborted", fg="blue")
             exit(0)
     try:
@@ -39,7 +39,7 @@ def create_base_directories(mic_component_dir: Path, force=False):
     click.secho("[Created] {}:    {}".format(DOCKER_DIR, mic_component_dir / DOCKER_DIR))
     click.secho("[Created] {}:       {}".format(SRC_DIR, mic_component_dir / SRC_DIR))
     click.secho("[Created] {}:  {}".format(CONFIG_YAML_NAME, mic_component_dir / CONFIG_YAML_NAME))
-
+    return mic_component_dir
 
 def render_gitignore(directory: Path):
     template = env.get_template(GITIGNORE_FILE)

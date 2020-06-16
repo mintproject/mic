@@ -1,10 +1,10 @@
 from pathlib import Path
 
-from component.reprozip import get_outputs, get_inputs, generate_runner, extract_parameters_from_command, \
-    find_code_files
+from mic.component.reprozip import get_outputs, get_inputs, generate_runner
 from mic.config_yaml import get_spec
 
 RESOURCES = "resources"
+DEFAULT_PATH = Path("/tmp/mint/")
 swat_inputs = ["/tmp/mint/TxtInOut", "/tmp/mint/TxtInOut/000010000.pnd", "/tmp/mint/TxtInOut/000010000.rte",
                "/tmp/mint/TxtInOut/000010000.sub", "/tmp/mint/TxtInOut/000010000.swq",
                "/tmp/mint/TxtInOut/000010000.wgn",
@@ -744,34 +744,49 @@ def test_get_outputs():
                "/tmp/mint/TxtInOut/fin.fin", "/tmp/mint/TxtInOut/watout.dat"]
     yml = "swat_test.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    assert outputs == get_outputs(spec)
+    assert sorted(outputs) == sorted(get_outputs(spec, DEFAULT_PATH))
 
 
 def test_get_inputs():
     yml = "swat_test.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    get_inputs(spec, aggregrate=True)
-    assert ["/tmp/mint/TxtInOut"] == get_inputs(spec)
+    inputs = get_inputs(spec, DEFAULT_PATH, aggregrate=True)
+    assert sorted(['/tmp/mint/config.json',
+            '/tmp/mint/TxtInOut',
+            '/tmp/mint/results',
+            '/tmp/mint/x.csv']) == sorted(inputs)
 
 
-def test_get_inputs_v1():
+def test_get_inputs_aggregate_false():
+    """
+    We're testing the reprozip keys: inputs_outputs and other_files using aggregate false
+    """
     swat_inputs_v1 = swat_inputs.copy()
     swat_inputs_v1.append("/tmp/mint/example.txt")
     yml = "swat_test_v2.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    inputs = get_inputs(spec)
+    inputs = get_inputs(spec, DEFAULT_PATH, aggregrate=False)
     assert sorted(swat_inputs_v1) == sorted(inputs)
+
+
+def test_get_inputs_aggregate_true():
+    swat_inputs_v1 = swat_inputs.copy()
+    swat_inputs_v1.append("/tmp/mint/example.txt")
+    yml = "swat_test_v2.yml"
+    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+    inputs = get_inputs(spec, DEFAULT_PATH, aggregrate=True)
+    assert ["/tmp/mint/TxtInOut", "/tmp/mint/example.txt"] == sorted(inputs)
 
 
 def test_generate_runner():
     yml = "swat_test.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    result = generate_runner(spec)
+    result = generate_runner(spec, DEFAULT_PATH)
     expected = """
-pushd /tmp/mint/TxtInOut
+pushd TxtInOut
 ./swat670
 popd
-pushd /tmp/mint/TxtInOut
+pushd TxtInOut
 ./swat670
 popd"""
     assert expected == result
@@ -780,31 +795,29 @@ popd"""
 def test_generate_runner_v1():
     yml = "swat_test_v2.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    result = generate_runner(spec)
+    result = generate_runner(spec, DEFAULT_PATH)
     expected = """
-pushd /tmp/mint/TxtInOut
+pushd TxtInOut
 ./swat670
 popd
-pushd /tmp/mint/TxtInOut
+pushd TxtInOut
 ./swat670 -p 1
 popd"""
     assert expected == result
 
-
-def test_extract_parameters_from_command():
-    a = extract_parameters_from_command("python test.py -p1 -p2")
-    assert False
-
-
-def test_find_code_files():
-    yml = "swat_test_v2.yml"
-    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    inputs = get_inputs(spec)
-    inputs = ["/tmp/mint/example.txt", "/tmp/mint/TxtInOut/swat670"]
-    find_code_files(spec, inputs)
+# def test_extract_parameters_from_command():
+#     a = extract_parameters_from_command("python test.py -p1 -p2")
+#     assert False
 
 
-def test_find_code_files():
-    spec = {'runs': [{"argv": ["python", "./code.py", "config.txt"]}]}
-    inputs = ["/tmp/mint/code.py", "/tmp/mint/config.txt"]
-    assert ["/tmp/mint/code.py"] == find_code_files(spec, inputs)
+# def test_find_code_files():
+#     yml = "swat_test_v2.yml"
+#     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+#     inputs = get_inputs(spec)
+#     find_code_files(spec, inputs)
+#
+#
+# def test_find_code_files():
+#     spec = {'runs': [{"argv": ["python", "./code.py", "config.txt"]}]}
+#     inputs = ["/tmp/mint/code.py", "/tmp/mint/config.txt"]
+#     assert ["/tmp/mint/code.py"] == find_code_files(spec, inputs)
