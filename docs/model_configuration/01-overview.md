@@ -104,6 +104,6 @@ Type `mic encapsulate stepN` to get started with a step.  You have to do them in
 If you don’t remember which step you need to do next, just type`mic encapsulate status`. If you want to know more about a specific step, just do `mic encapsulate stepN --help`, where `N` represents a number 1..8.
 
 !!! info
-    Currently, **MIC has been tested for steps 1 through 6**. We are testing the functionality for Steps 6, 7 and 8. Some of the steps described here (in particular, steps 3, 4 and 5) will be automated in next MIC releseases. Stay tuned!
+    Currently, **MIC has been tested for steps 1 through 6**. We are testing the functionality for Steps 7 and 8. Some of the steps described here (in particular, steps 3, 4 and 5) will be automated in next MIC releseases. Stay tuned!
 
 
