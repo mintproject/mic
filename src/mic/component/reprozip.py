@@ -29,11 +29,11 @@ def get_inputs(spec, user_execution_directory, aggregrate=True):
     inputs = []
     inputs_outputs_ = spec[REPRO_ZIP_INPUTS_OUTPUTS] if spec[REPRO_ZIP_INPUTS_OUTPUTS] else []
     for i in inputs_outputs_:
-        print(inputs_outputs_)
-        if default_path in Path(i).parents:
-            parts = Path(i).relative_to(default_path).parts
+        key_ = i[PATH_KEY]
+        if default_path in Path(key_).parents:
+            parts = Path(key_).relative_to(default_path).parts
             if isinstance(parts, str):
-                inputs.append(i)
+                inputs.append(key_)
             elif isinstance(parts, tuple):
                 inputs.append(str(user_execution_directory / parts[0]))
 
@@ -46,6 +46,27 @@ def get_inputs(spec, user_execution_directory, aggregrate=True):
             elif isinstance(parts, tuple):
                 inputs.append(str(user_execution_directory / parts[0]))
     return list(set(inputs))
+
+
+def get_outputs(spec, user_execution_directory, aggregrate=False):
+    """
+
+    :param spec:
+    :type spec:
+    """
+    outputs = []
+    repro_zip_outputs = spec[OUTPUTS_KEY] if spec[OUTPUTS_KEY] else []
+    for i in repro_zip_outputs:
+        if default_path in Path(i).parents:
+            parts = Path(i).relative_to(default_path).parts
+            if isinstance(parts, str) and not aggregrate:
+                outputs.append(i)
+            if isinstance(parts, tuple):
+                if aggregrate:
+                    outputs.append(str(user_execution_directory / parts[0]))
+                else:
+                    outputs.append(str(user_execution_directory / Path(i).relative_to(default_path)))
+    return list(set(outputs))
 
 
 def generate_pre_runner(spec, user_execution_directory):
@@ -63,6 +84,7 @@ def generate_pre_runner(spec, user_execution_directory):
             code = f"""{code}
 cp -rv {path.name} {str(path)}"""
     return code
+
 
 def generate_runner(spec, user_execution_directory):
     code = ''
@@ -93,24 +115,3 @@ def extract_parameters_from_command(command_line):
     matches = re.finditer(regex, command_line, re.IGNORECASE)
     for matchNum, match in enumerate(matches, start=2):
         print(match.group())
-
-
-def get_outputs(spec, aggregrate=False):
-    """
-
-    :param spec:
-    :type spec:
-    """
-    outputs = []
-    repro_zip_outputs = spec[OUTPUTS_KEY] if spec[OUTPUTS_KEY] else []
-    for i in repro_zip_outputs:
-        if default_path in Path(i).parents:
-            parts = Path(i).relative_to(default_path).parts
-            if isinstance(parts, str) and not aggregrate:
-                outputs.append(i)
-            if isinstance(parts, tuple):
-                if aggregrate:
-                    outputs.append(str(default_path / parts[0]))
-                else:
-                    outputs.append(str(i))
-    return list(set(outputs))

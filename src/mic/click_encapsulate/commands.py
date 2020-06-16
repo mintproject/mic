@@ -13,7 +13,7 @@ from mic.component.executor import build_docker, copy_code_to_src, compress_dire
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
-from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec
+from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml
 from mic.constants import *
 from mic.publisher.docker import publish_docker
 from mic.publisher.github import push
@@ -63,8 +63,8 @@ def start(user_execution_directory, dependencies):
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
-    if dependencies:
-        detect_framework_main(user_execution_directory)
+    create_config_file_yaml(mic_dir)
+    detect_framework_main(user_execution_directory, dependencies)
     image = build_docker(mic_dir / DOCKER_DIR, name)
 
     click.secho(f"""
@@ -145,12 +145,14 @@ def configs(mic_file, configuration_files):
     mic encapsulate configs -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
     mic_config_file = Path(mic_file)
+    user_execution_directory = mic_config_file.parent.parent
+
     if not mic_config_file.exists():
         click.secho("Error: that configuration path does not exist", fg="red")
         exit(1)
     configuration_files = [str(Path(x).absolute()) for x in list(configuration_files)]
     try:
-        write_spec(mic_config_file, CONFIG_FILE_KEY, relative(configuration_files))
+        write_spec(mic_config_file, CONFIG_FILE_KEY, relative(configuration_files, user_execution_directory))
     except Exception as e:
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in configuration_files:
@@ -213,6 +215,7 @@ def inputs(mic_file, custom_inputs):
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
     inputs = get_inputs(spec, user_execution_directory) + list(custom_inputs)
+    print(inputs)
     new_inputs = []
     for _input in inputs:
         item = user_execution_directory / _input
@@ -223,7 +226,6 @@ def inputs(mic_file, custom_inputs):
             new_inputs.append(zip_file)
             dst_file = dst_dir / Path(zip_file).name
             if dst_file.exists():
-                print("exists")
                 os.remove(dst_file)
             shutil.move(zip_file, dst_dir)
         else:
@@ -232,11 +234,11 @@ def inputs(mic_file, custom_inputs):
             shutil.copy(item, dst_file)
         click.secho(f"""Input added: {dst_file} """, fg="green")
 
-    config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
-    config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
+    # config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
+    # config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
+    # find_code_files(spec, new_inputs, config_files)
 
     click.secho('Writing inputs metadata', fg="blue")
-    find_code_files(spec, new_inputs, config_files)
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
 
 
@@ -261,9 +263,13 @@ def outputs(mic_file, aggregate, custom_outputs):
     repro_zip_trace_dir = Path(repro_zip_trace_dir)
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     spec = get_spec(repro_zip_config_file)
+
+
+
     custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                       list(custom_outputs)]
-    outputs = get_outputs(spec, aggregrate=aggregate) + list(custom_outputs)
+    outputs = get_outputs(spec, user_execution_directory, aggregrate=aggregate) + list(custom_outputs)
+    print(outputs)
     click.secho('Writing output metadata', fg="blue")
     for i in outputs:
         click.secho(f"""Output added: {i} """, fg="green")

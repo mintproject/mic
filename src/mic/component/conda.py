@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 def freeze(requirements: Path) -> Path:
-    reqs = subprocess.check_output(['conda', 'env', 'export', '--from-history'])
+    Path(__file__).parent.parent / "templates" / "environment.yml"
     with open(requirements, "wb") as f:
-        f.write(reqs)
+        f.write("""""")
     return requirements

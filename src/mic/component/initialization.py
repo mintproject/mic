@@ -54,6 +54,14 @@ def render_gitignore(directory: Path):
     return gitignore_file
 
 
+def render_conda(directory: Path):
+    template = env.get_template(CONDA_YML)
+    conda = directory / CONDA_YML
+    with open(conda, "w") as gi:
+        ignore = render_template(template=template)
+        gi.write(ignore)
+    return conda
+
 def render_run_sh(directory: Path,
                   inputs: dict,
                   parameters: dict,

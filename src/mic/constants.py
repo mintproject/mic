@@ -56,6 +56,7 @@ TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
 TYPE_SOFTWARE_IMAGE = "https://w3id.org/okn/o/sd#SoftwareImage"
 TYPE_SOFTWARE_VERSION = "https://w3id.org/okn/o/sd#SoftwareVersion"
 GITIGNORE_FILE = ".gitignore"
+CONDA_YML = "environment.yml"
 
 DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
 DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
