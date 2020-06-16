@@ -15,7 +15,7 @@ def relative(files: List[Path], user_execution_directory):
         name = slugify(str(path.name).replace('.', "_"))
 
         response[name] = {
-            PATH_KEY: str(path.name),
+            PATH_KEY: str(path),
             FORMAT_KEY: str(path.suffix).replace('.', '')
         }
     return response
@@ -103,9 +103,8 @@ def find_code_files(spec, inputs, config_files):
             argv = run[REPRO_ZIP_ARGV] if isinstance(run[REPRO_ZIP_ARGV], list) else run[REPRO_ZIP_ARGV].split(' ')
             for arg in argv:
                 files_path = Path(_input)
-                if files_path.name in arg and files_path.suffix not in [".txt", ".json", "*.png"]:
+                if files_path.name in arg and str(files_path) not in config_files:
                     code_files.append(_input)
-
     return list(set(code_files))
 
 

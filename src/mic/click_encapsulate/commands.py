@@ -4,18 +4,19 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
+import click
 import mic
 import semver
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_news_reprozip
-from mic.component.executor import build_docker, copy_code_to_src, compress_directory, execute_local
+from mic.component.executor import copy_code_to_src, compress_directory, execute_local
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml
 from mic.constants import *
-from mic.publisher.docker import publish_docker
+from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
 
@@ -216,31 +217,41 @@ def inputs(mic_file, custom_inputs):
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
     inputs = get_inputs(spec, user_execution_directory) + list(custom_inputs)
+
+    #obtain config: if a file is a config cannot be a input
+    config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
+    config_files = [str(user_execution_directory / item[PATH_KEY]) for key, item in config_files.items()] if config_files else []
+
+
+    code_files = find_code_files(spec, inputs, config_files)
     new_inputs = []
+
     for _input in inputs:
         item = user_execution_directory / _input
-        if item.is_dir():
-            click.secho(f"""Compressing the input {_input} """, fg="blue")
-            zip_file = compress_directory(item)
-            dst_dir = mic_directory_path.absolute() / DATA_DIR
-            new_inputs.append(zip_file)
-            dst_file = dst_dir / Path(zip_file).name
-            if dst_file.exists():
-                os.remove(dst_file)
-            shutil.move(zip_file, dst_dir)
+        if str(item) in config_files or str(item) in code_files:
+            click.secho(f"Ignoring the config {item} as a input.", fg="blue")
         else:
-            new_inputs.append(item)
-            dst_file = mic_directory_path / DATA_DIR / str(item.name)
-            shutil.copy(item, dst_file)
-        click.secho(f"""Input added: {dst_file} """, fg="green")
+            if item.is_dir():
+                click.secho(f"""Compressing the input {_input} """, fg="blue")
+                zip_file = compress_directory(item)
+                dst_dir = mic_directory_path.absolute() / DATA_DIR
+                new_inputs.append(zip_file)
+                dst_file = dst_dir / Path(zip_file).name
+                if dst_file.exists():
+                    os.remove(dst_file)
+                shutil.move(zip_file, dst_dir)
+            else:
+                new_inputs.append(item)
+                dst_file = mic_directory_path / DATA_DIR / str(item.name)
+                shutil.copy(item, dst_file)
+            click.secho(f"""Input added: {dst_file} """, fg="green")
 
-    config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
-    config_files = [item[PATH_KEY] for key, item in config_files.items()] if config_files else []
-    find_code_files(spec, new_inputs, config_files)
+    # Obtain config files
+    # A config file cannot be a input
 
     click.secho('Writing inputs metadata', fg="blue")
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
-
+    write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
 
 @cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
 @click.argument(
