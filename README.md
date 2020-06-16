@@ -1,4 +1,4 @@
-# Model Insertion Checker (MIC) 
+# Model Insertion Checker (MIC) [![Build Status](https://travis-ci.com/mintproject/mic.svg?branch=master)](https://travis-ci.com/mintproject/mic)
 
 Model Insertion Checker (MIC) is a command line wizard for users to add new calibrated models and their metadata.
 
@@ -9,6 +9,8 @@ MIC has been tested in OSX and Linux. Windows is not currently supported. It is 
 `pip install mic`
 
 Please report any issue [here](https://github.com/mintproject/mic/issues/new/choose).
+
+Full documentation available at: [https://mic-cli.readthedocs.io/en/latest/](https://mic-cli.readthedocs.io/en/latest/)
 
 ## Features
 
@@ -23,27 +25,10 @@ Please report any issue [here](https://github.com/mintproject/mic/issues/new/cho
 - [x] Test a Docker image with a component
 - [x] Support uploading a tested Docker image to DockerHub
 
-# Usage
-
-## Add a new model
-
-To add a model, just type:
-
-```bash
-mic model add
-```
-
-To add new model configurations, type:
-
-```bash
-mic modelconfiguration add
-```
-
-Full documentation available at: [https://mic-cli.readthedocs.io/en/latest/](https://mic-cli.readthedocs.io/en/latest/)
 
 ## Next Features
 
 - [ ] Automatically capture the invocation command of your model component
-- [ ] Automatically creation of the Docker image needed to execute your model
+- [ ] Automatic creation of the Docker image needed to execute your model
 - [ ] Advanced guidance to select parameters and inputs to expose in a model component.
  

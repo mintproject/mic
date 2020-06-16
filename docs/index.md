@@ -5,8 +5,7 @@ MIC is an application that will guide you through the steps required for encapsu
 MIC has been tested in OSX and Linux. Windows is not currently supported. It is installed through a simple pip command.
 
 !!! info
-    This is an ALPHA version.
-    Please report any issue with us [here](https://github.com/mintproject/mic/issues/new/choose).
+    MIC is an ALPHA version, which we are still testing and developing continuously. If you find an error or experience any issue, please report them [here](https://github.com/mintproject/mic/issues/new/choose).
 
 ## Requirements
 

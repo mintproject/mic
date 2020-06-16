@@ -3,6 +3,7 @@ import logging
 import re
 import shutil
 from pathlib import Path
+import os
 
 import click
 import pygit2 as pygit2
@@ -150,7 +151,7 @@ def get_next_tag(repo):
     return version_today
 
 
-def github_create_repo(profile, model_name):
+def github_create_repo(profile, model_name, model_path: Path):
     """
     Publish the directory on git
     If the directory is not a git directory, create it
@@ -174,10 +175,25 @@ def github_create_repo(profile, model_name):
     if repo:
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
             click.secho("Please rename the directory", fg="green")
+            remove_temp_files(model_path)
             exit(0)
     else:
         repo = user.create_repo(model_name)
     return repo
+
+
+def remove_temp_files(model_path: Path):
+    component_folder = model_path / "{}_component".format(model_path.name)
+    zip_folder = model_path / "{}.zip".format(MINT_COMPONENT_ZIP)
+    try:
+        if component_folder.exists():
+            shutil.rmtree(component_folder)
+
+        if zip_folder.exists():
+            os.remove(zip_folder)
+
+    except:
+        click.secho("Warning: error when removing temporary files", fg="yellow")
 
 
 def github_config(profile):

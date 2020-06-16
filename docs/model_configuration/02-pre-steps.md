@@ -1,4 +1,4 @@
-In order to use MIC, you should create a GitHub and a DockerHub account. We will use these accounts in MIC to help you publish your component. You only need to perform these steps once. Even though we recommend you performing these steps before starting using MIC, **you don't need a GitHub or Docker account for completing steps 1..4**.
+In order to use MIC, you should create a GitHub and a DockerHub account. We will use these accounts in MIC to help you publish your component. You only need to perform these steps once. Even though we recommend you performing these steps before starting using MIC, **you only need them for performing step 7**.
 
 
 ## Create a GitHub account
