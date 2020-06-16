@@ -151,7 +151,7 @@ def get_next_tag(repo):
     return version_today
 
 
-def github_create_repo(profile, model_name, model_path: Path):
+def github_create_repo(profile, model_name):
     """
     Publish the directory on git
     If the directory is not a git directory, create it
@@ -175,7 +175,6 @@ def github_create_repo(profile, model_name, model_path: Path):
     if repo:
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
             click.secho("Please rename the directory", fg="green")
-            remove_temp_files(model_path)
             exit(0)
     else:
         repo = user.create_repo(model_name)
