@@ -65,8 +65,8 @@ DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configu
 
 
 class Framework(Enum):
-    PYTHON37 = ("python3.7", "mintproject/python:37", ".py")
-    PYTHON38 = ("python3.8", "mintproject/python:38", ".py")
+    PYTHON37 = ("python3.7", "mintproject/python:3.7", ".py")
+    PYTHON38 = ("python3.8", "mintproject/python:3.8", ".py")
     CONDA = ("conda4.7.12", "mintproject/conda:4.7.12", ".py")
     GENERIC = ("general", "mintproject/generic:latest")
 
