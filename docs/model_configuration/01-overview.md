@@ -3,6 +3,7 @@
 The `encapsulate` command  in MIC guides you through eight steps to create a model component that encapsulates your model code and makes it available in MINT so others can easily run it in their own local environments.  To accomplish this, MIC relies on state-of-the-art virtualization tools (including Docker), software engineering best practices, and semantic reasoning for validation.
 
 There are several reasons for creating a model components:
+
 * You will be able to expose only the inputs and parameters that are more important for a particular use of the model, pre-setting the rest and making them internal to the model component and inaccessible to other users.
 * You will be able to create a secure environment for executing the model. When others want to run your model, they will be reassured that the model will not disrupt or delete anything in their local environment.
 * Everyone will be able to find your component in the [MINT model catalog](https://models.mint.isi.edu/) using [DAME](dame-cli.readthedocs.io/).  
