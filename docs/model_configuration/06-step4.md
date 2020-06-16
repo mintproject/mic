@@ -29,9 +29,9 @@ General Input/Output section (file.cio):
 General Information/Watershed Configuration:
 fig.fig
         1    | NBYR : Number of years simulated
-        1993    | IYR : Beginning year of simulation
-               1    | IDAF : Beginning julian day of simulation
-             180    | IDAL : Ending julian day of simulation
+        1993 | IYR : Beginning year of simulation
+        1    | IDAF : Beginning julian day of simulation
+        180  | IDAL : Ending julian day of simulation
 ```
 As shown above, the parameters NBYR and IYR correspond to `years` and `start_year` respectively. In the following steps we will cover how to map these values into .
 
