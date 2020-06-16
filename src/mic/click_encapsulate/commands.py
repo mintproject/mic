@@ -64,10 +64,10 @@ def start(user_execution_directory, dependencies, name):
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
-    create_config_file_yaml(mic_dir)
+    mic_config_path = create_config_file_yaml(mic_dir)
     detect_framework_main(user_execution_directory, dependencies)
     image = build_docker(mic_dir / DOCKER_DIR, name)
-
+    write_spec(mic_config_path, NAME_KEY, name)
     click.secho(f"""
 You are in a Linux environment Debian distribution
 We detect the following dependencies.
@@ -342,13 +342,15 @@ def run(mic_file):
     default="default",
     metavar="<profile-name>",
 )
-def publish(mic_file, profile, name):
+def publish(mic_file, profile):
     """
     Publish your code and MIC wrapper on GitHub and the Docker Image on DockerHub
     Example:
     mic encapsulate step7 -f <mic_file>
     """
     mic_config_path = Path(mic_file)
+    name = get_key_spec(mic_config_path, NAME_KEY)
+
     click.secho("Deleting the executions")
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)

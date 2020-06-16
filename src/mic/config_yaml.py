@@ -38,7 +38,7 @@ def create_config_file_yaml(model_path: Path) -> Path:
     click.secho(f"{config_yaml_path} created", fg="green")
     spec = {}
     write_step(config_yaml_path, spec, step=1)
-
+    return config_yaml_path
 
 def get_spec(config_yaml_path: Path) -> dict:
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
