@@ -3,6 +3,7 @@ import unicodedata
 from pathlib import Path
 from typing import List
 
+import click
 import yaml
 
 try:
