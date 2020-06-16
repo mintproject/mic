@@ -137,7 +137,12 @@ class OrderedGroup(click.Group):
         #: the registered subcommands by their exported names.
         self.commands = commands or collections.OrderedDict()
 
+    def list_commands(self, ctx):
+        return self.commands
 
+@cli.group(cls=OrderedGroup)
+def encapsulate():
+    """Command to encapsulate your Model Configuration"""
 encapsulate.add_command(start)
 encapsulate.add_command(trace)
 encapsulate.add_command(add_parameters)

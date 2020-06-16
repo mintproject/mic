@@ -2,8 +2,8 @@ import os
 from pathlib import Path
 from typing import List
 
+import click
 from jinja2 import Environment, PackageLoader, select_autoescape
-from mic.component.python3 import freeze
 from mic.constants import *
 from mic.publisher.github import get_or_create_repo
 
@@ -153,6 +153,7 @@ def render_output(directory: Path, files: List[Path], compress: bool) -> Path:
             content = render_template(template=template, files=[], compress=None)
         f.write(content)
     return run_file
+
 
 def render_template(template, **kwargs):
     return template.render(**kwargs)

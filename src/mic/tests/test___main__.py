@@ -8,15 +8,3 @@ try:
 except ImportError:
     from yaml import Loader, Dumper
 
-MODEL_NAME = "model"
-PARAMETERS_2: int = 2
-
-
-def test_step1(tmp_path):
-    runner = CliRunner()
-    os.chdir(tmp_path)
-    try:
-        response = runner.invoke(start, ["--name", MODEL_NAME])
-        assert response.exit_code == 0
-    except:
-        assert False

@@ -9,7 +9,7 @@ import mic
 import semver
 from mic import _utils
 from mic._utils import find_dir
-from mic.component.detect import detect_framework_main, detect_news_reprozip
+from mic.component.detect import detect_framework_main, detect_new_reprozip
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
@@ -110,7 +110,7 @@ def trace(command, append):
     status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, append, 1)
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
-    outputs = [str(i.absolute()) for i in detect_news_reprozip(Path("."), now)]
+    outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
     reprozip_spec = get_spec(output_reprozip)
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
                                                                                reprozip_spec[OUTPUTS_KEY] else outputs
