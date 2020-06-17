@@ -32,6 +32,10 @@ def build_docker(docker_path: Path, name: str):
     click.echo("Downloading the base image and building your image")
     try:
         image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
+        for chunk in logs:
+            if "stream" in chunk:
+                line = chunk["stream"].encode().decode('utf8').replace("\n", "")
+                click.echo(f'{line}')
     except docker.errors.BuildError as err:
         click.echo(f'Build Attempt Failed[{name}]')
         click.echo(f'{err}')
