@@ -40,6 +40,7 @@ def detect_framework_main(user_execution_directory, dependencies):
     user_execution_directory_mic.mkdir(exist_ok=True)
     user_execution_directory_docker.mkdir(exist_ok=True)
 
+    backup_image = None
     frameworks = detect_framework(user_execution_directory)
     click.echo("You can disable the detection of dependencies using the option --no-dependencies ")
     if len(frameworks) > 1:
@@ -76,4 +77,4 @@ def detect_framework_main(user_execution_directory, dependencies):
         render_conda(user_execution_directory_docker)
     dockerfile = render_dockerfile(user_execution_directory_mic, framework)
     click.secho("Dockerfile has been created: {}".format(dockerfile))
-
+    return framework

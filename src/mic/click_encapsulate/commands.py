@@ -65,16 +65,21 @@ def start(user_execution_directory, dependencies, name):
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
-    detect_framework_main(user_execution_directory, dependencies)
+    framework = detect_framework_main(user_execution_directory, dependencies)
     image = build_docker(mic_dir / DOCKER_DIR, name)
+    if not image:
+        click.secho("The extraction of dependencies has failed", fg='red')
+        click.secho("Running a Docker Container without your dependencies. Please install them manually", fg='green')
+        image = framework.image
     write_spec(mic_config_path, NAME_KEY, name)
     click.secho(f"""
 You are in a Linux environment Debian distribution
 We detect the following dependencies.
 
 - If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile {Path(MIC_DIR) / DOCKER_DIR / DOCKER_FILE}
-- If you install new dependencies using conda, MIC is going to detect them
-- If you install new dependencies using python, MIC is going to detect them
+- If you install new dependencies using python. Before the step `publish` run
+
+pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
     os.system(
