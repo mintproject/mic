@@ -8,32 +8,17 @@ import os
 import click
 import pygit2 as pygit2
 import semver
-from mic.config_yaml import write_spec
 from distutils.version import StrictVersion
 from github import Github
+from mic.config_yaml import write_spec
 from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
-    MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
+    MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING, GIT_DIRECTORY
 from mic.credentials import get_credentials
 
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
 
 
-def create_local_repo_and_commit(model_directory: Path):
-    """
-    Publish the directory on git
-    If the directory is not a git directory, create it
-    If the git directory doesn't have a remote origin, create a github repository
-    @param directory:
-    @type directory:
-    """
-    try:
-        repo = get_or_create_repo(model_directory)
-        git_commit(repo)
-    except Exception as e:
-        raise e
-
-
-def push(model_directory: Path, mic_config_path: Path, profile):
+def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     click.secho("Creating the git repository")
     repo = get_or_create_repo(model_directory)
     click.secho("Compressing your code")
@@ -41,12 +26,12 @@ def push(model_directory: Path, mic_config_path: Path, profile):
     click.secho("Creating a new commit")
     git_commit(repo)
     click.secho("Creating or using the GitHub repository")
-    url = check_create_remote_repo(repo, profile, model_directory.name, model_directory)
+    url = check_create_remote_repo(repo, profile, name)
     click.secho("Creating a new version")
     _version = git_tag(repo, author)
     click.secho("Pushing your changes to the server")
     git_push(repo, profile, _version)
-    repo = get_github_repo(profile, model_directory.name)
+    repo = get_github_repo(profile, name)
     for i in repo.get_contents(""):
         if i.name == "{}.zip".format(MINT_COMPONENT_ZIP):
             file = i
@@ -57,7 +42,6 @@ def push(model_directory: Path, mic_config_path: Path, profile):
     write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
-    remove_temp_files(mic_config_path)
 
 
 def git_commit(repo):
@@ -77,6 +61,8 @@ def git_commit(repo):
 
 
 def get_or_create_repo(model_path: Path):
+    if (model_path / GIT_DIRECTORY).exists():
+        click.secho("WARNING: Git directory ")
     return pygit2.Repository(pygit2.discover_repository(model_path)) if pygit2.discover_repository(
         model_path) else pygit2.init_repository(
         model_path, False)
@@ -87,18 +73,13 @@ def compress_src_dir(model_path: Path):
     Compress the directory src and create a zip file
     """
     zip_file_name = model_path / MINT_COMPONENT_ZIP
-    tmp_dir = model_path / "{}_component".format(model_path.name)
-    try:
-        shutil.copytree(model_path / SRC_DIR, tmp_dir / SRC_DIR)
-        zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path, base_dir=tmp_dir.name)
-    except FileExistsError:
-        click.secho("Error: {} is already populated. Please remove it and rerun."
-                    "".format(model_path / "{}_component".format(model_path.name)), fg="red")
-        exit(1)
+    src_dir = model_path / SRC_DIR
+    zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
+                                        base_dir=src_dir.relative_to(model_path.parent))
     return zip_file_path
 
 
-def check_create_remote_repo(repo, profile, model_name, model_path: Path):
+def check_create_remote_repo(repo, profile, model_name):
     if "origin" in repo.remotes:
         try:
             return repo.remotes["origin"].url
@@ -107,8 +88,8 @@ def check_create_remote_repo(repo, profile, model_name, model_path: Path):
     try:
         return repo.remotes["origin"].url
     except:
-        repo = github_create_repo(profile, model_name, model_path)
-        url = repo.clone_url
+        repo_github = github_create_repo(profile, model_name)
+        url = repo_github.clone_url
         repo.remotes.create("origin", url)
         return url
 
@@ -170,7 +151,7 @@ def get_next_tag(repo):
     return version_today
 
 
-def github_create_repo(profile, model_name, model_path: Path):
+def github_create_repo(profile, model_name):
     """
     Publish the directory on git
     If the directory is not a git directory, create it
@@ -194,7 +175,6 @@ def github_create_repo(profile, model_name, model_path: Path):
     if repo:
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
             click.secho("Please rename the directory", fg="green")
-            remove_temp_files(model_path)
             exit(0)
     else:
         repo = user.create_repo(model_name)

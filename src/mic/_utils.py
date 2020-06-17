@@ -1,7 +1,7 @@
 import logging
 import os
 import re
-import uuid
+
 import click
 import requests
 import validators
@@ -11,34 +11,10 @@ MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 
 
-def path_walk(top, topdown = False, followlinks = False):
-    """
-         See Python docs for os.walk, exact same behavior but it yields Path() instances instead
-    """
-    names = list(top.iterdir())
-
-    dirs = (node for node in names if node.is_dir() is True)
-    nondirs =(node for node in names if node.is_dir() is False)
-
-    if topdown:
-        yield top, dirs, nondirs
-
-    for name in dirs:
-        if followlinks or name.is_symlink() is False:
-            for x in path_walk(name, topdown, followlinks):
-                yield x
-
-    if topdown is not True:
-        yield top, dirs, nondirs
-
-
-def generate_new_uri():
-    return "{}{}".format(MODEL_ID_URI, str(uuid.uuid4()))
-
-
 def obtain_id(url):
     if validators.url(url):
         return url.split('/')[-1]
+
 
 def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))
@@ -55,7 +31,10 @@ def init_logger():
 
 
 def get_latest_version():
-    return requests.get("https://pypi.org/pypi/mic/json").json()["info"]["version"]
+    try:
+        return requests.get("https://pypi.org/pypi/mic/json").json()["info"]["version"]
+    except Exception as e:
+        raise e
 
 
 def validate_metadata(default_type, value):
@@ -68,3 +47,9 @@ def validate_metadata(default_type, value):
             return True
         except ValueError as ve:
             return False
+
+
+def find_dir(name, path):
+    for root, dirs, files in os.walk(path):
+        if os.path.basename(root) == name:
+            return root
