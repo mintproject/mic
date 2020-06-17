@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from mic.component.reprozip import get_outputs, get_inputs, generate_runner, generate_pre_runner
+from mic.component.reprozip import get_outputs, get_inputs_reprozip, generate_runner, generate_pre_runner
 from mic.config_yaml import get_spec
 
 RESOURCES = "resources"
@@ -750,7 +750,7 @@ def test_get_outputs():
 def test_get_inputs():
     yml = "swat_test.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    inputs = get_inputs(spec, DEFAULT_PATH, aggregrate=True)
+    inputs = get_inputs_reprozip(spec, DEFAULT_PATH, aggregrate=True)
     assert sorted(['/tmp/mint/config.json',
                    '/tmp/mint/TxtInOut',
                    '/tmp/mint/results',
@@ -765,7 +765,7 @@ def test_get_inputs_aggregate_false():
     swat_inputs_v1.append("/tmp/mint/example.txt")
     yml = "swat_test_v2.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    inputs = get_inputs(spec, DEFAULT_PATH, aggregrate=False)
+    inputs = get_inputs_reprozip(spec, DEFAULT_PATH, aggregrate=False)
     assert sorted(swat_inputs_v1) == sorted(inputs)
 
 
@@ -774,7 +774,7 @@ def test_get_inputs_aggregate_true():
     swat_inputs_v1.append("/tmp/mint/example.txt")
     yml = "swat_test_v2.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    inputs = get_inputs(spec, DEFAULT_PATH, aggregrate=True)
+    inputs = get_inputs_reprozip(spec, DEFAULT_PATH, aggregrate=True)
     assert ["/tmp/mint/TxtInOut", "/tmp/mint/example.txt"] == sorted(inputs)
 
 
@@ -807,7 +807,7 @@ popd"""
 
 
 def test_generate_pre_runner_1():
-    yml = "mic_1.yaml"
+    yml = "mic_full.yaml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
     assert generate_pre_runner(spec, DEFAULT_PATH) == ""
 

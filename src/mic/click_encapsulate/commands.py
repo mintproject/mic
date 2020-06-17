@@ -12,9 +12,9 @@ from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_new_reprozip
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
-from mic.component.reprozip import get_inputs, get_outputs, relative, generate_runner, generate_pre_runner, \
+from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
-from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml
+from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
@@ -88,8 +88,8 @@ pip freeze > mic/docker/requirements.txt
 
 @cli.command(short_help="Trace any command line and extract the information about the execution",
              context_settings=dict(
-                ignore_unknown_options=True,
-            ))
+                 ignore_unknown_options=True,
+             ))
 @click.option('--continue/--overwrite', 'append', default=None)
 @click.argument('command', nargs=-1, type=click.UNPROCESSED)
 def trace(command, append):
@@ -224,19 +224,19 @@ def inputs(mic_file, custom_inputs):
     spec = get_spec(repro_zip_config_file)
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
-    inputs = get_inputs(spec, user_execution_directory) + list(custom_inputs)
+    inputs_reprozip = get_inputs_reprozip(spec, user_execution_directory) + list(custom_inputs)
 
-    #obtain config: if a file is a config cannot be a input
-    config_files = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
-    config_files = [str(user_execution_directory / item[PATH_KEY]) for key, item in config_files.items()] if config_files else []
+    # obtain config: if a file is a config cannot be a input
+    config_files = get_configs(mic_config_file)
+    config_files_list = [str(user_execution_directory / item[PATH_KEY]) for key, item in
+                         config_files.items()] if config_files else []
 
-
-    code_files = find_code_files(spec, inputs, config_files)
+    code_files = find_code_files(spec, inputs_reprozip, config_files_list)
     new_inputs = []
 
-    for _input in inputs:
+    for _input in inputs_reprozip:
         item = user_execution_directory / _input
-        if str(item) in config_files or str(item) in code_files:
+        if str(item) in config_files_list or str(item) in code_files:
             click.secho(f"Ignoring the config {item} as a input.", fg="blue")
         else:
             if item.is_dir():
@@ -261,10 +261,11 @@ def inputs(mic_file, custom_inputs):
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
 
+
 @cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
 @click.argument(
     "custom_outputs",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
     required=False,
     nargs=-1
 )
@@ -312,11 +313,9 @@ def wrapper(mic_file):
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
     configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
 
-
     inputs = inputs if inputs else []
     outputs = outputs if outputs else []
     configs = configs if configs else []
-
 
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
@@ -327,7 +326,8 @@ def wrapper(mic_file):
     render_io_sh(mic_directory_path, inputs, parameters, configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), user_execution_directory, mic_directory_path / SRC_DIR)
-    copy_code_to_src(get_key_spec(mic_config_file, CONFIG_FILE_KEY), user_execution_directory, mic_directory_path / SRC_DIR)
+    copy_code_to_src(get_key_spec(mic_config_file, CONFIG_FILE_KEY), user_execution_directory,
+                     mic_directory_path / SRC_DIR)
 
 
 @cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")

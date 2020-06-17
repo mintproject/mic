@@ -40,6 +40,7 @@ def create_config_file_yaml(model_path: Path) -> Path:
     write_step(config_yaml_path, spec, step=1)
     return config_yaml_path
 
+
 def get_spec(config_yaml_path: Path) -> dict:
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
     return spec
@@ -196,14 +197,36 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
         click.secho("Added: {} as a output".format(item))
 
 
-
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
-    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    inputs = spec[INPUTS_KEY] if INPUTS_KEY in spec else None
-    parameters = spec[PARAMETERS_KEY] if PARAMETERS_KEY in spec else None
-    outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else None
-    configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else []
+    inputs = get_inputs(config_yaml_path)
+    parameters = get_parameters(config_yaml_path)
+    outputs = get_outputs(config_yaml_path)
+    configs = get_configs(config_yaml_path)
     return inputs, parameters, outputs, configs
+
+
+def get_inputs(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    inputs = spec[INPUTS_KEY] if INPUTS_KEY in spec else {}
+    return inputs
+
+
+def get_outputs(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else {}
+    return outputs
+
+
+def get_parameters(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    parameters = spec[PARAMETERS_KEY] if PARAMETERS_KEY in spec else {}
+    return parameters
+
+
+def get_configs(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else {}
+    return configs
 
 
 def create_file_yaml_basic(config_yaml_path: Path):

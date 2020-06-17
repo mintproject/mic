@@ -18,6 +18,10 @@ inputs:
   x_csv:
     path: x.csv
     format: csv
+outputs:
+  y_csv:
+    path: results/y.csv
+    format: csv
 code_files:
   linemodel_py:
     path: linemodel.py
