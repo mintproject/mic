@@ -81,9 +81,12 @@ We detect the following dependencies.
         f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
 
-@cli.command(short_help="Trace any command line and extract the information about the execution")
-@click.argument('command', nargs=-1)
+@cli.command(short_help="Trace any command line and extract the information about the execution",
+             context_settings=dict(
+                ignore_unknown_options=True,
+            ))
 @click.option('--continue/--overwrite', 'append', default=None)
+@click.argument('command', nargs=-1, type=click.UNPROCESSED)
 def trace(command, append):
     """
     Fill the MIC configuration file with the information about the parameters and inputs
