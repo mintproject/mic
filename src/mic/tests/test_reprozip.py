@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from mic.component.reprozip import get_outputs, get_inputs, generate_runner
+from mic.component.reprozip import get_outputs, get_inputs, generate_runner, generate_pre_runner
 from mic.config_yaml import get_spec
 
 RESOURCES = "resources"
@@ -752,9 +752,9 @@ def test_get_inputs():
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
     inputs = get_inputs(spec, DEFAULT_PATH, aggregrate=True)
     assert sorted(['/tmp/mint/config.json',
-            '/tmp/mint/TxtInOut',
-            '/tmp/mint/results',
-            '/tmp/mint/x.csv']) == sorted(inputs)
+                   '/tmp/mint/TxtInOut',
+                   '/tmp/mint/results',
+                   '/tmp/mint/x.csv']) == sorted(inputs)
 
 
 def test_get_inputs_aggregate_false():
@@ -805,19 +805,20 @@ pushd TxtInOut
 popd"""
     assert expected == result
 
-# def test_extract_parameters_from_command():
-#     a = extract_parameters_from_command("python test.py -p1 -p2")
-#     assert False
+
+def test_generate_pre_runner_1():
+    yml = "mic_1.yaml"
+    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+    assert generate_pre_runner(spec, DEFAULT_PATH) == ""
 
 
-# def test_find_code_files():
-#     yml = "swat_test_v2.yml"
-#     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-#     inputs = get_inputs(spec)
-#     find_code_files(spec, inputs)
-#
-#
-# def test_find_code_files():
-#     spec = {'runs': [{"argv": ["python", "./code.py", "config.txt"]}]}
-#     inputs = ["/tmp/mint/code.py", "/tmp/mint/config.txt"]
-#     assert ["/tmp/mint/code.py"] == find_code_files(spec, inputs)
+def test_generate_pre_runner_2():
+    yml = "mic_2.yaml"
+    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+    assert generate_pre_runner(spec, DEFAULT_PATH) == ""
+
+
+def test_generate_pre_runner_3():
+    yml = "mic_3.yaml"
+    spec = get_spec(Path(__file__).parent / RESOURCES / yml)
+    assert generate_pre_runner(spec, DEFAULT_PATH) == "\ncp -rv x.csv results/x.csv"

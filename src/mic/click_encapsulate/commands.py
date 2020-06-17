@@ -312,6 +312,12 @@ def wrapper(mic_file):
     outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
     configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
 
+
+    inputs = inputs if inputs else []
+    outputs = outputs if outputs else []
+    configs = configs if configs else []
+
+
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}

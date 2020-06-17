@@ -69,12 +69,15 @@ def get_outputs(spec, user_execution_directory, aggregrate=False):
 
 
 def generate_pre_runner(spec, user_execution_directory):
-    code = ''
+    code = ""
     paths = []
-    for key, file in spec[CODE_KEY].items():
+    code_items = spec[CODE_KEY] if CODE_KEY in spec and spec[CODE_KEY] else {}
+    for key, file in code_items.items():
         paths.append(Path(file[PATH_KEY]))
 
-    for key, file in spec[INPUTS_KEY].items():
+    inputs_items = spec[INPUTS_KEY] if INPUTS_KEY in spec and spec[INPUTS_KEY] else {}
+    items = inputs_items.items()
+    for key, file in items:
         paths.append(Path(file[PATH_KEY]))
 
     for path in paths:
