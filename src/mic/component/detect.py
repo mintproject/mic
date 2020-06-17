@@ -62,7 +62,7 @@ def detect_framework_main(user_execution_directory, dependencies):
     if framework == Framework.GENERIC:
         bin_dir = user_execution_directory_docker / "bin"
         bin_dir.mkdir(exist_ok=True)
-    elif dependencies and framework == (Framework.PYTHON37 or Framework.PYTHON38):
+    elif dependencies and (framework == Framework.PYTHON37 or framework == Framework.PYTHON38):
         requirements_file = user_execution_directory_docker / REQUIREMENTS_FILE
         freeze(requirements_file)
         click.echo("Extracting the Python dependencies.\nYou can view or edit the dependencies file {} ".format(
