@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import click
@@ -29,7 +30,16 @@ def build_image(mic_config_path, name):
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
     click.echo("Downloading the base image and building your image")
-    image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
+    try:
+        image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
+    except docker.errors.BuildError as err:
+        click.echo(f'Build Attempt Failed[{name}]')
+        click.echo(f'{err}')
+        for chunk in err.build_log:
+            if "stream" in chunk:
+                line = chunk["stream"].encode().decode('utf8').replace("\n", "")
+                click.echo(f'{line}')
+        exit(1)
     return image.tags[0]
 
 
