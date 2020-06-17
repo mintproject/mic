@@ -28,7 +28,6 @@ class SoftwareVersionCli:
         api_instance = modelcatalog.SoftwareVersionApi(api)
         try:
             # List all Person entities
-            print(_id)
             api_response = api_instance.softwareversions_id_get(id=_id, username=username)
             return api_response
         except ApiException as e:

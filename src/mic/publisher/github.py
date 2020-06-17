@@ -80,14 +80,9 @@ def compress_src_dir(model_path: Path):
 
 
 def check_create_remote_repo(repo, profile, model_name):
-    if "origin" in repo.remotes:
-        try:
-            return repo.remotes["origin"].url
-        except:
-            pass
-    try:
+    if "origin" in [i.name for i in repo.remotes]:
         return repo.remotes["origin"].url
-    except:
+    else:
         repo_github = github_create_repo(profile, model_name)
         url = repo_github.clone_url
         repo.remotes.create("origin", url)
@@ -160,7 +155,6 @@ def github_create_repo(profile, model_name):
     @param profile: the profile to use in the credentials file
     @type: directory: Path
     """
-
     git_token, git_username = github_config(profile)
     g = Github(git_username, git_token)
     github_login(g)

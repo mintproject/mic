@@ -143,7 +143,6 @@ def handle_new_existing_software_version(labels, api_response_mc, selected_model
             model_version.has_configuration.append(api_response_mc)
         else:
             model_version.has_configuration = [api_response_mc]
-        click.confirm(model_version.has_configuration)
         return software_version_cli.put(model_version)
     else:
         click.echo("Please, enter the information about the new version")
