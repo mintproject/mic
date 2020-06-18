@@ -205,7 +205,7 @@ def add_parameters(mic_file, name, value):
 @cli.command(short_help=f"""Write inputs into {CONFIG_YAML_NAME}""")
 @click.argument(
     "custom_inputs",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
     required=False,
     nargs=-1
 )
@@ -248,7 +248,7 @@ def inputs(mic_file, custom_inputs):
                 if dst_file.exists():
                     os.remove(dst_file)
                 shutil.move(zip_file, dst_dir)
-                new_inputs.append(dst_file)
+                new_inputs.append(zip_file)
 
             else:
                 new_inputs.append(item)
@@ -258,7 +258,7 @@ def inputs(mic_file, custom_inputs):
 
     # Obtain config files
     # A config file cannot be a input
-
+    print(new_inputs)
     click.secho('Writing inputs metadata', fg="blue")
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))

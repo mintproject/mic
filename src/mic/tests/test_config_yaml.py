@@ -54,4 +54,5 @@ def test_issue_168(tmp_path):
     assert result.exit_code == 0
     result = runner.invoke(wrapper, ["-f", mic_config_arg])
     print(result.output)
+
     assert result.exit_code == 0
