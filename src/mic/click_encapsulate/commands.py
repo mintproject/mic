@@ -243,11 +243,12 @@ def inputs(mic_file, custom_inputs):
                 click.secho(f"""Compressing the input {_input} """, fg="blue")
                 zip_file = compress_directory(item)
                 dst_dir = mic_directory_path.absolute() / DATA_DIR
-                new_inputs.append(zip_file)
                 dst_file = dst_dir / Path(zip_file).name
                 if dst_file.exists():
                     os.remove(dst_file)
                 shutil.move(zip_file, dst_dir)
+                new_inputs.append(dst_file)
+
             else:
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
@@ -260,7 +261,7 @@ def inputs(mic_file, custom_inputs):
     click.secho('Writing inputs metadata', fg="blue")
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
-
+    exit(0)
 
 @cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
 @click.argument(
