@@ -1,7 +1,8 @@
+import shutil
 from pathlib import Path
 
 from click.testing import CliRunner
-from mic.click_encapsulate.commands import inputs
+from mic.click_encapsulate.commands import inputs, outputs, wrapper
 from mic.config_yaml import get_outputs, get_parameters, get_inputs_parameters, get_configs
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME
 
@@ -37,11 +38,20 @@ def test_get_inputs_parameters():
     assert get_inputs_parameters(mic_empty) == ({}, {}, {}, {})
 
 
-def test_issue_168():
-    path = Path(__file__).parent / RESOURCES / "issue_168"
+def test_issue_168(tmp_path):
+    test_name = "issue_168"
+    path = Path(__file__).parent / RESOURCES / test_name
+    path_test_name = tmp_path / test_name
+    shutil.copytree(path, path_test_name)
     runner = CliRunner()
-    mic_config_arg = str(path / MIC_DIR / CONFIG_YAML_NAME)
-    custom_input_1 = str(path / "DatasetSpecification.csv")
+    mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
+    custom_input_1 = str(path_test_name / "DatasetSpecification.csv")
     result = runner.invoke(inputs, ["-f", mic_config_arg, custom_input_1])
+    print(result.output)
+    assert result.exit_code == 0
+    result = runner.invoke(outputs, ["-f", mic_config_arg])
+    print(result.output)
+    assert result.exit_code == 0
+    result = runner.invoke(wrapper, ["-f", mic_config_arg])
     print(result.output)
     assert result.exit_code == 0
