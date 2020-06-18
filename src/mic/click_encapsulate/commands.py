@@ -14,7 +14,8 @@ from mic.component.executor import copy_code_to_src, compress_directory, execute
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
-from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs
+from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
+    get_inputs, get_parameters, get_outputs_mic, get_code
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
@@ -204,7 +205,7 @@ def add_parameters(mic_file, name, value):
 @cli.command(short_help=f"""Write inputs into {CONFIG_YAML_NAME}""")
 @click.argument(
     "custom_inputs",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
     required=False,
     nargs=-1
 )
@@ -247,7 +248,7 @@ def inputs(mic_file, custom_inputs):
                 if dst_file.exists():
                     os.remove(dst_file)
                 shutil.move(zip_file, dst_dir)
-                new_inputs.append(dst_file)
+                new_inputs.append(zip_file)
 
             else:
                 new_inputs.append(item)
@@ -257,7 +258,7 @@ def inputs(mic_file, custom_inputs):
 
     # Obtain config files
     # A config file cannot be a input
-
+    print(new_inputs)
     click.secho('Writing inputs metadata', fg="blue")
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
@@ -309,25 +310,22 @@ def wrapper(mic_file):
     repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
     mic_directory_path = mic_config_file.parent
 
-    parameters = get_key_spec(mic_config_file, PARAMETERS_KEY)
-    inputs = get_key_spec(mic_config_file, INPUTS_KEY)
-    outputs = get_key_spec(mic_config_file, OUTPUTS_KEY)
-    configs = get_key_spec(mic_config_file, CONFIG_FILE_KEY)
-
-    inputs = inputs if inputs else []
-    outputs = outputs if outputs else []
-    configs = configs if configs else []
+    mic_inputs = get_inputs(mic_config_file)
+    mic_parameters = get_parameters(mic_config_file)
+    mic_outputs = get_outputs_mic(mic_config_file)
+    mic_configs = get_configs(mic_config_file)
+    mic_code = get_code(mic_config_file)
 
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
 {generate_runner(reprozip_spec, user_execution_directory)}"""
     write_spec(mic_config_file, COMMANDS_RUNNER, code)
-    render_run_sh(mic_directory_path, inputs, parameters, outputs, code)
-    render_io_sh(mic_directory_path, inputs, parameters, configs)
+    render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
+    render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)
     render_output(mic_directory_path, [], False)
-    copy_code_to_src(get_key_spec(mic_config_file, CODE_KEY), user_execution_directory, mic_directory_path / SRC_DIR)
-    copy_code_to_src(get_key_spec(mic_config_file, CONFIG_FILE_KEY), user_execution_directory,
+    copy_code_to_src(mic_code, user_execution_directory, mic_directory_path / SRC_DIR)
+    copy_code_to_src(mic_configs, user_execution_directory,
                      mic_directory_path / SRC_DIR)
 
 

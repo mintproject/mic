@@ -200,7 +200,7 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
     inputs = get_inputs(config_yaml_path)
     parameters = get_parameters(config_yaml_path)
-    outputs = get_outputs(config_yaml_path)
+    outputs = get_outputs_mic(config_yaml_path)
     configs = get_configs(config_yaml_path)
     return inputs, parameters, outputs, configs
 
@@ -211,7 +211,7 @@ def get_inputs(config_yaml_path):
     return inputs
 
 
-def get_outputs(config_yaml_path):
+def get_outputs_mic(config_yaml_path):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
     outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else {}
     return outputs
@@ -228,6 +228,10 @@ def get_configs(config_yaml_path):
     configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else {}
     return configs
 
+def get_code(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    code = spec[CODE_KEY] if CODE_KEY in spec else {}
+    return code
 
 def create_file_yaml_basic(config_yaml_path: Path):
     make_yaml(config_yaml_path)

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from click.testing import CliRunner
 from mic.click_encapsulate.commands import inputs, outputs, wrapper
-from mic.config_yaml import get_outputs, get_parameters, get_inputs_parameters, get_configs
+from mic.config_yaml import get_outputs_mic, get_parameters, get_inputs_parameters, get_configs
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME
 
 RESOURCES = "resources"
@@ -12,8 +12,8 @@ mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 
 def test_get_outputs():
-    assert get_outputs(mic_1) == {'y_csv': {'format': 'csv', 'path': 'results/y.csv'}}
-    assert get_outputs(mic_empty) == {}
+    assert get_outputs_mic(mic_1) == {'y_csv': {'format': 'csv', 'path': 'results/y.csv'}}
+    assert get_outputs_mic(mic_empty) == {}
 
 
 def test_get_parameters():
@@ -54,4 +54,5 @@ def test_issue_168(tmp_path):
     assert result.exit_code == 0
     result = runner.invoke(wrapper, ["-f", mic_config_arg])
     print(result.output)
+
     assert result.exit_code == 0
