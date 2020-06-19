@@ -110,7 +110,7 @@ def find_code_files(spec, inputs, config_files):
                 if files_path.name in arg \
                         and files_path.is_file() \
                         and str(files_path) not in config_files \
-                        and not click.confirm(f"Is {files_path} a program or code?"):
+                        and click.confirm(f"Is {files_path} a program or code?"):
                     code_files.append(_input)
     return list(set(code_files))
 
