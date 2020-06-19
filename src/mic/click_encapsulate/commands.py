@@ -293,7 +293,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
 
 
-@cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
+@cli.command(short_help=f"""Detect the outputs and write them into {CONFIG_YAML_NAME}""")
 @click.argument(
     "custom_outputs",
     type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
@@ -343,7 +343,8 @@ def outputs(mic_file, custom_outputs):
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
 
 
-@cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")
+@cli.command(short_help=f"""Generate the directory structure and commands required to run your model component using the information from the
+previous steps""")
 @click.option(
     "-f",
     "--mic_file",
@@ -393,7 +394,7 @@ previous steps
     info_end_wrapper(mic_directory_path / SRC_DIR / RUN_FILE)
 
 
-@cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")
+@cli.command(short_help=f"""Run your Model Component using the MIC Wrapper""")
 @click.option(
     "-f",
     "--mic_file",
@@ -424,7 +425,7 @@ Copy the required files to run your model component in new directory and run it.
         info_end_run_failed()
 
 
-@cli.command(short_help="Publish your code in GitHub and your image to DockerHub")
+@cli.command(short_help="Publish your code on GitHub, your image on DockerHub and your Model Configuration on MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",
