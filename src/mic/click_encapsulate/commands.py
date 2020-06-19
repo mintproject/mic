@@ -93,8 +93,8 @@ pip freeze > mic/docker/requirements.txt
              context_settings=dict(
                  ignore_unknown_options=True,
              ))
-@click.option('--continue', 'c', default=None, help="add to the previous trace, don't replace it")
-@click.option('--overwrite', 'o', default=None, help="overwrite the previous trace, don't add to it")
+@click.option('--continue', 'c', is_flag=True, help="add to the previous trace, don't replace it", default=None)
+@click.option('--overwrite', 'o', is_flag=True, help="overwrite the previous trace, don't add to it", default=None)
 @click.argument('command', nargs=-1, type=click.UNPROCESSED)
 def trace(command, c, o):
     """
