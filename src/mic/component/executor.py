@@ -57,9 +57,9 @@ def execute_local(mint_config_file: Path, execution_name):
         logging.error("Unable to cmd_line", exc_info=True)
     click.secho("Running\n{}".format(line))
     if run_execution(line, execution_dir) == 0:
-        click.secho("Success", fg="green")
+        return True
     else:
-        click.secho("Failed", fg="red")
+        return False
 
 
 def get_command_line(resource):

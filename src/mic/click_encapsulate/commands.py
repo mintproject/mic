@@ -10,7 +10,7 @@ import semver
 from mic import _utils
 from mic._utils import find_dir, get_filepaths
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
-    info_end_wrapper, info_start_run, info_end_run
+    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed
 from mic.component.detect import detect_framework_main, detect_new_reprozip
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
@@ -346,12 +346,14 @@ def wrapper(mic_file):
 )
 def run(mic_file):
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
-
     path = Path(mic_file)
     execution_dir = Path(path.parent / EXECUTIONS_DIR / execution_name)
     info_start_run(execution_dir.relative_to(path.parent.parent))
-    execute_local(path, execution_name)
-    info_end_run(execution_dir)
+    if execute_local(path, execution_name):
+        info_end_run(execution_dir)
+        os.system("exit")
+    else:
+        info_end_run_failed()
 
 
 @cli.command(short_help="Publish your code in GitHub and your image to DockerHub")
