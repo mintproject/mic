@@ -14,10 +14,12 @@ def copy_file(input_path: Path, src_dir_path: Path):
     return shutil.copyfile(input_path, src_dir_path / input_path.name)
 
 
-def compress_directory(directory_path: Path):
+def compress_directory(directory_path: Path, working_dir):
     zip_file_path = shutil.make_archive(directory_path.name, 'zip', root_dir=directory_path.parent,
                                         base_dir=directory_path.name)
-    return zip_file_path
+    data_zip = working_dir / Path(zip_file_path).name
+    shutil.move(zip_file_path, data_zip)
+    return data_zip
 
 
 def _copy_directory(src: Path, dest: Path) -> Path:

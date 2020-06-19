@@ -46,13 +46,18 @@ def test_issue_168(tmp_path):
     runner = CliRunner()
     mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
     custom_input_1 = str(path_test_name / "DatasetSpecification.csv")
-    result = runner.invoke(inputs, ["-f", mic_config_arg, custom_input_1])
+    try:
+        result = runner.invoke(inputs, ["-f", mic_config_arg, custom_input_1], catch_exceptions=False)
+        print(result.output)
+    except Exception as e:
+        print(e)
+        assert False
+    assert result.exit_code == 0
+
+    result = runner.invoke(outputs, ["-f", mic_config_arg], catch_exceptions=False)
     print(result.output)
     assert result.exit_code == 0
-    result = runner.invoke(outputs, ["-f", mic_config_arg])
-    print(result.output)
-    assert result.exit_code == 0
-    result = runner.invoke(wrapper, ["-f", mic_config_arg])
+    result = runner.invoke(wrapper, ["-f", mic_config_arg], catch_exceptions=False)
     print(result.output)
 
     assert result.exit_code == 0
