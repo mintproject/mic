@@ -35,11 +35,12 @@ def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     for i in repo.get_contents(""):
         if i.name == "{}.zip".format(MINT_COMPONENT_ZIP):
             file = i
+            write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
+
             break
 
     write_spec(mic_config_path, REPO_KEY, url)
     write_spec(mic_config_path, VERSION_KEY, _version)
-    write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
 
@@ -76,6 +77,8 @@ def compress_src_dir(model_path: Path):
     src_dir = model_path / SRC_DIR
     zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
                                         base_dir=src_dir.relative_to(model_path.parent))
+    path = src_dir / Path(zip_file_path).name
+    shutil.move(zip_file_path, path)
     return zip_file_path
 
 
