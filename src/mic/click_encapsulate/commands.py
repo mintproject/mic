@@ -7,6 +7,7 @@ from pathlib import Path
 import click
 import mic
 import semver
+from mic.cli_docs import info_start_inputs
 from mic import _utils
 from mic._utils import find_dir
 from mic.component.detect import detect_framework_main, detect_new_reprozip
@@ -216,6 +217,7 @@ def add_parameters(mic_file, name, value):
     default=CONFIG_YAML_NAME
 )
 def inputs(mic_file, custom_inputs):
+    info_start_inputs()
     mic_config_file = Path(mic_file)
     mic_directory_path = mic_config_file.parent
     user_execution_directory = mic_config_file.parent.parent
@@ -225,7 +227,7 @@ def inputs(mic_file, custom_inputs):
     spec = get_spec(repro_zip_config_file)
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
-    inputs_reprozip = get_inputs_reprozip(spec, user_execution_directory) + list(custom_inputs)
+    inputs_reprozip = get_inputs_reprozip(spec, user_execution_directory)
 
     # obtain config: if a file is a config cannot be a input
     config_files = get_configs(mic_config_file)
@@ -234,14 +236,16 @@ def inputs(mic_file, custom_inputs):
 
     code_files = find_code_files(spec, inputs_reprozip, config_files_list)
     new_inputs = []
-
+    inputs_reprozip += list(custom_inputs)
     for _input in inputs_reprozip:
         item = user_execution_directory / _input
+        name = Path(_input).name
         if str(item) in config_files_list or str(item) in code_files:
             click.secho(f"Ignoring the config {item} as a input.", fg="blue")
         else:
             if item.is_dir():
-                click.secho(f"""Compressing the input {_input} """, fg="blue")
+                click.secho(f"""[{name}] Input is a directory""", fg="green")
+                click.secho(f"""[{name}] Compressing the input """, fg="green")
                 zip_file = compress_directory(item)
                 dst_dir = mic_directory_path.absolute() / DATA_DIR
                 dst_file = dst_dir / Path(zip_file).name
@@ -251,18 +255,15 @@ def inputs(mic_file, custom_inputs):
                 new_inputs.append(zip_file)
 
             else:
+                click.secho(f"""[{name}] Input is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
                 shutil.copy(item, dst_file)
-            click.secho(f"""Input added: {dst_file} """, fg="green")
+            click.secho(f"""[{name}] Input added """, fg="blue")
 
-    # Obtain config files
-    # A config file cannot be a input
-    print(new_inputs)
     click.secho('Writing inputs metadata', fg="blue")
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
-    exit(0)
 
 @cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
 @click.argument(
