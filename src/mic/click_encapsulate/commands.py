@@ -8,7 +8,7 @@ import click
 import mic
 import semver
 from mic import _utils
-from mic._utils import find_dir, get_filepaths
+from mic._utils import find_dir, get_filepaths, obtain_id
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
     info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
 from mic.component.detect import detect_framework_main, detect_new_reprozip
@@ -467,4 +467,4 @@ and the Model Configuration on MINT Model Catalog.
     publish_docker(mic_config_path, name, profile)
     model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
     api_response_model, api_response_mc = publish_model_configuration(model_configuration, profile)
-    info_end_publish(None, None, api_response_mc.id, profile)
+    info_end_publish(None, None, obtain_id(api_response_mc.id), profile)
