@@ -1,13 +1,12 @@
 import json
 from pathlib import Path
-
 import click
 import docker
+import requirements_validator
 from docker.errors import APIError
 from mic.config_yaml import get_key_spec, write_spec
-from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR
+from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR, REQUIREMENTS_FILE
 from mic.credentials import get_credentials
-
 
 def build_image(mic_config_path, name):
     model_path = mic_config_path.parent
@@ -25,6 +24,22 @@ def build_image(mic_config_path, name):
         click.secho("Error building the image", fg="red")
         click.echo(e)
         exit(1)
+
+def verify_requirements_file(docker_path: Path):
+    content = ""
+    reqs = []
+    with open(docker_path / REQUIREMENTS_FILE, "r") as f:
+        content = f.readlines()
+        for line in content:
+            reqs.append(line)
+    validation = requirements_validator.check(reqs)
+    with open(docker_path / REQUIREMENTS_FILE, "w") as f:
+        for line in content:
+            if line not in validation:
+                f.write(line)
+            else:
+                click.secho("Warning: Invalid dist-package \"{}\" Ignoring".format(line.strip("\n")),fg="yellow")
+
 
 
 def build_docker(docker_path: Path, name: str):

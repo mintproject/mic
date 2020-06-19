@@ -17,7 +17,7 @@ from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, g
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code
 from mic.constants import *
-from mic.publisher.docker import publish_docker, build_docker
+from mic.publisher.docker import publish_docker, build_docker, verify_requirements_file
 from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
 
@@ -67,6 +67,7 @@ def start(user_execution_directory, dependencies, name):
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
     framework = detect_framework_main(user_execution_directory, dependencies)
+    verify_requirements_file(mic_dir / DOCKER_DIR)
     image = build_docker(mic_dir / DOCKER_DIR, name)
     if not image:
         click.secho("The extraction of dependencies has failed", fg='red')
