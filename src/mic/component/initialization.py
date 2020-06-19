@@ -17,7 +17,7 @@ env = Environment(
 
 def create_base_directories(mic_component_dir: Path, interactive=True):
     if mic_component_dir.exists():
-        click.secho("The directory {} already exists. If you continue, you can lost a previous component".format(
+        click.secho("The directory {} already exists. If you continue, you can lose a previous component".format(
             mic_component_dir.name), fg="yellow")
         if interactive and not click.confirm("Do you want to continue?", default=True, show_default=True):
             click.secho("Initialization aborted", fg="blue")
