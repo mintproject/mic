@@ -265,6 +265,10 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     code_files = find_code_files(spec, inputs_reprozip, config_files_list)
     new_inputs = []
     inputs_reprozip += list(custom_inputs)
+    data_dir = mic_directory_path.absolute() / DATA_DIR
+    shutil.rmtree(data_dir)
+    data_dir.mkdir()
+
     for _input in inputs_reprozip:
         item = user_execution_directory / _input
         name = Path(_input).name
@@ -274,12 +278,12 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
             if item.is_dir():
                 click.secho(f"""Input {name} is a directory""", fg="green")
                 click.secho(f"""Compressing the input {name} """, fg="green")
-                zip_file = compress_directory(item)
-                dst_dir = mic_directory_path.absolute() / DATA_DIR
+                zip_file = compress_directory(item, user_execution_directory)
+                dst_dir = data_dir
                 dst_file = dst_dir / Path(zip_file).name
                 if dst_file.exists():
                     os.remove(dst_file)
-                shutil.move(zip_file, dst_dir)
+                shutil.move(str(zip_file), str(dst_dir))
                 new_inputs.append(zip_file)
 
             else:
