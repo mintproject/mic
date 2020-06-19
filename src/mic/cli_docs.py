@@ -61,10 +61,20 @@ def info_end_run(execution_dir):
     click.secho("The step is going to publish the MIC Wrapper on GitHub, "
                 "the DockerImage on DockerHub and the Model Configuration on the MINT Model Catalog")
 
+
 def info_end_run_failed():
     click.secho("Failed", fg="red")
     click.secho(f"Something is wrong. You can report this problem at https://bit.ly/2zR1Tew", fg="blue")
 
 
-def info_step8():
+def info_start_publish():
     click.echo("This step publishes your code, DockerImage and ModelConfiguration")
+
+
+def info_end_publish(model_id, model_version_id, model_configuration_id, profile):
+    click.secho("Success", fg="green")
+    if model_id and model_version_id and model_configuration_id:
+        click.secho("You can edit the metadata of this model using the MINTUI")
+
+    click.echo("You can run the Model using DAME")
+    click.echo(f"dame run {model_configuration_id} -p {profile}")

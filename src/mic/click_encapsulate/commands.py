@@ -10,7 +10,7 @@ import semver
 from mic import _utils
 from mic._utils import find_dir, get_filepaths
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
-    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed
+    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
 from mic.component.detect import detect_framework_main, detect_new_reprozip
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
@@ -55,8 +55,8 @@ You should consider upgrading via the 'pip install --upgrade mic' command.""",
     default=Path('.'),
     required=True
 )
-@click.option('--dependencies/--no-dependencies', default=True)
-@click.option('--name', prompt="Model Configuration name")
+@click.option('--dependencies/--no-dependencies', default=True, help="Enable or disable the extraction of dependencies")
+@click.option('--name', prompt="Model Configuration name", help="Name of model configuration")
 def start(user_execution_directory, dependencies, name):
     """
     Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
@@ -93,9 +93,10 @@ pip freeze > mic/docker/requirements.txt
              context_settings=dict(
                  ignore_unknown_options=True,
              ))
-@click.option('--continue/--overwrite', 'append', default=None)
+@click.option('--c/--continue', 'c', default=None, help="add to the previous trace, don't replace it")
+@click.option('--o/--overwrite', 'o', default=None, help="overwrite the previous trace, don't add to it")
 @click.argument('command', nargs=-1, type=click.UNPROCESSED)
-def trace(command, append):
+def trace(command, c, o):
     """
     Fill the MIC configuration file with the information about the parameters and inputs
 
@@ -107,6 +108,14 @@ def trace(command, append):
     mic encapsulate trace python main.py
     mic encapsulate trace ./your_program
     """
+    if c and o:
+        click.secho("You can't use both --continue and --overwrite", fg="red")
+
+    if c:
+        append = True
+    if o:
+        append = False
+
     import reprozip.tracer.trace
     import reprozip.traceutils
     base_dir = REPRO_ZIP_TRACE_DIR
@@ -119,6 +128,8 @@ def trace(command, append):
     now = datetime.now().timestamp()
 
     status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, append, 1)
+    if status != 0:
+        click.secho("Program exited with non-zero code", fg="red")
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
     outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
@@ -204,7 +215,7 @@ def add_parameters(mic_file, name, value):
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
-@cli.command(short_help=f"""Write inputs into {CONFIG_YAML_NAME}""")
+@cli.command(short_help=f"""Detect the inputs and write them into {CONFIG_YAML_NAME}""")
 @click.argument(
     "custom_inputs",
     type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
@@ -218,6 +229,22 @@ def add_parameters(mic_file, name, value):
     default=CONFIG_YAML_NAME
 )
 def inputs(mic_file, custom_inputs):
+    """
+Detect the inputs of your model using the information obtained by the `trace` command.
+
+- You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
+command from the same directory as mic.yaml
+
+- Pass undetected files or directories as arguments
+
+mic encapsulate inputs -f <mic_file> [undetected files]...
+
+Example:
+
+mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
+
+
+    """
     info_start_inputs()
     mic_config_file = Path(mic_file)
     mic_directory_path = mic_config_file.parent
@@ -280,6 +307,21 @@ def inputs(mic_file, custom_inputs):
     default=CONFIG_YAML_NAME
 )
 def outputs(mic_file, custom_outputs):
+    """
+  Detect the outputs of your model using the information obtained by the
+  `trace` command.
+
+  - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
+  command from the same directory as mic.yaml
+
+  - Pass undetected files or directories as arguments
+
+  mic encapsulate outputs -f <mic_file> [undetected files]...
+
+  Example:
+
+  mic encapsulate outputs -f mic/mic.yaml input.txt inputs_directory
+    """
     info_start_outputs()
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
@@ -309,6 +351,20 @@ def outputs(mic_file, custom_outputs):
     default=CONFIG_YAML_NAME
 )
 def wrapper(mic_file):
+    """
+Generates the MIC Wrapper.
+Generate the directory structure and commands required to run your model component using the information from the
+previous steps
+
+  - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
+  command from the same directory as mic.yaml
+
+  mic encapsulate wrapper -f <mic_file>
+
+  Example:
+
+  mic encapsulate wrapper -f mic/mic.yaml
+    """
     info_start_wrapper()
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
@@ -345,6 +401,18 @@ def wrapper(mic_file):
     default=CONFIG_YAML_NAME
 )
 def run(mic_file):
+    """
+Copy the required files to run your model component in new directory and run it.
+
+  - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
+  command from the same directory as mic.yaml
+
+  mic encapsulate run -f <mic_file>
+
+  Example:
+
+  mic encapsulate wrapper -f mic/mic.yaml
+    """
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
     path = Path(mic_file)
     execution_dir = Path(path.parent / EXECUTIONS_DIR / execution_name)
@@ -373,16 +441,23 @@ def run(mic_file):
 )
 def publish(mic_file, profile):
     """
-    Publish your code and MIC wrapper on GitHub and the Docker Image on DockerHub
-    Example:
-    mic encapsulate step7 -f <mic_file>
+Publish your code and MIC wrapper on GitHub, the Docker Image on DockerHub
+and the Model Configuration on MINT Model Catalog.
+
+  - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
+  command from the same directory as mic.yaml
+
+  mic encapsulate publish -f <mic_file>
+
+  Example:
+
+  mic encapsulate publish -f mic/mic.yaml
     """
+    info_start_publish()
     mic_config_path = Path(mic_file)
     name = get_key_spec(mic_config_path, NAME_KEY)
-
-    click.secho("Deleting the executions")
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
     model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
     api_response_model, api_response_mc = publish_model_configuration(model_configuration, profile)
-    print(api_response_mc.id)
+    info_end_publish(None, None, api_response_mc.id, profile)
