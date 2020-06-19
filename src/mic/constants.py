@@ -68,6 +68,7 @@ class Framework(Enum):
     PYTHON37 = ("python3.7", "mintproject/python:3.7", ".py")
     PYTHON38 = ("python3.8", "mintproject/python:3.8", ".py")
     CONDA = ("conda4.7.12", "mintproject/conda:4.7.12", ".py")
+    JAVA = ("java8", "mintproject/java:8", ".jar")
     GENERIC = ("general", "mintproject/generic:latest")
 
     def __init__(self, label, image, extension=None):
