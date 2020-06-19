@@ -37,7 +37,6 @@ def create_model_catalog_resource(mint_config_file, name=None, execution_dir=Non
 
     image = get_key_spec(mint_config_file, DOCKER_KEY)
     code = get_key_spec(mint_config_file, MINT_COMPONENT_KEY)
-
     model_configuration = ModelConfiguration(type=[TYPE_MODEL_CONFIGURATION],
                                              label=[str(name)],
                                              has_input=model_catalog_inputs,

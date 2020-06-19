@@ -32,13 +32,16 @@ def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     click.secho("Pushing your changes to the server")
     git_push(repo, profile, _version)
     repo = get_github_repo(profile, name)
+    file = None
     for i in repo.get_contents(""):
         if i.name == "{}.zip".format(MINT_COMPONENT_ZIP):
             file = i
             write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
 
             break
-
+    if not file:
+        click.secho(f"Mint component not found {MINT_COMPONENT_ZIP}.zip", fg="red")
+        exit(1)
     write_spec(mic_config_path, REPO_KEY, url)
     write_spec(mic_config_path, VERSION_KEY, _version)
     click.secho("Repository: {}".format(url))
@@ -75,10 +78,12 @@ def compress_src_dir(model_path: Path):
     """
     zip_file_name = model_path / MINT_COMPONENT_ZIP
     src_dir = model_path / SRC_DIR
+    mic_component_path = model_path / f"{MINT_COMPONENT_ZIP}.zip"
+    if mic_component_path.exists():
+        os.remove(mic_component_path)
     zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
                                         base_dir=src_dir.relative_to(model_path.parent))
-    path = src_dir / Path(zip_file_path).name
-    shutil.move(zip_file_path, path)
+    shutil.move(zip_file_path, mic_component_path)
     return zip_file_path
 
 
