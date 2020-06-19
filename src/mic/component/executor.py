@@ -1,5 +1,4 @@
 import logging
-import logging
 import shutil
 import subprocess
 from pathlib import Path
@@ -25,10 +24,8 @@ def _copy_directory(src: Path, dest: Path) -> Path:
     return shutil.copytree(src, dest)
 
 
-def create_execution_directory(mic_config_file: Path):
-    from datetime import datetime
+def create_execution_directory(mic_config_file: Path, execution_name):
     model_path = mic_config_file.parent
-    execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
     execution_dir = model_path / EXECUTIONS_DIR / execution_name
     execution_dir.mkdir(parents=True)
     click.secho("Create a execution directory {}".format(execution_dir))
@@ -51,8 +48,8 @@ def run_execution(line, execution_dir):
     return proc.returncode
 
 
-def execute_local(mint_config_file: Path):
-    execution_dir = create_execution_directory(mint_config_file)
+def execute_local(mint_config_file: Path, execution_name):
+    execution_dir = create_execution_directory(mint_config_file, execution_name)
     resource = create_model_catalog_resource(mint_config_file, name=None, execution_dir=execution_dir)
     try:
         line = get_command_line(resource)
@@ -102,6 +99,14 @@ def build_input(inputs):
 def copy_code_to_src(code_files, user_execution_directory, src_dir):
     for key, item in code_files.items():
         file_path = user_execution_directory / item[PATH_KEY]
-        print(file_path)
-        click.secho(f"""Copy the code: {file_path.name} to the MIC Wrapper directory""")
+        relative_to = src_dir.relative_to(user_execution_directory)
+        click.secho(f"""Copying the code: {file_path.name} to the MIC Wrapper directory {relative_to}""")
+        shutil.copyfile(file_path, src_dir / file_path.name)
+
+
+def copy_config_to_src(code_files, user_execution_directory, src_dir):
+    for key, item in code_files.items():
+        file_path = user_execution_directory / item[PATH_KEY]
+        relative_to = src_dir.relative_to(user_execution_directory)
+        click.secho(f"""Copying the config: {file_path.name} to the MIC Wrapper directory {relative_to}""")
         shutil.copyfile(file_path, src_dir / file_path.name)

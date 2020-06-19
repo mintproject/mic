@@ -7,11 +7,12 @@ from pathlib import Path
 import click
 import mic
 import semver
-from mic.cli_docs import info_start_inputs
 from mic import _utils
-from mic._utils import find_dir
+from mic._utils import find_dir, get_filepaths
+from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
+    info_end_wrapper, info_start_run, info_end_run
 from mic.component.detect import detect_framework_main, detect_new_reprozip
-from mic.component.executor import copy_code_to_src, compress_directory, execute_local
+from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
 from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
@@ -244,8 +245,8 @@ def inputs(mic_file, custom_inputs):
             click.secho(f"Ignoring the config {item} as a input.", fg="blue")
         else:
             if item.is_dir():
-                click.secho(f"""[{name}] Input is a directory""", fg="green")
-                click.secho(f"""[{name}] Compressing the input """, fg="green")
+                click.secho(f"""Input {name} is a directory""", fg="green")
+                click.secho(f"""Compressing the input {name} """, fg="green")
                 zip_file = compress_directory(item)
                 dst_dir = mic_directory_path.absolute() / DATA_DIR
                 dst_file = dst_dir / Path(zip_file).name
@@ -255,15 +256,15 @@ def inputs(mic_file, custom_inputs):
                 new_inputs.append(zip_file)
 
             else:
-                click.secho(f"""[{name}] Input is a file""", fg="green")
+                click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
                 shutil.copy(item, dst_file)
-            click.secho(f"""[{name}] Input added """, fg="blue")
-
-    click.secho('Writing inputs metadata', fg="blue")
+            click.secho(f"""Input {name}  added """, fg="blue")
+    info_end_inputs(new_inputs)
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
+
 
 @cli.command(short_help=f"""Write outputs into {CONFIG_YAML_NAME}""")
 @click.argument(
@@ -272,14 +273,14 @@ def inputs(mic_file, custom_inputs):
     required=False,
     nargs=-1
 )
-@click.option('--aggregate/--no-aggregate', default=False)
 @click.option(
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def outputs(mic_file, aggregate, custom_outputs):
+def outputs(mic_file, custom_outputs):
+    info_start_outputs()
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
     repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
@@ -288,10 +289,15 @@ def outputs(mic_file, aggregate, custom_outputs):
     spec = get_spec(repro_zip_config_file)
     custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                       list(custom_outputs)]
-    outputs = get_outputs(spec, user_execution_directory, aggregrate=aggregate) + list(custom_outputs)
-    click.secho('Writing output metadata', fg="blue")
+    outputs = get_outputs(spec, user_execution_directory)
+    for i in list(custom_outputs):
+        if Path(i).is_dir():
+            outputs += get_filepaths(i)
+        else:
+            outputs.append(i)
     for i in outputs:
         click.secho(f"""Output added: {i} """, fg="green")
+    info_end_outputs(outputs)
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
 
 
@@ -303,6 +309,7 @@ def outputs(mic_file, aggregate, custom_outputs):
     default=CONFIG_YAML_NAME
 )
 def wrapper(mic_file):
+    info_start_wrapper()
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
 
@@ -326,8 +333,8 @@ def wrapper(mic_file):
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)
     render_output(mic_directory_path, [], False)
     copy_code_to_src(mic_code, user_execution_directory, mic_directory_path / SRC_DIR)
-    copy_code_to_src(mic_configs, user_execution_directory,
-                     mic_directory_path / SRC_DIR)
+    copy_config_to_src(mic_configs, user_execution_directory, mic_directory_path / SRC_DIR)
+    info_end_wrapper(mic_directory_path / SRC_DIR / RUN_FILE)
 
 
 @cli.command(short_help=f"""Run the wrapper {CONFIG_YAML_NAME}""")
@@ -338,7 +345,13 @@ def wrapper(mic_file):
     default=CONFIG_YAML_NAME
 )
 def run(mic_file):
-    execute_local(Path(mic_file))
+    execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
+
+    path = Path(mic_file)
+    execution_dir = Path(path.parent / EXECUTIONS_DIR / execution_name)
+    info_start_run(execution_dir.relative_to(path.parent.parent))
+    execute_local(path, execution_name)
+    info_end_run(execution_dir)
 
 
 @cli.command(short_help="Publish your code in GitHub and your image to DockerHub")
