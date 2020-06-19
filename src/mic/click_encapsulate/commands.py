@@ -110,7 +110,9 @@ def trace(command, c, o):
     """
     if c and o:
         click.secho("You can't use both --continue and --overwrite", fg="red")
+        exit(1)
 
+    append = None
     if c:
         append = True
     if o:
