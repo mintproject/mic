@@ -75,6 +75,7 @@ def start(user_execution_directory, dependencies, name):
         click.secho("Running a Docker Container without your dependencies. Please install them manually", fg='green')
         image = framework.image
     write_spec(mic_config_path, NAME_KEY, name)
+    write_spec(mic_config_path, DOCKER_KEY, image)
     click.secho(f"""
 You are in a Linux environment Debian distribution
 We detect the following dependencies.
