@@ -199,6 +199,41 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
     for item in spec[OUTPUTS_KEY]:
         click.secho("Added: {} as a output".format(item))
 
+def add_params_from_config(yaml_path: Path, config_path: Path):
+    """
+    Add parameters to the mic.yaml file from the user's config file. Looks for ${var_name} in config file and
+    adds the var_name as parameter to yaml
+
+    @param yaml_path: path to mic.yaml file
+    @type yaml_path: Path
+    @param config_path: path to user's config file
+    @type config_path: Path
+    """
+    mic_yaml = yaml.load(yaml_path.open(), Loader=Loader)
+    var_list = []
+    with open(config_path, "r") as f:
+        file = f.readlines()
+        for line in file:
+
+            if "${" in line and "}" in line:
+                tmp = line[line.find("${")+2:line.find("}")]
+                var_list.append(tmp)
+
+    # Add the var names as parameters
+    added = False
+    for name in var_list:
+
+        if PARAMETERS_KEY not in mic_yaml:
+            mic_yaml[PARAMETERS_KEY] = {}
+
+        if name not in mic_yaml[PARAMETERS_KEY]:
+            mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0}})
+            click.secho("Automatically adding \"{}\" as a parameter".format(name))
+            added = True
+        write_spec(Path(yaml_path), PARAMETERS_KEY, mic_yaml[PARAMETERS_KEY])
+
+    if added:
+        click.secho("Default values will need to be added in {} for each parameter".format(CONFIG_YAML_NAME),fg="green")
 
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
     inputs = get_inputs(config_yaml_path)
