@@ -160,7 +160,8 @@ def configs(mic_file, configuration_files,autoparam):
     """
     If your model does not use configuration files, you can skip this step
 
-    Specify the inputs and parameters of your model component from configuration file(s)
+    Specify the inputs and parameters of your model component from configuration file(s). Running mic encapsulate inputs
+    before this command will ensure inputs don't get auto detected as parameters
 
     - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
