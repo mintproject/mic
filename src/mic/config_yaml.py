@@ -226,16 +226,29 @@ def add_params_from_config(yaml_path: Path, config_path: Path):
         if PARAMETERS_KEY not in mic_yaml:
             mic_yaml[PARAMETERS_KEY] = {}
 
+        not_input = False
+        not_output = False
+        not_config = False
+
         if name not in mic_yaml[PARAMETERS_KEY]:
             if INPUTS_KEY not in mic_yaml:
-                mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0}})
-                click.secho("Automatically adding \"{}\" as a parameter".format(name))
-                added = True
+                not_input = True
             elif name not in mic_yaml[INPUTS_KEY]:
+                not_input = True
+            if OUTPUTS_KEY not in mic_yaml:
+                not_output = True
+            elif name not in mic_yaml[OUTPUTS_KEY]:
+                not_output = True
+            if CONFIG_FILE_KEY not in mic_yaml:
+                not_config = True
+            elif name not in mic_yaml[CONFIG_FILE_KEY]:
+                not_config = True
+
+            if not_input and not_output and not_config:
                 mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0}})
                 click.secho("Automatically adding \"{}\" as a parameter".format(name))
                 added = True
-                
+
         write_spec(Path(yaml_path), PARAMETERS_KEY, mic_yaml[PARAMETERS_KEY])
 
     if added:
