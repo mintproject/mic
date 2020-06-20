@@ -17,7 +17,7 @@ from mic.component.initialization import render_run_sh, render_io_sh, render_out
 from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
-    get_inputs, get_parameters, get_outputs_mic, get_code
+    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
@@ -155,11 +155,13 @@ def trace(command, c, o):
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def configs(mic_file, configuration_files):
+@click.option('-a', '--auto_param', is_flag=True, default=False, help="Enable automatic detection of parameters from "
+                                                                      "config file")
+def configs(mic_file, configuration_files,auto_param):
     """
     If your model does not use configuration files, you can skip this step
 
-    Specify the inputs and parameters of your model component from configuration file(s)
+    Specify the inputs and parameters of your model component from configuration file(s).
 
     - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the command from the same directory as mic.yaml
 
@@ -179,11 +181,16 @@ def configs(mic_file, configuration_files):
         exit(1)
     configuration_files = [str(Path(x).absolute()) for x in list(configuration_files)]
     try:
+        # Add config file names to yaml
         write_spec(mic_config_file, CONFIG_FILE_KEY, relative(configuration_files, user_execution_directory))
     except Exception as e:
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in configuration_files:
         click.secho("Added: {} as a configuration file".format(item))
+        if auto_param:
+            # Parse parameters from config file(s) and add them to mic.yaml
+            add_params_from_config(mic_config_file, item)
+
     write_spec(mic_config_file, STEP_KEY, 2)
 
 

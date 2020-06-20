@@ -1,6 +1,6 @@
 import shutil
 from pathlib import Path
-
+import os
 from click.testing import CliRunner
 from mic.click_encapsulate.commands import inputs, outputs, wrapper
 from mic.config_yaml import get_outputs_mic, get_parameters, get_inputs_parameters, get_configs
@@ -37,6 +37,8 @@ def test_get_inputs_parameters():
                                             {'config_json': {'format': 'json', 'path': 'config.json'}})
     assert get_inputs_parameters(mic_empty) == ({}, {}, {}, {})
 
+# def test_auto_parameters():
+#     os.mkdir("")
 
 def test_issue_168(tmp_path):
     test_name = "issue_168"
