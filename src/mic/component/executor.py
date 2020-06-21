@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 from dame.executor import build_parameter, build_output
-from mic.config_yaml import get_key_spec
+from mic.config_yaml import get_key_spec, get_inputs
 from mic.constants import SRC_DIR, EXECUTIONS_DIR, PATH_KEY, DATA_DIR, INPUTS_KEY
 from mic.publisher.model_catalog import create_model_catalog_resource
 
@@ -36,7 +36,7 @@ def create_execution_directory(mic_config_file: Path, execution_name):
     click.secho(f"""Copying the inputs
 Source: {model_path / DATA_DIR}
 Destination: {src_executions_dir}""")
-    spec = get_key_spec(mic_config_file, INPUTS_KEY)
+    spec = get_inputs(mic_config_file)
     for key, value in spec.items():
         file = model_path / DATA_DIR / str(Path(value[PATH_KEY]).name)
         copy_file(file, src_executions_dir)

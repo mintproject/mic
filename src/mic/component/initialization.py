@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from typing import List
 
 import click
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -105,13 +104,14 @@ def render_run_sh(directory: Path,
 
 def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list) -> Path:
     template = env.get_template(IO_FILE)
-    data_dir = directory / DATA_DIR
     file = directory / SRC_DIR / IO_FILE
     if configs is None: configs = []
 
     list_config = [value[PATH_KEY] for key, value in configs.items()]
+    print(parameters)
     with open(file, "w") as f:
-        content = render_template(template=template, inputs=inputs,
+        content = render_template(template=template,
+                                  inputs=inputs,
                                   parameters=parameters,
                                   configs=list_config)
         f.write(content)
@@ -141,9 +141,21 @@ def render_dockerfile(model_directory: Path, language: Framework) -> Path:
     return run_file
 
 
-def render_output(directory: Path, files: List[Path], compress: bool) -> Path:
+def render_bash_color(directory: Path) -> Path:
+    template = env.get_template(BASH_COLOR_FILE)
+    file = directory / SRC_DIR / BASH_COLOR_FILE
+    with open(file, "w") as f:
+        content = render_template(template=template)
+        f.write(content)
+    return file
+
+
+def render_output(directory: Path, outputs: dict, compress: bool) -> Path:
     template = env.get_template(OUTPUT_FILE)
     run_file = directory / SRC_DIR / OUTPUT_FILE
+    files = []
+    for key, value in outputs.items():
+        files.append(value[PATH_KEY])
     with open(run_file, "w") as f:
         if files and compress:
             content = render_template(template=template, files=files, compress=compress)

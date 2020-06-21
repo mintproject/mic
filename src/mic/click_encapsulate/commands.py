@@ -13,7 +13,8 @@ from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapp
     info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
 from mic.component.detect import detect_framework_main, detect_new_reprozip
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
-from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories
+from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
+    render_bash_color
 from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
@@ -393,9 +394,10 @@ previous steps
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
 {generate_runner(reprozip_spec, user_execution_directory)}"""
     write_spec(mic_config_file, COMMANDS_RUNNER, code)
+    render_bash_color(mic_directory_path)
     render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)
-    render_output(mic_directory_path, [], False)
+    render_output(mic_directory_path, mic_outputs, False)
     copy_code_to_src(mic_code, user_execution_directory, mic_directory_path / SRC_DIR)
     copy_config_to_src(mic_configs, user_execution_directory, mic_directory_path / SRC_DIR)
     info_end_wrapper(mic_directory_path / SRC_DIR / RUN_FILE)

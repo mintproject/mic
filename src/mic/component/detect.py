@@ -4,11 +4,9 @@ from datetime import datetime
 from pathlib import Path
 
 import click
-from mic.component.initialization import detect_framework, render_dockerfile, render_conda, render_output
+from mic.component.initialization import detect_framework, render_dockerfile, render_conda
 from mic.component.python3 import freeze
-from mic.config_yaml import get_key_spec, add_outputs
-from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, REPRO_ZIP_TRACE_DIR, \
-    CONFIG_FILE_KEY
+from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, REPRO_ZIP_TRACE_DIR
 
 
 def detect_new_reprozip(src_directory: Path, time: datetime, ignore_dir=[REPRO_ZIP_TRACE_DIR]):
