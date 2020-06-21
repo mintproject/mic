@@ -41,8 +41,8 @@ def info_end_wrapper(run):
     click.secho("Success", fg="green")
     click.secho(f"The wrapper has been generated. You can see it at {run}", fg="blue")
     click.secho("The next step is `mic encapsulate run`")
-    click.secho("It is going to create a new directory (execution directory),"
-                "copy the inputs, code and configuration files  and run the model.")
+    click.secho("The command run is going to create a new directory (execution directory), "
+                "and MIC is going the inputs, code, and configuration files and run the model.")
     click.secho("For more information, you can type.")
     click.secho("mic encapsulate run --help")
 

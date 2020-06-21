@@ -19,31 +19,33 @@ author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
 
 
 def push(model_directory: Path, mic_config_path: Path, name: str, profile):
+    repository_name = name
     click.secho("Creating the git repository")
-    repo = get_or_create_repo(model_directory)
+    repo = get_local_repo(model_directory)
     click.secho("Compressing your code")
     compress_src_dir(model_directory)
     click.secho("Creating a new commit")
     git_commit(repo)
     click.secho("Creating or using the GitHub repository")
-    url = check_create_remote_repo(repo, profile, name)
+    url = check_create_remote_repo(repo, profile, repository_name)
+    repository_name = url.split('/')[-1].replace(".git", "")
+    write_spec(mic_config_path, REPO_KEY, url)
     click.secho("Creating a new version")
     _version = git_tag(repo, author)
     click.secho("Pushing your changes to the server")
     git_push(repo, profile, _version)
-    repo = get_github_repo(profile, name)
+    write_spec(mic_config_path, VERSION_KEY, _version)
+
+    repo = get_github_repo(profile, repository_name)
     file = None
     for i in repo.get_contents(""):
         if i.name == "{}.zip".format(MINT_COMPONENT_ZIP):
             file = i
             write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
-
             break
     if not file:
         click.secho(f"Mint component not found {MINT_COMPONENT_ZIP}.zip", fg="red")
         exit(1)
-    write_spec(mic_config_path, REPO_KEY, url)
-    write_spec(mic_config_path, VERSION_KEY, _version)
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
 
@@ -64,9 +66,7 @@ def git_commit(repo):
     repo.create_commit('refs/heads/master', author, author, "automated mic", tree, parents)
 
 
-def get_or_create_repo(model_path: Path):
-    if (model_path / GIT_DIRECTORY).exists():
-        click.secho("WARNING: Git directory ")
+def get_local_repo(model_path: Path):
     return pygit2.Repository(pygit2.discover_repository(model_path)) if pygit2.discover_repository(
         model_path) else pygit2.init_repository(
         model_path, False)
@@ -89,11 +89,16 @@ def compress_src_dir(model_path: Path):
 
 def check_create_remote_repo(repo, profile, model_name):
     if "origin" in [i.name for i in repo.remotes]:
-        return repo.remotes["origin"].url
+        origin__url = repo.remotes["origin"].url
+        click.secho(f"The git repository has a remote server configured {origin__url}")
+        return origin__url
     else:
+        click.secho(f"The git repository has not a remote server configured ")
+        click.secho(f"Creating a new repository on GitHub")
         repo_github = github_create_repo(profile, model_name)
         url = repo_github.clone_url
         repo.remotes.create("origin", url)
+        click.secho(f"The url is: {url}")
         return url
 
 

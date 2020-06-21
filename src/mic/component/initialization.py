@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 from jinja2 import Environment, PackageLoader, select_autoescape
 from mic.constants import *
-from mic.publisher.github import get_or_create_repo
+from mic.publisher.github import get_local_repo
 
 env = Environment(
     loader=PackageLoader('mic', 'templates'),
@@ -33,7 +33,7 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
     src.mkdir(parents=True, exist_ok=True)
     docker.mkdir(parents=True, exist_ok=True)
     data.mkdir(parents=True, exist_ok=True)
-    get_or_create_repo(mic_component_dir)
+    get_local_repo(mic_component_dir)
     click.secho("MIC has initialized the component.")
     click.secho("[Created] {}:      {}".format(DATA_DIR, mic_component_dir / DATA_DIR))
     click.secho("[Created] {}:    {}".format(DOCKER_DIR, mic_component_dir / DOCKER_DIR))
