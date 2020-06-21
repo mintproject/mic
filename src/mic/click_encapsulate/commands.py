@@ -223,6 +223,7 @@ def add_parameters(mic_file, name, value, overwrite):
 
     if not overwrite and name in spec[PARAMETERS_KEY]:
         click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
+        exit(1)
     else:
         type_value____name__ = type(value).__name__
         click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")

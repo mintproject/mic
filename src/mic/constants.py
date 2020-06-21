@@ -104,12 +104,15 @@ class BasedIntParamType(click.ParamType):
 
     def convert_to(self, value, _type):
         try:
-            if _type == int:
-                return int(value)
-            elif _type == float:
+            if _type == float:
                 return float(value)
+            elif _type == int:
+                return int(value, base=10)
             elif _type == bool:
-                return bool(value)
+                if value in ['True', 'true', 'False', 'false']:
+                    return bool(value)
+                else:
+                    raise ValueError
             elif _type == str:
                 return str(value)
         except TypeError as e:
