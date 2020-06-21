@@ -1,5 +1,7 @@
 from enum import Enum
 
+import click
+
 GIT_DIRECTORY = ".git"
 FORMAT_KEY = "format"
 MIC_DEFAULT_PATH = "/tmp/mint/"
@@ -49,7 +51,8 @@ VERSION_KEY = "version"
 DOCKER_USERNAME_KEY = "dockerhub_username"
 MINT_COMPONENT_KEY = "mint_component_url"
 MINT_INSTANCE = "https://w3id.org/okn/i/mint/"
-
+HAS_DATATYPE_KEY = "hasDataType"
+DATATYPE_KEY = "type"
 TYPE_PARAMETER = "https://w3id.org/okn/o/sd#Parameter"
 TYPE_MODEL_CONFIGURATION = "https://w3id.org/okn/o/sdm#ModelConfiguration"
 TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
@@ -85,3 +88,34 @@ def handle(value):
     for i in Framework:
         if value == i.label:
             return i
+
+
+class BasedIntParamType(click.ParamType):
+    name = "Any type (float, integer, bool, string)"
+
+    def convert(self, value, param, ctx):
+        for _type in [int, float, bool, str]:
+            try:
+                return self.convert_to(value, _type)
+            except TypeError:
+                pass
+            except ValueError as e:
+                pass
+
+    def convert_to(self, value, _type):
+        try:
+            if _type == int:
+                return int(value)
+            elif _type == float:
+                return float(value)
+            elif _type == bool:
+                return bool(value)
+            elif _type == str:
+                return str(value)
+        except TypeError as e:
+            raise e
+        except ValueError as e:
+            raise e
+
+
+ANY_TYPE = BasedIntParamType()

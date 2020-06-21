@@ -196,15 +196,16 @@ def configs(mic_file, configuration_files,auto_param):
 
 
 @cli.command(short_help="Add parameters " + CONFIG_YAML_NAME, name="parameters")
-@click.argument("name", required=True, type=str)
-@click.argument("value", required=True)
+@click.option('--name', "-n",  help="Name of the parameter", required=True, type=click.STRING)
+@click.option('--value', "-v", help="Default value of the parameter", required=True, type=ANY_TYPE)
+@click.option('--overwrite', help="Overwrite a existing parameter", is_flag=True, default=False)
 @click.option(
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def add_parameters(mic_file, name, value):
+def add_parameters(mic_file, name, value, overwrite):
     """
     Add a parameter into the MIC file (mic.yaml).
 
@@ -212,17 +213,20 @@ def add_parameters(mic_file, name, value):
 
     Example:
 
-    mic encapsulate parameters -f <mic_file> PARAMETER_NAME PARAMETER_VALUE
+    mic encapsulate parameters -f <mic_file> --name PARAMETER_NAME --value PARAMETER_VALUE
     """
     path = Path(mic_file)
     spec = get_spec(path)
+
     if PARAMETERS_KEY not in spec:
         spec[PARAMETERS_KEY] = {}
 
-    if name in spec[PARAMETERS_KEY]:
-        click.echo("The parameter exists")
+    if not overwrite and name in spec[PARAMETERS_KEY]:
+        click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
     else:
-        spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: ast.literal_eval(value)}})
+        type_value____name__ = type(value).__name__
+        click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
+        spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: value, DATATYPE_KEY: type_value____name__}})
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
