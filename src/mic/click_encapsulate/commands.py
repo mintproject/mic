@@ -18,7 +18,7 @@ from mic.component.initialization import render_run_sh, render_io_sh, render_out
 from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
-    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config
+    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
@@ -457,7 +457,7 @@ Copy the required files to run your model component in new directory and run it.
         click.echo("You model has passed all the tests. Please, review the outputs files.")
         click.echo('If the model is ok, type "exit" to go back to your computer')
         click.echo('IMPORTANT: type "exit" and then publish your Model Component')
-        framework = get_key_spec(mic_config_path, FRAMEWORK_KEY)
+        framework = get_framework(mic_config_path)
         if framework:
             extract_dependencies(framework, mic_config_path.parent / DOCKER_DIR)
     else:
