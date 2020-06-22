@@ -2,6 +2,7 @@ import shutil
 from pathlib import Path
 import os
 from click.testing import CliRunner
+from mic.component.initialization import create_base_directories
 from mic.click_encapsulate.commands import inputs, outputs, wrapper, run
 from mic.config_yaml import get_outputs_mic, get_parameters, get_inputs_parameters, get_configs
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME
@@ -70,8 +71,12 @@ def test_issue_191(tmp_path):
     path = Path(__file__).parent / RESOURCES / test_name
     path_test_name = tmp_path / test_name
     shutil.copytree(path, path_test_name)
+
     runner = CliRunner()
-    mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
+    mic_dir = path_test_name / MIC_DIR
+    mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
+    create_base_directories(mic_dir, interactive=False)
+
     try:
         result = runner.invoke(inputs, ["-f", mic_config_arg], catch_exceptions=False)
         print(result.output)

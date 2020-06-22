@@ -4,9 +4,10 @@ from pathlib import Path
 from tempfile import mkstemp
 
 from click.testing import CliRunner
-from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
+from mic.component.initialization import create_base_directories
 from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run
-from mic.constants import MIC_DIR, CONFIG_YAML_NAME
+from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
+from mic.constants import MIC_DIR, CONFIG_YAML_NAME, SRC_DIR, DOCKER_DIR, DATA_DIR
 
 RESOURCES = "resources"
 mic_1 = Path(__file__).parent / RESOURCES / "mic_full.yaml"
@@ -15,11 +16,13 @@ mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 def test_issue_187(tmp_path):
     test_name = "187"
-    path_test_name = tmp_path / test_name
-    path = Path(__file__).parent / RESOURCES / test_name
-    shutil.copytree(path, path_test_name)
+    temp_test = tmp_path / test_name
+    mic_dir = temp_test / MIC_DIR
+    repository_test = Path(__file__).parent / RESOURCES / test_name
+    shutil.copytree(repository_test, temp_test)
+    create_base_directories(mic_dir, interactive=False)
     runner = CliRunner()
-    mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
+    mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
     cmd_outputs(mic_config_arg, runner)
@@ -90,8 +93,8 @@ def cmd_outputs(mic_config_arg, runner):
 def check_outputs(mic_config_arg):
     files = get_outputs_mic(Path(mic_config_arg))
     assert files == {'a_txt': {'format': 'txt', 'path': 'outputs/a.txt'},
- 'b_txt': {'format': 'txt', 'path': 'outputs/b.txt'},
- 'c_txt': {'format': 'txt', 'path': 'outputs/c.txt'}}
+                     'b_txt': {'format': 'txt', 'path': 'outputs/b.txt'},
+                     'c_txt': {'format': 'txt', 'path': 'outputs/c.txt'}}
 
 
 def cmd_wrapper(mic_config_arg, runner):
@@ -124,3 +127,12 @@ def replace(file_path, pattern, subst):
     shutil.copymode(file_path, abs_path)
     shutil.remove(file_path)
     shutil.move(abs_path, file_path)
+
+
+def create_base(path_test_name):
+    src = path_test_name / SRC_DIR
+    docker = path_test_name / DOCKER_DIR
+    data = path_test_name / DATA_DIR
+    src.mkdir(parents=True, exist_ok=True)
+    docker.mkdir(parents=True, exist_ok=True)
+    data.mkdir(parents=True, exist_ok=True)

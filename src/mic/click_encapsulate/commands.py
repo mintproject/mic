@@ -283,7 +283,8 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     new_inputs = []
     inputs_reprozip += list(custom_inputs)
     data_dir = mic_directory_path.absolute() / DATA_DIR
-    shutil.rmtree(data_dir)
+    if data_dir.exists():
+        shutil.rmtree(data_dir)
     data_dir.mkdir()
     outputs = get_outputs(spec, user_execution_directory)
     for _input in inputs_reprozip:

@@ -4,9 +4,10 @@ from pathlib import Path
 from tempfile import mkstemp
 
 from click.testing import CliRunner
+from mic.component.initialization import create_base_directories
 from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
 from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run
-from mic.constants import MIC_DIR, CONFIG_YAML_NAME
+from mic.constants import MIC_DIR, CONFIG_YAML_NAME, SRC_DIR, DOCKER_DIR, DATA_DIR
 
 RESOURCES = "resources"
 mic_1 = Path(__file__).parent / RESOURCES / "mic_full.yaml"
@@ -15,14 +16,18 @@ mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 def test_issue_184(tmp_path):
     test_name = "184"
-    path_test_name = tmp_path / test_name
-    path = Path(__file__).parent / RESOURCES / test_name
-    shutil.copytree(path, path_test_name)
+    temp_test = tmp_path / test_name
+    mic_dir = temp_test / MIC_DIR
+    repository_test = Path(__file__).parent / RESOURCES / test_name
+    shutil.copytree(repository_test, temp_test)
     runner = CliRunner()
-    mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
+
+
+    mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
+    create_base_directories(mic_dir, interactive=False)
     cmd_add_parameters(mic_config_arg, runner)
     check_parameters(mic_config_arg)
-    cmd_configs(mic_config_arg, path, runner)
+    cmd_configs(mic_config_arg, repository_test, runner)
     check_config(mic_config_arg)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
@@ -30,6 +35,10 @@ def test_issue_184(tmp_path):
     check_outputs(mic_config_arg)
     cmd_wrapper(mic_config_arg, runner)
     cmd_run(mic_config_arg, runner)
+
+
+def cmd_start(mic_dir):
+    create_base_directories(mic_dir)
 
 
 def cmd_configs(mic_config_arg, path, runner):
