@@ -11,14 +11,14 @@ from mic import _utils
 from mic._utils import find_dir, get_filepaths, obtain_id
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
     info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
-from mic.component.detect import detect_framework_main, detect_new_reprozip
+from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
     render_bash_color
 from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
-    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config
+    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
@@ -56,9 +56,8 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
     default=Path('.'),
     required=True
 )
-@click.option('--dependencies/--no-dependencies', default=True, help="Enable or disable automated extraction of dependencies")
 @click.option('--name', prompt="Model Configuration name", help="Name of model configuration you want for your model")
-def start(user_execution_directory, dependencies, name):
+def start(user_execution_directory, name):
     """
     Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
     GitHub repository
@@ -69,7 +68,7 @@ def start(user_execution_directory, dependencies, name):
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
-    framework = detect_framework_main(user_execution_directory, dependencies)
+    framework = detect_framework_main(user_execution_directory)
     image = build_docker(mic_dir / DOCKER_DIR, name)
     if not image:
         click.secho("The extraction of dependencies has failed", fg='red')
@@ -77,6 +76,7 @@ def start(user_execution_directory, dependencies, name):
         image = framework.image
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, image)
+    write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     click.secho(f"""
 You are in a Linux environment Debian distribution
 We detect the following dependencies.
@@ -449,15 +449,17 @@ Copy the required files to run your model component in new directory and run it.
   mic encapsulate wrapper -f mic/mic.yaml
     """
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
-    path = Path(mic_file)
-    execution_dir = Path(path.parent / EXECUTIONS_DIR / execution_name)
-    info_start_run(execution_dir.relative_to(path.parent.parent))
-    if execute_local(path, execution_name):
+    mic_config_path = Path(mic_file)
+    execution_dir = Path(mic_config_path.parent / EXECUTIONS_DIR / execution_name)
+    info_start_run(execution_dir.relative_to(mic_config_path.parent.parent))
+    if execute_local(mic_config_path, execution_name):
         info_end_run(execution_dir)
         click.echo("You model has passed all the tests. Please, review the outputs files.")
         click.echo('If the model is ok, type "exit" to go back to your computer')
         click.echo('IMPORTANT: type "exit" and then publish your Model Component')
-
+        framework = get_framework(mic_config_path)
+        if framework:
+            extract_dependencies(framework, mic_config_path.parent / DOCKER_DIR)
     else:
         info_end_run_failed()
 

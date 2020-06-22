@@ -32,13 +32,12 @@ def detect_new_reprozip(src_directory: Path, time: datetime, ignore_dir=[REPRO_Z
     return files_list
 
 
-def detect_framework_main(user_execution_directory, dependencies):
+def detect_framework_main(user_execution_directory):
     user_execution_directory_mic = user_execution_directory / MIC_DIR
     user_execution_directory_docker = user_execution_directory_mic / DOCKER_DIR
     user_execution_directory_mic.mkdir(exist_ok=True)
     user_execution_directory_docker.mkdir(exist_ok=True)
 
-    backup_image = None
     frameworks = detect_framework(user_execution_directory)
     click.echo("You can disable the detection of dependencies using the option --no-dependencies ")
     if len(frameworks) > 1:
@@ -57,22 +56,25 @@ def detect_framework_main(user_execution_directory, dependencies):
     else:
         framework = Framework.GENERIC
 
+    extract_dependencies(framework, user_execution_directory_docker)
+    dockerfile = render_dockerfile(user_execution_directory_mic, framework)
+    click.secho("Dockerfile has been created: {}".format(dockerfile))
+    return framework
+
+
+def extract_dependencies(framework, user_execution_directory_docker):
     if framework == Framework.GENERIC:
         bin_dir = user_execution_directory_docker / "bin"
         bin_dir.mkdir(exist_ok=True)
-    elif dependencies and (framework == Framework.PYTHON37 or framework == Framework.PYTHON38):
+    elif (framework == Framework.PYTHON37 or framework == Framework.PYTHON38):
         requirements_file = user_execution_directory_docker / REQUIREMENTS_FILE
         freeze(requirements_file)
         click.echo("Extracting the Python dependencies.\nYou can view or edit the dependencies file {} ".format(
             requirements_file))
-    elif framework == Framework.CONDA:
-        try:
-            reqs = subprocess.check_output(['conda', 'env', 'export', '--from-history'])
-            click.echo(reqs)
-
-        except:
-            click.secho("Unable to obtain conda dependencies")
-        render_conda(user_execution_directory_docker)
-    dockerfile = render_dockerfile(user_execution_directory_mic, framework)
-    click.secho("Dockerfile has been created: {}".format(dockerfile))
-    return framework
+    # elif framework == Framework.CONDA:
+    #     try:
+    #         reqs = subprocess.check_output(['conda', 'env', 'export', '--from-history'])
+    #         click.echo(reqs)
+    #     except:
+    #         click.secho("Unable to obtain conda dependencies")
+    #     render_conda(user_execution_directory_docker)
