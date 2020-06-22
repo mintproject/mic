@@ -43,21 +43,21 @@ def cli(verbose):
     if semver.compare(lv, cv) > 0:
         click.secho(
             f"""WARNING: You are using mic version {mic.__version__}, however version {lv} is available.
-You should consider upgrading via the 'pip install --upgrade mic' command.""",
+You should consider upgrading via 'pip install --upgrade mic' command.""",
             fg="yellow",
         )
 
 
-@cli.command(short_help="Create a Linux environment. The working directory must contains all the files required in the"
-                        " execution")
+@cli.command(short_help="Create a Linux environment to run your model. The working directory selected must"                                           
+                        " contain all the files required for the execution of your model")
 @click.argument(
     "user_execution_directory",
     type=click.Path(exists=True, dir_okay=True, file_okay=False, resolve_path=True),
     default=Path('.'),
     required=True
 )
-@click.option('--dependencies/--no-dependencies', default=True, help="Enable or disable the extraction of dependencies")
-@click.option('--name', prompt="Model Configuration name", help="Name of model configuration")
+@click.option('--dependencies/--no-dependencies', default=True, help="Enable or disable automated extraction of dependencies")
+@click.option('--name', prompt="Model Configuration name", help="Name of model configuration you want for your model")
 def start(user_execution_directory, dependencies, name):
     """
     Generates mic.yaml and the directories (data/, src/, docker/) for your model component. Also initializes a local
@@ -91,7 +91,7 @@ pip freeze > mic/docker/requirements.txt
         f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
 
 
-@cli.command(short_help="Trace any command line and extract the information about the execution",
+@cli.command(short_help="Trace any command line and extract the information about your model execution",
              context_settings=dict(
                  ignore_unknown_options=True,
              ))
@@ -111,7 +111,7 @@ def trace(command, c, o):
     mic encapsulate trace ./your_program
     """
     if c and o:
-        click.secho("You can't use both --continue and --overwrite", fg="red")
+        click.secho("You can't use --continue and --overwrite at the same time", fg="red")
         exit(1)
 
     append = None
@@ -144,7 +144,7 @@ def trace(command, c, o):
     write_to_yaml(output_reprozip, reprozip_spec)
 
 
-@cli.command(short_help="Select configuration file(s) for your model. If there are any")
+@cli.command(short_help="Select configuration file(s) for your model (if applicable)")
 @click.argument(
     "configuration_files",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
@@ -196,10 +196,10 @@ def configs(mic_file, configuration_files,auto_param):
     write_spec(mic_config_file, STEP_KEY, 2)
 
 
-@cli.command(short_help="Add parameters " + CONFIG_YAML_NAME, name="parameters")
+@cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
 @click.option('--name', "-n",  help="Name of the parameter", required=True, type=click.STRING)
 @click.option('--value', "-v", help="Default value of the parameter", required=True, type=ANY_TYPE)
-@click.option('--overwrite', help="Overwrite a existing parameter", is_flag=True, default=False)
+@click.option('--overwrite', help="Overwrite an existing parameter", is_flag=True, default=False)
 @click.option(
     "-f",
     "--mic_file",
@@ -232,7 +232,7 @@ def add_parameters(mic_file, name, value, overwrite):
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
-@cli.command(short_help=f"""Detect the inputs and write them into {CONFIG_YAML_NAME}""")
+@cli.command(short_help=f"""Expose model inputs into the {CONFIG_YAML_NAME} file""")
 @click.argument(
     "custom_inputs",
     type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
@@ -326,7 +326,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
 
 
-@cli.command(short_help=f"""Detect the outputs and write them into {CONFIG_YAML_NAME}""")
+@cli.command(short_help=f"""Expose model outputs in the {CONFIG_YAML_NAME} file""")
 @click.argument(
     "custom_outputs",
     type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
@@ -427,7 +427,7 @@ previous steps
     info_end_wrapper(mic_directory_path / SRC_DIR / RUN_FILE)
 
 
-@cli.command(short_help=f"""Run your Model Component using the MIC Wrapper""")
+@cli.command(short_help=f"""Run your Model Configuration through the the MIC Wrapper generated in the previous step""")
 @click.option(
     "-f",
     "--mic_file",
@@ -458,7 +458,7 @@ Copy the required files to run your model component in new directory and run it.
         info_end_run_failed()
 
 
-@cli.command(short_help="Publish your code on GitHub, your image on DockerHub and your Model Configuration on MINT Model Catalog.")
+@cli.command(short_help="Publish your code on GitHub, your image on DockerHub and your Model Configuration on the MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",

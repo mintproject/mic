@@ -13,7 +13,7 @@ def info_end_inputs(inputs):
     click.secho(f"You model component has {len(inputs)} inputs", fg="blue")
     click.secho("The next step is `mic encapsulate outputs`")
     click.secho(
-        "It is going to detect the outputs of your model using the information obtained by the `trace` command.")
+        "MIC is going to detect the outputs of your model using the information obtained by the `trace` command.")
     click.secho("For more information, you can type.")
     click.secho("mic encapsulate outputs --help")
 
@@ -26,7 +26,7 @@ def info_end_outputs(outputs):
     click.secho("Success", fg="green")
     click.secho(f"You model component has {len(outputs)} outputs", fg="blue")
     click.secho("The next step is `mic encapsulate wrapper`")
-    click.secho("It is going to generate the directory structure and commands required to run your model.")
+    click.secho("MIC is going to generate the directory structure and commands required to run your model.")
     click.secho("For more information, you can type.")
     click.secho("mic encapsulate wrapper --help")
 
