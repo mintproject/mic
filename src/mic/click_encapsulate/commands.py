@@ -312,12 +312,15 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
                     os.remove(dst_file)
                 shutil.move(str(zip_file), str(dst_dir))
                 new_inputs.append(zip_file)
+                click.secho(f"""Input {name}  added """, fg="blue")
+
             elif is_input:
                 click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
                 shutil.copy(item, dst_file)
-            click.secho(f"""Input {name}  added """, fg="blue")
+                click.secho(f"""Input {name}  added """, fg="blue")
+
     info_end_inputs(new_inputs)
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
