@@ -459,7 +459,7 @@ Copy the required files to run your model component in new directory and run it.
         click.echo('IMPORTANT: type "exit" and then publish your Model Component')
         framework = get_key_spec(mic_config_path, FRAMEWORK_KEY)
         if framework:
-            extract_dependencies(framework, mic_config_path.parent)
+            extract_dependencies(framework, mic_config_path.parent / DOCKER_DIR)
     else:
         info_end_run_failed()
 
