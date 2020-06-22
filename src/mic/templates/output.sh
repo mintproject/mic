@@ -2,7 +2,6 @@
 BASEDIR=$PWD
 set +x
 . .colors.sh
-. $BASEDIR/io.sh {{ number_inputs }} {{ number_parameters }} {{number_outputs}} "$@"
 set -e
 {% for i in files -%}
 if [ ! -f {{i}} ]; then

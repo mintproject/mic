@@ -137,6 +137,7 @@ def trace(command, c, o):
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
     outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
+    print(outputs)
     reprozip_spec = get_spec(output_reprozip)
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
                                                                                reprozip_spec[OUTPUTS_KEY] else outputs
@@ -284,14 +285,23 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     data_dir = mic_directory_path.absolute() / DATA_DIR
     shutil.rmtree(data_dir)
     data_dir.mkdir()
-
+    outputs = get_outputs(spec, user_execution_directory)
     for _input in inputs_reprozip:
         item = user_execution_directory / _input
         name = Path(_input).name
+
         if str(item) in config_files_list or str(item) in code_files:
             click.secho(f"Ignoring the config {item} as a input.", fg="blue")
         else:
-            if item.is_dir():
+            is_input = True
+            for _o in outputs:
+                try:
+                    Path(_o).relative_to(item)
+                    is_input = False
+                except:
+                    is_input = True
+                    pass
+            if is_input and item.is_dir():
                 click.secho(f"""Input {name} is a directory""", fg="green")
                 click.secho(f"""Compressing the input {name} """, fg="green")
                 zip_file = compress_directory(item, user_execution_directory)
@@ -301,8 +311,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
                     os.remove(dst_file)
                 shutil.move(str(zip_file), str(dst_dir))
                 new_inputs.append(zip_file)
-
-            else:
+            elif is_input:
                 click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)

@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 import os
 from click.testing import CliRunner
-from mic.click_encapsulate.commands import inputs, outputs, wrapper
+from mic.click_encapsulate.commands import inputs, outputs, wrapper, run
 from mic.config_yaml import get_outputs_mic, get_parameters, get_inputs_parameters, get_configs
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME
 
@@ -63,3 +63,28 @@ def test_issue_168(tmp_path):
     print(result.output)
 
     assert result.exit_code == 0
+
+
+def test_issue_191(tmp_path):
+    test_name = "191"
+    path = Path(__file__).parent / RESOURCES / test_name
+    path_test_name = tmp_path / test_name
+    shutil.copytree(path, path_test_name)
+    runner = CliRunner()
+    mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
+    try:
+        result = runner.invoke(inputs, ["-f", mic_config_arg], catch_exceptions=False)
+        print(result.output)
+    except Exception as e:
+        print(e)
+        assert False
+    assert result.exit_code == 0
+
+    result = runner.invoke(outputs, ["-f", mic_config_arg], catch_exceptions=False)
+    print(result.output)
+    assert result.exit_code == 0
+    result = runner.invoke(wrapper, ["-f", mic_config_arg], catch_exceptions=False)
+    print(result.output)
+    assert result.exit_code == 0
+    result = runner.invoke(run, ["-f", mic_config_arg], catch_exceptions=False)
+    print(result.output)

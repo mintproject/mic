@@ -77,38 +77,17 @@ for ((i=1; i<=PNUM; i++)); do typeset PARAMS$i=$(echo ${PARAMS[$i]}); done
 for ((i=1; i<=ONUM; i++)); do typeset OUTPUTS$i=$(echo ${OUTPUTS[$i]}); done
 IFS=' '
 
-{% if inputs -%}
-{% for key, item in inputs.items() -%}
-{{key}}=${INPUTS{{ loop.index  }}}
-export {{ key }}
-{% endfor -%}
-{% endif %}
+files_zip=${INPUTS1}
+export files_zip
+
 
 
 ## PARAMETERS VARIABLES
-{% if parameters -%}
-{% for key, item in parameters.items() -%}
-{{key}}=${PARAMS{{loop.index  }}}
-export  {{ key }}
-{% endfor -%}
-{% endif %}
+
 
 find . -maxdepth 1 -name '*.zip' -execdir unzip '{}' ';'
 
 
 ## PARAMETERS VARIABLES
-{% if configs -%}
-{% for item in configs -%}
-
-
-
-if [ ! -f {{item}}.bk ]; then
-  cp {{item}} {{item}}.bk
-fi
-
-envsubst < {{item}}.bk> {{item}}
-rm {{item}}.bk
-{% endfor -%}
-{% endif %}
 
 
