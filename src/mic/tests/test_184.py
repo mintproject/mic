@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import mkstemp
 
 from click.testing import CliRunner
+from mic.component.initialization import create_base_directories
 from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
 from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME, SRC_DIR, DOCKER_DIR, DATA_DIR
@@ -19,9 +20,11 @@ def test_issue_184(tmp_path):
     mic_dir = temp_test / MIC_DIR
     repository_test = Path(__file__).parent / RESOURCES / test_name
     shutil.copytree(repository_test, temp_test)
-    create_base(temp_test)
     runner = CliRunner()
+
+
     mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
+    create_base_directories(mic_dir, interactive=False)
     cmd_add_parameters(mic_config_arg, runner)
     check_parameters(mic_config_arg)
     cmd_configs(mic_config_arg, repository_test, runner)
@@ -34,13 +37,8 @@ def test_issue_184(tmp_path):
     cmd_run(mic_config_arg, runner)
 
 
-def create_base(path_test_name):
-    src = path_test_name / SRC_DIR
-    docker = path_test_name / DOCKER_DIR
-    data = path_test_name / DATA_DIR
-    src.mkdir(parents=True, exist_ok=True)
-    docker.mkdir(parents=True, exist_ok=True)
-    data.mkdir(parents=True, exist_ok=True)
+def cmd_start(mic_dir):
+    create_base_directories(mic_dir)
 
 
 def cmd_configs(mic_config_arg, path, runner):

@@ -4,6 +4,7 @@ from pathlib import Path
 from tempfile import mkstemp
 
 from click.testing import CliRunner
+from mic.component.initialization import create_base_directories
 from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run
 from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME, SRC_DIR, DOCKER_DIR, DATA_DIR
@@ -19,7 +20,7 @@ def test_issue_187(tmp_path):
     mic_dir = temp_test / MIC_DIR
     repository_test = Path(__file__).parent / RESOURCES / test_name
     shutil.copytree(repository_test, temp_test)
-    create_base(temp_test)
+    create_base_directories(mic_dir, interactive=False)
     runner = CliRunner()
     mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
     cmd_inputs(mic_config_arg, runner)
