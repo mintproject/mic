@@ -454,7 +454,11 @@ Copy the required files to run your model component in new directory and run it.
     info_start_run(execution_dir.relative_to(path.parent.parent))
     if execute_local(path, execution_name):
         info_end_run(execution_dir)
-        os.system("exit")
+        click.echo("You model has passed all the tests. Please, review the outputs file in your computer.")
+        if click.confirm("Is the model ok?"):
+            click.secho("MIC is going to stop and delete the container and exit.")
+            click.secho("In the next step, you are going to publish your Model Configuration")
+            os.system("exit")
     else:
         info_end_run_failed()
 

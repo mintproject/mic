@@ -68,7 +68,7 @@ def create_parameter_resource(parameters):
         model_catalog_parameters.append(_parameter)
         position += 1
     if not model_catalog_parameters:
-        return None
+        return []
     return model_catalog_parameters
 
 
@@ -84,7 +84,7 @@ def create_data_set_resource(allow_local_path, inputs, execution_dir):
         model_catalog_inputs.append(_input)
         position += 1
     if not model_catalog_inputs:
-        return None
+        return []
     return model_catalog_inputs
 
 
