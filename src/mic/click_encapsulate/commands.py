@@ -293,6 +293,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
         if str(item) in config_files_list or str(item) in code_files:
             click.secho(f"Ignoring the config {item} as a input.", fg="blue")
         else:
+            # Deleting the outputs of the inputs.
             is_input = True
             for _o in outputs:
                 try:
@@ -414,7 +415,6 @@ previous steps
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
 {generate_runner(reprozip_spec, user_execution_directory)}"""
-    write_spec(mic_config_file, COMMANDS_RUNNER, code)
     render_bash_color(mic_directory_path)
     render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)
