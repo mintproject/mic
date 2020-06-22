@@ -13,17 +13,13 @@ mic_1 = Path(__file__).parent / RESOURCES / "mic_full.yaml"
 mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 
-def test_issue_184(tmp_path):
-    test_name = "184"
+def test_issue_187(tmp_path):
+    test_name = "187"
     path_test_name = tmp_path / test_name
     path = Path(__file__).parent / RESOURCES / test_name
     shutil.copytree(path, path_test_name)
     runner = CliRunner()
     mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
-    cmd_add_parameters(mic_config_arg, runner)
-    check_parameters(mic_config_arg)
-    cmd_configs(mic_config_arg, path, runner)
-    check_config(mic_config_arg)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
     cmd_outputs(mic_config_arg, runner)
@@ -78,7 +74,7 @@ def cmd_inputs(mic_config_arg, runner):
 
 def check_inputs(mic_config_arg):
     _inputs = get_inputs(Path(mic_config_arg))
-    assert _inputs == {}
+    assert _inputs == {'c_txt': {'format': 'txt', 'path': 'c.txt'}}
 
 
 def cmd_outputs(mic_config_arg, runner):
@@ -93,7 +89,9 @@ def cmd_outputs(mic_config_arg, runner):
 
 def check_outputs(mic_config_arg):
     files = get_outputs_mic(Path(mic_config_arg))
-    assert files == {'outputs_txt': {'format': 'txt', 'path': 'outputs.txt'}}
+    assert files == {'a_txt': {'format': 'txt', 'path': 'outputs/a.txt'},
+ 'b_txt': {'format': 'txt', 'path': 'outputs/b.txt'},
+ 'c_txt': {'format': 'txt', 'path': 'outputs/c.txt'}}
 
 
 def cmd_wrapper(mic_config_arg, runner):
