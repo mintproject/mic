@@ -15,15 +15,16 @@ mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 def test_issue_184(tmp_path):
     test_name = "184"
-    path_test_name = tmp_path / test_name
-    path = Path(__file__).parent / RESOURCES / test_name
-    shutil.copytree(path, path_test_name)
-    create_base(path_test_name)
+    temp_test = tmp_path / test_name
+    mic_dir = temp_test / MIC_DIR
+    repository_test = Path(__file__).parent / RESOURCES / test_name
+    shutil.copytree(repository_test, temp_test)
+    create_base(temp_test)
     runner = CliRunner()
-    mic_config_arg = str(path_test_name / MIC_DIR / CONFIG_YAML_NAME)
+    mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
     cmd_add_parameters(mic_config_arg, runner)
     check_parameters(mic_config_arg)
-    cmd_configs(mic_config_arg, path, runner)
+    cmd_configs(mic_config_arg, repository_test, runner)
     check_config(mic_config_arg)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
