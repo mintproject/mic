@@ -56,7 +56,7 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
     default=Path('.'),
     required=True
 )
-@click.option('--name', prompt="Model Configuration name", help="Name of model configuration you want for your model")
+@click.option('--name', prompt="Model component name", help="Name of the model component you want for your model")
 def start(user_execution_directory, name):
     """
     This step generates a mic.yaml file and the directories (data/, src/, docker/). It also initializes a local
@@ -433,7 +433,7 @@ information gathered from previous steps
     info_end_wrapper(mic_directory_path / SRC_DIR / RUN_FILE)
 
 
-@cli.command(short_help=f"""Run your Model Configuration with the MIC Wrapper generated in the previous step""")
+@cli.command(short_help=f"""Run your model component with the MIC Wrapper generated in the previous step""")
 @click.option(
     "-f",
     "--mic_file",
@@ -487,7 +487,7 @@ def run(mic_file):
 def publish(mic_file, profile):
     """
   Publish your MIC wrapper (including all the contents of the /src folder) on GitHub, the Docker Image on DockerHub
-  and the Model Configuration on MINT Model Catalog.
+  and the model component on MINT Model Catalog.
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the
   command from the same directory as mic.yaml
