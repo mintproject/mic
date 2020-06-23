@@ -142,7 +142,7 @@ class OrderedGroup(click.Group):
 
 @cli.group(cls=OrderedGroup)
 def encapsulate():
-    """Command to encapsulate your Model Configuration"""
+    """Command to encapsulate your model component"""
 encapsulate.add_command(start)
 encapsulate.add_command(trace)
 encapsulate.add_command(add_parameters)

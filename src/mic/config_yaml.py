@@ -285,6 +285,11 @@ def get_configs(config_yaml_path):
     configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else {}
     return configs
 
+def get_framework(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    framework = spec[FRAMEWORK_KEY] if FRAMEWORK_KEY in spec else None
+    return framework
+
 def get_code(config_yaml_path):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
     code = spec[CODE_KEY] if CODE_KEY in spec else {}
