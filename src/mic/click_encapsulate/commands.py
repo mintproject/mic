@@ -199,14 +199,15 @@ def configs(mic_file, configuration_files,auto_param):
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
 @click.option('--name', "-n",  help="Name of the parameter", required=True, type=click.STRING)
 @click.option('--value', "-v", help="Default value of the parameter", required=True, type=ANY_TYPE)
-@click.option('--overwrite', help="Overwrite an existing parameter", is_flag=True, default=False)
+@click.option('--description', "-d", help="Description for parameter", required=False, type=str)
+@click.option('--overwrite', "-o", help="Overwrite an existing parameter", is_flag=True, default=False)
 @click.option(
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     default=CONFIG_YAML_NAME
 )
-def add_parameters(mic_file, name, value, overwrite):
+def add_parameters(mic_file, name, value, overwrite, description):
     """
     Add a parameter into the MIC file (mic.yaml).
 
@@ -226,9 +227,13 @@ def add_parameters(mic_file, name, value, overwrite):
         click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
         exit(1)
     else:
+
+        if description is None:
+            description = ""
         type_value____name__ = type(value).__name__
         click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
-        spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: value, DATATYPE_KEY: type_value____name__}})
+        spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: value, DATATYPE_KEY: type_value____name__,
+                                            DEFAULT_DESCRIPTION_KEY: description}})
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 

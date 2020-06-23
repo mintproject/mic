@@ -176,7 +176,8 @@ def add_comment(config_yaml_path: Path, value, comment):
                 if "#" not in comment:
                     comment = "# " + comment
 
-                new_file.append(line.replace("\n", "  " + comment + "\n"))
+                new_file.append(comment + "\n")
+                new_file.append(line)
             else:
                 new_file.append(line)
 
@@ -221,6 +222,7 @@ def add_params_from_config(yaml_path: Path, config_path: Path):
 
     # Add the var names as parameters
     added = False
+    write_comment = True
     for name in var_list:
 
         if PARAMETERS_KEY not in mic_yaml:
@@ -245,11 +247,17 @@ def add_params_from_config(yaml_path: Path, config_path: Path):
                 not_config = True
 
             if not_input and not_output and not_config:
-                mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0}})
+                mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0, DEFAULT_DESCRIPTION_KEY: "",
+                                                        DATATYPE_KEY: "unknown"}})
                 click.secho("Automatically adding \"{}\" as a parameter".format(name))
                 added = True
 
         write_spec(Path(yaml_path), PARAMETERS_KEY, mic_yaml[PARAMETERS_KEY])
+        if write_comment and added:
+            add_comment(yaml_path, PARAMETERS_KEY, "Add a default value and type to any automatically generated "
+                                                   "parameters")
+            add_comment(yaml_path, PARAMETERS_KEY, "It is also recommended you add a descriptions to your parameters")
+            write_comment = False
 
     if added:
         click.secho("Default values will need to be added in {} for each parameter".format(CONFIG_YAML_NAME),fg="green")

@@ -58,15 +58,22 @@ def check_config(mic_config_arg):
 
 def check_parameters(mic_config_arg):
     parameters = get_parameters(Path(mic_config_arg))
-    assert parameters == {'a': {'default_value': 5.0, 'type': 'float'}, 'b': {'default_value': 4.0, 'type': 'float'},
-                          'c': {'default_value': 6.0, 'type': 'float'}}
+    assert parameters == {'a': {'default_value': 5.0, 'type': 'float', 'description': ''},
+                          'b': {'default_value': 4.0, 'type': 'float', 'description': 'Hello World1'},
+                          'c': {'default_value': 6.0, 'type': 'float', 'description': ''}}
 
 
 def cmd_add_parameters(mic_config_arg, runner):
     parameters = {"a": 5.0, "b": 4.0, "c": 6.0}
     for key, value in parameters.items():
         try:
-            result = runner.invoke(add_parameters, ["-f", mic_config_arg, "--name", key, "--value", value],
+            if key == "b":
+                # Test description
+                result = runner.invoke(add_parameters, ["-f", mic_config_arg, "--name", key, "--value", value,
+                                                        "--description", "Hello World1"], catch_exceptions=False)
+            else:
+                # Test without description
+                result = runner.invoke(add_parameters, ["-f", mic_config_arg, "--name", key, "--value", value],
                                    catch_exceptions=False)
             print(result.output)
         except Exception as e:
