@@ -13,9 +13,9 @@ nav:
       - '4. Edit component configuration files': 'model_configuration/06-step4.md'
       - '5. Expose model inputs': 'model_configuration/07-step5.md'
       - '6. Expose model outputs': 'model_configuration/08-step6.md'
-      - '7. Create ': 'model_configuration/08-step6.md'
-      - '7. Publish to GitHub and DockerHub': 'model_configuration/09-step7.md'
-      - '8. Publish to GitHub and DockerHub and MINT ': 'model_configuration/10-step8.md'
+      - '7. Wrap execution': 'model_configuration/09-step7.md'
+      - '8. Test run': 'model_configuration/10-step8.md'
+      - '9. Publish to GitHub, DockerHub and MINT ': 'model_configuration/11-step9.md'
   - FAQ: faq.md
   - Glossary: glossary.md
 
