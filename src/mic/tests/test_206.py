@@ -39,7 +39,7 @@ def test_issue_206(tmp_path):
 
 def cmd_configs(mic_config_arg, path, runner):
     try:
-        result = runner.invoke(configs, ["-f", mic_config_arg, str(path / 'config.json')], catch_exceptions=False)
+        result = runner.invoke(configs, [str(path / 'config.json')], catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
