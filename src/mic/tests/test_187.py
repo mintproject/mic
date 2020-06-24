@@ -15,6 +15,14 @@ mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 
 def test_issue_187(tmp_path):
+    """
+    Test case for:
+        1 input
+        1 output. Where output is directory
+
+    :param tmp_path:
+    :return:
+    """
     test_name = "187"
     temp_test = tmp_path / test_name
     mic_dir = temp_test / MIC_DIR

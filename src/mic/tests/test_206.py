@@ -5,8 +5,8 @@ from tempfile import mkstemp
 
 from click.testing import CliRunner
 from mic.component.initialization import create_base_directories
-from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
 from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run
+from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME, SRC_DIR, DOCKER_DIR, DATA_DIR
 
 RESOURCES = "resources"
@@ -14,29 +14,21 @@ mic_1 = Path(__file__).parent / RESOURCES / "mic_full.yaml"
 mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 
-def test_issue_184(tmp_path):
+def test_issue_206(tmp_path):
     """
-    Test case for:
-        1 input
-        1 output
-
+    Test mic's ability to automatically find and use the mic.yaml file if -f is not provided. This test case is based
+    off test #187
     :param tmp_path:
     :return:
     """
-    test_name = "184"
+    test_name = "206"
     temp_test = tmp_path / test_name
     mic_dir = temp_test / MIC_DIR
     repository_test = Path(__file__).parent / RESOURCES / test_name
     shutil.copytree(repository_test, temp_test)
-    runner = CliRunner()
-
-
-    mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
     create_base_directories(mic_dir, interactive=False)
-    cmd_add_parameters(mic_config_arg, runner)
-    check_parameters(mic_config_arg)
-    cmd_configs(mic_config_arg, repository_test, runner)
-    check_config(mic_config_arg)
+    runner = CliRunner()
+    mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
     cmd_outputs(mic_config_arg, runner)
@@ -45,13 +37,9 @@ def test_issue_184(tmp_path):
     cmd_run(mic_config_arg, runner)
 
 
-def cmd_start(mic_dir):
-    create_base_directories(mic_dir)
-
-
 def cmd_configs(mic_config_arg, path, runner):
     try:
-        result = runner.invoke(configs, ["-f", mic_config_arg, str(path / 'config.json')], catch_exceptions=False)
+        result = runner.invoke(configs, [str(path / 'config.json')], catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -66,22 +54,15 @@ def check_config(mic_config_arg):
 
 def check_parameters(mic_config_arg):
     parameters = get_parameters(Path(mic_config_arg))
-    assert parameters == {'a': {'default_value': 5.0, 'type': 'float', 'description': ''},
-                          'b': {'default_value': 4.0, 'type': 'float', 'description': 'Hello World1'},
-                          'c': {'default_value': 6.0, 'type': 'float', 'description': ''}}
+    assert parameters == {'a': {'default_value': 5.0, 'type': 'float'}, 'b': {'default_value': 4.0, 'type': 'float'},
+                          'c': {'default_value': 6.0, 'type': 'float'}}
 
 
 def cmd_add_parameters(mic_config_arg, runner):
     parameters = {"a": 5.0, "b": 4.0, "c": 6.0}
     for key, value in parameters.items():
         try:
-            if key == "b":
-                # Test description
-                result = runner.invoke(add_parameters, ["-f", mic_config_arg, "--name", key, "--value", value,
-                                                        "--description", "Hello World1"], catch_exceptions=False)
-            else:
-                # Test without description
-                result = runner.invoke(add_parameters, ["-f", mic_config_arg, "--name", key, "--value", value],
+            result = runner.invoke(add_parameters, ["--name", key, "--value", value],
                                    catch_exceptions=False)
             print(result.output)
         except Exception as e:
@@ -92,7 +73,7 @@ def cmd_add_parameters(mic_config_arg, runner):
 
 def cmd_inputs(mic_config_arg, runner):
     try:
-        result = runner.invoke(inputs, ["-f", mic_config_arg], input='Y', catch_exceptions=False)
+        result = runner.invoke(inputs, input='Y', catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -102,12 +83,12 @@ def cmd_inputs(mic_config_arg, runner):
 
 def check_inputs(mic_config_arg):
     _inputs = get_inputs(Path(mic_config_arg))
-    assert _inputs == {}
+    assert _inputs == {'c_txt': {'format': 'txt', 'path': 'c.txt'}}
 
 
 def cmd_outputs(mic_config_arg, runner):
     try:
-        result = runner.invoke(outputs, ["-f", mic_config_arg], catch_exceptions=False)
+        result = runner.invoke(outputs, catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -117,12 +98,14 @@ def cmd_outputs(mic_config_arg, runner):
 
 def check_outputs(mic_config_arg):
     files = get_outputs_mic(Path(mic_config_arg))
-    assert files == {'outputs_txt': {'format': 'txt', 'path': 'outputs.txt'}}
+    assert files == {'a_txt': {'format': 'txt', 'path': 'outputs/a.txt'},
+                     'b_txt': {'format': 'txt', 'path': 'outputs/b.txt'},
+                     'c_txt': {'format': 'txt', 'path': 'outputs/c.txt'}}
 
 
 def cmd_wrapper(mic_config_arg, runner):
     try:
-        result = runner.invoke(wrapper, ["-f", mic_config_arg], catch_exceptions=False)
+        result = runner.invoke(wrapper, catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -132,7 +115,7 @@ def cmd_wrapper(mic_config_arg, runner):
 
 def cmd_run(mic_config_arg, runner):
     try:
-        result = runner.invoke(run, ["-f", mic_config_arg], catch_exceptions=False)
+        result = runner.invoke(run, catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -150,3 +133,12 @@ def replace(file_path, pattern, subst):
     shutil.copymode(file_path, abs_path)
     shutil.remove(file_path)
     shutil.move(abs_path, file_path)
+
+
+def create_base(path_test_name):
+    src = path_test_name / SRC_DIR
+    docker = path_test_name / DOCKER_DIR
+    data = path_test_name / DATA_DIR
+    src.mkdir(parents=True, exist_ok=True)
+    docker.mkdir(parents=True, exist_ok=True)
+    data.mkdir(parents=True, exist_ok=True)
