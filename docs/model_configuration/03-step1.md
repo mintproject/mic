@@ -48,7 +48,7 @@ Please, run your Model Component.
 ```
 As can be seen in the message above, MIC is creating an execution environment from scratch to make sure we capture the minimum set of dependencies needed to execute a model. Since we had a java executable, MIC already selected a Java environment. If we had python files, MIC would have promted us to select which version of Python to start from.
 
-!!!warning
+!!! warning
     This command must **NOT** be executed on a folder already tracked by GitHub.
 
 
@@ -91,6 +91,6 @@ Options:
   --help          Show this message and exit.
 ```
 
-!!!info
+!!! info
     In the next version of MIC, we will let you start from your own Docker image if required.
 
