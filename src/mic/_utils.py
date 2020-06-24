@@ -6,7 +6,7 @@ import click
 import requests
 import validators
 from mic._mappings import Metadata_types
-
+from mic.constants import DIRECTORIES_TO_IGNORE, CONFIG_YAML_NAME
 MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 
@@ -69,6 +69,43 @@ def validate_metadata(default_type, value):
         except ValueError as ve:
             return False
 
+def check_mic_path(mic_dir):
+    if mic_dir is None:
+        mic_file = recursive_mic_search(os.getcwd())
+        if mic_file is None:
+            click.secho("Could not find {}. Please specify a path with -f".format(CONFIG_YAML_NAME),fg="red")
+            exit(1)
+        else:
+            click.echo("Automatically found {} in {}".format(CONFIG_YAML_NAME, mic_file))
+            return mic_file
+    else:
+        return mic_dir
+
+
+def recursive_mic_search(curr_dir):
+    """
+    Recursively search for mic.yaml (CONFIG_YAML_NAME) down from the current dir. Return path if fount else return None
+    :param curr_dir:
+    :return abs_path_to_mic:
+    """
+    # Check for files first
+    for file in os.listdir(curr_dir):
+        file = os.path.join(curr_dir, file)
+        if not os.path.isdir(file):
+            # Return if it finds mic.yaml
+            if file.split(os.sep)[-1] == CONFIG_YAML_NAME:
+                return os.path.abspath(os.path.join(curr_dir, file))
+
+    # Recurse down dirs
+    for file in os.listdir(curr_dir):
+        file = os.path.join(curr_dir, file)
+        if os.path.isdir(file) and file not in DIRECTORIES_TO_IGNORE:
+            next = recursive_mic_search(os.path.abspath(file))
+            if next is not None:
+                return next
+
+    # Default case
+    return None
 
 def find_dir(name, path):
     for root, dirs, files in os.walk(path):

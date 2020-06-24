@@ -8,7 +8,7 @@ import click
 import mic
 import semver
 from mic import _utils
-from mic._utils import find_dir, get_filepaths, obtain_id
+from mic._utils import find_dir, get_filepaths, obtain_id, recursive_mic_search, check_mic_path
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
     info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
@@ -155,7 +155,7 @@ def trace(command, c, o):
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=CONFIG_YAML_NAME
+    default=None
 )
 @click.option('-a', '--auto_param', is_flag=True, default=False, help="Enable automatic detection of parameters from "
                                                                       "config file")
@@ -175,6 +175,9 @@ def configs(mic_file, configuration_files,auto_param):
 
     mic encapsulate configs -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
 
@@ -205,7 +208,7 @@ def configs(mic_file, configuration_files,auto_param):
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=CONFIG_YAML_NAME
+    default=None
 )
 def add_parameters(mic_file, name, value, overwrite, description):
     """
@@ -217,6 +220,9 @@ def add_parameters(mic_file, name, value, overwrite, description):
 
     mic encapsulate parameters -f <mic_file> --name PARAMETER_NAME --value PARAMETER_VALUE
     """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+
     path = Path(mic_file)
     spec = get_spec(path)
 
@@ -248,7 +254,7 @@ def add_parameters(mic_file, name, value, overwrite, description):
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=CONFIG_YAML_NAME
+    default=None
 )
 def inputs(mic_file, custom_inputs):
     """
@@ -267,6 +273,9 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
 
 
     """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+
     info_start_inputs()
     mic_config_file = Path(mic_file)
     mic_directory_path = mic_config_file.parent
@@ -343,7 +352,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=CONFIG_YAML_NAME
+    default=None
 )
 def outputs(mic_file, custom_outputs):
     """
@@ -361,6 +370,9 @@ def outputs(mic_file, custom_outputs):
 
   mic encapsulate outputs -f mic/mic.yaml input.txt inputs_directory
     """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+
     info_start_outputs()
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
@@ -388,7 +400,7 @@ previous steps""")
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=CONFIG_YAML_NAME
+    default=None
 )
 def wrapper(mic_file):
     """
@@ -405,6 +417,9 @@ previous steps
 
   mic encapsulate wrapper -f mic/mic.yaml
     """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+
     info_start_wrapper()
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
@@ -438,7 +453,7 @@ previous steps
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=CONFIG_YAML_NAME
+    default=None
 )
 def run(mic_file):
     """
@@ -453,6 +468,9 @@ Copy the required files to run your model component in new directory and run it.
 
   mic encapsulate wrapper -f mic/mic.yaml
     """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
     mic_config_path = Path(mic_file)
     execution_dir = Path(mic_config_path.parent / EXECUTIONS_DIR / execution_name)
@@ -474,7 +492,7 @@ Copy the required files to run your model component in new directory and run it.
     "-f",
     "--mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=CONFIG_YAML_NAME
+    default=None
 )
 @click.option(
     "--profile",
@@ -498,6 +516,9 @@ and the Model Configuration on MINT Model Catalog.
 
   mic encapsulate publish -f mic/mic.yaml
     """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+
     info_start_publish()
     mic_config_path = Path(mic_file)
     name = get_key_spec(mic_config_path, NAME_KEY)
