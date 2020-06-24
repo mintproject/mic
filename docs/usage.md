@@ -15,14 +15,14 @@ Options:
 
 Commands:
   credentials       Configure credentials
-  encapsulate       Command to encapsulate your Model Configuration
+  encapsulate       Command to encapsulate a model component
   list-credentials  List credentials profiles
-  model             Command to create and edit Models
+  model             Command to create new model metadata
   version           Show mic version
 ```
 The `credentials` command allows setting up the credentials to be able to modify the catalog.
 
-The `encapsulate` command will walk you through 8 steps to encapsulate your model component so it can be run in any infrastructure.
+The `encapsulate` command will walk you through 8 several steps to encapsulate your model component so it can be run in any infrastructure.
 
 The `list-credentials` command will allow you to see which credentials have been added for mic.
 
