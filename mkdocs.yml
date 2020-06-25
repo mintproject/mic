@@ -17,7 +17,7 @@ nav:
       - '8. Test run': 'model_configuration/10-step8.md'
       - '9. Publish to GitHub, DockerHub and MINT ': 'model_configuration/11-step9.md'
       - 'Summarized example ': 'model_configuration/12-end-to-end-example.md'
-  - FAQ: faq.md
+ # - FAQ: faq.md
   - Glossary: glossary.md
 
 theme: 
