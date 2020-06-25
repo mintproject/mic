@@ -1,9 +1,9 @@
 import datetime
 import logging
+import os
 import re
 import shutil
 from pathlib import Path
-import os
 
 import click
 import pygit2 as pygit2
@@ -12,7 +12,7 @@ from distutils.version import StrictVersion
 from github import Github
 from mic.config_yaml import write_spec
 from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
-    MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING, GIT_DIRECTORY
+    MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
 from mic.credentials import get_credentials
 
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
@@ -32,7 +32,15 @@ def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     write_spec(mic_config_path, REPO_KEY, url)
     click.secho("Creating a new version")
     _version = git_tag(repo, author)
+
     click.secho("Pushing your changes to the server")
+    remote = repo.remotes["origin"]
+    try:
+        git_pull(repo, remote)
+    except AssertionError as e:
+        click.secho("Unable to handle git conflict, please fix them manually", fg="red")
+        exit(1)
+
     git_push(repo, profile, _version)
     write_spec(mic_config_path, VERSION_KEY, _version)
 
@@ -112,6 +120,43 @@ def get_github_repo(profile, model_name):
 
 def git_add_remote(repo, url):
     repo.remotes.create("origin", url)
+
+
+def git_pull(repo, remote, branch="master"):
+    remote.fetch()
+    remote_master_id = repo.lookup_reference('refs/remotes/origin/%s' % (branch)).target
+    merge_result, _ = repo.merge_analysis(remote_master_id)
+    # Up to date, do nothing
+    if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
+        return True
+    elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
+        repo.checkout_tree(repo.get(remote_master_id))
+        try:
+            master_ref = repo.lookup_reference('refs/heads/%s' % (branch))
+            master_ref.set_target(remote_master_id)
+        except KeyError:
+            repo.create_branch(branch, repo.get(remote_master_id))
+        repo.head.set_target(remote_master_id)
+    elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
+        repo.merge(remote_master_id)
+
+        if repo.index.conflicts is not None:
+            for conflict in repo.index.conflicts:
+                click.echo(f"Conflicts found in: {conflict[0].path}")
+            raise AssertionError('Conflicts')
+
+        user = repo.default_signature
+        tree = repo.index.write_tree()
+        commit = repo.create_commit('HEAD',
+                                    user,
+                                    user,
+                                    'Merge',
+                                    tree,
+                                    [repo.head.target, remote_master_id])
+        # We need to do this or git CLI will think we are still merging.
+        repo.state_cleanup()
+    else:
+        raise AssertionError('Unknown merge analysis result')
 
 
 def git_push(repo, profile, tag):
