@@ -3,7 +3,10 @@ Now that we have tested our model component, it's time do a snapshot of the mic 
 MIC assumes that appropriate GitHub credentials, Docker login and MINT metadata credentials have been set up with the `mic credentials` command.
 
 ### How to perform this step?
-Type `mic encapsulate publish`:
+
+If you are still on the environment MIC created, type `exit`. It is usually easy to identify whether you are on the MIC environment or not, as you will see `root@<random_number>:/tmp/mint#` in your console. 
+
+Once exited, type `mic encapsulate publish`:
 
 ```bash
 $ mic encapsulate publish
