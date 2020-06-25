@@ -99,11 +99,14 @@ def publish_model_configuration(model_configuration, profile):
     models = model_cli.get()
     labels = get_show_models(models, "models")
     if click.confirm("Do you want to use an existing model?", default=True):
-        api_response = handle_existing_model(profile, api_response_mc, labels, model_cli)
+        api_response, model_id, software_version_id = handle_existing_model(profile, api_response_mc, labels, model_cli)
     else:
         api_response = create_new_model(model_cli, api_response_mc)
+        model = Model(api_response)
+        software_version_id = model.has_version[0].id
+        model_id = model.id
     click.secho("Your Model Component has been published", fg="green")
-    return api_response, api_response_mc
+    return api_response, api_response_mc, model_id, software_version_id
 
 
 def handle_existing_model(profile, api_response_mc, labels, model_cli):
@@ -125,7 +128,7 @@ def handle_existing_model(profile, api_response_mc, labels, model_cli):
         selected_model.has_version.append(software_version)
     else:
         selected_model.has_version = [software_version]
-    return model_cli.put(selected_model)
+    return model_cli.put(selected_model), selected_model.id, software_version.id
 
 
 def handle_new_existing_software_version(labels, api_response_mc, selected_model, software_version_cli):
