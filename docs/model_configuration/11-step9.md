@@ -1,5 +1,3 @@
-## Step 9: Publish the model component software and image 
-
 Now that we have tested our model component, it's time do a snapshot of the mic wrapper, the docker image and save the model metadata in MINT.
 
 MIC assumes that appropriate GitHub credentials, Docker login and MINT metadata credentials have been set up with the `mic credentials` command.
@@ -25,7 +23,7 @@ Repository: https://github.com/dgarijo/test_193.git
 Version: 20.6.1
 Downloading the base image and building your image
 Publishing the Docker Image
-Docker Image: dgarijo/test_193:20.6.1
+Docker Image: dgarijo/test_192:20.6.1
 ```
 For the publication in the MINT model catalog, MIC will ask you some questions. See an example below with our sample Java model:
 
@@ -63,6 +61,7 @@ You are done. Congratulations!
 
 
 ### Help command
+
 ```bash
 Usage: mic encapsulate publish [OPTIONS]
 
@@ -83,4 +82,4 @@ Options:
   -f, --mic_file FILE
   -p, --profile  <profile-name>
   --help         Show this message and exit.
-  ```
+```

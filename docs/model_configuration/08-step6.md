@@ -1,5 +1,3 @@
-## Expose model outputs
-
 Similarly to what we did with inputs, we must identify which outputs to expose in our model component. MIC will detect some of them automatically based on what we entered in previous steps, avoiding redundant questions.
 
 For example, for our Java simple model, the command `mic encapsulate outputs` does most of the work for us:

@@ -1,5 +1,3 @@
-## Step 8: Run your model through the MIC wrapper
-
 When you have finished the modifications of the MIC Wrapper. You can run step 8. This step will attempt to run your model component using the MIC wrapper and will validate that the expected output files are successfully generated.
 
 ### How to perform this step?

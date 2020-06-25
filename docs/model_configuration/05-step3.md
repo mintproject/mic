@@ -1,5 +1,3 @@
-## Step 3: Select parameters to expose
-
 Models may use many parameters and input files, but we may not need to expose all of them as part of our model component. If you know individual parameters that you would like to expose in your model component, you may expose them with the `parameters` command.
 
 ### How to perform this step?

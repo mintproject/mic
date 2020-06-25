@@ -1,5 +1,3 @@
-## Step 5: Expose model inputs
-
 After tracing your execution, MIC has recorded all the input/output files that are needed and produced by your model component. However, we need to identify which of these input types you want to allow others to change. This step will help you describe the input data exposed in your model component. All inputs will be added by MIC in the MIC file.
 
 Note that even though we are referring to concrete files in this step, these represent placeholders that will be expected as input for running your model component. For example, if your model uses a `precip.csv` file with precipitation data and you expose it, your model component will expect a `precip` file as input in order to run; independently of its name.

@@ -1,5 +1,3 @@
-## Step 1: Start up a MIC encapsulation component and MIC file template
-
 This step is going to create a computational environment based in the executables of your working directory and template MIC file template (`mic.yaml`) which will be placed in a  `/mic` directory.  This file (which will be completed in subsequent steps) contains the executable information and metadata  about your model component.
 
 ### How to perform this step?
@@ -92,5 +90,5 @@ Options:
 ```
 
 !!! info
-    In the next version of MIC, we will let you start from your own Docker image if required.
+    Next releases of MIC will allow customizing an initial Docker image.
 

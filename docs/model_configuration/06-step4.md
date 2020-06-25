@@ -1,5 +1,3 @@
-## Step 4: Edit your model configuration files
-
 [Skip background explanation](#how-to-perform-this-step)
 
 Models tend to be complex, and it becomes impractical to configure their parameters through the command line. Instead, many models define their parameters in one or multiple configuration files.

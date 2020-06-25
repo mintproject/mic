@@ -1,5 +1,3 @@
-## Step 2:  Trace your model execution
-
 [Skip background explanation](#how-to-perform-this-step)
 
 In this step, MIC will trace the execution of your component to make sure it captures all its implicit file dependencies and its invocation command. First, you will have to make sure your model executed in the environment prepared by MIC, and then you will have to trace its execution.

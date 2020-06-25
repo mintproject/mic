@@ -1,7 +1,6 @@
-## Step 7: Generate the MINT Wrapper.
-
 The MINT Wrapper is a plain text file that contains a series of commands needed for executing a model.
 The MINT Wrapper does the following tasks:
+
 - Copy and extract your inputs in the src directory
 - Feed the parameter values to your models.
 - Detect errors on execution time.

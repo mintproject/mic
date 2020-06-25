@@ -1,4 +1,3 @@
-
 ## Overview
 The `credentials` command has several options:
 ```
