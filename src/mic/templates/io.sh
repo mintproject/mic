@@ -93,12 +93,13 @@ export  {{ key }}
 {% endfor -%}
 {% endif %}
 
+find . -maxdepth 1 -name '*.zip' -execdir unzip '{}' ';'
+
 
 ## PARAMETERS VARIABLES
 {% if configs -%}
 {% for item in configs -%}
 
-find . -maxdepth 1 -name '*.zip' -execdir unzip '{}' ';'
 
 
 if [ ! -f {{item}}.bk ]; then

@@ -1,5 +1,5 @@
-
 ## Overview
+The `credentials` command has several options:
 ```
 mic credentials [-p | --profile] [--server] [--username] [--password] [--name] 
               [--email] [--git_username] [--git_token] [--dockerhub_username] 
@@ -7,13 +7,13 @@ mic credentials [-p | --profile] [--server] [--username] [--password] [--name]
 
 ## Description
 
-mic uses several APIs to upload models. The MINT Model Catalog requires credentials for modifying the contents in the catalog. Use this command to configure a username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/). This command can also be used with no parameters, it will prompt the user to enter any required field not given. 
+MIC uses several APIs (GitHub, DockerHub and MINT Model catalog) to upload model components. The MINT Model Catalog requires credentials for adding and mofying contents in the catalog. You can use the `credentials` command to configure a username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/), GitHub and DockerHub. This command can also be used with no parameters, it will prompt the user to enter any required field not given. 
 
 ## Options
 
 `-p, --profile <profile-name>`
 
-Credentials can be set up with multiple configuration profiles. This option lets the user choose which profile they are editing. If the profile does not already exist it will generate a new one
+Credentials can be set up with multiple configuration profiles. This option lets the user choose which profile they are editing. If the profile does not already exist it will generate a new one.
     
 `--server <server url> `
 
@@ -44,9 +44,7 @@ Authors's GitHub API Token. More information can be found in the [setting up Git
 Username for dockerhub
 
 
-## <a name="GitHubCreds">Setting up GitHub credentials</a>
-
-GitHub credentials are also required for mic's GitHub features 
+## <a name="GitHubCreds">Setting up GitHub credentials</a> 
  
 The `GitHub Username` field is the users GitHub username. If unknown the username can be found at [GitHub.com](https://github.com/). Once logged, in at the top right dropdown menu there will be a "signed in as **[username]**"
 
@@ -64,6 +62,7 @@ The `GitHub Token` is the user's [personal access token](https://help.github.com
     If this token is lost there is no way to recover it without generating a new one.
 
 ### Setting up DockerHub credentials
+MIC will promt you to add your user in [DockerHub](hub.docker.com/), a repository used for publishing Docker images. MIC will help you publish the computational dependencies of your model as a virtual image, giving you full control over the result.
 
 ### Example usage:
 
@@ -78,7 +77,6 @@ GitHub Username:
 GitHub API token:
 Docker Username: 
 ```
-
 
 
 !!! info

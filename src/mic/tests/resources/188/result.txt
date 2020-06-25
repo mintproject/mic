@@ -1,0 +1,1 @@
+This is a test to write an output. The input file was sample_input.txt

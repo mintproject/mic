@@ -1,12 +1,10 @@
 import os
-import shutil
 from pathlib import Path
-from typing import List
 
 import click
 from jinja2 import Environment, PackageLoader, select_autoescape
-from mic.component.python3 import freeze
 from mic.constants import *
+from mic.publisher.github import get_local_repo
 
 env = Environment(
     loader=PackageLoader('mic', 'templates'),
@@ -16,18 +14,32 @@ env = Environment(
 )
 
 
-def create_directory(parent_directory: Path, name: str):
-    parent_directory = parent_directory / name
-    if parent_directory.exists():
-        shutil.rmtree(parent_directory)
-    src = parent_directory / SRC_DIR
-    docker = parent_directory / DOCKER_DIR
-    data = parent_directory / DATA_DIR
-    src.mkdir(parents=True)
-    docker.mkdir(parents=True)
-    data.mkdir(parents=True)
+def create_base_directories(mic_component_dir: Path, interactive=True):
+    if mic_component_dir.exists():
+        click.secho("The directory {} already exists. If you continue, you can lose a previous component".format(
+            mic_component_dir.name), fg="yellow")
+        if interactive and not click.confirm("Do you want to continue?", default=True, show_default=True):
+            click.secho("Initialization aborted", fg="blue")
+            exit(0)
+    try:
+        mic_component_dir.mkdir(exist_ok=True)
+    except Exception as e:
+        click.secho("Error: {} could not be created".format(mic_component_dir), fg="red")
+        exit(1)
 
-    return parent_directory
+    src = mic_component_dir / SRC_DIR
+    docker = mic_component_dir / DOCKER_DIR
+    data = mic_component_dir / DATA_DIR
+    src.mkdir(parents=True, exist_ok=True)
+    docker.mkdir(parents=True, exist_ok=True)
+    data.mkdir(parents=True, exist_ok=True)
+    get_local_repo(mic_component_dir)
+    click.secho("MIC has initialized the component.")
+    click.secho("[Created] {}:      {}".format(DATA_DIR, mic_component_dir / DATA_DIR))
+    click.secho("[Created] {}:    {}".format(DOCKER_DIR, mic_component_dir / DOCKER_DIR))
+    click.secho("[Created] {}:       {}".format(SRC_DIR, mic_component_dir / SRC_DIR))
+    click.secho("[Created] {}:  {}".format(CONFIG_YAML_NAME, mic_component_dir / CONFIG_YAML_NAME))
+    return mic_component_dir
 
 
 def render_gitignore(directory: Path):
@@ -43,9 +55,20 @@ def render_gitignore(directory: Path):
     return gitignore_file
 
 
+def render_conda(directory: Path):
+    template = env.get_template(CONDA_YML)
+    conda = directory / CONDA_YML
+    with open(conda, "w") as gi:
+        ignore = render_template(template=template)
+        gi.write(ignore)
+    return conda
+
+
 def render_run_sh(directory: Path,
-                  inputs: dict, parameters: dict,
-                  number_inputs: int = 0, number_parameters: int = 0) -> Path:
+                  inputs: dict,
+                  parameters: dict,
+                  outputs: dict,
+                  code: str) -> Path:
     """
 
     @param number_parameters:
@@ -58,12 +81,22 @@ def render_run_sh(directory: Path,
     @type inputs:
     @param parameters:
     @type parameters:
+    :param outputs:
+    :type outputs:
     """
     template = env.get_template(RUN_FILE)
     run_file = directory / SRC_DIR / RUN_FILE
+    number_inputs = len(inputs) if inputs else 0
+    number_parameters = len(parameters) if parameters else 0
+    number_outputs = len(outputs) if outputs else 0
     with open(run_file, "w") as f:
-        content = render_template(template=template, inputs=inputs, parameters=parameters,
-                                  number_inputs=number_inputs, number_parameters=number_parameters, number_outputs=0)
+        content = render_template(template=template,
+                                  inputs=inputs,
+                                  parameters=parameters,
+                                  number_inputs=number_inputs,
+                                  number_parameters=number_parameters,
+                                  number_outputs=number_outputs,
+                                  code=code)
         f.write(content)
     run_file.chmod(0o755)
     return run_file
@@ -71,14 +104,18 @@ def render_run_sh(directory: Path,
 
 def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list) -> Path:
     template = env.get_template(IO_FILE)
-    data_dir = directory / DATA_DIR
-    run_file = directory / SRC_DIR / IO_FILE
-    with open(run_file, "w") as f:
-        content = render_template(template=template, inputs=inputs,
+    file = directory / SRC_DIR / IO_FILE
+    if configs is None: configs = []
+
+    list_config = [value[PATH_KEY] for key, value in configs.items()]
+    print(parameters)
+    with open(file, "w") as f:
+        content = render_template(template=template,
+                                  inputs=inputs,
                                   parameters=parameters,
-                                  configs=[str(Path(directory / i).relative_to(data_dir)) for i in configs])
+                                  configs=list_config)
         f.write(content)
-    return run_file
+    return file
 
 
 def detect_framework(src_dir: Path) -> Framework:
@@ -89,7 +126,7 @@ def detect_framework(src_dir: Path) -> Framework:
             filepath = Path(os.path.join(os.path.abspath(root), filename))
             if filepath.name not in [RUN_FILE, IO_FILE, OUTPUT_FILE]:
                 for name, member in Framework.__members__.items():
-                    if member.extension == filepath.suffix:
+                    if member.extension == filepath.suffix and member not in frameworks:
                         frameworks.append(member)
     return frameworks
 
@@ -104,9 +141,21 @@ def render_dockerfile(model_directory: Path, language: Framework) -> Path:
     return run_file
 
 
-def render_output(directory: Path, files: List[Path], compress: str) -> Path:
+def render_bash_color(directory: Path) -> Path:
+    template = env.get_template(BASH_COLOR_FILE)
+    file = directory / SRC_DIR / BASH_COLOR_FILE
+    with open(file, "w") as f:
+        content = render_template(template=template)
+        f.write(content)
+    return file
+
+
+def render_output(directory: Path, outputs: dict, compress: bool) -> Path:
     template = env.get_template(OUTPUT_FILE)
     run_file = directory / SRC_DIR / OUTPUT_FILE
+    files = []
+    for key, value in outputs.items():
+        files.append(value[PATH_KEY])
     with open(run_file, "w") as f:
         if files and compress:
             content = render_template(template=template, files=files, compress=compress)
@@ -116,12 +165,6 @@ def render_output(directory: Path, files: List[Path], compress: str) -> Path:
             content = render_template(template=template, files=[], compress=None)
         f.write(content)
     return run_file
-
-
-def language_tasks(directory, language):
-    if language == "python3":
-        run_file = directory / DOCKER_DIR / REQUIREMENTS_FILE
-        freeze(run_file)
 
 
 def render_template(template, **kwargs):

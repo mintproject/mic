@@ -1,0 +1,18 @@
+step: 2
+name: simplemodel
+code_files:
+  linemodel_py:
+    path: linemodel.py
+    format: py
+commands: '
+
+
+  pushd .
+
+  python3 linemodel.py config.json
+
+  popd'
+github_repo_url: https://github.com/sirspock/simplemodel.git
+version: 20.6.1
+mint_component_url: https://raw.githubusercontent.com/sirspock/simplemodel/master/mint_component.zip
+docker_image: mosorio/simplemodel:20.6.1

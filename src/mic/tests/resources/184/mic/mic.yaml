@@ -1,0 +1,7 @@
+step: 2
+name: '184'
+docker_image: mintproject/python:3.7
+configs:
+  config_json:
+    path: config.json
+    format: json

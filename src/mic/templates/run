@@ -1,8 +1,11 @@
 #!/bin/bash
+set +x
+set -e
+. .colors.sh
+
 BASEDIR=$PWD
 . $BASEDIR/io.sh {{ number_inputs }} {{ number_parameters }} {{number_outputs}} "$@"
 CURDIR=`pwd`
-set -e
 ## INPUTS VARIABLES
 {% if inputs -%}
 {% for key, item in inputs.items() -%}
@@ -20,10 +23,10 @@ set -e
 set -xe
 
 ####### WRITE YOUR INVOCATION LINE AFTER THIS COMMENT
+{{code}}
 
-
-
+set +x
+echo -e "$(c G)[success] The model has exited with code SUCCESS"
 ####### WRITE YOUR INVOCATION LINE BEFORE THIS COMMENT
-set -e
 cd $BASEDIR
 . $BASEDIR/output.sh

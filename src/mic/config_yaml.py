@@ -1,10 +1,9 @@
-import logging
-import random
 import re
 import unicodedata
 from pathlib import Path
 from typing import List
 
+import click
 import yaml
 
 try:
@@ -12,7 +11,6 @@ try:
 except ImportError:
     from yaml import Loader
 
-import click
 from mic._makeyaml import make_yaml
 from mic.constants import *
 
@@ -32,17 +30,18 @@ def slugify(value, allow_unicode=False):
     return re.sub(r'[-\s]+', '-', value)
 
 
-def random_parameter():
-    return 0
-
-
 def create_config_file_yaml(model_path: Path) -> Path:
     config_yaml_path = model_path / CONFIG_YAML_NAME
     if not model_path.exists():
         click.secho("Failed: Directory {} doesn't exist".format(model_path), fg="red")
         exit(1)
-    spec = {}
+    click.secho(f"{config_yaml_path} created", fg="green")
+    if config_yaml_path.exists():
+        spec = get_spec(config_yaml_path)
+    else:
+        spec = {}
     write_step(config_yaml_path, spec, step=1)
+    return config_yaml_path
 
 
 def get_spec(config_yaml_path: Path) -> dict:
@@ -63,80 +62,9 @@ def write_spec(config_yaml_path: Path, key: str, value: object):
     write_to_yaml(config_yaml_path, spec)
 
 
-def get_key_spec(config_yaml_path: Path, key: str):
-    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    if key in spec:
-        return spec[key]
-    return None
-
-
-def write_spec(config_yaml_path: Path, key: str, value: object):
-    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    spec[key] = value
-    write_to_yaml(config_yaml_path, spec)
-
-
 def write_step(config_yaml_path: Path, spec: dict, step: int):
     spec[STEP_KEY] = step
     write_to_yaml(config_yaml_path, spec)
-
-
-def write_docker_image(config_yaml_path: Path, spec: dict, image_name: str):
-    spec[DOCKER_KEY] = {NAME_KEY : image_name}
-    write_to_yaml(config_yaml_path, spec)
-
-
-def write_docker_image(config_yaml_path: Path, spec: dict, image_name: str):
-    spec[DOCKER_KEY] = {NAME_KEY: image_name}
-    write_to_yaml(config_yaml_path, spec)
-
-
-def fill_config_file_yaml(config_yaml_path: Path, data_dir: Path, parameters: int) -> Path:
-    directory = config_yaml_path.parent
-    if data_dir.exists():
-        click.secho("Searching for input files in the directory {}".format(data_dir))
-    else:
-        click.secho("Failed: Directory {} doesn't exist. Please create it or rerun step1".format(data_dir), fg="red")
-        exit(1)
-    try:
-        spec = {}
-        input_files = []
-        for x in data_dir.iterdir():
-            if not x.name.startswith('.'):
-                input_files.append(x)
-        if input_files:
-            spec[INPUTS_KEY] = {}
-
-        if parameters:
-            spec[PARAMETERS_KEY] = {}
-
-        for index, item in enumerate(input_files):
-            name = slugify(str(item.name).replace('.', "_"))
-            spec[INPUTS_KEY][name] = {}
-            spec[INPUTS_KEY][name][PATH_KEY] = str(item.relative_to(directory))
-            spec[INPUTS_KEY][name][DEFAULT_DESCRIPTION_KEY] = ""
-
-    except Exception as e:
-        logging.error(e, exc_info=True)
-        click.secho("Failed: Error message: {}".format(e), fg="red")
-        exit(1)
-
-    try:
-        for parameter in range(0, parameters):
-            name = "parameter{}".format(parameter + 1)
-            spec[PARAMETERS_KEY][name] = {}
-            spec[PARAMETERS_KEY][name][DEFAULT_VALUE_KEY] = random_parameter()
-            spec[PARAMETERS_KEY][name][DEFAULT_DESCRIPTION_KEY] = ""
-
-        write_step(config_yaml_path, spec, step=2)
-        add_comment(config_yaml_path, DEFAULT_VALUE_KEY, DEFAULT_PARAMETER_COMMENT)
-        add_comment(config_yaml_path, DEFAULT_DESCRIPTION_KEY, DEFAULT_DESCRIPTION_MESSAGE)
-    except Exception as e:
-        logging.error(e, exc_info=True)
-        click.secho("Failed: Error message {}".format(e), fg="red")
-        exit(1)
-
-    return config_yaml_path
 
 
 def write_to_yaml(config_yaml_path: Path, spec):
@@ -248,7 +176,8 @@ def add_comment(config_yaml_path: Path, value, comment):
                 if "#" not in comment:
                     comment = "# " + comment
 
-                new_file.append(line.replace("\n", "  " + comment + "\n"))
+                new_file.append(comment + "\n")
+                new_file.append(line)
             else:
                 new_file.append(line)
 
@@ -261,7 +190,7 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
     spec[OUTPUTS_KEY] = {}
     for x in outputs:
         name = slugify(str(x).replace('.', "_"))
-        spec[OUTPUTS_KEY][name] = {'path':  str(x)}
+        spec[OUTPUTS_KEY][name] = {'path': str(x)}
         spec[OUTPUTS_KEY][name][DEFAULT_DESCRIPTION_KEY] = ""
     try:
         write_to_yaml(config_yaml_path, spec)
@@ -271,40 +200,108 @@ def add_outputs(config_yaml_path: Path, outputs: List[Path]):
     for item in spec[OUTPUTS_KEY]:
         click.secho("Added: {} as a output".format(item))
 
+def add_params_from_config(yaml_path: Path, config_path: Path):
+    """
+    Add parameters to the mic.yaml file from the user's config file. Looks for ${var_name} in config file and
+    adds the var_name as parameter to yaml
 
-def add_configuration_files(config_yaml_path: Path, configurations: tuple):
-    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    spec[CONFIG_FILE_KEY] = [str(Path(x).relative_to(config_yaml_path.parent)) for x in list(configurations)]
+    @param yaml_path: path to mic.yaml file
+    @type yaml_path: Path
+    @param config_path: path to user's config file
+    @type config_path: Path
+    """
+    mic_yaml = yaml.load(yaml_path.open(), Loader=Loader)
+    var_list = []
+    with open(config_path, "r") as f:
+        file = f.readlines()
+        for line in file:
 
-    try:
-        write_to_yaml(config_yaml_path, spec)
-    except Exception as e:
-        click.secho("Failed: Error message {}".format(e), fg="red")
-    for item in spec[CONFIG_FILE_KEY]:
-        click.secho("Added: {} as a configuration file".format(item))
+            if "${" in line and "}" in line:
+                tmp = line[line.find("${")+2:line.find("}")]
+                var_list.append(tmp)
 
+    # Add the var names as parameters
+    added = False
+    write_comment = True
+    for name in var_list:
 
-def get_configuration_files(config_yaml_path: Path):
-    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    return spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else []
+        if PARAMETERS_KEY not in mic_yaml:
+            mic_yaml[PARAMETERS_KEY] = {}
 
+        not_input = False
+        not_output = False
+        not_config = False
+
+        if name not in mic_yaml[PARAMETERS_KEY]:
+            if INPUTS_KEY not in mic_yaml:
+                not_input = True
+            elif name not in mic_yaml[INPUTS_KEY]:
+                not_input = True
+            if OUTPUTS_KEY not in mic_yaml:
+                not_output = True
+            elif name not in mic_yaml[OUTPUTS_KEY]:
+                not_output = True
+            if CONFIG_FILE_KEY not in mic_yaml:
+                not_config = True
+            elif name not in mic_yaml[CONFIG_FILE_KEY]:
+                not_config = True
+
+            if not_input and not_output and not_config:
+                mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0, DEFAULT_DESCRIPTION_KEY: "",
+                                                        DATATYPE_KEY: "unknown"}})
+                click.secho("Automatically adding \"{}\" as a parameter".format(name))
+                added = True
+
+        write_spec(Path(yaml_path), PARAMETERS_KEY, mic_yaml[PARAMETERS_KEY])
+        if write_comment and added:
+            add_comment(yaml_path, PARAMETERS_KEY, "Add a default value and type to any automatically generated "
+                                                   "parameters")
+            add_comment(yaml_path, PARAMETERS_KEY, "It is also recommended you add a descriptions to your parameters")
+            write_comment = False
+
+    if added:
+        click.secho("Default values will need to be added in {} for each parameter".format(CONFIG_YAML_NAME),fg="green")
 
 def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
-    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    inputs = spec[INPUTS_KEY] if INPUTS_KEY in spec else None
-    parameters = spec[PARAMETERS_KEY] if PARAMETERS_KEY in spec else None
-    outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else None
-    configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else []
+    inputs = get_inputs(config_yaml_path)
+    parameters = get_parameters(config_yaml_path)
+    outputs = get_outputs_mic(config_yaml_path)
+    configs = get_configs(config_yaml_path)
     return inputs, parameters, outputs, configs
 
 
-def get_numbers_inputs_parameters(config_yaml_path: Path) -> (int, int, int):
+def get_inputs(config_yaml_path):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
-    number_inputs = len(spec[INPUTS_KEY].keys()) if INPUTS_KEY in spec else 0
-    number_parameters = len(spec[PARAMETERS_KEY].keys()) if PARAMETERS_KEY in spec else 0
-    number_outputs = len(spec[OUTPUTS_KEY].keys()) if OUTPUTS_KEY in spec else 0
-    return number_inputs, number_parameters, number_outputs
+    inputs = spec[INPUTS_KEY] if INPUTS_KEY in spec else {}
+    return inputs
 
+
+def get_outputs_mic(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    outputs = spec[OUTPUTS_KEY] if OUTPUTS_KEY in spec else {}
+    return outputs
+
+
+def get_parameters(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    parameters = spec[PARAMETERS_KEY] if PARAMETERS_KEY in spec else {}
+    return parameters
+
+
+def get_configs(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    configs = spec[CONFIG_FILE_KEY] if CONFIG_FILE_KEY in spec else {}
+    return configs
+
+def get_framework(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    framework = spec[FRAMEWORK_KEY] if FRAMEWORK_KEY in spec else None
+    return framework
+
+def get_code(config_yaml_path):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+    code = spec[CODE_KEY] if CODE_KEY in spec else {}
+    return code
 
 def create_file_yaml_basic(config_yaml_path: Path):
     make_yaml(config_yaml_path)

@@ -1,0 +1,25 @@
+step: 1
+name: python_test
+inputs:
+  datasetspecification_csv:
+    path: DatasetSpecification.csv
+    format: csv
+  data_zip:
+    path: mic/data/Data.zip
+    format: zip
+code_files:
+  testscript_py:
+    path: testScript.py
+    format: py
+outputs:
+  result_txt:
+    path: result.txt
+    format: txt
+commands: '
+
+
+  pushd .
+
+  python testScript.py
+
+  popd'

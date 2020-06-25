@@ -1,16 +1,16 @@
 import datetime
 import logging
+import os
 import re
 import shutil
 from pathlib import Path
-import os
 
 import click
 import pygit2 as pygit2
 import semver
-from mic.config_yaml import write_spec
 from distutils.version import StrictVersion
 from github import Github
+from mic.config_yaml import write_spec
 from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
     MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
 from mic.credentials import get_credentials
@@ -18,46 +18,44 @@ from mic.credentials import get_credentials
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
 
 
-def create_local_repo_and_commit(model_directory: Path):
-    """
-    Publish the directory on git
-    If the directory is not a git directory, create it
-    If the git directory doesn't have a remote origin, create a github repository
-    @param directory:
-    @type directory:
-    """
-    try:
-        repo = get_or_create_repo(model_directory)
-        git_commit(repo)
-    except Exception as e:
-        raise e
-
-
-def push(model_directory: Path, mic_config_path: Path, profile):
+def push(model_directory: Path, mic_config_path: Path, name: str, profile):
+    repository_name = name
     click.secho("Creating the git repository")
-    repo = get_or_create_repo(model_directory)
+    repo = get_local_repo(model_directory)
     click.secho("Compressing your code")
     compress_src_dir(model_directory)
     click.secho("Creating a new commit")
     git_commit(repo)
     click.secho("Creating or using the GitHub repository")
-    url = check_create_remote_repo(repo, profile, model_directory.name, model_directory)
+    url = check_create_remote_repo(repo, profile, repository_name)
+    repository_name = url.split('/')[-1].replace(".git", "")
+    write_spec(mic_config_path, REPO_KEY, url)
     click.secho("Creating a new version")
     _version = git_tag(repo, author)
+
     click.secho("Pushing your changes to the server")
+    remote = repo.remotes["origin"]
+    try:
+        git_pull(repo, remote)
+    except AssertionError as e:
+        click.secho("Unable to handle git conflict, please fix them manually", fg="red")
+        exit(1)
+
     git_push(repo, profile, _version)
-    repo = get_github_repo(profile, model_directory.name)
+    write_spec(mic_config_path, VERSION_KEY, _version)
+
+    repo = get_github_repo(profile, repository_name)
+    file = None
     for i in repo.get_contents(""):
         if i.name == "{}.zip".format(MINT_COMPONENT_ZIP):
             file = i
+            write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
             break
-
-    write_spec(mic_config_path, REPO_KEY, url)
-    write_spec(mic_config_path, VERSION_KEY, _version)
-    write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
+    if not file:
+        click.secho(f"Mint component not found {MINT_COMPONENT_ZIP}.zip", fg="red")
+        exit(1)
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
-    remove_temp_files(mic_config_path)
 
 
 def git_commit(repo):
@@ -76,7 +74,7 @@ def git_commit(repo):
     repo.create_commit('refs/heads/master', author, author, "automated mic", tree, parents)
 
 
-def get_or_create_repo(model_path: Path):
+def get_local_repo(model_path: Path):
     return pygit2.Repository(pygit2.discover_repository(model_path)) if pygit2.discover_repository(
         model_path) else pygit2.init_repository(
         model_path, False)
@@ -87,29 +85,28 @@ def compress_src_dir(model_path: Path):
     Compress the directory src and create a zip file
     """
     zip_file_name = model_path / MINT_COMPONENT_ZIP
-    tmp_dir = model_path / "{}_component".format(model_path.name)
-    try:
-        shutil.copytree(model_path / SRC_DIR, tmp_dir / SRC_DIR)
-        zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path, base_dir=tmp_dir.name)
-    except FileExistsError:
-        click.secho("Error: {} is already populated. Please remove it and rerun."
-                    "".format(model_path / "{}_component".format(model_path.name)), fg="red")
-        exit(1)
+    src_dir = model_path / SRC_DIR
+    mic_component_path = model_path / f"{MINT_COMPONENT_ZIP}.zip"
+    if mic_component_path.exists():
+        os.remove(mic_component_path)
+    zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
+                                        base_dir=src_dir.relative_to(model_path.parent))
+    shutil.move(zip_file_path, mic_component_path)
     return zip_file_path
 
 
-def check_create_remote_repo(repo, profile, model_name, model_path: Path):
-    if "origin" in repo.remotes:
-        try:
-            return repo.remotes["origin"].url
-        except:
-            pass
-    try:
-        return repo.remotes["origin"].url
-    except:
-        repo = github_create_repo(profile, model_name, model_path)
-        url = repo.clone_url
+def check_create_remote_repo(repo, profile, model_name):
+    if "origin" in [i.name for i in repo.remotes]:
+        origin__url = repo.remotes["origin"].url
+        click.secho(f"The git repository has a remote server configured {origin__url}")
+        return origin__url
+    else:
+        click.secho(f"The git repository has not a remote server configured ")
+        click.secho(f"Creating a new repository on GitHub")
+        repo_github = github_create_repo(profile, model_name)
+        url = repo_github.clone_url
         repo.remotes.create("origin", url)
+        click.secho(f"The url is: {url}")
         return url
 
 
@@ -123,6 +120,43 @@ def get_github_repo(profile, model_name):
 
 def git_add_remote(repo, url):
     repo.remotes.create("origin", url)
+
+
+def git_pull(repo, remote, branch="master"):
+    remote.fetch()
+    remote_master_id = repo.lookup_reference('refs/remotes/origin/%s' % (branch)).target
+    merge_result, _ = repo.merge_analysis(remote_master_id)
+    # Up to date, do nothing
+    if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
+        return True
+    elif merge_result & pygit2.GIT_MERGE_ANALYSIS_FASTFORWARD:
+        repo.checkout_tree(repo.get(remote_master_id))
+        try:
+            master_ref = repo.lookup_reference('refs/heads/%s' % (branch))
+            master_ref.set_target(remote_master_id)
+        except KeyError:
+            repo.create_branch(branch, repo.get(remote_master_id))
+        repo.head.set_target(remote_master_id)
+    elif merge_result & pygit2.GIT_MERGE_ANALYSIS_NORMAL:
+        repo.merge(remote_master_id)
+
+        if repo.index.conflicts is not None:
+            for conflict in repo.index.conflicts:
+                click.echo(f"Conflicts found in: {conflict[0].path}")
+            raise AssertionError('Conflicts')
+
+        user = repo.default_signature
+        tree = repo.index.write_tree()
+        commit = repo.create_commit('HEAD',
+                                    user,
+                                    user,
+                                    'Merge',
+                                    tree,
+                                    [repo.head.target, remote_master_id])
+        # We need to do this or git CLI will think we are still merging.
+        repo.state_cleanup()
+    else:
+        raise AssertionError('Unknown merge analysis result')
 
 
 def git_push(repo, profile, tag):
@@ -170,7 +204,7 @@ def get_next_tag(repo):
     return version_today
 
 
-def github_create_repo(profile, model_name, model_path: Path):
+def github_create_repo(profile, model_name):
     """
     Publish the directory on git
     If the directory is not a git directory, create it
@@ -179,7 +213,6 @@ def github_create_repo(profile, model_name, model_path: Path):
     @param profile: the profile to use in the credentials file
     @type: directory: Path
     """
-
     git_token, git_username = github_config(profile)
     g = Github(git_username, git_token)
     github_login(g)
@@ -194,7 +227,6 @@ def github_create_repo(profile, model_name, model_path: Path):
     if repo:
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
             click.secho("Please rename the directory", fg="green")
-            remove_temp_files(model_path)
             exit(0)
     else:
         repo = user.create_repo(model_name)

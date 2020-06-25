@@ -1,0 +1,40 @@
+step: 2
+name: simplemodel
+parameters:
+  a:
+    default_value: 5
+  b:
+    default_value: 4
+  c:
+    default_value: 6
+configs:
+  config_json:
+    path: config.json
+    format: json
+inputs:
+  results_zip:
+    path: results.zip
+    format: zip
+  x_csv:
+    path: x.csv
+    format: csv
+outputs:
+  y_csv:
+    path: results/y.csv
+    format: csv
+code_files:
+  linemodel_py:
+    path: linemodel.py
+    format: py
+commands: '
+
+
+  pushd .
+
+  python3 linemodel.py config.json
+
+  popd'
+github_repo_url: https://github.com/sirspock/simplemodel.git
+version: 20.6.1
+mint_component_url: https://raw.githubusercontent.com/sirspock/simplemodel/master/mint_component.zip
+docker_image: mosorio/simplemodel:20.6.1
