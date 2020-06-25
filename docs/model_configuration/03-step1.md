@@ -15,7 +15,7 @@ Then, in the folder, type:
 ```bash
 $ mic encapsulate start
 ```
-MIC will ask for the component name you want to use, and will show you a message wimilar to this:
+MIC will ask for the component name you want to use (you may use any name you want), and will show you a message similar to this:
 
 ```bash
 Model component name: test_192

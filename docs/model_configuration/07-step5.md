@@ -41,6 +41,8 @@ code_files:
 
 If you detect that an input is missing, you can always add it through the `inputs` command. For example, by doing `mic encapsulate inputs <path_to_file>`, where <path_to_file> represents the path to an input you would like to expose. Added files must exist, or the program will issue an error.
 
+If your input is defined in a configuration file, you may use the same method as with parameters for MIC to replace its value in the configuration file. For example, if the model in the example above used a configuration file, the path to `input.txt` could have been changed with `${input.txt}`
+
 ### Help command
 
 ```bash
