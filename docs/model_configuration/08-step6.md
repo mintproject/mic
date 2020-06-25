@@ -1,110 +1,57 @@
-Now that your component is ready, let’s edit and build the Docker image that will capture the dependencies of your component.
+## Expose model outputs
 
-### How to perform this step?
+Similarly to what we did with inputs, we must identify which outputs to expose in our model component. MIC will detect some of them automatically based on what we entered in previous steps, avoiding redundant questions.
 
-```bash 
-mic encapsulate step6
-```
+For example, for our Java simple model, the command `mic encapsulate outputs` does most of the work for us:
 
-MIC will attempt to build and test the resultant image, running your component. For example, with our SWAT example you should see the following on your terminal:
-
-```
-MIC has created the execution directory /Users/mosorio/tmp/swat_simulation/executions/05_29_15_15_24/src
-
-Added: TxtInOut into the execution directory
-Running
- ./run   -i1 /Users/mosorio/tmp/swat_simulation/swat_simulation/data/TxtInOut  -p1 1993 -p2 1
-cd TxtInOut'
-cp ../swat670 .
-chmod +x ./swat670'
-./swat670'
-                SWAT2018               
-               Rev. 670               
-      Soil & Water Assessment Tool    
-               PC Version             
- Program reading from file.cio . . . executing
-
-                SWAT2018               
-               Rev. 670               
-      Soil & Water Assessment Tool    
-               PC Version             
- Program reading from file.cio . . . executing
-
-                SWAT2018               
-               Rev. 670               
-      Soil & Water Assessment Tool    
-               PC Version             
- Program reading from file.cio . . . executing
-
-                SWAT2018               
-               Rev. 670               
-      Soil & Water Assessment Tool    
-               PC Version             
- Program reading from file.cio . . . executing
-
-                SWAT2018               
-               Rev. 670               
-      Soil & Water Assessment Tool    
-               PC Version             
- Program reading from file.cio . . . executing
-
-                SWAT2018               
-               Rev. 670               
-      Soil & Water Assessment Tool    
-               PC Version             
- Program reading from file.cio . . . executing
-
-  Executing year    1
-                SWAT2018               
-               Rev. 670               
-      Soil & Water Assessment Tool    
-               PC Version             
- Program reading from file.cio . . . executing
-
-
- Execution successfully completed 
-+ set -e
-+ cd .
-+ . ./output.sh
-./run: line 27: ./output.sh: No such file or directory
+```bash
+$ mic encapsulate outputs
+Automatically found mic.yaml in /tmp/mint/mic/mic.yaml
+Detecting the output of your model using the information obtained by the `trace` command.
+Output added: /tmp/mint/output.txt
 Success
-The model has generated the following files
-TxtInOut/output.rsv
-TxtInOut/file.cio.bk
-TxtInOut/output.rch
-TxtInOut/output.sub
-TxtInOut/hyd.out
-TxtInOut/chan.deg
-TxtInOut/bmp-sedfil.out
-TxtInOut/septic.out
-TxtInOut/swat670
-TxtInOut/bmp-ri.out
-TxtInOut/output.sed
-TxtInOut/output.std
-TxtInOut/output.hru
-TxtInOut/file.cio
-TxtInOut/input.std
-TxtInOut/fin.fin
-TxtInOut/watout.dat
-Added: txtinoutoutput_rsv as a output
-Added: txtinoutfile_cio_bk as a output
-Added: txtinoutoutput_rch as a output
-Added: txtinoutoutput_sub as a output
-Added: txtinouthyd_out as a output
-Added: txtinoutchan_deg as a output
-Added: txtinoutbmp-sedfil_out as a output
-Added: txtinoutseptic_out as a output
-Added: txtinoutswat670 as a output
-Added: txtinoutbmp-ri_out as a output
-Added: txtinoutoutput_sed as a output
-Added: txtinoutoutput_std as a output
-Added: txtinoutoutput_hru as a output
-Added: txtinoutfile_cio as a output
-Added: txtinoutinput_std as a output
-Added: txtinoutfin_fin as a output
-Added: txtinoutwatout_dat as a output
+You model component has 1 outputs
+The next step is `mic encapsulate wrapper`
+MIC is going to generate the directory structure and commands required to run your model.
+For more information, you can type.
+mic encapsulate wrapper --help
 ```
-MIC creates an `executions` folder where you will be able to see the results of the executed model, which in this case correspond to all the `Added` files listed in the command above.
 
 ### Expected results 
-After this step, you will have created and validated your executable component. Congratulations! Now all that remains is make it available online
+If we inspect the `mic.yaml` file, we see that the output has been added correctly:
+
+```yaml
+outputs:
+  output_txt:
+    path: output.txt
+    format: txt
+```
+
+If you detect that an output is missing from the `mic.yaml` file, you can always add it through the `outputs` command. For example, by doing `mic encapsulate outputs <path_to_file>`, where <path_to_file> represents the path to an output you would like to expose. Added files must exist, or the program will issue an error. MIC will use this information to confirm that the output files are generated when testing the component.
+
+### Help command
+
+```bash
+Usage: mic encapsulate outputs [OPTIONS] [CUSTOM_OUTPUTS]...
+
+  Describe the outputs of your model using the information obtained by the
+  `trace` command. To identify  which inputs have been automatically
+  detected, execute `mic encapsulate outputs -f mic/mic.yaml` and then
+  inspect the mic.yaml file
+
+  - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f)
+  option; or run the command from the same directory as mic.yaml
+
+  - Identify undetected files or directories  in the mic.yaml file and pass
+  them as as arguments to the command
+
+  mic encapsulate outputs -f <mic_file> [undetected files]...
+
+  Example:
+
+  mic encapsulate outputs -f mic/mic.yaml output.txt outputs_directory
+
+Options:
+  -f, --mic_file       FILE
+  --help               Show this message and exit.
+```

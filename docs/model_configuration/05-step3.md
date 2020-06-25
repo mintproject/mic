@@ -12,6 +12,9 @@ Adding the parameter p, value 1350 and type int
 ```
 The `-n` flag stands for `parameter name` and the `-v` flag stands for the default value you would like the parameter to have. In the case above, we defined a parameter `p` with value `1350`. MIC detected that it was an integer.
 
+!!! warning
+    Parameters are case sensitive: a parameter `start_year` is different from `START_YEAR`.
+
 ### Expected result
 
 If you edit the mic.yaml file, you should see that the parameter has been added. We **encourage** adding a description so the role of the parameter becomes clear:

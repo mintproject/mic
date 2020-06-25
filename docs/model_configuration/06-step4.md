@@ -1,10 +1,10 @@
-# Step 4: Edit your model configuration files
+## Step 4: Edit your model configuration files
 
 [Skip background explanation](#how-to-perform-this-step)
 
 Models tend to be complex, and it becomes impractical to configure their parameters through the command line. Instead, many models define their parameters in one or multiple configuration files.
 
-Let us consider an example of a complex hydrological model (SWAT), which uses a folder with multiple inputs, including a configuration file. We would like to expose 2 parameters from this file, related to the start year of the simulation and the number of years to run it. Our `mic.yaml` file looks as follows:
+Let us consider an example of a complex hydrological model ([SWAT hydrology model](https://swat.tamu.edu/)), which uses a folder with multiple inputs, including a configuration file. We would like to expose 2 parameters from this file, related to the start year of the simulation and the number of years to run it. Our `mic.yaml` file looks as follows:
 
 ```yaml
 inputs:
@@ -69,9 +69,8 @@ Make sure that the names of the parameters match with the names we described in 
 Once the mapping has been completed, we just need to add the file as a configuration file of the model component:
 
 ```bash
-mic encapsulate configs -f mic.yaml [configuration_files]...
+mic encapsulate configs [configuration_files]...
 ```
-(Note that `-f mic.yaml` is not needed if you are in the directory where the `mic.yaml` file exists).
 
 In the example, we must run
 ```
