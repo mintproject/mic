@@ -1,0 +1,92 @@
+step: 2
+name: swat_forecast
+docker_image: mosorio/swat_forecast:20.6.10
+framework: !!python/object/apply:mic.constants.Framework
+- !!python/tuple
+  - general
+  - mintproject/generic:latest
+parameters:
+  SFTMP:
+    default_value: 0.0
+    type: float
+  SMTMP:
+    default_value: 3.0
+    type: float
+  SMFMX:
+    default_value: 2.0
+    type: float
+  SMFMN:
+    default_value: 2.0
+    type: float
+  TIMP:
+    default_value: 0.1
+    type: float
+  START_YEAR:
+    default_value: 1981
+    type: int
+  YEARS:
+    default_value: 19
+    type: int
+configs:
+  file_cio:
+    path: TxtInOut/file.cio
+    format: cio
+  basins_bsn:
+    path: TxtInOut/basins.bsn
+    format: bsn
+inputs:
+  txtinout_zip:
+    path: TxtInOut.zip
+    format: zip
+  pcp1_pcp:
+    path: TxtInOut/pcp1.pcp
+    format: pcp
+code_files:
+  swat670:
+    path: TxtInOut/swat670
+outputs:
+  output_sed:
+    path: TxtInOut/output.sed
+    format: sed
+  septic_out:
+    path: TxtInOut/septic.out
+    format: out
+  watout_dat:
+    path: TxtInOut/watout.dat
+    format: dat
+  output_sub:
+    path: TxtInOut/output.sub
+    format: sub
+  bmp-ri_out:
+    path: TxtInOut/bmp-ri.out
+    format: out
+  output_hru:
+    path: TxtInOut/output.hru
+    format: hru
+  output_rch:
+    path: TxtInOut/output.rch
+    format: rch
+  chan_deg:
+    path: TxtInOut/chan.deg
+    format: deg
+  hyd_out:
+    path: TxtInOut/hyd.out
+    format: out
+  output_std:
+    path: TxtInOut/output.std
+    format: std
+  output_rsv:
+    path: TxtInOut/output.rsv
+    format: rsv
+  input_std:
+    path: TxtInOut/input.std
+    format: std
+  bmp-sedfil_out:
+    path: TxtInOut/bmp-sedfil.out
+    format: out
+  fin_fin:
+    path: TxtInOut/fin.fin
+    format: fin
+github_repo_url: https://github.com/sirspock/swat_forecast.git
+version: 20.6.13
+mint_component_url: https://raw.githubusercontent.com/sirspock/swat_forecast/master/mint_component.zip
