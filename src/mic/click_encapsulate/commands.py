@@ -530,5 +530,5 @@ def publish(mic_file, profile):
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
     model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
-    api_response_model, api_response_mc = publish_model_configuration(model_configuration, profile)
-    info_end_publish(None, None, obtain_id(api_response_mc.id), profile)
+    api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(model_configuration, profile)
+    info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)

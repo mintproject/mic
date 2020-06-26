@@ -1,134 +1,89 @@
-## Step 2:  Trace your model execution
-
-This is under development
-
-
-
-
-
-
-Specify the inputs and parameters of your model component
-
 [Skip background explanation](#how-to-perform-this-step)
 
-This step will help you describe the inputs data and parameters required to execute your model component. All inputs and parameters will be added by MIC in the MIC file.
+In this step, MIC will trace the execution of your component to make sure it captures all its implicit file dependencies and its invocation command. First, you will have to make sure your model executed in the environment prepared by MIC, and then you will have to trace its execution.
 
-First, you must copy your inputs/data to the data directory.
+### Testing your model in the execution environment prepared by MIC
 
-A data/input can be:
-A file
-A directory with multiple files or directories inside (in this case, MIC will create a zip file in your model component).
-For example, let’s assume a model that has its inputs for a particular region on the `TxtInOut` directory. Therefore, we copy the directory `TxtInOut` into the `data` folder:
+The `mic encapsulate start` command created a blank execution environment that is independent of the installed dependencies of your computer; and mounted the folder you chose. In our example, we have a folder with an executable (jar) and an input file (input.txt): 
 
-![Diagram](figures/04_01.png)
+![Diagram](figures/folder.png)
 
-!!! warning
-    The data to copy in the `data` foder is what MIC will use to **test** your model. It is recommended that you copy in this folder only the data needed as input to run the model.
+The next step to perform is to ensure our model works in this execution environment, and otherwise install all missing dependencies. In our case, we run the JAR executable:
 
-Next, we must define the parameters to expose in your model component.
-These parameters are important because we may not be interested in exposing the full complexity of our model. For example, if we have prepared a model to execute in a particular region and we have tweaked certain parameters (e.g., soil porosity), we may not want these changed by the researchers or analysts using our model. However, we may want them to be able to change other parameters (e.g., increments in precipitation) to generate interesting simulations. This way, analysts or researchers can explore indicators values under different initial conditions, without needing to worry about complex model calibration details.
+```bash
+$ root@32fee4e4d205:/tmp/mint# java -jar test_192-1.0-SNAPSHOT-jar-with-dependencies.jar -i input.txt -p 1500 -o output.txt
+Done
+```
+And we can see that an output (`output.txt`) was produced, which was thee xpected output from the model:
 
-A parameter can be a string, float, integer, or boolean.
+![Diagram](figures/folder_out.png)
+
+In this case, MIC already detected and prepared a Java environment because of the JAR executable, but if new dependencies are needed, they can be installed via `apt-get install <package_name>` or you favorite package manager. For example, if you use Python you may use `pip`.
+
+Once you have tested your model, you can trace its execution
 
 ### How to perform this step?
 
-You must type the following:
+Type: 
 
 ```bash
-$ mic encapsulate step2 [OPTIONS]
-Options:
-  -p, --parameters INTEGER    [required]
-  -f, --mic_file FILE
-  --help                      Show this message and exit.
+$ mic encapsulate trace <your_execution_command>
 ```
 
-The command has two options:
--p, --parameters: The number of parameters
--f, --mic_file: A path to the MIC file. By default, the value is: `mic.yaml`
+Where `<your_execution_command>` corresponds to the way you would invoke your model, exactly as you would like to expose it.
 
-!!! info
-    The MIC file is under your Model Component directory.
-
-For example let’s consider we want to create a component for the [SWAT hydrology model](https://swat.tamu.edu/), where we would like to expose two parameters:
-
-start_year: When the simulation starts.
-years: Number of years to simulate.
-
-We have already executed step1, and we have created the structure for our model component `swat_precipitation_rates`. To perform step2, we would type:
+In the case above:
 
 ```bash
-$ mic encapsulate step2 -f swat_precipitation_rates/mic.yaml -p 2
+$ mic encapsulate trace java -jar test_192-1.0-SNAPSHOT-jar-with-dependencies.jar -i input.txt -p 1500 -o output.txt
 ```
-If you move to the folder where the mic.yaml file is located, you can  avoid having the option `-f`, as MIC will automatically scan for this file:
+
+**What does this do?** MIC uses [Reprozip](https://www.reprozip.org/), a program to track all the system calls of your model, to automatically track down all the file and dependencies being used. The result is saved in a file called `reprozip-trace`, which we will call `trace` for simplicity.
+
+If multiple commands are required for your model execution, trace each of them separately (or create a script including them and trace the invocation of the script). If you are capturing multiple traces, you will see a message like this one:
 
 ```bash
-$ cd swat_precipitation_rates
-$ mic encapsulate step2 -p 2
-Searching files in the directory /Users/mosorio/tmp/swat_precipitation_rates/data
-MIC has added the parameters and inputs into the MIC file
-You can see the changes /Users/mosorio/tmp/swat_precipitation_rates/mic.yaml
+Trace directory .reprozip-trace exists
+(a)ppend run to the trace, (d)elete it or (s)top? [a/d/s]
 ```
+'`a`' will add the command to the existing trace; '`d`' will delete previous traces and create a new one with the new command and '`s`' will stop the tracing process.
 
 ### Expected result:
 
-MIC should have updated the MIC file (mic.yaml).
-Each input has the path to the right file or directory
-Each parameter has a default value equals to zero
+Your model component will take longer to run; at at the end you should see a long log message on the screen. The ending of this message should be similar to:
 
-In the SWAT example, the content of the file is:
-
-```yaml
-inputs:
-  txtinout:
-    path: data/TxtInOut
-parameters:
-  parameter1:
-    default_value: 0
-  parameter2:
-    default_value: 0
-step: 2
+```bash
+Configuration file written in .reprozip-trace/config.yml
+Edit that file then run the packer -- use 'reprozip pack -h' for help
 ```
+A new folder called `.reprozip-trace` will have been created in your directory:
 
-You must add a *default_value* for each parameter.
-You can edit the name of the parameters and inputs (Spaces are not admitted)
-For the SWAT example, we modified the name of the parameters and the default_value
-```
-inputs:
-  txtinout:
-    path: data/TxtInOut
-parameters:
-  start_year:
-    default_value: 1991
-  years:
-    default_value: 2
-step: 2
-```
+![Diagram](figures/trace.png)
 
-In step 3, we will use the parameter names to set up your model component.
+If you are curious, you may open the `config.yaml` file inside `.reprozip-trace` folder, but no manipulation is required and you may proceed to the next step.
 
 
 
 #### Help command
 
 ```bash
-mic encapsulate step2 --help                                
-Usage: mic encapsulate step2 [OPTIONS]
+Usage: mic encapsulate trace [OPTIONS] [COMMAND]...
 
-This step describes the inputs/data and parameters of your Model Component.
+  Complete the mic.yaml file with the information of the parameters and
+  inputs you want to expose
 
-The command has two options:
--p, --parameters: The number of parameters
--f, --mic_file: By default, the value is: `mic.yaml
+  MIC is going to automatically detect:  - All inputs (files and
+  directories) used by your component and add them in the mic.yaml file.  -
+  All parameters used by your component and add them in the configuration
+  file
 
-This information will be written in the MIC file.
-You can edit the name of the inputs/data and parameters and the default_value of the parameters
-
-  mic encapsulate step2 -f <mic_file> -p <number_of_parameters>
+  Usage example: mic encapsulate trace python main.py mic encapsulate trace
+  ./your_program
 
 Options:
-  -p, --parameters INTEGER    [required]
-  -f, --mic_file FILE
-  --help                      Show this message and exit.
+  --continue   add to the previous trace, don't replace it
+  --overwrite  overwrite the previous trace, don't add to it
+  --help       Show this message and exit.
 
 ```
 

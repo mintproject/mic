@@ -1,5 +1,3 @@
-## Step 1: Start up a MIC encapsulation component and MIC file template
-
 This step is going to create a computational environment based in the executables of your working directory and template MIC file template (`mic.yaml`) which will be placed in a  `/mic` directory.  This file (which will be completed in subsequent steps) contains the executable information and metadata  about your model component.
 
 ### How to perform this step?
@@ -17,7 +15,7 @@ Then, in the folder, type:
 ```bash
 $ mic encapsulate start
 ```
-MIC will ask for the component name you want to use, and will show you a message wimilar to this:
+MIC will ask for the component name you want to use (you may use any name you want), and will show you a message similar to this:
 
 ```bash
 Model component name: test_192
@@ -48,7 +46,7 @@ Please, run your Model Component.
 ```
 As can be seen in the message above, MIC is creating an execution environment from scratch to make sure we capture the minimum set of dependencies needed to execute a model. Since we had a java executable, MIC already selected a Java environment. If we had python files, MIC would have promted us to select which version of Python to start from.
 
-!!!warning
+!!! warning
     This command must **NOT** be executed on a folder already tracked by GitHub.
 
 
@@ -91,6 +89,6 @@ Options:
   --help          Show this message and exit.
 ```
 
-!!!info
-    In the next version of MIC, we will let you start from your own Docker image if required.
+!!! info
+    Next releases of MIC will allow customizing an initial Docker image.
 
