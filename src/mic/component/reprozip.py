@@ -22,7 +22,7 @@ def relative(files: List[Path], user_execution_directory):
     return response
 
 
-def get_inputs_reprozip(spec, user_execution_directory, aggregrate=True):
+def get_inputs_outputs_reprozip(spec, user_execution_directory, aggregrate=True):
     inputs = []
     inputs_outputs_ = spec[REPRO_ZIP_INPUTS_OUTPUTS] if spec[REPRO_ZIP_INPUTS_OUTPUTS] else []
     for i in inputs_outputs_:
@@ -48,7 +48,7 @@ def get_inputs_reprozip(spec, user_execution_directory, aggregrate=True):
     return list(set(inputs))
 
 
-def get_outputs(spec, user_execution_directory, aggregrate=False):
+def get_outputs_reprozip(spec, user_execution_directory, aggregrate=False):
     """
 
     :param spec:
