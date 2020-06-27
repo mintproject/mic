@@ -4,20 +4,17 @@ from pathlib import Path
 from tempfile import mkstemp
 
 from click.testing import CliRunner
-from mic.component.initialization import create_base_directories
 from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run
-from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic
+from mic.component.initialization import create_base_directories
+from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic, get_code
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME, SRC_DIR, DOCKER_DIR, DATA_DIR
 
 RESOURCES = "resources"
-mic_1 = Path(__file__).parent / RESOURCES / "mic_full.yaml"
-mic_empty = Path(__file__).parent / RESOURCES / "mic_empty.yaml"
 
 
 def test_issue_swat(tmp_path):
     """
     Test mic's ability to automatically find and use the mic.yaml file if -f is not provided. This test case is based
-    off test #187
     :param tmp_path:
     :return:
     """
@@ -29,21 +26,22 @@ def test_issue_swat(tmp_path):
     create_base_directories(mic_dir, interactive=False)
     runner = CliRunner()
     mic_config_arg = str(mic_dir / CONFIG_YAML_NAME)
-    cmd_configs(mic_config_arg, repository_test, runner)
+    cmd_configs(mic_config_arg, temp_test, runner)
     check_config(mic_config_arg)
     cmd_inputs(mic_config_arg, runner)
-    #check_inputs(mic_config_arg)
-    #cmd_outputs(mic_config_arg, runner)
-    #check_outputs(mic_config_arg)
-    #cmd_wrapper(mic_config_arg, runner)
-    #cmd_run(mic_config_arg, runner)
+    check_inputs(mic_config_arg)
+    #check_code(mic_config_arg)
+    # cmd_outputs(mic_config_arg, runner)
+    # check_outputs(mic_config_arg)
+    # cmd_wrapper(mic_config_arg, runner)
+    # cmd_run(mic_config_arg, runner)
 
 
-def cmd_configs(mic_config_arg, path, runner):
+def cmd_configs(mic_file, path, runner):
     try:
         c1 = str(path / 'TxtInOut' / 'file.cio')
         c2 = str(path / 'TxtInOut' / 'basins.bsn')
-        result = runner.invoke(configs, [c1], catch_exceptions=False)
+        result = runner.invoke(configs, ["-f", str(mic_file), c1, c2], catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -54,7 +52,7 @@ def cmd_configs(mic_config_arg, path, runner):
 def check_config(mic_config_arg):
     files = get_configs(Path(mic_config_arg))
     assert files == {'basins_bsn': {'format': 'bsn', 'path': 'TxtInOut/basins.bsn'},
- 'file_cio': {'format': 'cio', 'path': 'TxtInOut/file.cio'}}
+                     'file_cio': {'format': 'cio', 'path': 'TxtInOut/file.cio'}}
 
 
 def check_parameters(mic_config_arg):
@@ -76,9 +74,9 @@ def cmd_add_parameters(mic_config_arg, runner):
         assert result.exit_code == 0
 
 
-def cmd_inputs(mic_config_arg, runner):
+def cmd_inputs(mic_file, runner):
     try:
-        result = runner.invoke(inputs, input='Y', catch_exceptions=False)
+        result = runner.invoke(inputs, ["-f", str(mic_file)], input='Y', catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -88,7 +86,12 @@ def cmd_inputs(mic_config_arg, runner):
 
 def check_inputs(mic_config_arg):
     _inputs = get_inputs(Path(mic_config_arg))
-    assert _inputs == {'c_txt': {'format': 'txt', 'path': 'c.txt'}}
+    assert _inputs == {'txtinout_zip': {'format': 'zip', 'path': 'TxtInOut.zip'}}
+
+
+def check_code(mic_config_arg):
+    _code = get_code(Path(mic_config_arg))
+    assert _code == {'path': 'TxtInOut/swat670'}
 
 
 def cmd_outputs(mic_config_arg, runner):

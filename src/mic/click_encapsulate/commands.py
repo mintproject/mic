@@ -305,7 +305,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     if data_dir.exists():
         shutil.rmtree(data_dir)
     data_dir.mkdir()
-    outputs = get_outputs(spec, user_execution_directory)
+    _outputs = get_outputs(spec, user_execution_directory)
     for _input in inputs_reprozip:
         item = user_execution_directory / _input
         name = Path(_input).name
@@ -314,27 +314,21 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
             click.secho(f"Ignoring the config {item} as an input.", fg="blue")
         else:
             # Deleting the outputs of the inputs.
-            is_input = True
-            for _o in outputs:
-                try:
-                    Path(_o).relative_to(item)
-                    is_input = False
-                except:
-                    is_input = True
-                    pass
-            if is_input and item.is_dir():
-                click.secho(f"""Input {name} is a directory""", fg="green")
-                click.secho(f"""Compressing the input {name} """, fg="green")
-                zip_file = compress_directory(item, user_execution_directory)
-                dst_dir = data_dir
-                dst_file = dst_dir / Path(zip_file).name
-                if dst_file.exists():
-                    os.remove(dst_file)
-                shutil.move(str(zip_file), str(dst_dir))
-                new_inputs.append(zip_file)
-                click.secho(f"""Input {name}  added """, fg="blue")
-
-            elif is_input:
+            if item.is_dir():
+                if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
+                    click.secho(f"Skipping {item}")
+                else:
+                    click.secho(f"""Input {name} is a directory""", fg="green")
+                    click.secho(f"""Compressing the input {name} """, fg="green")
+                    zip_file = compress_directory(item, user_execution_directory)
+                    dst_dir = data_dir
+                    dst_file = dst_dir / Path(zip_file).name
+                    if dst_file.exists():
+                        os.remove(dst_file)
+                    shutil.move(str(zip_file), str(dst_dir))
+                    new_inputs.append(zip_file)
+                    click.secho(f"""Input {name}  added """, fg="blue")
+            else:
                 click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
