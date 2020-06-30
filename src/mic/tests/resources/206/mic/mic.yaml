@@ -1,4 +1,4 @@
-step: 1
+step: 2
 name: '206'
 docker_image: 206:latest
 inputs:
@@ -13,9 +13,9 @@ outputs:
   b_txt:
     path: outputs/b.txt
     format: txt
-  a_txt:
-    path: outputs/a.txt
-    format: txt
   c_txt:
     path: outputs/c.txt
+    format: txt
+  a_txt:
+    path: outputs/a.txt
     format: txt

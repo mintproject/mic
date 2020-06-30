@@ -248,7 +248,7 @@ def add_params_from_config(yaml_path: Path, config_path: Path):
 
             if not_input and not_output and not_config:
                 mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0, DEFAULT_DESCRIPTION_KEY: "",
-                                                        DATATYPE_KEY: "unknown"}})
+                                                        DATATYPE_KEY: ""}})
                 click.secho("Automatically adding \"{}\" as a parameter".format(name))
                 added = True
 
