@@ -298,7 +298,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     config_files_list = [str(user_execution_directory / item[PATH_KEY]) for key, item in
                          config_files.items()] if config_files else []
 
-    code_files = find_code_files(spec, inputs_reprozip, config_files_list)
+    code_files = find_code_files(spec, inputs_reprozip, config_files_list, user_execution_directory)
     new_inputs = []
     inputs_reprozip += list(custom_inputs)
     data_dir = mic_directory_path.absolute() / DATA_DIR

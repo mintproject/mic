@@ -100,9 +100,16 @@ popd"""
     return code
 
 
-def find_code_files(spec, inputs, config_files):
+def find_code_files(spec, inputs, config_files, user_execution_directory):
     code_files = []
     for run in spec[REPRO_ZIP_RUNS]:
+
+        if "binary" in run:
+            try:
+                code_files.append(str(user_execution_directory / Path(run['binary']).relative_to(default_path)))
+            except ValueError:
+                pass
+
         for _input in inputs:
             argv = run[REPRO_ZIP_ARGV] if isinstance(run[REPRO_ZIP_ARGV], list) else run[REPRO_ZIP_ARGV].split(' ')
             for arg in argv:

@@ -30,7 +30,7 @@ def test_issue_swat(tmp_path):
     check_config(mic_config_arg)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
-    #check_code(mic_config_arg)
+    check_code(mic_config_arg)
     # cmd_outputs(mic_config_arg, runner)
     # check_outputs(mic_config_arg)
     # cmd_wrapper(mic_config_arg, runner)
@@ -91,7 +91,7 @@ def check_inputs(mic_config_arg):
 
 def check_code(mic_config_arg):
     _code = get_code(Path(mic_config_arg))
-    assert _code == {'path': 'TxtInOut/swat670'}
+    assert _code == {'swat670': {'format': '', 'path': 'TxtInOut/swat670'}}
 
 
 def cmd_outputs(mic_config_arg, runner):
