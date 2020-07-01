@@ -538,4 +538,3 @@ def publish(mic_file, profile, model_catalog_type):
         info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)
     elif model_catalog_type == ModelCatalogTypes.DATA_TRANSFORMATION:
         click.secho("Add Data Transformation")
-        

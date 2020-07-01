@@ -1,4 +1,4 @@
-from constants import ModelCatalogTypes
+from mic.constants import ModelCatalogTypes
 
 
 def test_model_catalog_types():
