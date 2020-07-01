@@ -1,0 +1,16 @@
+{
+"input" :
+  {
+  "dataset_name" : "${x.csv}"
+},
+"output" :
+  {
+  "path" : "./"
+},
+"params" :
+  {
+  "a" : "${a}",
+  "b" : "${b}",
+  "c" : "${c}"
+  }
+}

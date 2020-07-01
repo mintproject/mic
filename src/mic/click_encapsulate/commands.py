@@ -15,7 +15,7 @@ from mic.component.detect import detect_framework_main, detect_new_reprozip, ext
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
     render_bash_color
-from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
+from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
@@ -291,50 +291,44 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     spec = get_spec(repro_zip_config_file)
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
-    inputs_reprozip = get_inputs_reprozip(spec, user_execution_directory)
+    inputs_reprozip = get_inputs_outputs_reprozip(spec, user_execution_directory)
 
     # obtain config: if a file is a config cannot be a input
     config_files = get_configs(mic_config_file)
     config_files_list = [str(user_execution_directory / item[PATH_KEY]) for key, item in
                          config_files.items()] if config_files else []
 
-    code_files = find_code_files(spec, inputs_reprozip, config_files_list)
+    code_files = find_code_files(spec, inputs_reprozip, config_files_list, user_execution_directory)
     new_inputs = []
     inputs_reprozip += list(custom_inputs)
     data_dir = mic_directory_path.absolute() / DATA_DIR
     if data_dir.exists():
         shutil.rmtree(data_dir)
     data_dir.mkdir()
-    outputs = get_outputs(spec, user_execution_directory)
+    _outputs = get_outputs_reprozip(spec, user_execution_directory)
     for _input in inputs_reprozip:
         item = user_execution_directory / _input
         name = Path(_input).name
 
-        if str(item) in config_files_list or str(item) in code_files:
+        if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
             click.secho(f"Ignoring the config {item} as an input.", fg="blue")
         else:
             # Deleting the outputs of the inputs.
-            is_input = True
-            for _o in outputs:
-                try:
-                    Path(_o).relative_to(item)
-                    is_input = False
-                except:
-                    is_input = True
-                    pass
-            if is_input and item.is_dir():
-                click.secho(f"""Input {name} is a directory""", fg="green")
-                click.secho(f"""Compressing the input {name} """, fg="green")
-                zip_file = compress_directory(item, user_execution_directory)
-                dst_dir = data_dir
-                dst_file = dst_dir / Path(zip_file).name
-                if dst_file.exists():
-                    os.remove(dst_file)
-                shutil.move(str(zip_file), str(dst_dir))
-                new_inputs.append(zip_file)
-                click.secho(f"""Input {name}  added """, fg="blue")
-
-            elif is_input:
+            if item.is_dir():
+                if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
+                    click.secho(f"Skipping {item}")
+                else:
+                    click.secho(f"""Input {name} is a directory""", fg="green")
+                    click.secho(f"""Compressing the input {name} """, fg="green")
+                    zip_file = compress_directory(item, user_execution_directory)
+                    dst_dir = data_dir
+                    dst_file = dst_dir / Path(zip_file).name
+                    if dst_file.exists():
+                        os.remove(dst_file)
+                    shutil.move(str(zip_file), str(dst_dir))
+                    new_inputs.append(zip_file)
+                    click.secho(f"""Input {name}  added """, fg="blue")
+            else:
                 click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
@@ -388,7 +382,7 @@ def outputs(mic_file, custom_outputs):
     spec = get_spec(repro_zip_config_file)
     custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                       list(custom_outputs)]
-    outputs = get_outputs(spec, user_execution_directory)
+    outputs = get_outputs_reprozip(spec, user_execution_directory)
     for i in list(custom_outputs):
         if Path(i).is_dir():
             outputs += get_filepaths(i)

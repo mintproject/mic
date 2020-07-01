@@ -22,7 +22,7 @@ def relative(files: List[Path], user_execution_directory):
     return response
 
 
-def get_inputs_reprozip(spec, user_execution_directory, aggregrate=True):
+def get_inputs_outputs_reprozip(spec, user_execution_directory, aggregrate=True):
     inputs = []
     inputs_outputs_ = spec[REPRO_ZIP_INPUTS_OUTPUTS] if spec[REPRO_ZIP_INPUTS_OUTPUTS] else []
     for i in inputs_outputs_:
@@ -48,7 +48,7 @@ def get_inputs_reprozip(spec, user_execution_directory, aggregrate=True):
     return list(set(inputs))
 
 
-def get_outputs(spec, user_execution_directory, aggregrate=False):
+def get_outputs_reprozip(spec, user_execution_directory, aggregrate=False):
     """
 
     :param spec:
@@ -100,9 +100,16 @@ popd"""
     return code
 
 
-def find_code_files(spec, inputs, config_files):
+def find_code_files(spec, inputs, config_files, user_execution_directory):
     code_files = []
     for run in spec[REPRO_ZIP_RUNS]:
+
+        if "binary" in run:
+            try:
+                code_files.append(str(user_execution_directory / Path(run['binary']).relative_to(default_path)))
+            except ValueError:
+                pass
+
         for _input in inputs:
             argv = run[REPRO_ZIP_ARGV] if isinstance(run[REPRO_ZIP_ARGV], list) else run[REPRO_ZIP_ARGV].split(' ')
             for arg in argv:

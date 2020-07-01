@@ -39,7 +39,7 @@ def test_issue_206(tmp_path):
 
 def cmd_configs(mic_config_arg, path, runner):
     try:
-        result = runner.invoke(configs, [str(path / 'config.json')], catch_exceptions=False)
+        result = runner.invoke(configs,  ["-f", mic_config_arg, str(path / 'config.json')], catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -62,7 +62,7 @@ def cmd_add_parameters(mic_config_arg, runner):
     parameters = {"a": 5.0, "b": 4.0, "c": 6.0}
     for key, value in parameters.items():
         try:
-            result = runner.invoke(add_parameters, ["--name", key, "--value", value],
+            result = runner.invoke(add_parameters,  ["-f", mic_config_arg, "--name", key, "--value", value],
                                    catch_exceptions=False)
             print(result.output)
         except Exception as e:
@@ -73,7 +73,7 @@ def cmd_add_parameters(mic_config_arg, runner):
 
 def cmd_inputs(mic_config_arg, runner):
     try:
-        result = runner.invoke(inputs, input='Y', catch_exceptions=False)
+        result = runner.invoke(inputs,  ["-f", mic_config_arg], input='Y', catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -88,7 +88,7 @@ def check_inputs(mic_config_arg):
 
 def cmd_outputs(mic_config_arg, runner):
     try:
-        result = runner.invoke(outputs, catch_exceptions=False)
+        result = runner.invoke(outputs, ["-f", mic_config_arg], catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -105,7 +105,7 @@ def check_outputs(mic_config_arg):
 
 def cmd_wrapper(mic_config_arg, runner):
     try:
-        result = runner.invoke(wrapper, catch_exceptions=False)
+        result = runner.invoke(wrapper, ["-f", mic_config_arg], catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -115,7 +115,7 @@ def cmd_wrapper(mic_config_arg, runner):
 
 def cmd_run(mic_config_arg, runner):
     try:
-        result = runner.invoke(run, catch_exceptions=False)
+        result = runner.invoke(run, ["-f", mic_config_arg], catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
