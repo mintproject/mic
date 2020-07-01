@@ -5,7 +5,7 @@ import logging
 import click
 import modelcatalog
 from mic.credentials import get_credentials
-from modelcatalog import ApiException, ApiClient
+from modelcatalog import ApiException, ApiClient, User
 from mic.constants import DEFAULT_CONFIGURATION_WARNING
 
 MODEL_CATALOG_URL = "https://w3id.org/okn/i/mint/"
@@ -70,9 +70,10 @@ def _api_configuration(username, password, server=None):
     if server is None:
         configuration.host = server
     api_instance = modelcatalog.DefaultApi(ApiClient(configuration=configuration))
+    user = User(username=username, password=password)
     try:
-        api_response = api_instance.user_login_get(username, password)
-        access_token = api_response["access_token"]
+        api_response = api_instance.user_login_post(user=user)
+        access_token = ast.literal_eval(api_response)['access_token']
         configuration.access_token = access_token
 
     except ApiException as e:

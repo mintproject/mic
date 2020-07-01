@@ -187,3 +187,24 @@ def get_show_models(resources, resource_name):
     click.secho("Existing {} are:".format(resource_name))
     print_choices(labels)
     return labels
+
+
+def publish_data_transformation(data_transformation, profile):
+    data_transformation_cli = ModelConfigurationCli(profile=profile)
+    api_response_mc = data_transformation_cli.post(data_transformation)
+
+    if not validators.url(api_response_mc.id):
+        api_response_mc.id = "{}{}".format(MINT_INSTANCE, api_response_mc.id)
+    click.echo("A model component must be associated with a model")
+    model_cli = ModelCli(profile=profile)
+    models = model_cli.get()
+    labels = get_show_models(models, "models")
+    if click.confirm("Do you want to use an existing model?", default=True):
+        api_response, model_id, software_version_id = handle_existing_model(profile, api_response_mc, labels, model_cli)
+    else:
+        api_response = create_new_model(model_cli, api_response_mc)
+        model = Model(api_response)
+        software_version_id = model.has_version[0].id
+        model_id = model.id
+    click.secho("Your Model Component has been published", fg="green")
+    return api_response, api_response_mc, model_id, software_version_id
