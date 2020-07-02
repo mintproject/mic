@@ -43,12 +43,17 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
 
 
 def render_gitignore(directory: Path):
+    """
+    creates a gitignore file (in given directory) from the gitignore template
+    :param directory:
+    :return:
+    """
     template = env.get_template(GITIGNORE_FILE)
     gitignore_file = directory / GITIGNORE_FILE
 
     with open(gitignore_file, "w") as gi:
         ignore = render_template(template=template)
-        gi.write(ignore)
+        gi.write("{}\n".format(ignore))
 
     gitignore_file.chmod(0o755)
 
