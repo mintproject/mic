@@ -89,8 +89,8 @@ class Framework(Enum):
 
 
 class ModelCatalogTypes(Enum):
-    MODEL_CONFIGURATION = ("Model Configuration")
-    DATA_TRANSFORMATION = ("Data Transformation")
+    MODEL_CONFIGURATION = ("model_configuration")
+    DATA_TRANSFORMATION = ("data_transformation")
 
     def __init__(self, label):
         self.label = label

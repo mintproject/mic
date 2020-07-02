@@ -35,6 +35,16 @@ class ModelConfigurationCli:
         except ApiException as e:
             raise e
 
+    def get_one(self, _id):
+        api, username = get_api(profile=self.profile)
+        api_instance = modelcatalog.ModelConfigurationApi(api)
+        try:
+            # List all Person entities
+            api_response = api_instance.modelconfigurations_id_get(id=_id, username=username)
+            return api_response
+        except ApiException as e:
+            raise e
+
     def post(self, request):
         api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.ModelConfigurationApi(api)

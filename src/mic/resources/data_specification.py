@@ -1,7 +1,7 @@
 import logging
 
 import modelcatalog
-from model_catalog_utils import get_api
+from mic.model_catalog_utils import get_api
 from modelcatalog import ApiException, DatasetSpecification
 
 RESOURCE_INPUT = "Input"

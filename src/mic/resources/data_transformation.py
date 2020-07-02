@@ -26,9 +26,9 @@ class DataTransformationCli:
     def post(self, request):
         api, username = get_api(profile=self.profile)
         api_instance = modelcatalog.DataTransformationApi(api)
-        model_configuration = DataTransformation(**request) if isinstance(request, dict) else request
+        data_transformation = DataTransformation(**request) if isinstance(request, dict) else request
         try:
-            api_response = api_instance.datatransformations_post(username, model_configuration=model_configuration)
+            api_response = api_instance.datatransformations_post(username, data_transformation=data_transformation)
             return api_response
         except ApiException as e:
             logging.error(

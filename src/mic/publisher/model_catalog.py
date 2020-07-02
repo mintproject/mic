@@ -220,7 +220,7 @@ def publish_data_transformation(data_transformation, profile):
     _input = dataset_cli.get_one(obtain_id(model_configuration.has_input[choice - 1].id))
 
     click.secho("Your Model Component has been published", fg="green")
-    # return api_response, api_response_mc, model_id, software_version_id
+    return api_response_mc
 
 
 def create_data_transformation_resource(mint_config_file, name=None, execution_dir=None, allow_local_path=True):
