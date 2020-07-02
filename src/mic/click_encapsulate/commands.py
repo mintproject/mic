@@ -22,7 +22,8 @@ from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, c
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
-from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
+from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
+    publish_data_transformation, create_data_transformation_resource
 
 
 @click.group()
@@ -76,7 +77,8 @@ def start(user_execution_directory, name, image):
         image = build_docker(mic_dir / DOCKER_DIR, name)
         if not image:
             click.secho("The extraction of dependencies has failed", fg='red')
-            click.secho("Running a Docker Container without your dependencies. Please install them manually", fg='green')
+            click.secho("Running a Docker Container without your dependencies. Please install them manually",
+                        fg='green')
             image = framework.image
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, image)
@@ -508,7 +510,8 @@ def run(mic_file):
     metavar="<profile-name>",
 )
 @click.option('--model_catalog_type',
-              type=click.Choice([i.label for i in ModelCatalogTypes], case_sensitive=False), default=ModelCatalogTypes.MODEL_CONFIGURATION.label)
+              type=click.Choice([i.label for i in ModelCatalogTypes], case_sensitive=False),
+              default=ModelCatalogTypes.MODEL_CONFIGURATION.label)
 def publish(mic_file, profile, model_catalog_type):
     """
   Publish your MIC wrapper (including all the contents of the /src folder) on GitHub, the Docker Image on DockerHub
@@ -537,4 +540,5 @@ def publish(mic_file, profile, model_catalog_type):
             model_configuration, profile)
         info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)
     elif model_catalog_type == ModelCatalogTypes.DATA_TRANSFORMATION:
-        click.secho("Add Data Transformation")
+        dt = create_data_transformation_resource(Path(mic_file), name, allow_local_path=False)
+        publish_data_transformation(dt, profile)

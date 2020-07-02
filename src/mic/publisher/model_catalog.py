@@ -1,9 +1,6 @@
 import uuid
 from pathlib import Path
 
-
-import uuid
-from pathlib import Path
 import click
 import validators
 from dame.cli_methods import create_sample_resource
@@ -11,13 +8,17 @@ from mic._menu import parse
 from mic._utils import obtain_id
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
-    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, DATA_DIR, FORMAT_KEY, PATH_KEY
+    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, FORMAT_KEY, PATH_KEY, \
+    TYPE_DATA_TRANSFORMATION
 from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
+from mic.resources.data_specification import DataSpecificationCli
+from mic.resources.data_transformation import DataTransformationCli
 from mic.resources.model import ModelCli
 from mic.resources.model_configuration import ModelConfigurationCli
 from mic.resources.software_version import SoftwareVersionCli
-from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter, Model, SoftwareVersion
+from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter, Model, SoftwareVersion, \
+    DataTransformation
 
 
 def generate_uuid():
@@ -27,7 +28,6 @@ def generate_uuid():
 def create_model_catalog_resource(mint_config_file, name=None, execution_dir=None, allow_local_path=True):
     name = name if name else mint_config_file.parent.name
     inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
-
 
     model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
                                                     execution_dir) if inputs else None
@@ -190,21 +190,68 @@ def get_show_models(resources, resource_name):
 
 
 def publish_data_transformation(data_transformation, profile):
-    data_transformation_cli = ModelConfigurationCli(profile=profile)
+    data_transformation_cli = DataTransformationCli(profile=profile)
     api_response_mc = data_transformation_cli.post(data_transformation)
-
     if not validators.url(api_response_mc.id):
         api_response_mc.id = "{}{}".format(MINT_INSTANCE, api_response_mc.id)
-    click.echo("A model component must be associated with a model")
-    model_cli = ModelCli(profile=profile)
-    models = model_cli.get()
-    labels = get_show_models(models, "models")
-    if click.confirm("Do you want to use an existing model?", default=True):
-        api_response, model_id, software_version_id = handle_existing_model(profile, api_response_mc, labels, model_cli)
-    else:
-        api_response = create_new_model(model_cli, api_response_mc)
-        model = Model(api_response)
-        software_version_id = model.has_version[0].id
-        model_id = model.id
+    click.echo("A DataTransformation must be associated with a ModelConfiguration")
+    model_configuration_cli = ModelConfigurationCli(profile=profile)
+
+    model_configurations = model_configuration_cli.get()
+    labels = get_show_models(model_configurations, "Model Configurations")
+
+    choice = click.prompt("Select enter the number of Model Configuration to use",
+                          default=1,
+                          show_choices=False,
+                          type=click.Choice(list(range(1, len(labels) + 1))),
+                          value_proc=parse
+                          )
+    model_configuration = model_configuration_cli.get_one(obtain_id(model_configurations[choice - 1].id))
+
+    labels = get_show_models(model_configuration.has_input, "Inputs")
+    choice = click.prompt("Select enter the number of inputs to use",
+                          default=1,
+                          show_choices=False,
+                          type=click.Choice(list(range(1, len(labels) + 1))),
+                          value_proc=parse
+                          )
+
+    dataset_cli = DataSpecificationCli(profile=profile)
+    _input = dataset_cli.get_one(obtain_id(model_configuration.has_input[choice - 1].id))
+
     click.secho("Your Model Component has been published", fg="green")
-    return api_response, api_response_mc, model_id, software_version_id
+    # return api_response, api_response_mc, model_id, software_version_id
+
+
+def create_data_transformation_resource(mint_config_file, name=None, execution_dir=None, allow_local_path=True):
+    name = name if name else mint_config_file.parent.name
+    inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
+
+    model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
+                                                    execution_dir) if inputs else None
+    model_catalog_outputs = create_data_set_resource(False, outputs,
+                                                     mint_config_file.parent) if outputs else None
+    model_catalog_parameters = create_parameter_resource(parameters)
+
+    image = get_key_spec(mint_config_file, DOCKER_KEY)
+    code = get_key_spec(mint_config_file, MINT_COMPONENT_KEY)
+    data_transformation = DataTransformation(type=[TYPE_DATA_TRANSFORMATION],
+                                             label=[str(name)],
+                                             has_input=model_catalog_inputs,
+                                             has_output=model_catalog_outputs,
+                                             has_parameter=model_catalog_parameters,
+                                             )
+    if allow_local_path:
+        return data_transformation
+
+    if image is None:
+        click.secho("Failed to publish. Missing information DockerImage")
+    else:
+        software_image = SoftwareImage(label=[image], type=[TYPE_SOFTWARE_IMAGE])
+        data_transformation.has_software_image = [software_image]
+
+    if code is None:
+        click.secho("Failed to publish. Missing information zip file")
+    else:
+        data_transformation.has_component_location = [code]
+    return data_transformation
