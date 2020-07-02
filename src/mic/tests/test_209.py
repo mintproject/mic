@@ -55,8 +55,6 @@ def check_gitignore(runner):
     :return:
     """
     gi_path = os.path.join(".","mic",GITIGNORE_FILE)
-    template_content = ""
-    gi_content = ""
 
     template = env.get_template(GITIGNORE_FILE)
     template_content = "{}\n".format(render_template(template=template))
@@ -66,17 +64,6 @@ def check_gitignore(runner):
 
     gi_content = "".join(gi_content)
     assert template_content == gi_content
-
-def replace(file_path, pattern, subst):
-    # Create temp file
-    fh, abs_path = mkstemp()
-    with fdopen(fh, 'w') as new_file:
-        with open(file_path) as old_file:
-            for line in old_file:
-                new_file.write(line.replace(pattern, subst))
-    shutil.copymode(file_path, abs_path)
-    shutil.remove(file_path)
-    shutil.move(abs_path, file_path)
 
 def render_template(template, **kwargs):
     return template.render(**kwargs)
