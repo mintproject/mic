@@ -35,7 +35,6 @@ def test_issue_185(tmp_path):
     runner = CliRunner()
     cmd_add_parameters(mic_config_arg, runner)
     check_parameters(mic_config_arg)
-    print("mca: {}".format(mic_config_arg))
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
     cmd_outputs(mic_config_arg, runner)
@@ -52,24 +51,19 @@ def check_parameters(mic_config_arg):
 def cmd_add_parameters(mic_config_arg, runner):
     parameters = {"add": 12}
     for key, value in parameters.items():
-        try:
-            result = runner.invoke(add_parameters, ["-f", mic_config_arg, "--name", key, "--value", value],
-                                   catch_exceptions=False)
-            print(result.output)
-        except Exception as e:
-            print(e)
-            assert False
+
+        result = runner.invoke(add_parameters, ["-f", mic_config_arg, "--name", key, "--value", value],
+                               catch_exceptions=False)
+        print(result.output)
         assert result.exit_code == 0
 
 
 def cmd_inputs(mic_config_arg, runner):
-    try:
-        result = runner.invoke(inputs, ["-f", mic_config_arg], input='Y', catch_exceptions=False)
-        print(result.output)
-    except Exception as e:
-        print(e)
-        assert False
+
+    result = runner.invoke(inputs, ["-f", mic_config_arg], input='Y', catch_exceptions=False)
+    print(result.output)
     assert result.exit_code == 0
+
 
 def check_inputs(mic_config_arg):
     _inputs = get_inputs(Path(mic_config_arg))
@@ -77,14 +71,9 @@ def check_inputs(mic_config_arg):
                        'outputs_zip': {'format': 'zip', 'path': 'outputs.zip'}}
 
 
-
 def cmd_outputs(mic_config_arg, runner):
-    try:
-        result = runner.invoke(outputs, ["-f", mic_config_arg], catch_exceptions=False)
-        print(result.output)
-    except Exception as e:
-        print(e)
-        assert False
+    result = runner.invoke(outputs, ["-f", mic_config_arg], catch_exceptions=False)
+    print(result.output)
     assert result.exit_code == 0
 
 
@@ -94,32 +83,14 @@ def check_outputs(mic_config_arg):
 
 
 def cmd_wrapper(mic_config_arg, runner):
-    try:
-        result = runner.invoke(wrapper, ["-f", mic_config_arg], catch_exceptions=False)
-        print(result.output)
-    except Exception as e:
-        print(e)
-        assert False
+    result = runner.invoke(wrapper, ["-f", mic_config_arg], catch_exceptions=False)
+    print(result.output)
     assert result.exit_code == 0
 
 
 def cmd_run(mic_config_arg, runner):
-    try:
-        result = runner.invoke(run, ["-f", mic_config_arg], catch_exceptions=False)
-        print(result.output)
-    except Exception as e:
-        print(e)
-        assert False
+
+    result = runner.invoke(run, ["-f", mic_config_arg], catch_exceptions=False)
+    print(result.output)
     assert result.exit_code == 0
 
-
-def replace(file_path, pattern, subst):
-    # Create temp file
-    fh, abs_path = mkstemp()
-    with fdopen(fh, 'w') as new_file:
-        with open(file_path) as old_file:
-            for line in old_file:
-                new_file.write(line.replace(pattern, subst))
-    shutil.copymode(file_path, abs_path)
-    shutil.remove(file_path)
-    shutil.move(abs_path, file_path)
