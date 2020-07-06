@@ -13,7 +13,7 @@ from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapp
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
-    render_bash_color
+    render_bash_color, render_gitignore
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
     generate_pre_runner, \
     find_code_files
@@ -70,6 +70,9 @@ def start(user_execution_directory, name, image):
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
+    print("making girignore")
+    render_gitignore(mic_dir)
+    print("girignore DONE")
     mic_config_path = create_config_file_yaml(mic_dir)
     framework = detect_framework_main(user_execution_directory)
     if image is None:
