@@ -69,6 +69,8 @@ DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p"
 DEFAULT_REGION = "texas"
 MODEL_CATALOG_URL = f"https://mint.isi.edu/{DEFAULT_REGION}/models/configure"
+
+
 class Framework(Enum):
     PYTHON37 = ("python3.7", "mintproject/python:3.7", ".py")
     PYTHON38 = ("python3.8", "mintproject/python:3.8", ".py")
@@ -80,6 +82,17 @@ class Framework(Enum):
         self.label = label
         self.image = image
         self.extension = extension
+
+    def __str__(self):
+        return self.label
+
+
+class ModelCatalogTypes(Enum):
+    MODEL_CONFIGURATION = ("Model Configuration")
+    DATA_TRANSFORMATION = ("Data Transformation")
+
+    def __init__(self, label):
+        self.label = label
 
     def __str__(self):
         return self.label

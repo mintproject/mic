@@ -1,21 +1,21 @@
-import ast
+import os
 import os
 import shutil
 from datetime import datetime
 from pathlib import Path
 
-import click
 import mic
 import semver
 from mic import _utils
-from mic._utils import find_dir, get_filepaths, obtain_id, recursive_mic_search, check_mic_path
+from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
     info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
-    render_bash_color
-from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, generate_pre_runner, \
+    render_bash_color, render_gitignore
+from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
+    generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
@@ -48,7 +48,7 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
         )
 
 
-@cli.command(short_help="Create a Linux environment to run your model. The working directory selected must"                                           
+@cli.command(short_help="Create a Linux environment to run your model. The working directory selected must"
                         " contain all the files required for the execution of your model")
 @click.argument(
     "user_execution_directory",
@@ -57,7 +57,10 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
     required=True
 )
 @click.option('--name', prompt="Model component name", help="Name of the model component you want for your model")
-def start(user_execution_directory, name):
+@click.option('--image',
+              help="(Optional) If you have a DockerImage, you can use it",
+              default=None)
+def start(user_execution_directory, name, image):
     """
     This step generates a mic.yaml file and the directories (data/, src/, docker/). It also initializes a local
     GitHub repository
@@ -67,13 +70,17 @@ def start(user_execution_directory, name):
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
+    print("making girignore")
+    render_gitignore(mic_dir)
+    print("girignore DONE")
     mic_config_path = create_config_file_yaml(mic_dir)
     framework = detect_framework_main(user_execution_directory)
-    image = build_docker(mic_dir / DOCKER_DIR, name)
-    if not image:
-        click.secho("The extraction of dependencies has failed", fg='red')
-        click.secho("Running a Docker Container without your dependencies. Please install them manually", fg='green')
-        image = framework.image
+    if image is None:
+        image = build_docker(mic_dir / DOCKER_DIR, name)
+        if not image:
+            click.secho("The extraction of dependencies has failed", fg='red')
+            click.secho("Running a Docker Container without your dependencies. Please install them manually", fg='green')
+            image = framework.image
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
@@ -158,7 +165,7 @@ def trace(command, c, o):
     default=None
 )
 @click.option('-a', '--auto_param', is_flag=True, default=False, help="Enable automatic detection of parameters")
-def configs(mic_file, configuration_files,auto_param):
+def configs(mic_file, configuration_files, auto_param):
     """
     Note: If your model does not use configuration files, you can skip this step
 
@@ -203,7 +210,7 @@ def configs(mic_file, configuration_files,auto_param):
 
 
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
-@click.option('--name', "-n",  help="Name of the parameter", required=True, type=click.STRING)
+@click.option('--name', "-n", help="Name of the parameter", required=True, type=click.STRING)
 @click.option('--value', "-v", help="Default value of the parameter", required=True, type=ANY_TYPE)
 @click.option('--description', "-d", help="Description for parameter", required=False, type=str)
 @click.option('--overwrite', "-o", help="Overwrite an existing parameter", is_flag=True, default=False)
@@ -394,7 +401,8 @@ def outputs(mic_file, custom_outputs):
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
 
 
-@cli.command(short_help=f"""Generate the directory structure and commands required to run your model component using the information from the
+@cli.command(
+    short_help=f"""Generate the directory structure and commands required to run your model component using the information from the
 previous steps""")
 @click.option(
     "-f",
@@ -486,7 +494,8 @@ def run(mic_file):
         info_end_run_failed()
 
 
-@cli.command(short_help="Publish your code on GitHub, your image on DockerHub and your model component on the MINT Model Catalog.")
+@cli.command(
+    short_help="Publish your code on GitHub, your image on DockerHub and your model component on the MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",
@@ -501,7 +510,9 @@ def run(mic_file):
     default="default",
     metavar="<profile-name>",
 )
-def publish(mic_file, profile):
+@click.option('--model_catalog_type',
+              type=click.Choice([i.label for i in ModelCatalogTypes], case_sensitive=False), default=ModelCatalogTypes.MODEL_CONFIGURATION.label)
+def publish(mic_file, profile, model_catalog_type):
     """
   Publish your MIC wrapper (including all the contents of the /src folder) on GitHub, the Docker Image on DockerHub
   and the model component on MINT Model Catalog.
@@ -516,13 +527,17 @@ def publish(mic_file, profile):
   mic encapsulate publish -f mic/mic.yaml
     """
     # Searches for mic file if user does not provide one
+    model_catalog_type = ModelCatalogTypes(model_catalog_type)
     mic_file = check_mic_path(mic_file)
-
     info_start_publish()
     mic_config_path = Path(mic_file)
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
-    model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
-    api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(model_configuration, profile)
-    info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)
+    if model_catalog_type == ModelCatalogTypes.MODEL_CONFIGURATION:
+        model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
+        api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(
+            model_configuration, profile)
+        info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)
+    elif model_catalog_type == ModelCatalogTypes.DATA_TRANSFORMATION:
+        click.secho("Add Data Transformation")
