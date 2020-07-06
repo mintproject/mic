@@ -1,0 +1,59 @@
+step: 1
+name: topoflow_dt
+docker_image: mintproject/dt_dame:latest
+framework: !!python/object/apply:mic.constants.Framework
+- !!python/tuple
+  - general
+  - mintproject/generic:latest
+parameters:
+  data_set_id:
+    default_value: 5babae3f-c468-4e01-862e-8b201468e3b5
+    type: str
+    description: The dataset_id from the Data Catalog
+  start_date:
+    default_value: '2014-08-01 00:00:00'
+    type: str
+    description: Start time to filter Resources for DataCatalog GLDAS/GPM Dataset
+      ("YYYY-MM-DD HH:MM:SS" format or "null" to leave this end open)
+  end_date:
+    default_value: '2014-08-02 00:00:00'
+    type: str
+    description: End time to filter Resources for DataCatalog GLDAS/GPM Dataset ("YYYY-MM-DD
+      HH:MM:SS" format or "null" to leave this end open)
+  variable:
+    default_value: atmosphere_water__rainfall_mass_flux
+    type: str
+    description: GLDAS Standard Variable name for which transformation is to be performed
+  bounding_box:
+    default_value: 23.995416666666,6.532916666667,28.020416666666,9.566250000000
+    type: str
+    description: Bounding box of the extracting region in "x_min, y_min, x_max, y_max"
+      order
+  DEM_xres_arcsecs:
+    default_value: 30
+    type: int
+    description: Resolution on x axis
+  DEM_yres_arcsecs:
+    default_value: 30
+    type: int
+    description: Resolution on y axis
+  unit_multifier:
+    default_value: 3600
+    type: int
+    description: ' The value that will be multiplied with values of the variable to
+      get its value in mm/hr. GLDAS value is 3600 and GPM value is 1.'
+inputs: {}
+code_files: {}
+outputs:
+  outputs1_rti:
+    path: outputs1.rti
+    format: rti
+  outputs1_zip:
+    path: outputs1.zip
+    format: zip
+  outputs1_rts:
+    path: outputs1.rts
+    format: rts
+github_repo_url: https://github.com/sirspock/topoflow_dt.git
+version: 20.7.6
+mint_component_url: https://raw.githubusercontent.com/sirspock/topoflow_dt/master/mint_component.zip

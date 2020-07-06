@@ -11,7 +11,8 @@ from mic._menu import parse
 from mic._utils import obtain_id
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
-    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, DATA_DIR, FORMAT_KEY, PATH_KEY
+    TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, DATA_DIR, FORMAT_KEY, PATH_KEY, \
+    MAP_PYTHON_MODEL_CATALOG
 from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
 from mic.resources.model import ModelCli
@@ -63,7 +64,8 @@ def create_parameter_resource(parameters):
     model_catalog_parameters = []
     position = 1
     for key, item in parameters.items():
-        _parameter = Parameter(id=generate_uuid(), label=[key], position=[position], type=[TYPE_PARAMETER])
+        data_type = MAP_PYTHON_MODEL_CATALOG[item["type"]] if "type" in item else "string"
+        _parameter = Parameter(id=generate_uuid(), label=[key], position=[position], type=[TYPE_PARAMETER], has_data_type=[data_type])
         _parameter.has_default_value = [item["default_value"]]
         model_catalog_parameters.append(_parameter)
         position += 1
