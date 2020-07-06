@@ -61,7 +61,7 @@ TYPE_SOFTWARE_VERSION = "https://w3id.org/okn/o/sd#SoftwareVersion"
 GITIGNORE_FILE = ".gitignore"
 CONDA_YML = "environment.yml"
 DIRECTORIES_TO_IGNORE = [".git", ".reprozip-trace"]
-
+MAP_PYTHON_MODEL_CATALOG = {"str": "string", "bool": "boolean", "int": "int", "float": "float"}
 DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
 DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 
