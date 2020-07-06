@@ -1,0 +1,2 @@
+FROM mintproject/generic:latest
+

@@ -1,0 +1,7 @@
+step: 1
+name: '185'
+docker_image: 185:latest
+framework: !!python/object/apply:mic.constants.Framework
+- !!python/tuple
+  - general
+  - mintproject/generic:latest
