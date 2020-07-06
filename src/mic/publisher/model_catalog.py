@@ -64,7 +64,9 @@ def create_parameter_resource(parameters):
     model_catalog_parameters = []
     position = 1
     for key, item in parameters.items():
-        data_type = MAP_PYTHON_MODEL_CATALOG[item["type"]] if "type" in item else "string"
+        data_type = "string"
+        if "type" in item and item["type"] != '' and item["type"] is not None:
+            data_type = MAP_PYTHON_MODEL_CATALOG[item["type"]]
         _parameter = Parameter(id=generate_uuid(), label=[key], position=[position], type=[TYPE_PARAMETER], has_data_type=[data_type])
         _parameter.has_default_value = [item["default_value"]]
         model_catalog_parameters.append(_parameter)
