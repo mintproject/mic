@@ -53,7 +53,7 @@ def publish_docker(mic_config_path, image_name, profile):
 
     build_image(mic_config_path, image_name)
     credentials = get_credentials(profile)
-    click.secho("Publishing the Docker Image")
+    click.secho("Uploading the Docker Image")
 
     try:
         client = docker.from_env()
