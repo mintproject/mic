@@ -206,7 +206,7 @@ def get_next_tag(repo):
 
 def github_create_repo(profile, model_name):
     """
-    Publish the directory on git
+    Upload the directory to git
     If the directory is not a git directory, create it
     If the git directory doesn't have a remote origin, create a github repository
     @type profile: str

@@ -47,13 +47,13 @@ def create_model_catalog_resource(mint_config_file, name=None, execution_dir=Non
         return model_configuration
 
     if image is None:
-        click.secho("Failed to publish. Missing information DockerImage")
+        click.secho("Upload Failed. Missing information DockerImage", fg='red')
     else:
         software_image = SoftwareImage(id=generate_uuid(), label=[image], type=[TYPE_SOFTWARE_IMAGE])
         model_configuration.has_software_image = [software_image]
 
     if code is None:
-        click.secho("Failed to publish. Missing information zip file")
+        click.secho("Failed to upload. Missing information zip file", fg="red")
     else:
         model_configuration.has_component_location = [code]
     return model_configuration
@@ -63,7 +63,10 @@ def create_parameter_resource(parameters):
     model_catalog_parameters = []
     position = 1
     for key, item in parameters.items():
-        _parameter = Parameter(id=generate_uuid(), label=[key], position=[position], type=[TYPE_PARAMETER])
+        data_type = "string"
+        if "type" in item and item["type"] != '' and item["type"] is not None:
+            data_type = MAP_PYTHON_MODEL_CATALOG[item["type"]]
+        _parameter = Parameter(id=generate_uuid(), label=[key], position=[position], type=[TYPE_PARAMETER], has_data_type=[data_type])
         _parameter.has_default_value = [item["default_value"]]
         model_catalog_parameters.append(_parameter)
         position += 1
@@ -105,7 +108,7 @@ def publish_model_configuration(model_configuration, profile):
         model = Model(api_response)
         software_version_id = model.has_version[0].id
         model_id = model.id
-    click.secho("Your Model Component has been published", fg="green")
+    click.secho("Your Model Component has been uploaded", fg="green")
     return api_response, api_response_mc, model_id, software_version_id
 
 
