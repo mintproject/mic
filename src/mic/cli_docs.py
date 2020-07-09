@@ -70,8 +70,9 @@ def info_end_run_failed():
     click.secho(f"Something is wrong. You can report this problem at https://bit.ly/2zR1Tew", fg="blue")
 
 
-def info_start_publish():
-    click.echo("This step publishes your code, DockerImage and ModelConfiguration")
+def info_start_publish(mc):
+    resource = "Model Configuration" if mc else "Data Transformation"
+    click.echo(f"This step publishes your code, DockerImage and {resource}")
 
 
 def info_end_publish_dt(model_id, model_version_id, model_configuration_id, profile):

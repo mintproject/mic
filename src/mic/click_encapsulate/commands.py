@@ -14,7 +14,7 @@ from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapp
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
-    render_bash_color
+    render_bash_color, render_dockerfile
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
     generate_pre_runner, \
     find_code_files
@@ -25,7 +25,9 @@ from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     publish_data_transformation, create_data_transformation_resource
+import logging
 
+logging.basicConfig(level=logging.WARNING)
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -76,6 +78,8 @@ def start(user_execution_directory, name, image):
     framework = detect_framework_main(user_execution_directory)
     if image is None:
         image = build_docker(mic_dir / DOCKER_DIR, name)
+        framework.image = image
+        render_dockerfile(user_execution_directory, framework)
         if not image:
             click.secho("The extraction of dependencies has failed", fg='red')
             click.secho("Running a Docker Container without your dependencies. Please install them manually",
@@ -533,7 +537,7 @@ def publish(mic_file, profile, mc, dt):
         mc = False
         dt = True
     mic_file = check_mic_path(mic_file)
-    info_start_publish()
+    info_start_publish(mc)
     mic_config_path = Path(mic_file)
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
