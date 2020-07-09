@@ -75,8 +75,8 @@ def start(user_execution_directory, name, image):
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
-    framework = detect_framework_main(user_execution_directory)
     if image is None:
+        framework = detect_framework_main(user_execution_directory)
         new_image = build_docker(mic_dir / DOCKER_DIR, name)
         framework.image = new_image if new_image else framework.image
         render_dockerfile(mic_dir, framework)
@@ -84,7 +84,9 @@ def start(user_execution_directory, name, image):
             click.secho("The extraction of dependencies has failed", fg='red')
             click.secho("Running a Docker Container without your dependencies. Please install them manually",
                         fg='green')
-    image = framework.image
+        image = framework.image
+    else:
+        framework = Framework.GENERIC
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
