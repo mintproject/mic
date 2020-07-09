@@ -5,7 +5,7 @@ import logging
 import click
 import modelcatalog
 from mic.credentials import get_credentials
-from modelcatalog import ApiException, ApiClient
+from modelcatalog import ApiException, ApiClient, User
 from mic.constants import DEFAULT_CONFIGURATION_WARNING
 
 MODEL_CATALOG_URL = "https://w3id.org/okn/i/mint/"
@@ -61,18 +61,28 @@ def get_api(profile="default"):
     except KeyError:
         click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
         exit(1)
-    configuration = _api_configuration(username, password, server)
+    configuration = _api_configuration(username, password, profile, server)
     return ApiClient(configuration=configuration), credentials["username"]
 
 
-def _api_configuration(username, password, server=None):
+def _api_configuration(username, password, profile, server=None):
     configuration = modelcatalog.Configuration()
-    if server is None:
-        configuration.host = server
+    if server is not None:
+        package_version = configuration.host.split('/')[-1].replace("v", '')
+        configuration_version = server.split('/')[-1].replace("v", '')
+        if package_version > configuration_version:
+            click.secho(
+                f"""WARNING: Your credentials are using Model Catalog version {configuration_version},
+                but the version {package_version} is available.
+                You should consider upgrading via the 'dame configure -p {profile}'""",
+                fg="yellow",
+            )
+            click.secho("DAME is going to use the newest version", fg="yellow")
     api_instance = modelcatalog.DefaultApi(ApiClient(configuration=configuration))
+    user = User(username=username, password=password)
     try:
-        api_response = api_instance.user_login_get(username, password)
-        access_token = api_response["access_token"]
+        api_response = api_instance.user_login_post(user=user)
+        access_token = ast.literal_eval(api_response)['access_token']
         configuration.access_token = access_token
 
     except ApiException as e:

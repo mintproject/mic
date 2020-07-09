@@ -38,7 +38,7 @@ You are in a Linux environment Debian distribution
 We detect the following dependencies.
 
 - If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile mic\docker\Dockerfile
-- If you install new dependencies using python. Before the step `publish` run
+- If you install new dependencies using python. Before the step `upload` run
 
 pip freeze > mic/docker/requirements.txt
 

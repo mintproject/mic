@@ -9,11 +9,12 @@ import semver
 from mic import _utils
 from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
-    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
+    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
+    info_end_publish_dt
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
-    render_bash_color, render_gitignore
+    render_bash_color, render_dockerfile
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
     generate_pre_runner, \
     find_code_files
@@ -22,8 +23,11 @@ from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, c
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
-from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
+from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
+    publish_data_transformation, create_data_transformation_resource
+import logging
 
+logging.basicConfig(level=logging.WARNING)
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -70,16 +74,16 @@ def start(user_execution_directory, name, image):
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
-    print("making girignore")
-    render_gitignore(mic_dir)
-    print("girignore DONE")
     mic_config_path = create_config_file_yaml(mic_dir)
     framework = detect_framework_main(user_execution_directory)
     if image is None:
         image = build_docker(mic_dir / DOCKER_DIR, name)
+        framework.image = image
+        render_dockerfile(mic_dir, framework)
         if not image:
             click.secho("The extraction of dependencies has failed", fg='red')
-            click.secho("Running a Docker Container without your dependencies. Please install them manually", fg='green')
+            click.secho("Running a Docker Container without your dependencies. Please install them manually",
+                        fg='green')
             image = framework.image
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, image)
@@ -89,7 +93,7 @@ You are in a Linux environment Debian distribution
 We detect the following dependencies.
 
 - If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile {Path(MIC_DIR) / DOCKER_DIR / DOCKER_FILE}
-- If you install new dependencies using python. Before the step `publish` run
+- If you install new dependencies using python. Before the step `upload` run
 
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
@@ -486,7 +490,7 @@ def run(mic_file):
         info_end_run(execution_dir)
         click.echo("You model has passed all the tests. Please, review the outputs files.")
         click.echo('If the model is ok, type "exit" to go back to your computer')
-        click.echo('IMPORTANT: type "exit" and then publish your Model Component')
+        click.echo('IMPORTANT: type "exit" and then upload your Model Component')
         framework = get_framework(mic_config_path)
         if framework:
             extract_dependencies(framework, mic_config_path.parent / DOCKER_DIR)
@@ -495,7 +499,7 @@ def run(mic_file):
 
 
 @cli.command(
-    short_help="Publish your code on GitHub, your image on DockerHub and your model component on the MINT Model Catalog.")
+    short_help="Upload your code to GitHub, your image to DockerHub and your model component to the MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",
@@ -510,34 +514,40 @@ def run(mic_file):
     default="default",
     metavar="<profile-name>",
 )
-@click.option('--model_catalog_type',
-              type=click.Choice([i.label for i in ModelCatalogTypes], case_sensitive=False), default=ModelCatalogTypes.MODEL_CONFIGURATION.label)
-def publish(mic_file, profile, model_catalog_type):
+@click.option('--model_configuration', 'mc', is_flag=True, help="push the component as model configuration",
+              default=True)
+@click.option('--data_transformation', 'dt', is_flag=True, help="push the component as data transformation",
+              default=None)
+def upload(mic_file, profile, mc, dt):
     """
-  Publish your MIC wrapper (including all the contents of the /src folder) on GitHub, the Docker Image on DockerHub
-  and the model component on MINT Model Catalog.
+  Upload your MIC wrapper (including all the contents of the /src folder) to GitHub, the Docker Image to DockerHub
+  and the model component to MINT Model Catalog.
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the
   command from the same directory as mic.yaml
 
-  mic encapsulate publish -f <mic_file>
+  mic encapsulate upload -f <mic_file>
 
   Example:
 
-  mic encapsulate publish -f mic/mic.yaml
+  mic encapsulate upload -f mic/mic.yaml
     """
     # Searches for mic file if user does not provide one
-    model_catalog_type = ModelCatalogTypes(model_catalog_type)
+    if mc and dt:
+        mc = False
+        dt = True
     mic_file = check_mic_path(mic_file)
-    info_start_publish()
+    info_start_publish(mc)
     mic_config_path = Path(mic_file)
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
-    if model_catalog_type == ModelCatalogTypes.MODEL_CONFIGURATION:
+    if mc:
         model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
         api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(
             model_configuration, profile)
         info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)
-    elif model_catalog_type == ModelCatalogTypes.DATA_TRANSFORMATION:
-        click.secho("Add Data Transformation")
+    elif dt:
+        dt_response = create_data_transformation_resource(Path(mic_file), name, allow_local_path=False)
+        dt_response = publish_data_transformation(dt_response, profile)
+        info_end_publish_dt(None, None, obtain_id(dt_response.id), profile)
