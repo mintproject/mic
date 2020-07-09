@@ -71,7 +71,7 @@ def check_config_params(mic_config_arg):
 
 def cmd_inputs(mic_config_arg, runner):
     try:
-        result = runner.invoke(inputs, input='N\nN', catch_exceptions=False)
+        result = runner.invoke(inputs, input='N\n', catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -82,7 +82,7 @@ def cmd_inputs(mic_config_arg, runner):
 def check_inputs(mic_config_arg):
     _inputs = get_inputs(Path(mic_config_arg))
     print("INPUTS: --->",_inputs)
-    assert _inputs == {'212_py': {'path': '212.py', 'format': 'py'}, 'sample_input_txt': {'path': 'sample_input.txt',
+    assert _inputs == {'sample_input_txt': {'path': 'sample_input.txt',
                                                                                           'format': 'txt'}}
 
 
