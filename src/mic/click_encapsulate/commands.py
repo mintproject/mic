@@ -101,7 +101,7 @@ pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
     os.system(f"docker pull {image}")
-    docker_cmd =  f"""docker run --rm -ti --cap-add=SYS_PTRACE
+    docker_cmd =  f"""docker run --rm -ti --cap-add=SYS_PTRACE \
         -u $(id -u ${{USER}}):$(id -g ${{USER}}) \
         -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash
         """
