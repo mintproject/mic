@@ -35,7 +35,7 @@ def test_issue_184(tmp_path):
     create_base_directories(mic_dir, interactive=False)
     cmd_add_parameters(mic_config_arg, runner)
     check_parameters(mic_config_arg)
-    cmd_configs(mic_config_arg, repository_test, runner)
+    cmd_configs(mic_config_arg, temp_test, runner)
     check_config(mic_config_arg)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)

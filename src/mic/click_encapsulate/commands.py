@@ -1,29 +1,33 @@
-import ast
+import os
 import os
 import shutil
 from datetime import datetime
 from pathlib import Path
 
-import click
 import mic
 import semver
 from mic import _utils
-from mic._utils import find_dir, get_filepaths, obtain_id, recursive_mic_search, check_mic_path
+from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
-    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish
+    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
+    info_end_publish_dt
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
-    render_bash_color
-from mic.component.reprozip import get_inputs_reprozip, get_outputs, relative, generate_runner, generate_pre_runner, \
+    render_bash_color, render_dockerfile
+from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
+    generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
-from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration
+from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
+    publish_data_transformation, create_data_transformation_resource
+import logging
 
+logging.basicConfig(level=logging.WARNING)
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -48,7 +52,7 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
         )
 
 
-@cli.command(short_help="Create a Linux environment to run your model. The working directory selected must"                                           
+@cli.command(short_help="Create a Linux environment to run your model. The working directory selected must"
                         " contain all the files required for the execution of your model")
 @click.argument(
     "user_execution_directory",
@@ -57,7 +61,10 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
     required=True
 )
 @click.option('--name', prompt="Model component name", help="Name of the model component you want for your model")
-def start(user_execution_directory, name):
+@click.option('--image',
+              help="(Optional) If you have a DockerImage, you can use it",
+              default=None)
+def start(user_execution_directory, name, image):
     """
     This step generates a mic.yaml file and the directories (data/, src/, docker/). It also initializes a local
     GitHub repository
@@ -69,11 +76,15 @@ def start(user_execution_directory, name):
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
     framework = detect_framework_main(user_execution_directory)
-    image = build_docker(mic_dir / DOCKER_DIR, name)
-    if not image:
-        click.secho("The extraction of dependencies has failed", fg='red')
-        click.secho("Running a Docker Container without your dependencies. Please install them manually", fg='green')
-        image = framework.image
+    if image is None:
+        image = build_docker(mic_dir / DOCKER_DIR, name)
+        framework.image = image
+        render_dockerfile(mic_dir, framework)
+        if not image:
+            click.secho("The extraction of dependencies has failed", fg='red')
+            click.secho("Running a Docker Container without your dependencies. Please install them manually",
+                        fg='green')
+            image = framework.image
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
@@ -82,7 +93,7 @@ You are in a Linux environment Debian distribution
 We detect the following dependencies.
 
 - If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile {Path(MIC_DIR) / DOCKER_DIR / DOCKER_FILE}
-- If you install new dependencies using python. Before the step `publish` run
+- If you install new dependencies using python. Before the step `upload` run
 
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
@@ -158,7 +169,7 @@ def trace(command, c, o):
     default=None
 )
 @click.option('-a', '--auto_param', is_flag=True, default=False, help="Enable automatic detection of parameters")
-def configs(mic_file, configuration_files,auto_param):
+def configs(mic_file, configuration_files, auto_param):
     """
     Note: If your model does not use configuration files, you can skip this step
 
@@ -203,7 +214,7 @@ def configs(mic_file, configuration_files,auto_param):
 
 
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
-@click.option('--name', "-n",  help="Name of the parameter", required=True, type=click.STRING)
+@click.option('--name', "-n", help="Name of the parameter", required=True, type=click.STRING)
 @click.option('--value', "-v", help="Default value of the parameter", required=True, type=ANY_TYPE)
 @click.option('--description', "-d", help="Description for parameter", required=False, type=str)
 @click.option('--overwrite', "-o", help="Overwrite an existing parameter", is_flag=True, default=False)
@@ -291,50 +302,44 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
     spec = get_spec(repro_zip_config_file)
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
-    inputs_reprozip = get_inputs_reprozip(spec, user_execution_directory)
+    inputs_reprozip = get_inputs_outputs_reprozip(spec, user_execution_directory)
 
     # obtain config: if a file is a config cannot be a input
     config_files = get_configs(mic_config_file)
     config_files_list = [str(user_execution_directory / item[PATH_KEY]) for key, item in
                          config_files.items()] if config_files else []
 
-    code_files = find_code_files(spec, inputs_reprozip, config_files_list)
+    code_files = find_code_files(spec, inputs_reprozip, config_files_list, user_execution_directory)
     new_inputs = []
     inputs_reprozip += list(custom_inputs)
     data_dir = mic_directory_path.absolute() / DATA_DIR
     if data_dir.exists():
         shutil.rmtree(data_dir)
     data_dir.mkdir()
-    outputs = get_outputs(spec, user_execution_directory)
+    _outputs = get_outputs_reprozip(spec, user_execution_directory)
     for _input in inputs_reprozip:
         item = user_execution_directory / _input
         name = Path(_input).name
 
-        if str(item) in config_files_list or str(item) in code_files:
+        if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
             click.secho(f"Ignoring the config {item} as an input.", fg="blue")
         else:
             # Deleting the outputs of the inputs.
-            is_input = True
-            for _o in outputs:
-                try:
-                    Path(_o).relative_to(item)
-                    is_input = False
-                except:
-                    is_input = True
-                    pass
-            if is_input and item.is_dir():
-                click.secho(f"""Input {name} is a directory""", fg="green")
-                click.secho(f"""Compressing the input {name} """, fg="green")
-                zip_file = compress_directory(item, user_execution_directory)
-                dst_dir = data_dir
-                dst_file = dst_dir / Path(zip_file).name
-                if dst_file.exists():
-                    os.remove(dst_file)
-                shutil.move(str(zip_file), str(dst_dir))
-                new_inputs.append(zip_file)
-                click.secho(f"""Input {name}  added """, fg="blue")
-
-            elif is_input:
+            if item.is_dir():
+                if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
+                    click.secho(f"Skipping {item}")
+                else:
+                    click.secho(f"""Input {name} is a directory""", fg="green")
+                    click.secho(f"""Compressing the input {name} """, fg="green")
+                    zip_file = compress_directory(item, user_execution_directory)
+                    dst_dir = data_dir
+                    dst_file = dst_dir / Path(zip_file).name
+                    if dst_file.exists():
+                        os.remove(dst_file)
+                    shutil.move(str(zip_file), str(dst_dir))
+                    new_inputs.append(zip_file)
+                    click.secho(f"""Input {name}  added """, fg="blue")
+            else:
                 click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
@@ -388,7 +393,7 @@ def outputs(mic_file, custom_outputs):
     spec = get_spec(repro_zip_config_file)
     custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                       list(custom_outputs)]
-    outputs = get_outputs(spec, user_execution_directory)
+    outputs = get_outputs_reprozip(spec, user_execution_directory)
     for i in list(custom_outputs):
         if Path(i).is_dir():
             outputs += get_filepaths(i)
@@ -400,7 +405,8 @@ def outputs(mic_file, custom_outputs):
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
 
 
-@cli.command(short_help=f"""Generate the directory structure and commands required to run your model component using the information from the
+@cli.command(
+    short_help=f"""Generate the directory structure and commands required to run your model component using the information from the
 previous steps""")
 @click.option(
     "-f",
@@ -484,7 +490,7 @@ def run(mic_file):
         info_end_run(execution_dir)
         click.echo("You model has passed all the tests. Please, review the outputs files.")
         click.echo('If the model is ok, type "exit" to go back to your computer')
-        click.echo('IMPORTANT: type "exit" and then publish your Model Component')
+        click.echo('IMPORTANT: type "exit" and then upload your Model Component')
         framework = get_framework(mic_config_path)
         if framework:
             extract_dependencies(framework, mic_config_path.parent / DOCKER_DIR)
@@ -492,7 +498,8 @@ def run(mic_file):
         info_end_run_failed()
 
 
-@cli.command(short_help="Publish your code on GitHub, your image on DockerHub and your model component on the MINT Model Catalog.")
+@cli.command(
+    short_help="Upload your code to GitHub, your image to DockerHub and your model component to the MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",
@@ -507,28 +514,40 @@ def run(mic_file):
     default="default",
     metavar="<profile-name>",
 )
-def publish(mic_file, profile):
+@click.option('--model_configuration', 'mc', is_flag=True, help="push the component as model configuration",
+              default=True)
+@click.option('--data_transformation', 'dt', is_flag=True, help="push the component as data transformation",
+              default=None)
+def upload(mic_file, profile, mc, dt):
     """
-  Publish your MIC wrapper (including all the contents of the /src folder) on GitHub, the Docker Image on DockerHub
-  and the model component on MINT Model Catalog.
+  Upload your MIC wrapper (including all the contents of the /src folder) to GitHub, the Docker Image to DockerHub
+  and the model component to MINT Model Catalog.
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the
   command from the same directory as mic.yaml
 
-  mic encapsulate publish -f <mic_file>
+  mic encapsulate upload -f <mic_file>
 
   Example:
 
-  mic encapsulate publish -f mic/mic.yaml
+  mic encapsulate upload -f mic/mic.yaml
     """
     # Searches for mic file if user does not provide one
+    if mc and dt:
+        mc = False
+        dt = True
     mic_file = check_mic_path(mic_file)
-
-    info_start_publish()
+    info_start_publish(mc)
     mic_config_path = Path(mic_file)
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
-    model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
-    api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(model_configuration, profile)
-    info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)
+    if mc:
+        model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
+        api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(
+            model_configuration, profile)
+        info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id), profile)
+    elif dt:
+        dt_response = create_data_transformation_resource(Path(mic_file), name, allow_local_path=False)
+        dt_response = publish_data_transformation(dt_response, profile)
+        info_end_publish_dt(None, None, obtain_id(dt_response.id), profile)

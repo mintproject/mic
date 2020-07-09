@@ -1,3 +1,24 @@
-step: 1
+step: 2
 name: '187'
 docker_image: 187:latest
+inputs:
+  outputs_zip:
+    path: outputs.zip
+    format: zip
+  c_txt:
+    path: c.txt
+    format: txt
+code_files:
+  start_sh:
+    path: start.sh
+    format: sh
+outputs:
+  b_txt:
+    path: outputs/b.txt
+    format: txt
+  c_txt:
+    path: outputs/c.txt
+    format: txt
+  a_txt:
+    path: outputs/a.txt
+    format: txt

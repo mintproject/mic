@@ -56,12 +56,13 @@ DATATYPE_KEY = "type"
 TYPE_PARAMETER = "https://w3id.org/okn/o/sd#Parameter"
 TYPE_MODEL_CONFIGURATION = "https://w3id.org/okn/o/sdm#ModelConfiguration"
 TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
+TYPE_DATA_TRANSFORMATION = "https://w3id.org/okn/o/sd#DataTransformation"
 TYPE_SOFTWARE_IMAGE = "https://w3id.org/okn/o/sd#SoftwareImage"
 TYPE_SOFTWARE_VERSION = "https://w3id.org/okn/o/sd#SoftwareVersion"
 GITIGNORE_FILE = ".gitignore"
 CONDA_YML = "environment.yml"
 DIRECTORIES_TO_IGNORE = [".git", ".reprozip-trace"]
-
+MAP_PYTHON_MODEL_CATALOG = {"str": "string", "bool": "boolean", "int": "int", "float": "float"}
 DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
 DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 
@@ -69,6 +70,8 @@ DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p"
 DEFAULT_REGION = "texas"
 MODEL_CATALOG_URL = f"https://mint.isi.edu/{DEFAULT_REGION}/models/configure"
+
+
 class Framework(Enum):
     PYTHON37 = ("python3.7", "mintproject/python:3.7", ".py")
     PYTHON38 = ("python3.8", "mintproject/python:3.8", ".py")

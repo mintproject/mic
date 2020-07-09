@@ -1,0 +1,352 @@
+# Changelog
+
+## [1.0.1](https://github.com/mintproject/mic/tree/1.0.1) (2020-07-06)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.0.0...1.0.1)
+
+**Implemented enhancements:**
+
+- When publishing, show the URL of the model configuration [\#201](https://github.com/mintproject/mic/issues/201)
+- Ease how parameters are declared [\#160](https://github.com/mintproject/mic/issues/160)
+- Discussion: What is the best way to ask the parameters? [\#92](https://github.com/mintproject/mic/issues/92)
+- mic add autosave [\#84](https://github.com/mintproject/mic/issues/84)
+- save in model add command will override without warning [\#82](https://github.com/mintproject/mic/issues/82)
+- Improve definitions with examples [\#70](https://github.com/mintproject/mic/issues/70)
+- If a model name exists, notify the user [\#69](https://github.com/mintproject/mic/issues/69)
+- Add helper functions in MIC to help creating a component [\#61](https://github.com/mintproject/mic/issues/61)
+- Adding inputs is cumbersome [\#45](https://github.com/mintproject/mic/issues/45)
+- If there are no versions, show a message [\#39](https://github.com/mintproject/mic/issues/39)
+- Show doesn't show resources appropriately [\#32](https://github.com/mintproject/mic/issues/32)
+- When creating a setup, copy metadata from configuration [\#10](https://github.com/mintproject/mic/issues/10)
+
+**Fixed bugs:**
+
+- gitignore is missing [\#209](https://github.com/mintproject/mic/issues/209)
+- \[inputs command\] remove outputs from inputs is not working well [\#208](https://github.com/mintproject/mic/issues/208)
+- Step6 crashes if user does not edit Dockerfile [\#151](https://github.com/mintproject/mic/issues/151)
+- github push will fail if remote repository is ahead of local  [\#88](https://github.com/mintproject/mic/issues/88)
+- Using select on empty Author crashes model add  [\#83](https://github.com/mintproject/mic/issues/83)
+- Complex resources do not show definition [\#72](https://github.com/mintproject/mic/issues/72)
+- Component and docker image is not available [\#71](https://github.com/mintproject/mic/issues/71)
+- Author is registered as "blank node" [\#54](https://github.com/mintproject/mic/issues/54)
+
+**Closed issues:**
+
+- allow to upload datatransformation [\#227](https://github.com/mintproject/mic/issues/227)
+- allow define the type of the parameter [\#182](https://github.com/mintproject/mic/issues/182)
+- Better outputs for encapsulate steps [\#125](https://github.com/mintproject/mic/issues/125)
+- Show metadata completeness levels [\#63](https://github.com/mintproject/mic/issues/63)
+- Values get added to main menu instead of sub-menu [\#53](https://github.com/mintproject/mic/issues/53)
+- Improve code: add modelconfiguration to model version [\#37](https://github.com/mintproject/mic/issues/37)
+- In submenus, "exit" option should be "back" [\#29](https://github.com/mintproject/mic/issues/29)
+- allow adding multiple simple resources [\#16](https://github.com/mintproject/mic/issues/16)
+- Allow editing existing configurations [\#9](https://github.com/mintproject/mic/issues/9)
+
+**Merged pull requests:**
+
+- Release v1.0.1 [\#232](https://github.com/mintproject/mic/pull/232) ([sirspock](https://github.com/sirspock))
+- F\#185 [\#230](https://github.com/mintproject/mic/pull/230) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- F\#209 [\#229](https://github.com/mintproject/mic/pull/229) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- fix: allow to upload a datatransformation [\#228](https://github.com/mintproject/mic/pull/228) ([sirspock](https://github.com/sirspock))
+- fix: add docker image option [\#226](https://github.com/mintproject/mic/pull/226) ([sirspock](https://github.com/sirspock))
+- add yaml comments and improve detection of code [\#225](https://github.com/mintproject/mic/pull/225) ([sirspock](https://github.com/sirspock))
+- \#223  fix: detect binary reprozip inside the default\_path as code\_file [\#224](https://github.com/mintproject/mic/pull/224) ([sirspock](https://github.com/sirspock))
+- Yaml comments [\#221](https://github.com/mintproject/mic/pull/221) ([Cmheidelberg](https://github.com/Cmheidelberg))
+
+## [1.0.0](https://github.com/mintproject/mic/tree/1.0.0) (2020-06-26)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.4.4...1.0.0)
+
+**Implemented enhancements:**
+
+- Automatically detect mic.yaml file in mic/mic.yaml [\#198](https://github.com/mintproject/mic/issues/198)
+- Improve Help message [\#179](https://github.com/mintproject/mic/issues/179)
+- Add image for Java [\#176](https://github.com/mintproject/mic/issues/176)
+- mic encapsulate outputs should support folders [\#167](https://github.com/mintproject/mic/issues/167)
+- Improve messages and explanations [\#166](https://github.com/mintproject/mic/issues/166)
+- mic encapsulate start is not generic [\#154](https://github.com/mintproject/mic/issues/154)
+- \[Documentation\] Update figures [\#136](https://github.com/mintproject/mic/issues/136)
+- encapsulate step7 does not remove temporary files [\#124](https://github.com/mintproject/mic/issues/124)
+- Format the Docker Output [\#97](https://github.com/mintproject/mic/issues/97)
+
+**Fixed bugs:**
+
+- After publish, DAME command is wrong [\#217](https://github.com/mintproject/mic/issues/217)
+- Publish a new version of component fails \(when repository exists\) [\#216](https://github.com/mintproject/mic/issues/216)
+- mic run must verify if the outputs have been generated [\#180](https://github.com/mintproject/mic/issues/180)
+- add parameter is failing with some values [\#170](https://github.com/mintproject/mic/issues/170)
+- \[waiting review} mic encapsulate wrapper fails [\#168](https://github.com/mintproject/mic/issues/168)
+- Mic gives all parameters the same position in the KG [\#162](https://github.com/mintproject/mic/issues/162)
+- Selecting python3.8 fails [\#159](https://github.com/mintproject/mic/issues/159)
+- Wrong text in description when overlapping [\#158](https://github.com/mintproject/mic/issues/158)
+- mic encapsulate trace fails [\#157](https://github.com/mintproject/mic/issues/157)
+- When I try mic in my docker image \(prepared by mic\) I get an error [\#156](https://github.com/mintproject/mic/issues/156)
+- Step6 crash if no inputs [\#139](https://github.com/mintproject/mic/issues/139)
+- MIC step does not increase [\#123](https://github.com/mintproject/mic/issues/123)
+
+**Closed issues:**
+
+- java: Simple component with 1 input and output \[S\] [\#192](https://github.com/mintproject/mic/issues/192)
+- 1i is a directory [\#191](https://github.com/mintproject/mic/issues/191)
+- 1i, 1c, 1o and 1p [\#190](https://github.com/mintproject/mic/issues/190)
+- 1i and 1o \(fixed output name\) [\#188](https://github.com/mintproject/mic/issues/188)
+- 1i, 1o. output is a directory \(3 files\) [\#187](https://github.com/mintproject/mic/issues/187)
+- Test 1:  Component that takes 1 input, 1 output in the invocation line. [\#184](https://github.com/mintproject/mic/issues/184)
+- `inputs`: explain what is doing [\#172](https://github.com/mintproject/mic/issues/172)
+- Missing documentation in command `inputs` [\#171](https://github.com/mintproject/mic/issues/171)
+- \[mic v1\] - step2 Exposing a file inside a directory [\#148](https://github.com/mintproject/mic/issues/148)
+- \[mic v1\] - step2 -Write the input and outputs files in the MIC.yaml [\#146](https://github.com/mintproject/mic/issues/146)
+- \[mic v1\] - step 2 Find parameters in the commands and write them in the MIC wrapper [\#145](https://github.com/mintproject/mic/issues/145)
+- \[mic v1\] - step2 - MIC generates the MIC run file reading the .reprozip/config.yaml [\#144](https://github.com/mintproject/mic/issues/144)
+- Improve the message MIC has initialized the component. data/, docker/, src/ and mic.yaml created [\#138](https://github.com/mintproject/mic/issues/138)
+- \[mic step3\] - Overview [\#134](https://github.com/mintproject/mic/issues/134)
+- \[mic step 2\] overview [\#133](https://github.com/mintproject/mic/issues/133)
+- \[mic step1\] Overview [\#131](https://github.com/mintproject/mic/issues/131)
+- mic encapsulation needs in depth documentation [\#90](https://github.com/mintproject/mic/issues/90)
+- Documentation \[End of June\] [\#68](https://github.com/mintproject/mic/issues/68)
+
+**Merged pull requests:**
+
+- release 1.0.0 [\#222](https://github.com/mintproject/mic/pull/222) ([sirspock](https://github.com/sirspock))
+- Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([sirspock](https://github.com/sirspock))
+- fix: pull and handle the conflicts [\#218](https://github.com/mintproject/mic/pull/218) ([sirspock](https://github.com/sirspock))
+- fix: end message publish shows the url to edit it [\#213](https://github.com/mintproject/mic/pull/213) ([sirspock](https://github.com/sirspock))
+- Yaml comments [\#206](https://github.com/mintproject/mic/pull/206) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Obtain framework safely [\#197](https://github.com/mintproject/mic/pull/197) ([sirspock](https://github.com/sirspock))
+- Exit and extract python dependencies [\#196](https://github.com/mintproject/mic/pull/196) ([sirspock](https://github.com/sirspock))
+- Testingv3 [\#195](https://github.com/mintproject/mic/pull/195) ([sirspock](https://github.com/sirspock))
+- Param detection [\#181](https://github.com/mintproject/mic/pull/181) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Fixing test for issue 168 [\#178](https://github.com/mintproject/mic/pull/178) ([sirspock](https://github.com/sirspock))
+- Issue 168 [\#169](https://github.com/mintproject/mic/pull/169) ([sirspock](https://github.com/sirspock))
+- documentation and f139 [\#164](https://github.com/mintproject/mic/pull/164) ([sirspock](https://github.com/sirspock))
+- Repro zip [\#163](https://github.com/mintproject/mic/pull/163) ([sirspock](https://github.com/sirspock))
+- Update 01-overview.md [\#153](https://github.com/mintproject/mic/pull/153) ([yolandagil](https://github.com/yolandagil))
+- fix: Step6 crash if no inputs \#139  [\#150](https://github.com/mintproject/mic/pull/150) ([sirspock](https://github.com/sirspock))
+- fix: generate mic run file [\#149](https://github.com/mintproject/mic/pull/149) ([sirspock](https://github.com/sirspock))
+- F\#139 [\#147](https://github.com/mintproject/mic/pull/147) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Add: output log for step6 [\#141](https://github.com/mintproject/mic/pull/141) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Fix: step7 removes temporary files [\#140](https://github.com/mintproject/mic/pull/140) ([Cmheidelberg](https://github.com/Cmheidelberg))
+
+## [0.4.4](https://github.com/mintproject/mic/tree/0.4.4) (2020-06-08)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.4.3...0.4.4)
+
+**Merged pull requests:**
+
+- fix: tests [\#137](https://github.com/mintproject/mic/pull/137) ([sirspock](https://github.com/sirspock))
+- Improved outputs [\#135](https://github.com/mintproject/mic/pull/135) ([Cmheidelberg](https://github.com/Cmheidelberg))
+
+## [0.4.3](https://github.com/mintproject/mic/tree/0.4.3) (2020-06-05)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.4.2...0.4.3)
+
+**Implemented enhancements:**
+
+- Detection outputs must ignore model configuration files [\#122](https://github.com/mintproject/mic/issues/122)
+- Encapsulation validation [\#94](https://github.com/mintproject/mic/issues/94)
+- Validation of Software image [\#59](https://github.com/mintproject/mic/issues/59)
+
+**Fixed bugs:**
+
+- step6 crash if no config field exists in mic.yaml [\#132](https://github.com/mintproject/mic/issues/132)
+- If the image build process fails, show a error message [\#121](https://github.com/mintproject/mic/issues/121)
+
+**Closed issues:**
+
+- Step1 should warn users if the directory they  gave alreay exists [\#126](https://github.com/mintproject/mic/issues/126)
+
+**Merged pull requests:**
+
+- fixing small issues [\#129](https://github.com/mintproject/mic/pull/129) ([sirspock](https://github.com/sirspock))
+- Improved outputs [\#127](https://github.com/mintproject/mic/pull/127) ([Cmheidelberg](https://github.com/Cmheidelberg))
+
+## [0.4.2](https://github.com/mintproject/mic/tree/0.4.2) (2020-06-05)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.4.1...0.4.2)
+
+**Implemented enhancements:**
+
+- Test reprozip to help dockerize component [\#89](https://github.com/mintproject/mic/issues/89)
+- End-to-end example with model configuration [\#73](https://github.com/mintproject/mic/issues/73)
+- New feature: build image [\#66](https://github.com/mintproject/mic/issues/66)
+- New feature: validate image [\#60](https://github.com/mintproject/mic/issues/60)
+- Guide users when creating test data [\#57](https://github.com/mintproject/mic/issues/57)
+- New feature: test model configuration [\#56](https://github.com/mintproject/mic/issues/56)
+- New feature: initialize model configuration [\#55](https://github.com/mintproject/mic/issues/55)
+- Guide users through issues in the component [\#51](https://github.com/mintproject/mic/issues/51)
+- Feature: validate a model configuration [\#50](https://github.com/mintproject/mic/issues/50)
+
+**Fixed bugs:**
+
+- mic step6 error [\#113](https://github.com/mintproject/mic/issues/113)
+- encapsulate step2 has missing parameter [\#91](https://github.com/mintproject/mic/issues/91)
+
+**Closed issues:**
+
+- Add docs: extracting dependencies of python [\#116](https://github.com/mintproject/mic/issues/116)
+- Improve message step3 [\#115](https://github.com/mintproject/mic/issues/115)
+- rename run file to `mic run file` [\#108](https://github.com/mintproject/mic/issues/108)
+- rename `mic configuration file` to `mic file` [\#107](https://github.com/mintproject/mic/issues/107)
+- Documentation \[End of May\] [\#67](https://github.com/mintproject/mic/issues/67)
+- Extend documentation in MIC with guidelines on good component design [\#62](https://github.com/mintproject/mic/issues/62)
+- New feature: initialize docker image [\#58](https://github.com/mintproject/mic/issues/58)
+- improve the text [\#3](https://github.com/mintproject/mic/issues/3)
+
+**Merged pull requests:**
+
+- Detect dependencies [\#119](https://github.com/mintproject/mic/pull/119) ([sirspock](https://github.com/sirspock))
+- Develop [\#117](https://github.com/mintproject/mic/pull/117) ([sirspock](https://github.com/sirspock))
+- F\#107 108 [\#114](https://github.com/mintproject/mic/pull/114) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Add version model [\#110](https://github.com/mintproject/mic/pull/110) ([sirspock](https://github.com/sirspock))
+- Add version mdodel [\#104](https://github.com/mintproject/mic/pull/104) ([sirspock](https://github.com/sirspock))
+- Mic ch [\#102](https://github.com/mintproject/mic/pull/102) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Model catalog push [\#100](https://github.com/mintproject/mic/pull/100) ([sirspock](https://github.com/sirspock))
+- Mic ch [\#99](https://github.com/mintproject/mic/pull/99) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Publish [\#96](https://github.com/mintproject/mic/pull/96) ([sirspock](https://github.com/sirspock))
+- Mic-ch [\#95](https://github.com/mintproject/mic/pull/95) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Publising [\#87](https://github.com/mintproject/mic/pull/87) ([sirspock](https://github.com/sirspock))
+- Execution docker + outputs [\#85](https://github.com/mintproject/mic/pull/85) ([sirspock](https://github.com/sirspock))
+- Step 6 exec [\#81](https://github.com/mintproject/mic/pull/81) ([sirspock](https://github.com/sirspock))
+- GitHub [\#80](https://github.com/mintproject/mic/pull/80) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Step4: Add the YAML variable in the run [\#79](https://github.com/mintproject/mic/pull/79) ([sirspock](https://github.com/sirspock))
+- Step 4 create yaml [\#78](https://github.com/mintproject/mic/pull/78) ([sirspock](https://github.com/sirspock))
+- feat: mic component init [\#76](https://github.com/mintproject/mic/pull/76) ([sirspock](https://github.com/sirspock))
+
+## [0.4.1](https://github.com/mintproject/mic/tree/0.4.1) (2020-06-02)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.3.0...0.4.1)
+
+**Implemented enhancements:**
+
+- Allow adding a parameter/input/output description [\#103](https://github.com/mintproject/mic/issues/103)
+
+**Closed issues:**
+
+- fix: compatibility between the mic and dame [\#109](https://github.com/mintproject/mic/issues/109)
+- rename config.yaml to mic.yaml [\#106](https://github.com/mintproject/mic/issues/106)
+- rename command mic configure to mic credentials [\#105](https://github.com/mintproject/mic/issues/105)
+- step1 create .gitignore [\#98](https://github.com/mintproject/mic/issues/98)
+- mic publish - git [\#77](https://github.com/mintproject/mic/issues/77)
+
+**Merged pull requests:**
+
+- Develop [\#111](https://github.com/mintproject/mic/pull/111) ([sirspock](https://github.com/sirspock))
+
+## [0.3.0](https://github.com/mintproject/mic/tree/0.3.0) (2020-05-07)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.2.0...0.3.0)
+
+**Implemented enhancements:**
+
+- Metadata validation [\#65](https://github.com/mintproject/mic/issues/65)
+
+**Fixed bugs:**
+
+- Adding a default value in a parameter fails [\#49](https://github.com/mintproject/mic/issues/49)
+- Removing options does not remove the functionality [\#48](https://github.com/mintproject/mic/issues/48)
+
+**Closed issues:**
+
+- Enable cancel when the user is editing or adding [\#11](https://github.com/mintproject/mic/issues/11)
+
+**Merged pull requests:**
+
+- fix: reorder structure and align configure with DAME [\#75](https://github.com/mintproject/mic/pull/75) ([sirspock](https://github.com/sirspock))
+- Fix \#65 [\#74](https://github.com/mintproject/mic/pull/74) ([maurya-rohit](https://github.com/maurya-rohit))
+- Fixes Issue \#49 [\#52](https://github.com/mintproject/mic/pull/52) ([dhruvp-8](https://github.com/dhruvp-8))
+
+## [0.2.0](https://github.com/mintproject/mic/tree/0.2.0) (2020-04-16)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.1.2...0.2.0)
+
+**Implemented enhancements:**
+
+- Simplify some complex resources such as fixed resources [\#46](https://github.com/mintproject/mic/issues/46)
+- Value for 'logo' and 'source' property expects an object, but fails [\#20](https://github.com/mintproject/mic/issues/20)
+
+**Fixed bugs:**
+
+- menu\_select\_property is validating the choice [\#23](https://github.com/mintproject/mic/issues/23)
+
+**Closed issues:**
+
+- Save in some subresources leaves nulls [\#44](https://github.com/mintproject/mic/issues/44)
+- Changing the name of an author changes the model name [\#43](https://github.com/mintproject/mic/issues/43)
+- Cannot add model configurations [\#42](https://github.com/mintproject/mic/issues/42)
+- Adding model configuration from version makes mic crash [\#41](https://github.com/mintproject/mic/issues/41)
+- Editing version when "None" makes the program crash [\#40](https://github.com/mintproject/mic/issues/40)
+- delete saved.json [\#38](https://github.com/mintproject/mic/issues/38)
+- Disable send action in subresource menu [\#33](https://github.com/mintproject/mic/issues/33)
+- Define missing fields and classes \(model config, etc.\) [\#7](https://github.com/mintproject/mic/issues/7)
+
+**Merged pull requests:**
+
+- Fixes Issue \#23 and \#33 [\#47](https://github.com/mintproject/mic/pull/47) ([dhruvp-8](https://github.com/dhruvp-8))
+
+## [0.1.2](https://github.com/mintproject/mic/tree/0.1.2) (2020-04-11)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.1.1...0.1.2)
+
+## [0.1.1](https://github.com/mintproject/mic/tree/0.1.1) (2020-04-11)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.1.0...0.1.1)
+
+## [0.1.0](https://github.com/mintproject/mic/tree/0.1.0) (2020-04-10)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.0.4...0.1.0)
+
+**Closed issues:**
+
+- When the user add a configuration, list the versions [\#26](https://github.com/mintproject/mic/issues/26)
+
+**Merged pull requests:**
+
+- Mapping property [\#35](https://github.com/mintproject/mic/pull/35) ([sirspock](https://github.com/sirspock))
+
+## [0.0.4](https://github.com/mintproject/mic/tree/0.0.4) (2020-04-10)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.0.3...0.0.4)
+
+**Closed issues:**
+
+- When you use the action: `save` in a submenu, the cli tries to save the subresource. [\#31](https://github.com/mintproject/mic/issues/31)
+- 'Add' in authors does not work [\#30](https://github.com/mintproject/mic/issues/30)
+- Add push [\#28](https://github.com/mintproject/mic/issues/28)
+- Wizard saves and exits without asking user [\#27](https://github.com/mintproject/mic/issues/27)
+- Add command load from a file [\#25](https://github.com/mintproject/mic/issues/25)
+- improve mapping\_resource\_complex [\#24](https://github.com/mintproject/mic/issues/24)
+- output json file is not correct [\#22](https://github.com/mintproject/mic/issues/22)
+- Remove load option from interactive CLI [\#21](https://github.com/mintproject/mic/issues/21)
+- Delete complex resource [\#19](https://github.com/mintproject/mic/issues/19)
+- Difference between "add" and "create" is not clear [\#18](https://github.com/mintproject/mic/issues/18)
+- Edit in complex object [\#17](https://github.com/mintproject/mic/issues/17)
+- readd definition [\#14](https://github.com/mintproject/mic/issues/14)
+- show\_choices is showing a lot parameters [\#13](https://github.com/mintproject/mic/issues/13)
+- Allow adding multiple complex \(or simple\) objects [\#8](https://github.com/mintproject/mic/issues/8)
+- current value is repeating the information of the table [\#6](https://github.com/mintproject/mic/issues/6)
+- c to cancel is risky [\#5](https://github.com/mintproject/mic/issues/5)
+- Add subresource from a resource [\#4](https://github.com/mintproject/mic/issues/4)
+- dont use print use click.echo [\#2](https://github.com/mintproject/mic/issues/2)
+- Urgent issues for first release [\#1](https://github.com/mintproject/mic/issues/1)
+
+**Merged pull requests:**
+
+- Add subresources and push [\#34](https://github.com/mintproject/mic/pull/34) ([sirspock](https://github.com/sirspock))
+- fix: add defintion [\#15](https://github.com/mintproject/mic/pull/15) ([sirspock](https://github.com/sirspock))
+- feat\(subresource\): allow to select existing resources [\#12](https://github.com/mintproject/mic/pull/12) ([sirspock](https://github.com/sirspock))
+
+## [0.0.3](https://github.com/mintproject/mic/tree/0.0.3) (2020-04-03)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.0.2...0.0.3)
+
+## [0.0.2](https://github.com/mintproject/mic/tree/0.0.2) (2020-04-03)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0.0.1...0.0.2)
+
+## [0.0.1](https://github.com/mintproject/mic/tree/0.0.1) (2020-04-03)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/0500f230ecfd65b505ba9597a7e3260bf029e8e7...0.0.1)
+
+
+
+\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*

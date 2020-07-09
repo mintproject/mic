@@ -23,11 +23,11 @@ Done
 [success] The model has generated the output output.txt
 Success
 You can see the result at /tmp/mint/mic/executions/06_25_04_47_52
-The next step is `mic encapsulate publish`
-The step is going to publish the MIC Wrapper on GitHub, the DockerImage on DockerHub and the Model Configuration on the MINT Model Catalog
+The next step is `mic encapsulate upload`
+The step is going to upload the MIC Wrapper to GitHub, the DockerImage on DockerHub and the Model Configuration on the MINT Model Catalog
 You model has passed all the tests. Please, review the outputs files.
 If the model is ok, type "exit" to go back to your computer
-IMPORTANT: type "exit" and then publish your Model Component
+IMPORTANT: type "exit" and then upload your Model Component
 ```
 
 MIC will ask permission to create a folder, which will be placed under `executions` in the `mic` folder. MIC tested whether the execution of the model component finished successfully and whether the expected output (`output.txt`) was generated. After inspecing the result in `tmp/mint/mic/executions/06_25_04_47_52` and confirming that the output is correct, we conclude that the component is ready for publication
