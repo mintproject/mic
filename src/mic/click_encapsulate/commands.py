@@ -77,6 +77,7 @@ def start(user_execution_directory, name, image):
     mic_config_path = create_config_file_yaml(mic_dir)
     if image is None:
         framework = detect_framework_main(user_execution_directory)
+        os.system(f"docker pull {framework.image}")
         new_image = build_docker(mic_dir / DOCKER_DIR, name)
         framework.image = new_image if new_image else framework.image
         render_dockerfile(mic_dir, framework)
@@ -100,7 +101,6 @@ We detect the following dependencies.
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
-    os.system(f"docker pull {image}")
     docker_cmd =  f"""docker run --rm -ti --cap-add=SYS_PTRACE \
         -u $(id -u ${{USER}}):$(id -g ${{USER}}) \
         -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash
