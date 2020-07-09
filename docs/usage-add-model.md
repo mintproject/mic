@@ -21,7 +21,7 @@ Commands:
 ```
 The `add` command guides you through adding new model metadata.
 
-The `load` command allows you loading an existing json file with the model metadata.
+The `load` command allows you to load an existing json file with the model metadata.
 
 ### Adding a new model
 
@@ -79,7 +79,7 @@ Select the property to edit [1-17] or ['show', 'save', 'send', 'exit'] [1]:
 Next, select the property you wish to complete. For example `name`. 
 By typing the number of the property (in this case, 1), you will see:
 
-```bash
+```
 No value for Name
 Definition: Name of the model
 Model - Name : Height Above Nearest Drainage (HAND)
@@ -103,7 +103,7 @@ The actual values are:
 ### Send your model to Model Catalog
 
 
-Once you are done, you just have to type `send` and the model will be sent you will be prompted with a message to save your model description, and a URL which you can use to browse if the metadata was correctly posted to the Model Catalog. The message should look similar to:
+Once you are done, you just have to type `send` and the model will be sent. you will be prompted with a message to save your model description, and a URL which you can use to browse if the metadata was correctly posted to the Model Catalog. The message should look similar to:
 
 ```bash
 Select the property to edit [1-17] or ['show', 'save', 'send', 'exit'] [1]: send
@@ -119,4 +119,4 @@ Success
 Where `<modelID>` is the ID provided by the API to the target model.
 
 !!! warning
-    Please review carefully your metadata before sending it to the server. At the moment MIC does not support editing model metadata. If you submit an entry twice, you will create two different entries for your model.
+    Please carefully review your metadata before sending it to the server. At the moment MIC does not support editing model metadata. If you submit an entry twice, you will create two different entries for your model.
