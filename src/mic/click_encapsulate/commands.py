@@ -79,7 +79,7 @@ def start(user_execution_directory, name, image):
     if image is None:
         image = build_docker(mic_dir / DOCKER_DIR, name)
         framework.image = image
-        render_dockerfile(user_execution_directory, framework)
+        render_dockerfile(mic_dir, framework)
         if not image:
             click.secho("The extraction of dependencies has failed", fg='red')
             click.secho("Running a Docker Container without your dependencies. Please install them manually",

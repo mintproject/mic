@@ -88,17 +88,6 @@ class Framework(Enum):
         return self.label
 
 
-class ModelCatalogTypes(Enum):
-    MODEL_CONFIGURATION = ("model_configuration")
-    DATA_TRANSFORMATION = ("data_transformation")
-
-    def __init__(self, label):
-        self.label = label
-
-    def __str__(self):
-        return self.label
-
-
 def handle(value):
     for i in Framework:
         if value == i.label:

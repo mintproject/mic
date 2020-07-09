@@ -825,5 +825,3 @@ def test_generate_pre_runner_3():
     assert generate_pre_runner(spec, DEFAULT_PATH) == "\ncp -rv x.csv results/x.csv"
 
 
-def test_generate_runner():
-    assert False
