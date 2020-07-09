@@ -2,7 +2,7 @@
 
 The `encapsulate` command  in MIC guides you through nine steps to create a model component that encapsulates your model code and makes it available in MINT so others can easily run it in their own local environments.  To accomplish this, MIC relies on state-of-the-art virtualization tools (including Docker), software engineering best practices, and semantic reasoning for validation.
 
-There are several reasons for creating a model components:
+There are several reasons for creating a model component:
 
 * You will be able to expose only the inputs and parameters that are more important for a particular use of the model, pre-setting the rest and making them internal to the model component and inaccessible to other users.
 * You will be able to create a secure environment for executing the model. When others want to run your model, they will be reassured that the model will not disrupt or delete anything in their local environment.
@@ -27,7 +27,7 @@ Prepare your model code in a local directory so it can be invoked from a command
 
 ## How MIC Works
 
-MIC guides you to create a model component and uploading it to the MINT Model Catalog so it is available to others.   This involves nince major steps. MIC has an `encapsulate` command that will guide you through those steps in the form of nine subcommands. Each subcommand represents one of the nince steps to encapsulate your model. The steps should be followed in order, and after each step you will have a chance to check what MIC is doing to help you create your model component.  
+MIC guides you to create a model component and uploading it to the MINT Model Catalog so it is available to others.   This involves nine major steps. MIC has an `encapsulate` command that will guide you through those steps in the form of nine subcommands. Each subcommand represents one of the nine steps to encapsulate your model. The steps should be followed in order, and after each step you will have a chance to check what MIC is doing to help you create your model component.  
 
 MIC creates: 1) a MIC Directory, 2) a MIC File, 3) a MIC Wrapper, 4) a component virtualization image, 5) archival versions of your model code, MIC directories and files, and image in GitHub and DockerHub, and 6) a model component entry in the MINT Model Catalog.
 
