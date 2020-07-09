@@ -14,7 +14,7 @@ The sequence of commands required for encapsulating the model are:
 6. Select outputs to expose: `mic encapsulate outputs`
 7. Create wrapper: `mic encapsulate wrapper`. Edit the `run` file to indicate where the parameter `p` needs to be passed on, by replacing it in the invocation command.
 8. Run wrapper and verify results: `mic encapsulate run`
-9. Publish: `mic encapsulate publish`
+9. Upload: `mic encapsulate upload`
 
 Done!
 
