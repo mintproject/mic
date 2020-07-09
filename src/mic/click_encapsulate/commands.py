@@ -100,8 +100,12 @@ We detect the following dependencies.
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
+    os.system(f"docker pull {image}")
     os.system(
-        f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
+        f"""docker run --rm -ti --cap-add=SYS_PTRACE
+        -u $(id -u ${{USER}}):$(id -g ${{USER}}) \
+        -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash
+        """)
 
 
 @cli.command(short_help="Trace any command line and extract the information about your model execution",
