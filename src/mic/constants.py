@@ -56,6 +56,7 @@ DATATYPE_KEY = "type"
 TYPE_PARAMETER = "https://w3id.org/okn/o/sd#Parameter"
 TYPE_MODEL_CONFIGURATION = "https://w3id.org/okn/o/sdm#ModelConfiguration"
 TYPE_DATASET = "https://w3id.org/okn/o/sd#DatasetSpecification"
+TYPE_DATA_TRANSFORMATION = "https://w3id.org/okn/o/sd#DataTransformation"
 TYPE_SOFTWARE_IMAGE = "https://w3id.org/okn/o/sd#SoftwareImage"
 TYPE_SOFTWARE_VERSION = "https://w3id.org/okn/o/sd#SoftwareVersion"
 GITIGNORE_FILE = ".gitignore"
@@ -82,17 +83,6 @@ class Framework(Enum):
         self.label = label
         self.image = image
         self.extension = extension
-
-    def __str__(self):
-        return self.label
-
-
-class ModelCatalogTypes(Enum):
-    MODEL_CONFIGURATION = ("Model Configuration")
-    DATA_TRANSFORMATION = ("Data Transformation")
-
-    def __init__(self, label):
-        self.label = label
 
     def __str__(self):
         return self.label

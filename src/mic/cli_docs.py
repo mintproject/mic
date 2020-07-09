@@ -70,8 +70,24 @@ def info_end_run_failed():
     click.secho(f"Something is wrong. You can report this problem at https://bit.ly/2zR1Tew", fg="blue")
 
 
-def info_start_publish():
-    click.echo("This step uploads your code, DockerImage and ModelConfiguration")
+def info_start_publish(mc):
+    resource = "Model Configuration" if mc else "Data Transformation"
+    click.echo(f"This step publishes your code, DockerImage and {resource}")
+
+
+def info_end_publish_dt(model_id, model_version_id, model_configuration_id, profile):
+    click.secho("Success", fg="green")
+    if model_id and model_version_id and model_configuration_id:
+        click.secho("You can edit the metadata using the MINT-UI")
+        url = f"{MODEL_CATALOG_URL}/{model_id}/{model_version_id}/{model_configuration_id}"
+        try:
+            if validators.url(url):
+                click.secho(url)
+        except ValidationFailure as e:
+            click.secho("Unable to generate the public url")
+            exit(1)
+    click.echo("You can run the Model using DAME")
+    click.echo(f"dame run {model_configuration_id} -p {profile}")
 
 
 def info_end_publish(model_id, model_version_id, model_configuration_id, profile):

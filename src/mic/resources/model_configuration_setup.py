@@ -12,16 +12,10 @@ RESOURCE = "Model Configuration"
 
 
 def create(profile=None, request=None, parent=None):
-    call_menu_select_property(mapping_model_configuration, ModelConfigurationCli(profile), request, parent=parent)
+    call_menu_select_property(mapping_model_configuration, ModelConfigurationSetupCli(profile), request, parent=parent)
 
 
-class ModelConfigurationCli:
-    name = RESOURCE
-
-    has_input = {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli}
-    has_output = {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli}
-    has_parameter = {"mapping": mapping_parameter, "resource": ParameterCli}
-
+class ModelConfigurationSetupCli:
     def __init__(self, profile):
         self.profile = profile
 
@@ -31,16 +25,6 @@ class ModelConfigurationCli:
         try:
             # List all Person entities
             api_response = api_instance.modelconfigurations_get(username=username)
-            return api_response
-        except ApiException as e:
-            raise e
-
-    def get_one(self, _id):
-        api, username = get_api(profile=self.profile)
-        api_instance = modelcatalog.ModelConfigurationApi(api)
-        try:
-            # List all Person entities
-            api_response = api_instance.modelconfigurations_id_get(id=_id, username=username)
             return api_response
         except ApiException as e:
             raise e

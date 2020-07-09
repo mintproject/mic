@@ -124,10 +124,7 @@ def git_add_remote(repo, url):
 
 def git_pull(repo, remote, branch="master"):
     remote.fetch()
-    try:
-        remote_master_id = repo.lookup_reference('refs/remotes/origin/%s' % (branch)).target
-    except KeyError:
-        return
+    remote_master_id = repo.lookup_reference('refs/remotes/origin/%s' % (branch)).target
     merge_result, _ = repo.merge_analysis(remote_master_id)
     # Up to date, do nothing
     if merge_result & pygit2.GIT_MERGE_ANALYSIS_UP_TO_DATE:
