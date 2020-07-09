@@ -20,12 +20,12 @@ Commands:
   model             Command to create new model metadata
   version           Show mic version
 ```
-The `credentials` command allows setting up the credentials to be able to modify the catalog.
+The `credentials` command allows setting up the necessary credentials to be able to modify the catalog.
 
-The `encapsulate` command will walk you through 8 several steps to encapsulate your model component so it can be run in any infrastructure.
+The `encapsulate` command will walk you through 9 steps allowing you to encapsulate your model component so it can be run in any infrastructure.
 
-The `list-credentials` command will allow you to see which credentials have been added for mic.
+The `list-credentials` command will allow you to see details about all credential profiles you have added.
 
-The `model` command allows adding a new [model](https://mintproject.readthedocs.io/en/latest/modelcatalog/#making-your-model-findable) metadata. 
+The `model` command allows adding a new [model](https://mintproject.readthedocs.io/en/latest/modelcatalog/#making-your-model-findable) with accompanying metadata. 
 
-The `version` command lists the current version of mic.
+The `version` command displays the installed mic version.
