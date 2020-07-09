@@ -89,7 +89,7 @@ You are in a Linux environment Debian distribution
 We detect the following dependencies.
 
 - If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile {Path(MIC_DIR) / DOCKER_DIR / DOCKER_FILE}
-- If you install new dependencies using python. Before the step `publish` run
+- If you install new dependencies using python. Before the step `upload` run
 
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
@@ -486,7 +486,7 @@ def run(mic_file):
         info_end_run(execution_dir)
         click.echo("You model has passed all the tests. Please, review the outputs files.")
         click.echo('If the model is ok, type "exit" to go back to your computer')
-        click.echo('IMPORTANT: type "exit" and then publish your Model Component')
+        click.echo('IMPORTANT: type "exit" and then upload your Model Component')
         framework = get_framework(mic_config_path)
         if framework:
             extract_dependencies(framework, mic_config_path.parent / DOCKER_DIR)
@@ -495,7 +495,7 @@ def run(mic_file):
 
 
 @cli.command(
-    short_help="Publish your code on GitHub, your image on DockerHub and your model component on the MINT Model Catalog.")
+    short_help="Upload your code to GitHub, your image to DockerHub and your model component to the MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",
@@ -512,19 +512,19 @@ def run(mic_file):
 )
 @click.option('--model_catalog_type',
               type=click.Choice([i.label for i in ModelCatalogTypes], case_sensitive=False), default=ModelCatalogTypes.MODEL_CONFIGURATION.label)
-def publish(mic_file, profile, model_catalog_type):
+def upload(mic_file, profile, model_catalog_type):
     """
-  Publish your MIC wrapper (including all the contents of the /src folder) on GitHub, the Docker Image on DockerHub
-  and the model component on MINT Model Catalog.
+  Upload your MIC wrapper (including all the contents of the /src folder) to GitHub, the Docker Image to DockerHub
+  and the model component to MINT Model Catalog.
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the
   command from the same directory as mic.yaml
 
-  mic encapsulate publish -f <mic_file>
+  mic encapsulate upload -f <mic_file>
 
   Example:
 
-  mic encapsulate publish -f mic/mic.yaml
+  mic encapsulate upload -f mic/mic.yaml
     """
     # Searches for mic file if user does not provide one
     model_catalog_type = ModelCatalogTypes(model_catalog_type)

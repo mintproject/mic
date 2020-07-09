@@ -75,8 +75,8 @@ Use the wrapper generated in Step 7 to execute your model.
 
 **Expected outcome of this step**: A successful test run of your model.  If the tests are successful, the encapsulation of your model component has been successful.
 
-### Step 9: Publish the model component software and image 
-MIC will upload the MIC Wrapper and your model software in GitHub.  MIC will also upload the model component image in DockerHub and publish your model in the MINT model catalog, which will make it accessible by others through MINT services and interfaces to be run in their own local hosts and servers. This will give them unique identifiers that represent the snapshot of the model that you wanted to encapsulate so that any future updates to your model or your model component can be distinct from each other.
+### Step 9: Upload the model component software and image 
+MIC will upload the MIC Wrapper and your model software in GitHub.  MIC will also upload the model component image in DockerHub and upload your model in the MINT model catalog, which will make it accessible by others through MINT services and interfaces to be run in their own local hosts and servers. This will give them unique identifiers that represent the snapshot of the model that you wanted to encapsulate so that any future updates to your model or your model component can be distinct from each other.
 
 **Expected results after completing this step**: Your model component wrapper will be uploaded to Github, and your model component image to DockerHub. Both will receive a tag and will be versioned, and will be archived so they are available to anyone anywhere.  MINT will have an entry for your model component in the MINT Model Catalog, which will be accessible through your browser.  Anyone using DAME can run your component with their own data.  Anyone using MINT can run your component with any dataset in MINT.
 
@@ -112,7 +112,7 @@ Commands:
   run         Run your model component with the MIC Wrapper generated in the
               previous step
 
-  publish     Publish your code on GitHub, your image on DockerHub and your
+  upload     Upload your code to GitHub, DockerHub and your
               model component on the MINT Model Catalog.
 ```
 

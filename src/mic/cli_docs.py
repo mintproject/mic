@@ -60,8 +60,8 @@ def info_start_run(execution_dir):
 def info_end_run(execution_dir):
     click.secho("Success", fg="green")
     click.secho(f"You can see the result at {execution_dir}", fg="blue")
-    click.secho("The next step is `mic encapsulate publish`")
-    click.secho("The step is going to publish the MIC Wrapper on GitHub, "
+    click.secho("The next step is `mic encapsulate upload`")
+    click.secho("The step is going to upload the MIC Wrapper to GitHub, "
                 "the DockerImage on DockerHub and the Model Configuration on the MINT Model Catalog")
 
 
@@ -71,7 +71,7 @@ def info_end_run_failed():
 
 
 def info_start_publish():
-    click.echo("This step publishes your code, DockerImage and ModelConfiguration")
+    click.echo("This step uploads your code, DockerImage and ModelConfiguration")
 
 
 def info_end_publish(model_id, model_version_id, model_configuration_id, profile):
