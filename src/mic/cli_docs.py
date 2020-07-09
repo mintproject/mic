@@ -90,7 +90,6 @@ def info_end_publish_dt(model_id, model_version_id, model_configuration_id, prof
     click.echo(f"dame run {model_configuration_id} -p {profile}")
 
 
-
 def info_end_publish(model_id, model_version_id, model_configuration_id, profile):
     click.secho("Success", fg="green")
     if model_id and model_version_id and model_configuration_id:

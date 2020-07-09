@@ -519,7 +519,7 @@ def run(mic_file):
 @click.option('--data_transformation', 'dt', is_flag=True, help="push the component as data transformation",
               default=None)
 def upload(mic_file, profile, mc, dt):
-  """
+    """
   Upload your MIC wrapper (including all the contents of the /src folder) to GitHub, the Docker Image to DockerHub
   and the model component to MINT Model Catalog.
 
