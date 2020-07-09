@@ -6,12 +6,12 @@ MIC assumes that appropriate GitHub credentials, Docker login and MINT metadata 
 
 If you are still on the environment MIC created, type `exit`. It is usually easy to identify whether you are on the MIC environment or not, as you will see `root@<random_number>:/tmp/mint#` in your console. 
 
-Once exited, type `mic encapsulate publish`:
+Once exited, type `mic encapsulate upload`:
 
 ```bash
-$ mic encapsulate publish
+$ mic encapsulate upload
 Automatically found mic.yaml in C:\Users\dgarijo\Desktop\192\java_model\mic\mic.yaml
-This step publishes your code, DockerImage and ModelConfiguration
+This step uploads your code, DockerImage and ModelConfiguration
 Creating the git repository
 Compressing your code
 Creating a new commit
@@ -25,7 +25,7 @@ Pushing your changes to the server
 Repository: https://github.com/dgarijo/test_193.git
 Version: 20.6.1
 Downloading the base image and building your image
-Publishing the Docker Image
+Uploading the Docker Image
 Docker Image: dgarijo/test_192:20.6.1
 ```
 For the publication in the MINT model catalog, MIC will ask you some questions. See an example below with our sample Java model:
@@ -66,20 +66,20 @@ You are done. Congratulations!
 ### Help command
 
 ```bash
-Usage: mic encapsulate publish [OPTIONS]
+Usage: mic encapsulate upload [OPTIONS]
 
-  Publish your MIC wrapper (including all the contents of the /src folder)
-  on GitHub, the Docker Image on DockerHub and the model component on MINT
+  Upload your MIC wrapper (including all the contents of the /src folder)
+  to GitHub, the Docker Image on DockerHub and the model component on MINT
   Model Catalog.
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f)
   option or run the command from the same directory as mic.yaml
 
-  mic encapsulate publish -f <mic_file>
+  mic encapsulate upload -f <mic_file>
 
   Example:
 
-  mic encapsulate publish -f mic/mic.yaml
+  mic encapsulate upload -f mic/mic.yaml
 
 Options:
   -f, --mic_file FILE

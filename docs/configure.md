@@ -62,7 +62,9 @@ The `GitHub Token` is the user's [personal access token](https://help.github.com
     If this token is lost there is no way to recover it without generating a new one.
 
 ### Setting up DockerHub credentials
-MIC will promt you to add your user in [DockerHub](http://hub.docker.com/), a repository used for publishing Docker images. MIC will help you publish the computational dependencies of your model as a virtual image, giving you full control over the result.
+
+MIC will prompt you to add your user in [DockerHub](http://hub.docker.com/), a repository used for publishing Docker images. MIC will help you publish the computational dependencies of your model as a virtual image, giving you full control over the result.
+
 
 ### Example usage:
 

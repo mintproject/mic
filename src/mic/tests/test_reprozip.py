@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from mic.component.reprozip import get_outputs_reprozip, get_inputs_outputs_reprozip, generate_runner, generate_pre_runner
+from mic.component.reprozip import get_outputs_reprozip, get_inputs_outputs_reprozip, generate_runner, \
+    generate_pre_runner
 from mic.config_yaml import get_spec
 
 RESOURCES = "resources"
@@ -822,3 +823,5 @@ def test_generate_pre_runner_3():
     yml = "mic_3.yaml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
     assert generate_pre_runner(spec, DEFAULT_PATH) == "\ncp -rv x.csv results/x.csv"
+
+
