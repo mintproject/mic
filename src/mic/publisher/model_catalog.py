@@ -49,7 +49,7 @@ def create_model_catalog_resource(mint_config_file, name=None, execution_dir=Non
     if image is None:
         click.secho("Failed to publish. Missing information DockerImage")
     else:
-        software_image = SoftwareImage(label=[image], type=[TYPE_SOFTWARE_IMAGE])
+        software_image = SoftwareImage(id=generate_uuid(), label=[image], type=[TYPE_SOFTWARE_IMAGE])
         model_configuration.has_software_image = [software_image]
 
     if code is None:
@@ -77,7 +77,7 @@ def create_data_set_resource(allow_local_path, inputs, execution_dir):
     position = 1
     for key, item in inputs.items():
         _format = item[FORMAT_KEY] if FORMAT_KEY in item else "unknown"
-        _input = DatasetSpecification(label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
+        _input = DatasetSpecification(id=generate_uuid(), label=[key], has_format=[_format], position=[str(position)], type=[TYPE_DATASET])
         if allow_local_path:
             p = Path(execution_dir) / item[PATH_KEY]
             create_sample_resource(_input, str(p))
@@ -219,7 +219,12 @@ def publish_data_transformation(data_transformation, profile):
     dataset_cli = DataSpecificationCli(profile=profile)
     _input = dataset_cli.get_one(obtain_id(model_configuration.has_input[choice - 1].id))
 
-    click.secho("Your Model Component has been published", fg="green")
+    if _input.has_data_transformation:
+        _input.has_data_transformation.append(api_response_mc)
+    else:
+        _input.has_data_transformation = [api_response_mc]
+    dataset_cli.put(_input)
+    click.secho("Your Data Transformation has been published", fg="green")
     return api_response_mc
 
 
@@ -247,7 +252,7 @@ def create_data_transformation_resource(mint_config_file, name=None, execution_d
     if image is None:
         click.secho("Failed to publish. Missing information DockerImage")
     else:
-        software_image = SoftwareImage(label=[image], type=[TYPE_SOFTWARE_IMAGE])
+        software_image = SoftwareImage(id=generate_uuid(), label=[image], type=[TYPE_SOFTWARE_IMAGE])
         data_transformation.has_software_image = [software_image]
 
     if code is None:
