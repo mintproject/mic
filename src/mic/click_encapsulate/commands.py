@@ -105,7 +105,6 @@ pip freeze > mic/docker/requirements.txt
         -u $(id -u ${{USER}}):$(id -g ${{USER}}) \
         -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash
         """
-    print(docker_cmd)
     os.system(docker_cmd)
 
 
