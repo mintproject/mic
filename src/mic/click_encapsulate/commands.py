@@ -29,6 +29,7 @@ import logging
 
 logging.basicConfig(level=logging.WARNING)
 
+
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
 def cli(verbose):
@@ -77,19 +78,21 @@ def start(user_execution_directory, name, image):
     mic_config_path = create_config_file_yaml(mic_dir)
     if image is None:
         framework = detect_framework_main(user_execution_directory)
-        os.system(f"docker pull {framework.image}")
-        new_image = build_docker(mic_dir / DOCKER_DIR, name)
-        framework.image = new_image if new_image else framework.image
-        render_dockerfile(mic_dir, framework)
-        if not image:
-            click.secho("The extraction of dependencies has failed", fg='red')
-            click.secho("Running a Docker Container without your dependencies. Please install them manually",
-                        fg='green')
-        image = framework.image
     else:
+        # If a user provides a image, the framework is generic.
         framework = Framework.GENERIC
+        framework.image = image
+        render_dockerfile(mic_dir, framework)
+
+    #os.system(f"docker pull {framework.image}")
+    try:
+        user_image = build_docker(mic_dir / DOCKER_DIR, name)
+    except ValueError:
+        click.secho("The extraction of dependencies has failed", fg='red')
+        user_image = framework.image
+
     write_spec(mic_config_path, NAME_KEY, name)
-    write_spec(mic_config_path, DOCKER_KEY, image)
+    write_spec(mic_config_path, DOCKER_KEY, user_image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     click.secho(f"""
 You are in a Linux environment Debian distribution
@@ -101,9 +104,9 @@ We detect the following dependencies.
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
-    docker_cmd =  f"""docker run --rm -ti --cap-add=SYS_PTRACE \
+    docker_cmd = f"""docker run --rm -ti --cap-add=SYS_PTRACE \
         -u $(id -u ${{USER}}):$(id -g ${{USER}}) \
-        -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash
+        -v {user_execution_directory}:/tmp/mint -w /tmp/mint {user_image} bash
         """
     os.system(docker_cmd)
 
