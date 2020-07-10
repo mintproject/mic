@@ -116,11 +116,24 @@ def find_code_files(spec, inputs, config_files, user_execution_directory):
                 files_path = Path(_input)
                 if files_path.name in arg \
                         and files_path.is_file() \
-                        and str(files_path) not in config_files \
-                        and click.confirm(f"Is {files_path} an executable script/program?", default=False):
-                    code_files.append(_input)
+                        and str(files_path) not in config_files:
+                    # If file is a known executable add it to code_files. Else ask user if it is executable
+                    if is_executable(files_path):
+                        code_files.append(_input)
+                        click.echo("Adding {} as executable".format(files_path.name))
+                    elif click.confirm(f"Is {files_path} an executable script/program?", default=False):
+                        code_files.append(_input)
     return list(set(code_files))
 
+def is_executable(file_path):
+
+    for i in EXECUTABLE_EXTENSIONS:
+        name = file_path.name.lower()
+        name = "." + (name.split("."))[1]
+        if i.lower() == name.lower():
+            return True
+
+    return False
 
 def extract_parameters_from_command(command_line):
     regex = r"(\"[^\"]+\"|[^\s\"]+)"

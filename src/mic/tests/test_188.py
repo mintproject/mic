@@ -47,7 +47,7 @@ def cmd_start(mic_dir):
 
 def cmd_inputs(mic_config_arg, runner):
     try:
-        result = runner.invoke(inputs, ["-f", mic_config_arg], input='N\nN', catch_exceptions=False)
+        result = runner.invoke(inputs, ["-f", mic_config_arg], input='N\n', catch_exceptions=False)
         print(result.output)
     except Exception as e:
         print(e)
@@ -58,7 +58,7 @@ def cmd_inputs(mic_config_arg, runner):
 def check_inputs(mic_config_arg):
     _inputs = get_inputs(Path(mic_config_arg))
     print("INPUTS: --->",_inputs)
-    assert _inputs == {'188_py': {'path': '188.py', 'format': 'py'}, 'sample_input_txt': {'path': 'sample_input.txt', 'format': 'txt'}}
+    assert _inputs == {'sample_input_txt': {'path': 'sample_input.txt', 'format': 'txt'}}
 
 
 def cmd_outputs(mic_config_arg, runner):
