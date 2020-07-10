@@ -95,8 +95,6 @@ def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs):
     for run in spec[REPRO_ZIP_RUNS]:
         code_line = ' '.join(map(str, run[REPRO_ZIP_ARGV]))
         code_line = format_code(code_line, mic_inputs, mic_outputs)
-        print("CURR IN: {}".format(mic_inputs))
-        print("CURR OUT: {}".format(mic_outputs))
         dir_ = str(Path(run[REPRO_ZIP_WORKING_DIR]).relative_to(default_path))
         code = f"""{code}
 pushd {dir_}
