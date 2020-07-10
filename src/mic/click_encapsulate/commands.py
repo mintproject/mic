@@ -84,7 +84,7 @@ def start(user_execution_directory, name, image):
         framework.image = image
         render_dockerfile(mic_dir, framework)
 
-    #os.system(f"docker pull {framework.image}")
+    os.system(f"docker pull {framework.image}")
     try:
         user_image = build_docker(mic_dir / DOCKER_DIR, name)
     except ValueError:
