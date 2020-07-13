@@ -197,7 +197,10 @@ def publish_data_transformation(data_transformation, profile):
     api_response_mc = data_transformation_cli.post(data_transformation)
     if not validators.url(api_response_mc.id):
         api_response_mc.id = "{}{}".format(MINT_INSTANCE, api_response_mc.id)
-    click.echo("A DataTransformation must be associated with a ModelConfiguration")
+    click.echo("A DataTransformation can be associated with a ModelConfiguration")
+    if click.confirm("Do you want to skip it?", default=False, show_default=True):
+        return api_response_mc
+    
     model_configuration_cli = ModelConfigurationCli(profile=profile)
 
     model_configurations = model_configuration_cli.get()
