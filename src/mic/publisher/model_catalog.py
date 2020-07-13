@@ -80,7 +80,7 @@ def create_data_set_resource(allow_local_path, inputs, execution_dir):
     position = 1
     for key, item in inputs.items():
         _format = item[FORMAT_KEY] if FORMAT_KEY in item else "unknown"
-        _input = DatasetSpecification(id=generate_uuid(), label=[key], has_format=[_format], position=[str(position)], type=[TYPE_DATASET])
+        _input = DatasetSpecification(id=generate_uuid(), label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
         if allow_local_path:
             p = Path(execution_dir) / item[PATH_KEY]
             create_sample_resource(_input, str(p))
@@ -197,7 +197,10 @@ def publish_data_transformation(data_transformation, profile):
     api_response_mc = data_transformation_cli.post(data_transformation)
     if not validators.url(api_response_mc.id):
         api_response_mc.id = "{}{}".format(MINT_INSTANCE, api_response_mc.id)
-    click.echo("A DataTransformation must be associated with a ModelConfiguration")
+    click.echo("A DataTransformation can be associated with a ModelConfiguration")
+    if click.confirm("Do you want to skip it?", default=False, show_default=True):
+        return api_response_mc
+    
     model_configuration_cli = ModelConfigurationCli(profile=profile)
 
     model_configurations = model_configuration_cli.get()

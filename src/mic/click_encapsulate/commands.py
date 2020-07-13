@@ -1,4 +1,5 @@
-import os
+import logging
+import logging
 import os
 import shutil
 from datetime import datetime
@@ -25,9 +26,9 @@ from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     publish_data_transformation, create_data_transformation_resource
-import logging
 
 logging.basicConfig(level=logging.WARNING)
+
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -77,18 +78,21 @@ def start(user_execution_directory, name, image):
     mic_config_path = create_config_file_yaml(mic_dir)
     if image is None:
         framework = detect_framework_main(user_execution_directory)
-        new_image = build_docker(mic_dir / DOCKER_DIR, name)
-        framework.image = new_image if new_image else framework.image
-        render_dockerfile(mic_dir, framework)
-        if not image:
-            click.secho("The extraction of dependencies has failed", fg='red')
-            click.secho("Running a Docker Container without your dependencies. Please install them manually",
-                        fg='green')
-        image = framework.image
     else:
+        # If a user provides a image, the framework is generic.
         framework = Framework.GENERIC
+        framework.image = image
+        render_dockerfile(mic_dir, framework)
+
+    os.system(f"docker pull {framework.image}")
+    try:
+        user_image = build_docker(mic_dir / DOCKER_DIR, name)
+    except ValueError:
+        click.secho("The extraction of dependencies has failed", fg='red')
+        user_image = framework.image
+
     write_spec(mic_config_path, NAME_KEY, name)
-    write_spec(mic_config_path, DOCKER_KEY, image)
+    write_spec(mic_config_path, DOCKER_KEY, user_image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     click.secho(f"""
 You are in a Linux environment Debian distribution
@@ -100,8 +104,12 @@ We detect the following dependencies.
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
-    os.system(
-        f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {image} bash""")
+    docker_cmd = f"""docker run --rm -ti \
+        --cap-add=SYS_PTRACE \
+        -v {user_execution_directory}:/tmp/mint \
+        -w /tmp/mint {user_image} """
+    print(docker_cmd)
+    os.system(docker_cmd)
 
 
 @cli.command(short_help="Trace any command line and extract the information about your model execution",
@@ -150,7 +158,6 @@ def trace(command, c, o):
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
     outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
-    print(outputs)
     reprozip_spec = get_spec(output_reprozip)
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
                                                                                reprozip_spec[OUTPUTS_KEY] else outputs
@@ -451,7 +458,7 @@ information gathered from previous steps
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
-{generate_runner(reprozip_spec, user_execution_directory)}"""
+{generate_runner(reprozip_spec, user_execution_directory, mic_inputs, mic_outputs)}"""
     render_bash_color(mic_directory_path)
     render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)

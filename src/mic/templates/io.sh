@@ -95,6 +95,7 @@ export  {{ key }}
 
 find . -maxdepth 1 -name '*.zip' -execdir unzip '{}' ';'
 
+umask 0000
 
 ## PARAMETERS VARIABLES
 {% if configs -%}

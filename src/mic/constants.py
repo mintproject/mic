@@ -32,6 +32,7 @@ IO_FILE = "io.sh"
 OUTPUT_FILE = "output.sh"
 BASH_COLOR_FILE = ".colors.sh"
 DOCKER_FILE = "Dockerfile"
+ENTRYPOINT_FILE = "entrypoint.sh"
 SRC_DIR = "src"
 DOCKER_DIR = "docker"
 MIC_CONFIG_FILE_NAME = "MIC file"
@@ -65,6 +66,7 @@ DIRECTORIES_TO_IGNORE = [".git", ".reprozip-trace"]
 MAP_PYTHON_MODEL_CATALOG = {"str": "string", "bool": "boolean", "int": "int", "float": "float"}
 DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
 DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
+EXECUTABLE_EXTENSIONS = [".sh", ".py", ".jar", ".R", ".m", ".cpp", ".c", ".exe", ".bat", ".js", ".php", ".cs", ".pl", ".vb"]
 
 # Default output messages
 DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p"
