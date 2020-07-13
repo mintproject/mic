@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-import click
 from jinja2 import Environment, PackageLoader, select_autoescape
 from mic.constants import *
 from mic.publisher.github import get_local_repo
@@ -14,6 +13,10 @@ env = Environment(
 )
 
 
+def set_mask(value):
+    os.umask(value)
+
+
 def create_base_directories(mic_component_dir: Path, interactive=True):
     if mic_component_dir.exists():
         click.secho("The directory {} already exists. If you continue, you can lose a previous component".format(
@@ -22,6 +25,7 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
             click.secho("Initialization aborted", fg="blue")
             exit(0)
     try:
+        set_mask(0)
         mic_component_dir.mkdir(exist_ok=True)
     except Exception as e:
         click.secho("Error: {} could not be created".format(mic_component_dir), fg="red")
@@ -130,11 +134,17 @@ def detect_framework(src_dir: Path) -> Framework:
     return frameworks
 
 
-def render_dockerfile(model_directory: Path, language: Framework) -> Path:
+def render_dockerfile(model_directory: Path, language: Framework, custom=False) -> Path:
     template = env.get_template(DOCKER_FILE)
     run_file = model_directory / DOCKER_DIR / DOCKER_FILE
     with open(run_file, "w") as f:
-        content = render_template(template=template, language=language)
+        content = render_template(template=template, language=language, custom=custom)
+        f.write(content)
+
+    entrypoint_file = model_directory / DOCKER_DIR / ENTRYPOINT_FILE
+    template = env.get_template(ENTRYPOINT_FILE)
+    with open(entrypoint_file, "w") as f:
+        content = render_template(template=template)
         f.write(content)
     # language_tasks(model_directory, language)
     return run_file

@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 from click.testing import CliRunner
-from mic.click_encapsulate.commands import add_parameters, DATATYPE_KEY, start
+from mic.click_encapsulate.commands import add_parameters, DATATYPE_KEY, start, trace
 from mic.config_yaml import get_parameters
 
 RESOURCES = "resources"
@@ -97,4 +97,12 @@ def test_start_image(tmp_path, monkeypatch):
     os.chdir(tmp_path)
     monkeypatch.setattr('sys.stdin', io.StringIO("\nexit\n"))
     result = runner.invoke(start, ["--name", "test", "--image", "busybox"], catch_exceptions=False)
+    assert result.exit_code == 0
+
+
+def test_trace(tmp_path, monkeypatch):
+    runner = CliRunner()
+    os.chdir(tmp_path)
+    monkeypatch.setattr('sys.stdin', io.StringIO("\nexit\n"))
+    result = runner.invoke(trace, ["ping", "-c", "google.com"], catch_exceptions=False)
     assert result.exit_code == 0

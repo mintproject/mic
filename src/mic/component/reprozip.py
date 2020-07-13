@@ -164,9 +164,13 @@ def find_code_files(spec, inputs, config_files, user_execution_directory):
     return list(set(code_files))
 
 def is_executable(file_path):
+
     for i in EXECUTABLE_EXTENSIONS:
-        if i.lower() in file_path.name.lower():
+        name = file_path.name.lower()
+        name = "." + (name.split("."))[1]
+        if i.lower() == name.lower():
             return True
+
     return False
 
 def extract_parameters_from_command(command_line):

@@ -15,3 +15,7 @@ RUN conda env update -f /tmp/environment.yml
 #If you put an executable in the bin directory, uncomment the next file
 #ADD bin/* /usr/bin/
 {% endif -%}
+RUN pip install reprozip mic
+COPY entrypoint.sh /set_umask.sh
+RUN chmod +x /set_umask.sh
+ENTRYPOINT ["/set_umask.sh"]

@@ -48,7 +48,7 @@ $ mic version
 You should see a message similar to:
 
 ```bash
-mic v0.4.4
+mic v1.0.1
 ```
 
 ## Development version

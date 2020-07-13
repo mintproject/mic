@@ -7,7 +7,7 @@ mic credentials [-p | --profile] [--server] [--username] [--password] [--name]
 
 ## Description
 
-MIC uses several APIs (GitHub, DockerHub and MINT Model catalog) to upload model components. The MINT Model Catalog requires credentials for adding and mofying contents in the catalog. You can use the `credentials` command to configure a username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/), GitHub and DockerHub. This command can also be used with no parameters, it will prompt the user to enter any required field not given. 
+MIC uses several APIs (GitHub, DockerHub and MINT Model catalog) to upload model components. The MINT Model Catalog requires credentials for adding and modifying contents in the catalog. You can use the `credentials` command to configure a username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/), GitHub and DockerHub. For ease of use, this command can also be used with no parameters, it will prompt the user to enter any required field not given. 
 
 ## Options
 
@@ -62,6 +62,7 @@ The `GitHub Token` is the user's [personal access token](https://help.github.com
     If this token is lost there is no way to recover it without generating a new one.
 
 ### Setting up DockerHub credentials
+
 MIC will prompt you to add your user in [DockerHub](hub.docker.com/), a repository used for publishing Docker images. MIC will help you publish the computational dependencies of your model as a virtual image, giving you full control over the result.
 
 ### Example usage:

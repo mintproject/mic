@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.1.0](https://github.com/mintproject/mic/tree/1.1.0) (2020-07-09)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.0.1...1.1.0)
+
+**Implemented enhancements:**
+
+- Rename `publish` to `upload` [\#231](https://github.com/mintproject/mic/issues/231)
+
+**Closed issues:**
+
+- 1 inputs, 1 outputs and 1 param in cmd [\#185](https://github.com/mintproject/mic/issues/185)
+
+**Merged pull requests:**
+
+- Develop [\#242](https://github.com/mintproject/mic/pull/242) ([sirspock](https://github.com/sirspock))
+- Docs [\#241](https://github.com/mintproject/mic/pull/241) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Release new version 1.5.0 [\#240](https://github.com/mintproject/mic/pull/240) ([sirspock](https://github.com/sirspock))
+- Release v1.5.0 [\#237](https://github.com/mintproject/mic/pull/237) ([sirspock](https://github.com/sirspock))
+- Rename: publish command replaced with upload [\#236](https://github.com/mintproject/mic/pull/236) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- fix\(run\_line\): add quotes to string parameter [\#233](https://github.com/mintproject/mic/pull/233) ([sirspock](https://github.com/sirspock))
+
 ## [1.0.1](https://github.com/mintproject/mic/tree/1.0.1) (2020-07-06)
 
 [Full Changelog](https://github.com/mintproject/mic/compare/1.0.0...1.0.1)
@@ -14,6 +35,7 @@
 - Improve definitions with examples [\#70](https://github.com/mintproject/mic/issues/70)
 - If a model name exists, notify the user [\#69](https://github.com/mintproject/mic/issues/69)
 - Add helper functions in MIC to help creating a component [\#61](https://github.com/mintproject/mic/issues/61)
+- Simplify some complex resources such as fixed resources [\#46](https://github.com/mintproject/mic/issues/46)
 - Adding inputs is cumbersome [\#45](https://github.com/mintproject/mic/issues/45)
 - If there are no versions, show a message [\#39](https://github.com/mintproject/mic/issues/39)
 - Show doesn't show resources appropriately [\#32](https://github.com/mintproject/mic/issues/32)
@@ -122,7 +144,6 @@
 - Repro zip [\#163](https://github.com/mintproject/mic/pull/163) ([sirspock](https://github.com/sirspock))
 - Update 01-overview.md [\#153](https://github.com/mintproject/mic/pull/153) ([yolandagil](https://github.com/yolandagil))
 - fix: Step6 crash if no inputs \#139  [\#150](https://github.com/mintproject/mic/pull/150) ([sirspock](https://github.com/sirspock))
-- fix: generate mic run file [\#149](https://github.com/mintproject/mic/pull/149) ([sirspock](https://github.com/sirspock))
 - F\#139 [\#147](https://github.com/mintproject/mic/pull/147) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Add: output log for step6 [\#141](https://github.com/mintproject/mic/pull/141) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Fix: step7 removes temporary files [\#140](https://github.com/mintproject/mic/pull/140) ([Cmheidelberg](https://github.com/Cmheidelberg))
@@ -261,7 +282,6 @@
 
 **Implemented enhancements:**
 
-- Simplify some complex resources such as fixed resources [\#46](https://github.com/mintproject/mic/issues/46)
 - Value for 'logo' and 'source' property expects an object, but fails [\#20](https://github.com/mintproject/mic/issues/20)
 
 **Fixed bugs:**
