@@ -106,4 +106,3 @@ def test_trace(tmp_path, monkeypatch):
     monkeypatch.setattr('sys.stdin', io.StringIO("\nexit\n"))
     result = runner.invoke(trace, ["ping", "-c", "google.com"], catch_exceptions=False)
     assert result.exit_code == 0
-

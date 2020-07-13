@@ -17,6 +17,7 @@ install:
   - pip install -U pytest-cov
   - pip install reprozip
   - pip install --upgrade setuptools wheel
+  - pip install reprozip
 script:
 - python setup.py install
 - pytest
