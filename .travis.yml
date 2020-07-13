@@ -15,8 +15,8 @@ install:
   - pip install codecov
   - pip install -U pytest
   - pip install -U pytest-cov
-  - pip install --upgrade setuptools wheel
   - pip install reprozip
+  - pip install --upgrade setuptools wheel
 script:
 - python setup.py install
 - pytest
