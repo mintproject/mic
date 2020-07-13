@@ -80,7 +80,7 @@ def create_data_set_resource(allow_local_path, inputs, execution_dir):
     position = 1
     for key, item in inputs.items():
         _format = item[FORMAT_KEY] if FORMAT_KEY in item else "unknown"
-        _input = DatasetSpecification(id=generate_uuid(), label=[key], has_format=[_format], position=[str(position)], type=[TYPE_DATASET])
+        _input = DatasetSpecification(id=generate_uuid(), label=[key], has_format=[_format], position=[position], type=[TYPE_DATASET])
         if allow_local_path:
             p = Path(execution_dir) / item[PATH_KEY]
             create_sample_resource(_input, str(p))
