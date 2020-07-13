@@ -1,6 +1,6 @@
 # Creating a Model Component
 
-The `encapsulate` command  in MIC guides you through nine steps to create a model component that encapsulates your model code and makes it available in MINT so others can easily run it in their own local environments.  To accomplish this, MIC relies on state-of-the-art virtualization tools (including Docker), software engineering best practices, and semantic reasoning for validation.
+The `pkg` command  in MIC guides you through nine steps to create a model component that encapsulates your model code and makes it available in MINT so others can easily run it in their own local environments.  To accomplish this, MIC relies on state-of-the-art virtualization tools (including Docker), software engineering best practices, and semantic reasoning for validation.
 
 There are several reasons for creating a model component:
 
@@ -27,7 +27,7 @@ Prepare your model code in a local directory so it can be invoked from a command
 
 ## How MIC Works
 
-MIC guides you to create a model component and uploading it to the MINT Model Catalog so it is available to others.   This involves nine major steps. MIC has an `encapsulate` command that will guide you through those steps in the form of nine subcommands. Each subcommand represents one of the nine steps to encapsulate your model. The steps should be followed in order, and after each step you will have a chance to check what MIC is doing to help you create your model component.  
+MIC guides you to create a model component and uploading it to the MINT Model Catalog so it is available to others.   This involves nine major steps. MIC has an `pkg` command that will guide you through those steps in the form of nine subcommands. Each subcommand represents one of the nine steps to encapsulate your model. The steps should be followed in order, and after each step you will have a chance to check what MIC is doing to help you create your model component.  
 
 MIC creates: 1) a MIC Directory, 2) a MIC File, 3) a MIC Wrapper, 4) a component virtualization image, 5) archival versions of your model code, MIC directories and files, and image in GitHub and DockerHub, and 6) a model component entry in the MINT Model Catalog.
 
@@ -83,12 +83,12 @@ MIC will upload the MIC Wrapper and your model software in GitHub.  MIC will als
 
 ## Using MIC to Create Model Components
 
-Once you have MIC installed, you can type `mic encapsulate --help` to see the following message that lists all the steps:
+Once you have MIC installed, you can type `mic pkg --help` to see the following message that lists all the steps:
 
 ```bash
-Usage: mic encapsulate [OPTIONS] COMMAND [ARGS]...
+Usage: mic pkg [OPTIONS] COMMAND [ARGS]...
 
-  Command to encapsulate your model component
+  Command to pkg your model component
 
 Options:
   --help  Show this message and exit.
@@ -116,6 +116,6 @@ Commands:
               model component on the MINT Model Catalog.
 ```
 
-You have to follow the commands in order to successfully upload your component. If you want to know more about a specific step, just do `mic encapsulate <stepName> --help`, where `<stepName>` represents one of the steps listed above (e.g., `trace`).
+You have to follow the commands in order to successfully upload your component. If you want to know more about a specific step, just do `mic pkg <stepName> --help`, where `<stepName>` represents one of the steps listed above (e.g., `trace`).
 
 

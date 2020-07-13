@@ -59,12 +59,12 @@ Then, we must open the file and replace the values with variables
 And add the file as configuration file of the model.
 
 ```bash
-mic encapsulate step4 -f config.yaml [configuration_files]...
+mic pkg step4 -f config.yaml [configuration_files]...
 ```
 
 In the example, we must run
 ```
-mic encapsulate step4 -f config.yaml`src/time.sim`
+mic pkg step4 -f config.yaml`src/time.sim`
 ```
 
 And the `config.yaml` has been updated

@@ -11,20 +11,20 @@ The commands in the MINT Wrapper are a mixture of commands we would normally typ
     Many models have graphical interfaces for data preparation purposes and set up. However, the scope of this effort is making your model available on any infrastructure. Cloud servers and supercomputers don’t usually provide graphical interfaces, and therefore we cannot assume a graphical interface to be available. It is a good engineering practice to deliver a component that can be used without a graphical interface.
 
 ### How to perform this step?
-Just type `mic encapsulate wrapper` and MIC will attempt to generate the wrapper script automatically. For example, in our simple Java model:
+Just type `mic pkg wrapper` and MIC will attempt to generate the wrapper script automatically. For example, in our simple Java model:
 
 ```bash
-$ mic encapsulate wrapper
+$ mic pkg wrapper
 Automatically found mic.yaml in /tmp/mint/mic/mic.yaml
 Generating the MIC Wrapper. This generates the directory structure and commands required to run your model
 {'p': {'default_value': 1350, 'type': 'int', 'description': ''}}
 Copying the code: test_192-1.0-SNAPSHOT-jar-with-dependencies.jar to the MIC Wrapper directory mic/src
 Success
 The wrapper has been generated. You can see it at /tmp/mint/mic/src/run
-The next step is `mic encapsulate run`
+The next step is `mic pkg run`
 The command run is going to create a new directory (execution directory), and MIC is going the inputs, code, and configuration files and run the model.
 For more information, you can type.
-mic encapsulate run --help
+mic pkg run --help
 ```
 ### Expected results
 As it can be seen in the text above, MIC has successfully created the wrapper and drafted an executable automatically.
@@ -88,7 +88,7 @@ inputs:
 
 ### Help command
 ```bash
-Usage: mic encapsulate wrapper [OPTIONS]
+Usage: mic pkg wrapper [OPTIONS]
 
   Generates the MIC Wrapper:a directory structure and commands required to
   run your model component using the information gathered from previous
@@ -97,11 +97,11 @@ Usage: mic encapsulate wrapper [OPTIONS]
     - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f)
     option or run the   command from the same directory as mic.yaml
 
-    mic encapsulate wrapper -f <mic_file>
+    mic pkg wrapper -f <mic_file>
 
     Example:
 
-    mic encapsulate wrapper -f mic/mic.yaml
+    mic pkg wrapper -f mic/mic.yaml
 
 Options:
   -f, --mic_file FILE
