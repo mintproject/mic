@@ -89,15 +89,53 @@ cp -rv {path.name} {str(path)}"""
     return code
 
 
-def generate_runner(spec, user_execution_directory):
+def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs):
     code = ''
+
     for run in spec[REPRO_ZIP_RUNS]:
+        code_line = ' '.join(map(str, run[REPRO_ZIP_ARGV]))
+        code_line = format_code(code_line, mic_inputs, mic_outputs)
         dir_ = str(Path(run[REPRO_ZIP_WORKING_DIR]).relative_to(default_path))
         code = f"""{code}
 pushd {dir_}
-{' '.join(map(str, run[REPRO_ZIP_ARGV]))}
+{code_line}
 popd"""
     return code
+
+def format_code(code, mic_inputs, mic_outputs):
+    """
+    Replaces any reference to inputs and outputs with the variable name of the yaml reference
+    Ex:
+    ./my_script.py -i inp.txt -p 4 -o out.txt
+    Becomes:
+    ./my_script.py -i ${inp_txt} -p 4 -o ${out_txt}
+    Note: this works by checking if a input/output on the command like matches an i/o from the yaml
+    :param code:
+    :param mic_inputs:
+    :param mic_outputs:
+    :return:
+    """
+    code = code.split(" ")
+    new_code = []
+    for item in code:
+        edit = False
+        for key in mic_inputs:
+            check = item.replace(".", "_")
+            if str(key.lower()) == (check.lower()):
+                new_code.append("${" + key + "}")
+                edit = True
+        for key in mic_outputs:
+            check = item.replace(".", "_")
+            if str(key.lower()) == (check.lower()):
+                new_code.append("${" + key + "}")
+                edit = True
+
+        if not edit:
+            new_code.append(item)
+
+
+    return " ".join(new_code)
+
 
 
 def find_code_files(spec, inputs, config_files, user_execution_directory):
