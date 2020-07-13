@@ -1,17 +1,5 @@
 # Changelog
 
-## [Unreleased](https://github.com/mintproject/mic/tree/HEAD)
-
-[Full Changelog](https://github.com/mintproject/mic/compare/1.2.0...HEAD)
-
-**Merged pull requests:**
-
-- F\#203 [\#253](https://github.com/mintproject/mic/pull/253) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Develop [\#251](https://github.com/mintproject/mic/pull/251) ([sirspock](https://github.com/sirspock))
-- Docker revert [\#250](https://github.com/mintproject/mic/pull/250) ([sirspock](https://github.com/sirspock))
--  Docker must run a user on linux [\#248](https://github.com/mintproject/mic/pull/248) ([sirspock](https://github.com/sirspock))
-- Release v1.5.0 [\#237](https://github.com/mintproject/mic/pull/237) ([sirspock](https://github.com/sirspock))
-
 ## [1.2.0](https://github.com/mintproject/mic/tree/1.2.0) (2020-07-13)
 
 [Full Changelog](https://github.com/mintproject/mic/compare/1.1.1...1.2.0)
