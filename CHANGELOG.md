@@ -2,21 +2,26 @@
 
 ## [Unreleased](https://github.com/mintproject/mic/tree/HEAD)
 
-[Full Changelog](https://github.com/mintproject/mic/compare/1.1.1...HEAD)
-
-**Fixed bugs:**
-
-- Allow to upload dt without Model Configuration [\#252](https://github.com/mintproject/mic/issues/252)
-- Trace not working in docker [\#243](https://github.com/mintproject/mic/issues/243)
-- Inputs should be automatically in run.sh [\#203](https://github.com/mintproject/mic/issues/203)
-- Docker must run a user on linux [\#142](https://github.com/mintproject/mic/issues/142)
+[Full Changelog](https://github.com/mintproject/mic/compare/1.2.0...HEAD)
 
 **Merged pull requests:**
 
 - F\#203 [\#253](https://github.com/mintproject/mic/pull/253) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Develop [\#251](https://github.com/mintproject/mic/pull/251) ([sirspock](https://github.com/sirspock))
 - Docker revert [\#250](https://github.com/mintproject/mic/pull/250) ([sirspock](https://github.com/sirspock))
-- Docker must run a user on linux [\#248](https://github.com/mintproject/mic/pull/248) ([sirspock](https://github.com/sirspock))
+-  Docker must run a user on linux [\#248](https://github.com/mintproject/mic/pull/248) ([sirspock](https://github.com/sirspock))
+- Release v1.5.0 [\#237](https://github.com/mintproject/mic/pull/237) ([sirspock](https://github.com/sirspock))
+
+## [1.2.0](https://github.com/mintproject/mic/tree/1.2.0) (2020-07-13)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.1.1...1.2.0)
+
+**Fixed bugs:**
+
+- allow to upload dt without mc [\#252](https://github.com/mintproject/mic/issues/252)
+- Trace not working in docker [\#243](https://github.com/mintproject/mic/issues/243)
+- Inputs should be automatically in run.sh [\#203](https://github.com/mintproject/mic/issues/203)
+- Docker must run a user on linux [\#142](https://github.com/mintproject/mic/issues/142)
 
 ## [1.1.1](https://github.com/mintproject/mic/tree/1.1.1) (2020-07-09)
 
@@ -44,7 +49,6 @@
 - Develop [\#242](https://github.com/mintproject/mic/pull/242) ([sirspock](https://github.com/sirspock))
 - Docs [\#241](https://github.com/mintproject/mic/pull/241) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Release new version 1.5.0 [\#240](https://github.com/mintproject/mic/pull/240) ([sirspock](https://github.com/sirspock))
-- Release v1.5.0 [\#237](https://github.com/mintproject/mic/pull/237) ([sirspock](https://github.com/sirspock))
 - Rename: publish command replaced with upload [\#236](https://github.com/mintproject/mic/pull/236) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - fix\(run\_line\): add quotes to string parameter [\#233](https://github.com/mintproject/mic/pull/233) ([sirspock](https://github.com/sirspock))
 
@@ -87,7 +91,6 @@
 - Show metadata completeness levels [\#63](https://github.com/mintproject/mic/issues/63)
 - Values get added to main menu instead of sub-menu [\#53](https://github.com/mintproject/mic/issues/53)
 - Improve code: add modelconfiguration to model version [\#37](https://github.com/mintproject/mic/issues/37)
-- In submenus, "exit" option should be "back" [\#29](https://github.com/mintproject/mic/issues/29)
 - allow adding multiple simple resources [\#16](https://github.com/mintproject/mic/issues/16)
 - Allow editing existing configurations [\#9](https://github.com/mintproject/mic/issues/9)
 
@@ -100,7 +103,6 @@
 - fix: add docker image option [\#226](https://github.com/mintproject/mic/pull/226) ([sirspock](https://github.com/sirspock))
 - add yaml comments and improve detection of code [\#225](https://github.com/mintproject/mic/pull/225) ([sirspock](https://github.com/sirspock))
 - \#223  fix: detect binary reprozip inside the default\_path as code\_file [\#224](https://github.com/mintproject/mic/pull/224) ([sirspock](https://github.com/sirspock))
-- Yaml comments [\#221](https://github.com/mintproject/mic/pull/221) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [1.0.0](https://github.com/mintproject/mic/tree/1.0.0) (2020-06-26)
 
@@ -157,6 +159,7 @@
 **Merged pull requests:**
 
 - release 1.0.0 [\#222](https://github.com/mintproject/mic/pull/222) ([sirspock](https://github.com/sirspock))
+- Yaml comments [\#221](https://github.com/mintproject/mic/pull/221) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([sirspock](https://github.com/sirspock))
 - fix: pull and handle the conflicts [\#218](https://github.com/mintproject/mic/pull/218) ([sirspock](https://github.com/sirspock))
 - fix: end message publish shows the url to edit it [\#213](https://github.com/mintproject/mic/pull/213) ([sirspock](https://github.com/sirspock))
@@ -299,7 +302,6 @@
 
 **Merged pull requests:**
 
-- fix: reorder structure and align configure with DAME [\#75](https://github.com/mintproject/mic/pull/75) ([sirspock](https://github.com/sirspock))
 - Fix \#65 [\#74](https://github.com/mintproject/mic/pull/74) ([maurya-rohit](https://github.com/maurya-rohit))
 - Fixes Issue \#49 [\#52](https://github.com/mintproject/mic/pull/52) ([dhruvp-8](https://github.com/dhruvp-8))
 
@@ -358,6 +360,7 @@
 
 - When you use the action: `save` in a submenu, the cli tries to save the subresource. [\#31](https://github.com/mintproject/mic/issues/31)
 - 'Add' in authors does not work [\#30](https://github.com/mintproject/mic/issues/30)
+- In submenus, "exit" option should be "back" [\#29](https://github.com/mintproject/mic/issues/29)
 - Add push [\#28](https://github.com/mintproject/mic/issues/28)
 - Wizard saves and exits without asking user [\#27](https://github.com/mintproject/mic/issues/27)
 - Add command load from a file [\#25](https://github.com/mintproject/mic/issues/25)
@@ -378,6 +381,7 @@
 
 **Merged pull requests:**
 
+- fix: reorder structure and align configure with DAME [\#75](https://github.com/mintproject/mic/pull/75) ([sirspock](https://github.com/sirspock))
 - Add subresources and push [\#34](https://github.com/mintproject/mic/pull/34) ([sirspock](https://github.com/sirspock))
 - fix: add defintion [\#15](https://github.com/mintproject/mic/pull/15) ([sirspock](https://github.com/sirspock))
 - feat\(subresource\): allow to select existing resources [\#12](https://github.com/mintproject/mic/pull/12) ([sirspock](https://github.com/sirspock))
