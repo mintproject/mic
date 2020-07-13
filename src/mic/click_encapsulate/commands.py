@@ -1,4 +1,5 @@
-import os
+import logging
+import logging
 import os
 import shutil
 from datetime import datetime
@@ -25,7 +26,6 @@ from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     publish_data_transformation, create_data_transformation_resource
-import logging
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -104,10 +104,11 @@ We detect the following dependencies.
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
-    docker_cmd = f"""docker run --rm -ti --cap-add=SYS_PTRACE \
-        -u $(id -u ${{USER}}):$(id -g ${{USER}}) \
-        -v {user_execution_directory}:/tmp/mint -w /tmp/mint {user_image} bash
-        """
+    docker_cmd = f"""docker run --rm -ti \
+        --cap-add=SYS_PTRACE \
+        -v {user_execution_directory}:/tmp/mint \
+        -w /tmp/mint {user_image} """
+    print(docker_cmd)
     os.system(docker_cmd)
 
 
