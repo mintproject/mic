@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import click
@@ -43,7 +42,7 @@ def build_docker(docker_path: Path, name: str):
             if "stream" in chunk:
                 line = chunk["stream"].encode().decode('utf8').replace("\n", "")
                 click.echo(f'{line}')
-        return None
+        raise ValueError
     return image.tags[0]
 
 

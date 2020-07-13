@@ -100,11 +100,9 @@ def test_start_image(tmp_path, monkeypatch):
     assert result.exit_code == 0
 
 
-
 def test_trace(tmp_path, monkeypatch):
     runner = CliRunner()
     os.chdir(tmp_path)
     monkeypatch.setattr('sys.stdin', io.StringIO("\nexit\n"))
     result = runner.invoke(trace, ["ping", "-c", "google.com"], catch_exceptions=False)
-
     assert result.exit_code == 0
