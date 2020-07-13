@@ -1,5 +1,31 @@
 # Changelog
 
+## [Unreleased](https://github.com/mintproject/mic/tree/HEAD)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.1.1...HEAD)
+
+**Fixed bugs:**
+
+- Allow to upload dt without Model Configuration [\#252](https://github.com/mintproject/mic/issues/252)
+- Trace not working in docker [\#243](https://github.com/mintproject/mic/issues/243)
+- Inputs should be automatically in run.sh [\#203](https://github.com/mintproject/mic/issues/203)
+- Docker must run a user on linux [\#142](https://github.com/mintproject/mic/issues/142)
+
+**Merged pull requests:**
+
+- F\#203 [\#253](https://github.com/mintproject/mic/pull/253) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Develop [\#251](https://github.com/mintproject/mic/pull/251) ([sirspock](https://github.com/sirspock))
+- Docker revert [\#250](https://github.com/mintproject/mic/pull/250) ([sirspock](https://github.com/sirspock))
+- Docker must run a user on linux [\#248](https://github.com/mintproject/mic/pull/248) ([sirspock](https://github.com/sirspock))
+
+## [1.1.1](https://github.com/mintproject/mic/tree/1.1.1) (2020-07-09)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.1.0...1.1.1)
+
+**Merged pull requests:**
+
+- Test trace [\#244](https://github.com/mintproject/mic/pull/244) ([sirspock](https://github.com/sirspock))
+
 ## [1.1.0](https://github.com/mintproject/mic/tree/1.1.0) (2020-07-09)
 
 [Full Changelog](https://github.com/mintproject/mic/compare/1.0.1...1.1.0)
@@ -14,6 +40,7 @@
 
 **Merged pull requests:**
 
+- F\#199 [\#245](https://github.com/mintproject/mic/pull/245) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Develop [\#242](https://github.com/mintproject/mic/pull/242) ([sirspock](https://github.com/sirspock))
 - Docs [\#241](https://github.com/mintproject/mic/pull/241) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Release new version 1.5.0 [\#240](https://github.com/mintproject/mic/pull/240) ([sirspock](https://github.com/sirspock))
