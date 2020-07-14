@@ -1,0 +1,19 @@
+step: 1
+name: fds
+docker_image: fds:latest
+framework: !!python/object/apply:mic.constants.Framework
+- !!python/tuple
+  - general
+  - mintproject/generic:latest
+inputs:
+  in_txt:
+    path: in.txt
+    format: txt
+  a_txt:
+    path: a.txt
+    format: txt
+outputs:
+  out_csv:
+    path: outputs/out.csv
+    format: csv
+
