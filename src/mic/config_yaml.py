@@ -315,3 +315,16 @@ def get_code(config_yaml_path):
 
 def create_file_yaml_basic(config_yaml_path: Path):
     make_yaml(config_yaml_path)
+
+def print_recursive(spec, tab_layer=0):
+    """
+    :param spec: Dict object to print. usually from yaml dump
+    :param tab_layer: Current tab level. used for recursive printing. default zero
+    Recursively print the given dict (yaml dump) as it is shown in yaml
+    """
+    for i in spec:
+        if type(spec[i]) is dict:
+            click.secho((" " * tab_layer) + i + ":",fg="green")
+            print_recursive(spec[i],tab_layer + 2)
+        else:
+            click.secho((" " * tab_layer) + str(i) + ": " + str(spec[i]))

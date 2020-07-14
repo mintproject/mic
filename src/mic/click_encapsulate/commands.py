@@ -20,7 +20,8 @@ from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_repr
     generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
-    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework, remove_spec
+    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework, remove_spec, \
+    print_recursive
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
@@ -281,7 +282,9 @@ def add_parameters(mic_file, name, value, overwrite, description):
     default=None
 )
 @click.option("-r", "--remove", is_flag=True, help="Remove files marked as executables from {}".format(CONFIG_YAML_NAME))
-def executables(mic_file, custom_executables,remove):
+@click.option("-s", "--show", is_flag=True, help="Show list of files marked as executables from "
+                                                 "{}".format(CONFIG_YAML_NAME))
+def executables(mic_file, custom_executables,remove,show):
     """
 Describe the executables of your model using the information obtained by the `trace` command. To identify  which executables have
 been automatically detected, execute `mic encapsulate executables -f mic/mic.yaml` and then inspect the mic.yaml file
@@ -300,6 +303,12 @@ mic encapsulate executables -f mic/mic.yaml myScript.py
     mic_file = check_mic_path(mic_file)
     mic_config_file = Path(mic_file)
     mic_directory_path = mic_config_file.parent
+    spec = get_spec(mic_config_file)
+    user_execution_directory = mic_config_file.parent.parent
+    # If remove flag, remove given executables from yaml
+    if show and remove:
+        click.secho("Cannot show and delete executables. Aborting",fg="yellow")
+        exit(1)
 
     if remove:
         if len(custom_executables) <= 0:
@@ -308,14 +317,14 @@ mic encapsulate executables -f mic/mic.yaml myScript.py
         yaml = get_spec(mic_directory_path / CONFIG_YAML_NAME)
         # Loops for given files
         for ex in custom_executables:
-            ex = Path(ex).name
+            ex = Path(ex).relative_to(user_execution_directory)
             try:
                 if yaml[CODE_KEY]:
                     ycf = yaml[CODE_KEY]
                     removed = False
                     for file in ycf:
                         curr = (ycf[file])["path"]
-                        if curr == ex:
+                        if str(curr) == str(ex):
                             remove_spec(mic_config_file,CODE_KEY, file)
                             click.secho("removing {} from {}".format(ex,CONFIG_YAML_NAME))
                             removed = True
@@ -331,18 +340,57 @@ mic encapsulate executables -f mic/mic.yaml myScript.py
 
         click.secho("Done",fg="green")
 
+    # If user want so show
+    elif show:
+        # List all code files in yaml
+        if len(custom_executables) <= 0:
+            if CODE_KEY in spec:
+                i = "Unknown"
+                try:
+                    click.secho("Executable files:",fg="green")
+                    for i in spec[CODE_KEY]:
+                        click.secho("  * " + str(((spec[CODE_KEY])[i])["path"]))
+                except KeyError as e:
+                    click.secho("Error when getting path for {}. malformed {} Aborting"
+                                "".format(i, CONFIG_YAML_NAME),fg="red")
+                    exit(1)
+            else:
+                click.secho("No files have been tagged as executable",fg="green")
+
+        # State if custom_executables are in yaml
+        else:
+            if CODE_KEY in spec:
+                i = "Unknown"
+                paths = []
+                try:
+                    click.secho("Executable files:",fg="green")
+                    for i in spec[CODE_KEY]:
+                        paths.append(((spec[CODE_KEY])[i])["path"])
+                    for j in custom_executables:
+                        j = str(Path(j).relative_to(user_execution_directory))
+                        if j in paths:
+                            click.secho(str(j) + " is tagged as an executable",fg="green")
+                        else:
+                            click.secho(str(j) + " is not tagged as an executable",fg="yellow")
+
+                except KeyError as e:
+                    click.secho("Error when getting path for {}. malformed {} Aborting"
+                                "".format(i, CONFIG_YAML_NAME),fg="red")
+                    exit(1)
+            else:
+                click.secho("No files have been tagged as executable",fg="green")
+    # Else add given executables to yaml
     else:
 
         info_start_executables()
 
-        user_execution_directory = mic_config_file.parent.parent
         repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
         repro_zip_trace_dir = Path(repro_zip_trace_dir)
         repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
         spec = get_spec(repro_zip_config_file)
         inputs_reprozip = get_inputs_outputs_reprozip(spec, user_execution_directory)
         custom_executables = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
-                         list(custom_executables)]
+                              list(custom_executables)]
 
         # obtain config: if a file is a config cannot be a input
         config_files = get_configs(mic_config_file)
