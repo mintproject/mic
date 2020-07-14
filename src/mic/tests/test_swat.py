@@ -4,7 +4,7 @@ from pathlib import Path
 from tempfile import mkstemp
 
 from click.testing import CliRunner
-from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run
+from mic.click_encapsulate.commands import inputs, add_parameters, configs, outputs, wrapper, run, executables
 from mic.component.initialization import create_base_directories
 from mic.config_yaml import get_parameters, get_inputs, get_configs, get_outputs_mic, get_code
 from mic.constants import MIC_DIR, CONFIG_YAML_NAME, SRC_DIR, DOCKER_DIR, DATA_DIR
@@ -30,6 +30,7 @@ def test_issue_swat(tmp_path):
     check_config(mic_config_arg)
     cmd_inputs(mic_config_arg, runner)
     check_inputs(mic_config_arg)
+    cmd_executables(mic_config_arg, runner)
     check_code(mic_config_arg)
     # cmd_outputs(mic_config_arg, runner)
     # check_outputs(mic_config_arg)
@@ -88,6 +89,14 @@ def check_inputs(mic_config_arg):
     _inputs = get_inputs(Path(mic_config_arg))
     assert _inputs == {'txtinout_zip': {'format': 'zip', 'path': 'TxtInOut.zip'}}
 
+def cmd_executables(mic_config_arg, runner):
+    try:
+        result = runner.invoke(executables,["-f", str(mic_config_arg)], catch_exceptions=False)
+        print(result.output)
+    except Exception as e:
+        print(e)
+        assert False
+    assert result.exit_code == 0
 
 def check_code(mic_config_arg):
     _code = get_code(Path(mic_config_arg))
