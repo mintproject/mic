@@ -11,7 +11,7 @@ from mic import _utils
 from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
     info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
-    info_end_publish_dt
+    info_end_publish_dt, info_start_executables, info_end_executables
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
@@ -20,7 +20,7 @@ from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_repr
     generate_pre_runner, \
     find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
-    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
+    get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework, remove_spec
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
 from mic.publisher.github import push
@@ -267,6 +267,95 @@ def add_parameters(mic_file, name, value, overwrite, description):
                                             DEFAULT_DESCRIPTION_KEY: description}})
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
+@cli.command(short_help=f"""Expose model executables into the {CONFIG_YAML_NAME} file""")
+@click.argument(
+    "custom_executables",
+    type=click.Path(exists=True, dir_okay=True, file_okay=True, resolve_path=True),
+    required=False,
+    nargs=-1
+)
+@click.option(
+    "-f",
+    "--mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    default=None
+)
+@click.option("-r", "--remove", is_flag=True, help="Remove files marked as executables from {}".format(CONFIG_YAML_NAME))
+def executables(mic_file, custom_executables,remove):
+    """
+Describe the executables of your model using the information obtained by the `trace` command. To identify  which executables have
+been automatically detected, execute `mic encapsulate executables -f mic/mic.yaml` and then inspect the mic.yaml file
+
+- Identify undetected files in mic.yaml and add them as arguments to the `executables` command
+
+mic encapsulate executables -f <mic_file> [undetected files]...
+
+Usage example:
+
+mic encapsulate executables -f mic/mic.yaml myScript.py
+
+
+    """
+    # Searches for mic file if user does not provide one
+    mic_file = check_mic_path(mic_file)
+    mic_config_file = Path(mic_file)
+    mic_directory_path = mic_config_file.parent
+
+    if remove:
+        if len(custom_executables) <= 0:
+            click.secho("No file given. Aborting", fg="green")
+            exit(0)
+        yaml = get_spec(mic_directory_path / CONFIG_YAML_NAME)
+        # Loops for given files
+        for ex in custom_executables:
+            ex = Path(ex).name
+            try:
+                if yaml[CODE_KEY]:
+                    ycf = yaml[CODE_KEY]
+                    removed = False
+                    for file in ycf:
+                        curr = (ycf[file])["path"]
+                        if curr == ex:
+                            remove_spec(mic_config_file,CODE_KEY, file)
+                            click.secho("removing {} from {}".format(ex,CONFIG_YAML_NAME))
+                            removed = True
+
+                    if not removed:
+                        click.secho("Could not find {} in {}".format(ex,CONFIG_YAML_NAME),fg="yellow")
+
+                else:
+                    click.secho("Aborting. There are no execution files to remove", fg="yellow")
+                    exit(0)
+            except KeyError as e:
+                click.secho("Error: yaml is formatted incorrectly", fg="red")
+
+        click.secho("Done",fg="green")
+
+    else:
+
+        info_start_executables()
+
+        user_execution_directory = mic_config_file.parent.parent
+        repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
+        repro_zip_trace_dir = Path(repro_zip_trace_dir)
+        repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+        spec = get_spec(repro_zip_config_file)
+        inputs_reprozip = get_inputs_outputs_reprozip(spec, user_execution_directory)
+        custom_executables = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
+                         list(custom_executables)]
+
+        # obtain config: if a file is a config cannot be a input
+        config_files = get_configs(mic_config_file)
+        config_files_list = [str(user_execution_directory / item[PATH_KEY]) for key, item in
+                             config_files.items()] if config_files else []
+
+        code_files = find_code_files(spec, inputs_reprozip, config_files_list, user_execution_directory)
+
+        code_files += list(custom_executables)
+        for i in code_files:
+            click.echo("Adding {} as executable".format(Path(i).name))
+        write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
+        info_end_executables(code_files)
 
 @cli.command(short_help=f"""Expose model inputs into the {CONFIG_YAML_NAME} file""")
 @click.argument(
@@ -331,15 +420,12 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
         item = user_execution_directory / _input
         name = Path(_input).name
 
-        if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
-            click.secho(f"Ignoring the config {item} as an input.", fg="blue")
-        else:
-            # Deleting the outputs of the inputs.
+        if not (str(item) in config_files_list or str(item) in code_files or str(item) in _outputs):
             if item.is_dir():
                 if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
                     click.secho(f"Skipping {item}")
                 else:
-                    click.secho(f"""Input {name} is a directory""", fg="green")
+                    # click.secho(f"""Input {name} is a directory""", fg="green")
                     click.secho(f"""Compressing the input {name} """, fg="green")
                     zip_file = compress_directory(item, user_execution_directory)
                     dst_dir = data_dir
@@ -350,7 +436,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
                     new_inputs.append(zip_file)
                     click.secho(f"""Input {name}  added """, fg="blue")
             else:
-                click.secho(f"""Input {name} is a file""", fg="green")
+                # click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
                 shutil.copy(item, dst_file)
@@ -358,7 +444,6 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
 
     info_end_inputs(new_inputs)
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
-    write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
 
 
 @cli.command(short_help=f"""Expose model outputs in the {CONFIG_YAML_NAME} file""")

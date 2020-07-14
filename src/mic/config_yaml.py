@@ -66,6 +66,16 @@ def write_step(config_yaml_path: Path, spec: dict, step: int):
     spec[STEP_KEY] = step
     write_to_yaml(config_yaml_path, spec)
 
+def remove_spec(config_yaml_path: Path, key: str, name):
+    spec = yaml.load(config_yaml_path.open(), Loader=Loader)
+
+    del (spec[key])[name]
+
+    if spec[key] == {}:
+        del spec[key]
+
+    with open(config_yaml_path, 'w') as f:
+        yaml.dump(spec, f, sort_keys=False)
 
 def write_to_yaml(config_yaml_path: Path, spec):
     """

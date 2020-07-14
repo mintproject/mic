@@ -120,9 +120,8 @@ def find_code_files(spec, inputs, config_files, user_execution_directory):
                     # If file is a known executable add it to code_files. Else ask user if it is executable
                     if is_executable(files_path):
                         code_files.append(_input)
-                        click.echo("Adding {} as executable".format(files_path.name))
-                    elif click.confirm(f"Is {files_path} an executable script/program?", default=False):
-                        code_files.append(_input)
+
+
     return list(set(code_files))
 
 def is_executable(file_path):

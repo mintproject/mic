@@ -20,6 +20,17 @@ def info_end_inputs(inputs):
     click.secho("For more information, you can type.")
     click.secho("mic encapsulate outputs --help")
 
+def info_start_executables():
+    click.secho("Detecting executable files using information obtained by the `trace` command.", fg="blue")
+    click.secho("Creating the code files.", fg="blue")
+
+def info_end_executables(exec):
+    click.secho("Success", fg="green")
+    click.secho("The executables of model component are available in the mic directory.", fg="blue")
+    click.secho(f"{len(exec)} executable files detected", fg="blue")
+    click.secho("The next step is `mic encapsulate inputs`")
+    click.secho("For more information, you can type.")
+    click.secho("mic encapsulate inputs --help")
 
 def info_start_outputs():
     click.secho("Detecting the output of your model using the information obtained by the `trace` command.", fg="blue")
