@@ -2,7 +2,7 @@
 The `credentials` command has several options:
 ```
 mic credentials [-p | --profile] [--server] [--username] [--password] [--name] 
-              [--email] [--git_username] [--git_token] [--dockerhub_username] 
+                [--email] [--git_username] [--git_token] [--dockerhub_username] 
 ``` 
 
 ## Description

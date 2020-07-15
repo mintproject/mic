@@ -1,5 +1,6 @@
 
-
+!!! warning
+    Support for this command has been discontinued and it will be removed in a future release
 ### mic model
 
 To show the available commands for modes, type: 

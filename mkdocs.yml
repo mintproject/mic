@@ -1,8 +1,24 @@
 site_name: Model Insertion Checker (MIC)
 nav:
   - Home: index.md
-  - Available commands: usage.md
-  - Configure: configure.md
+  - 'Available commands':
+    - Overview: 'commands/usage.md'
+    - credentials: 'commands/configure.md'
+    - encapsulate:
+      - start: 'commands/start.md'
+      - trace:  'commands/trace.md'
+      - parameters: 'commands/parameters.md'
+      - configs:  'commands/configs.md'
+      - executables: 'commands/executions.md'
+      - inputs: 'commands/inputs.md'
+      - outputs: 'commands/outputs.md'
+      - wrapper: 'commands/wrapper.md'
+      - run: 'commands/run.md'
+      - upload: 'commands/upload.md'
+    - 'list-credentials': 'commands/list-credentials.md'
+    - 'model':
+        - add: 'commands/usage-add-model.md'
+    - 'version': 'commands/version.md'
   - Add model: usage-add-model.md
   - 'Creating a model component':
       - 'Overview': 'model_configuration/01-overview.md'
@@ -17,6 +33,7 @@ nav:
       - '8. Test run': 'model_configuration/10-step8.md'
       - '9. Upload to GitHub, DockerHub and MINT ': 'model_configuration/11-step9.md'
       - 'Summarized example ': 'model_configuration/12-end-to-end-example.md'
+  - FAQ: faq.md
   - Glossary: glossary.md
 
 theme: 

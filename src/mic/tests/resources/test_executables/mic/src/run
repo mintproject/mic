@@ -1,0 +1,30 @@
+#!/bin/bash
+set +x
+set -e
+. .colors.sh
+
+BASEDIR=$PWD
+. $BASEDIR/io.sh 2 0 1 "$@"
+CURDIR=`pwd`
+## INPUTS VARIABLES
+in_txt=${INPUTS1}
+a_txt=${INPUTS2}
+
+
+## PARAMETERS VARIABLES
+
+
+set -xe
+
+####### WRITE YOUR INVOCATION LINE AFTER THIS COMMENT
+
+
+pushd .
+/bin/sh ./addtoarray.sh ${a_txt} ${in_txt} 3
+popd
+
+set +x
+echo -e "$(c G)[success] The model has exited with code SUCCESS"
+####### WRITE YOUR INVOCATION LINE BEFORE THIS COMMENT
+cd $BASEDIR
+. $BASEDIR/output.sh
