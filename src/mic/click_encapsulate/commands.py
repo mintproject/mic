@@ -311,11 +311,6 @@ def add_parameters(mic_file, name, value, overwrite, description):
                         spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i, DATATYPE_KEY: type,
                                                                  DEFAULT_DESCRIPTION_KEY: ""}})
 
-
-
-
-
-
     else:
         if not overwrite and name in spec[PARAMETERS_KEY]:
             click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
@@ -523,7 +518,7 @@ information gathered from previous steps
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
-{(reprozip_spec, user_execution_directory)}"""
+{generate_runner(reprozip_spec, user_execution_directory)}"""
     render_bash_color(mic_directory_path)
     render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)
