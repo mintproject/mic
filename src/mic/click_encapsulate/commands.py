@@ -4,6 +4,7 @@ import os
 import shutil
 from datetime import datetime
 from pathlib import Path
+import shlex
 
 import mic
 import semver
@@ -162,6 +163,8 @@ def trace(command, c, o):
     reprozip_spec = get_spec(output_reprozip)
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
                                                                                reprozip_spec[OUTPUTS_KEY] else outputs
+
+
     write_to_yaml(output_reprozip, reprozip_spec)
 
 
@@ -224,8 +227,8 @@ def configs(mic_file, configuration_files, auto_param):
 
 
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
-@click.option('--name', "-n", help="Name of the parameter", required=True, type=click.STRING)
-@click.option('--value', "-v", help="Default value of the parameter", required=True, type=ANY_TYPE)
+@click.option('--name', "-n", help="Name of the parameter", required=False, type=click.STRING)
+@click.option('--value', "-v", help="Default value of the parameter", required=False, type=ANY_TYPE)
 @click.option('--description', "-d", help="Description for parameter", required=False, type=str)
 @click.option('--overwrite', "-o", help="Overwrite an existing parameter", is_flag=True, default=False)
 @click.option(
@@ -251,20 +254,81 @@ def add_parameters(mic_file, name, value, overwrite, description):
     path = Path(mic_file)
     spec = get_spec(path)
 
+    if (name or value or description or overwrite) and not (name and value):
+        click.secho("Must give name and value to manually add new parameter. Aborting",fg="yellow")
+        exit(0)
+
     if PARAMETERS_KEY not in spec:
         spec[PARAMETERS_KEY] = {}
 
-    if not overwrite and name in spec[PARAMETERS_KEY]:
-        click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
-        exit(1)
-    else:
+    # Automacically add parameters from trace command. Use heuristic "if item isnt file its a parameter"
+    if not name:
+        click.echo("Automatically adding parameters from trace")
+        mic_config_file = Path(mic_file)
+        user_execution_directory = mic_config_file.parent.parent
 
-        if description is None:
-            description = ""
-        type_value____name__ = type(value).__name__
-        click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
-        spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: value, DATATYPE_KEY: type_value____name__,
-                                            DEFAULT_DESCRIPTION_KEY: description}})
+        repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
+        repro_zip_trace_dir = Path(repro_zip_trace_dir)
+        repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+
+        reprozip_spec = get_spec(repro_zip_config_file)
+
+        # run_lines = (generate_runner(reprozip_spec, user_execution_directory)).splitlines()
+
+        run_lines = ''
+        for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
+            dir_ = str(Path(rep_run[REPRO_ZIP_WORKING_DIR]))
+            run_lines = ' '.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
+
+        print("VANILLA: ", run_lines)
+        params_added = 0
+        for line in run_lines:
+            # capture invocation line(s)
+            start_pos = line.find("./")
+            if start_pos >= 0:
+                invocation_split = shlex.split(line[start_pos:len(line)])
+                invocation_split = invocation_split[1:len(invocation_split)]
+                for i in invocation_split:
+                    type = ""
+                    #check if there is a . in the line. This means it could be a file extension or float
+                    is_param = False
+                    if i.find(".") != -1:
+                        if i.replace(".","").isdigit():
+                            is_param = True
+                            type = "float"
+                    else:
+                        is_param = True
+
+                    if type == "":
+                        if i.isdigit():
+                            type = "int"
+                        else:
+                            type = "str"
+
+                    if is_param:
+                        params_added += 1
+                        auto_name = "param-" + str(params_added)
+                        spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i, DATATYPE_KEY: type,
+                                                                 DEFAULT_DESCRIPTION_KEY: ""}})
+
+
+
+
+
+
+    else:
+        if not overwrite and name in spec[PARAMETERS_KEY]:
+            click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
+            exit(1)
+        else:
+
+            if description is None:
+                description = ""
+            type_value____name__ = type(value).__name__
+            click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
+            spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: value, DATATYPE_KEY: type_value____name__,
+                                                DEFAULT_DESCRIPTION_KEY: description}})
+
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
@@ -459,7 +523,7 @@ information gathered from previous steps
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
-{generate_runner(reprozip_spec, user_execution_directory)}"""
+{(reprozip_spec, user_execution_directory)}"""
     render_bash_color(mic_directory_path)
     render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)
