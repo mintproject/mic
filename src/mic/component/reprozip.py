@@ -129,9 +129,6 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
         for d in data:
             for key in d:
                 try:
-                    print("ZERO: ", mic_outputs)
-                    print("FIRST: ", d)
-                    print("SECOND: ", item)
                     if str((d[key])['path'].lower()) == item.lower():
                         new_code.append("${" + key + "}")
                         edit = True
