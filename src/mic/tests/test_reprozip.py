@@ -2,7 +2,7 @@ from pathlib import Path
 
 from mic.component.reprozip import get_outputs_reprozip, get_inputs_outputs_reprozip, generate_runner, \
     generate_pre_runner
-from mic.config_yaml import get_spec
+from mic.config_yaml import get_spec, get_inputs, get_outputs_mic, get_parameters
 
 RESOURCES = "resources"
 DEFAULT_PATH = Path("/tmp/mint/")
@@ -782,7 +782,11 @@ def test_get_inputs_aggregate_true():
 def test_generate_runner():
     yml = "swat_test.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    result = generate_runner(spec, DEFAULT_PATH)
+    mic_config_file = Path(Path(__file__).parent / RESOURCES / yml)
+    mic_inputs = get_inputs(mic_config_file)
+    mic_outputs = get_outputs_mic(mic_config_file)
+    mic_parameters = get_parameters(mic_config_file)
+    result = generate_runner(spec, DEFAULT_PATH, mic_inputs, mic_outputs, mic_parameters)
     expected = """
 pushd TxtInOut
 ./swat670
@@ -796,7 +800,11 @@ popd"""
 def test_generate_runner_v1():
     yml = "swat_test_v2.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
-    result = generate_runner(spec, DEFAULT_PATH)
+    mic_config_file = Path(Path(__file__).parent / RESOURCES / yml)
+    mic_inputs = get_inputs(mic_config_file)
+    mic_outputs = get_outputs_mic(mic_config_file)
+    mic_parameters = get_parameters(mic_config_file)
+    result = generate_runner(spec, DEFAULT_PATH, mic_inputs, mic_outputs, mic_parameters)
     expected = """
 pushd TxtInOut
 ./swat670

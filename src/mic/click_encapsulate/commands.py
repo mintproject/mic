@@ -253,8 +253,8 @@ def add_parameters(mic_file, name, value, overwrite, description):
 
     path = Path(mic_file)
     spec = get_spec(path)
-
-    if (name or value or description or overwrite) and not (name and value):
+    print("NAME: ",name)
+    if (name or value or description or overwrite) and not (name and str(value)):
         click.secho("Must give name and value to manually add new parameter. Aborting",fg="yellow")
         exit(0)
 
@@ -280,7 +280,6 @@ def add_parameters(mic_file, name, value, overwrite, description):
             dir_ = str(Path(rep_run[REPRO_ZIP_WORKING_DIR]))
             run_lines = ' '.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
 
-        print("VANILLA: ", run_lines)
         params_added = 0
         for line in run_lines:
             # capture invocation line(s)
@@ -289,25 +288,25 @@ def add_parameters(mic_file, name, value, overwrite, description):
                 invocation_split = shlex.split(line[start_pos:len(line)])
                 invocation_split = invocation_split[1:len(invocation_split)]
                 for i in invocation_split:
-                    type = ""
+                    the_type = ""
                     #check if there is a . in the line. This means it could be a file extension or float
                     is_param = False
                     if i.find(".") != -1:
                         if i.replace(".","").isdigit():
                             is_param = True
-                            type = "float"
+                            the_type = "float"
                     else:
                         is_param = True
 
-                    if type == "":
+                    if the_type == "":
                         if i.isdigit():
-                            type = "int"
+                            the_type = "int"
                         else:
-                            type = "str"
+                            the_type = "str"
 
                     if is_param:
                         params_added += 1
-                        auto_name = "param-" + str(params_added)
+                        auto_name = "param_" + str(params_added)
                         spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i, DATATYPE_KEY: type,
                                                                  DEFAULT_DESCRIPTION_KEY: ""}})
 
@@ -321,7 +320,8 @@ def add_parameters(mic_file, name, value, overwrite, description):
                 description = ""
             type_value____name__ = type(value).__name__
             click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
-            spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: value, DATATYPE_KEY: type_value____name__,
+            spec[PARAMETERS_KEY].update({name: {NAME_KEY: name, DEFAULT_VALUE_KEY: value,
+                                                DATATYPE_KEY: type_value____name__,
                                                 DEFAULT_DESCRIPTION_KEY: description}})
 
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
@@ -518,7 +518,7 @@ information gathered from previous steps
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
-{generate_runner(reprozip_spec, user_execution_directory)}"""
+{generate_runner(reprozip_spec, user_execution_directory, mic_inputs, mic_outputs, mic_parameters)}"""
     render_bash_color(mic_directory_path)
     render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)

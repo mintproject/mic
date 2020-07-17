@@ -73,31 +73,85 @@ def generate_pre_runner(spec, user_execution_directory):
     code = ""
     paths = []
     code_items = spec[CODE_KEY] if CODE_KEY in spec and spec[CODE_KEY] else {}
-    for key, file in code_items.items():
-        paths.append(Path(file[PATH_KEY]))
+    try:
+        for key, file in code_items.items():
+            paths.append(Path(file[PATH_KEY]))
 
-    inputs_items = spec[INPUTS_KEY] if INPUTS_KEY in spec and spec[INPUTS_KEY] else {}
-    items = inputs_items.items()
-    for key, file in items:
-        paths.append(Path(file[PATH_KEY]))
+        inputs_items = spec[INPUTS_KEY] if INPUTS_KEY in spec and spec[INPUTS_KEY] else {}
+        items = inputs_items.items()
+        for key, file in items:
+            paths.append(Path(file[PATH_KEY]))
 
-    for path in paths:
-        parts = path.parts
-        if isinstance(parts, tuple) and len(parts) > 1:
-            code = f"""{code}
-cp -rv {path.name} {str(path)}"""
-    return code
+        for path in paths:
+            parts = path.parts
+            if isinstance(parts, tuple) and len(parts) > 1:
+                code = f"""{code}
+    cp -rv {path.name} {str(path)}"""
+        return code
+    except KeyError as e:
+        click.secho("Error: Malformed yaml. {} is missing expected fields".format(CONFIG_YAML_NAME),fg ="red")
+        click.secho(e,fg ="yellow")
 
-
-def generate_runner(spec, user_execution_directory):
+def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic_parameters):
     code = ''
     for run in spec[REPRO_ZIP_RUNS]:
+        code_line = ' '.join(map(str, run[REPRO_ZIP_ARGV]))
+        code_line = format_code(code_line, mic_inputs, mic_outputs, mic_parameters)
         dir_ = str(Path(run[REPRO_ZIP_WORKING_DIR]).relative_to(default_path))
         code = f"""{code}
 pushd {dir_}
-{' '.join(map(str, run[REPRO_ZIP_ARGV]))}
+{code_line}
 popd"""
     return code
+
+def format_code(code, mic_inputs, mic_outputs, mic_parameters):
+    """
+    Replaces any reference to inputs and outputs with the variable name of the yaml reference
+    Ex:
+    ./my_script.py -i inp.txt -p 4 -o out.txt
+    Becomes:
+    ./my_script.py -i ${inp_txt} -p 4 -o ${out_txt}
+    Note: this works by checking if a input/output on the command like matches an i/o from the yaml
+    :param code:
+    :param mic_inputs:
+    :param mic_outputs:
+    :return:
+    """
+    data = [mic_inputs,mic_outputs]
+    code = code.split(" ")
+    new_code = []
+    known_bad_keys = []
+    for item in code:
+        edit = False
+        # Appends tag to inputs and outputs
+        for d in data:
+            for key in d:
+                try:
+                    if str((d[key])['path'].lower()) == (item.lower()):
+                        new_code.append("${" + key + "}")
+                        edit = True
+                except KeyError:
+                    # Prevents the same bad keys from being repeated
+                    if key not in known_bad_keys:
+                        click.secho("Warning: No path found for {}".format(key),fg="yellow")
+                        known_bad_keys.append(key)
+
+        if not edit:
+            # appends tag to parameters
+            for key in mic_parameters:
+                try:
+                    if (mic_parameters[key])["default_value"] == item:
+                        new_code.append("${" + key + "}")
+                        edit = True
+                except KeyError:
+                    if key not in known_bad_keys:
+                        click.secho("Warning: Could not check default value for {}".format(key),fg="yellow")
+                        known_bad_keys.append(key)
+        if not edit:
+            new_code.append(item)
+
+
+    return " ".join(new_code)
 
 
 def find_code_files(spec, inputs, config_files, user_execution_directory):
