@@ -801,8 +801,10 @@ def test_generate_runner_v1():
     yml = "swat_test_v2.yml"
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
     mic_config_file = Path(Path(__file__).parent / RESOURCES / yml)
+    print("mic conf: ", spec)
     mic_inputs = get_inputs(mic_config_file)
     mic_outputs = get_outputs_mic(mic_config_file)
+    print("mic outp: ", mic_outputs)
     mic_parameters = get_parameters(mic_config_file)
     result = generate_runner(spec, DEFAULT_PATH, mic_inputs, mic_outputs, mic_parameters)
     expected = """

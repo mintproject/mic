@@ -86,7 +86,7 @@ def generate_pre_runner(spec, user_execution_directory):
             parts = path.parts
             if isinstance(parts, tuple) and len(parts) > 1:
                 code = f"""{code}
-    cp -rv {path.name} {str(path)}"""
+cp -rv {path.name} {str(path)}"""
         return code
     except KeyError as e:
         click.secho("Error: Malformed yaml. {} is missing expected fields".format(CONFIG_YAML_NAME),fg ="red")
@@ -115,8 +115,10 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
     :param code:
     :param mic_inputs:
     :param mic_outputs:
+    :param mic_parameters:
     :return:
     """
+
     data = [mic_inputs,mic_outputs]
     code = code.split(" ")
     new_code = []
@@ -127,7 +129,10 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
         for d in data:
             for key in d:
                 try:
-                    if str((d[key])['path'].lower()) == (item.lower()):
+                    print("ZERO: ", mic_outputs)
+                    print("FIRST: ", d)
+                    print("SECOND: ", item)
+                    if str((d[key])['path'].lower()) == item.lower():
                         new_code.append("${" + key + "}")
                         edit = True
                 except KeyError:
@@ -175,8 +180,6 @@ def find_code_files(spec, inputs, config_files, user_execution_directory):
                     if is_executable(files_path):
                         code_files.append(_input)
                         click.echo("Adding {} as executable".format(files_path.name))
-                    elif click.confirm(f"Is {files_path} an executable script/program?", default=False):
-                        code_files.append(_input)
     return list(set(code_files))
 
 def is_executable(file_path):

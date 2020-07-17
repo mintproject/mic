@@ -227,8 +227,8 @@ def configs(mic_file, configuration_files, auto_param):
 
 
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
-@click.option('--name', "-n", help="Name of the parameter", required=False, type=click.STRING)
-@click.option('--value', "-v", help="Default value of the parameter", required=False, type=ANY_TYPE)
+@click.option('--name', "-n", help="Name of the parameter", required=False, default=None,type=click.STRING)
+@click.option('--value', "-v", help="Default value of the parameter", required=False, default=None, type=ANY_TYPE)
 @click.option('--description', "-d", help="Description for parameter", required=False, type=str)
 @click.option('--overwrite', "-o", help="Overwrite an existing parameter", is_flag=True, default=False)
 @click.option(
@@ -253,8 +253,7 @@ def add_parameters(mic_file, name, value, overwrite, description):
 
     path = Path(mic_file)
     spec = get_spec(path)
-    print("NAME: ",name)
-    if (name or value or description or overwrite) and not (name and str(value)):
+    if (name or value or description or overwrite) and not ((name is not None) and (value is not None)):
         click.secho("Must give name and value to manually add new parameter. Aborting",fg="yellow")
         exit(0)
 
@@ -262,8 +261,8 @@ def add_parameters(mic_file, name, value, overwrite, description):
         spec[PARAMETERS_KEY] = {}
 
     # Automacically add parameters from trace command. Use heuristic "if item isnt file its a parameter"
-    if not name:
-        click.echo("Automatically adding parameters from trace")
+    if name is None:
+        click.echo("Automatically adding any parameters from trace")
         mic_config_file = Path(mic_file)
         user_execution_directory = mic_config_file.parent.parent
 
@@ -277,7 +276,6 @@ def add_parameters(mic_file, name, value, overwrite, description):
 
         run_lines = ''
         for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
-            dir_ = str(Path(rep_run[REPRO_ZIP_WORKING_DIR]))
             run_lines = ' '.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
 
         params_added = 0
@@ -307,8 +305,16 @@ def add_parameters(mic_file, name, value, overwrite, description):
                     if is_param:
                         params_added += 1
                         auto_name = "param_" + str(params_added)
-                        spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i, DATATYPE_KEY: type,
+                        spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
+                                                                 DATATYPE_KEY: the_type,
                                                                  DEFAULT_DESCRIPTION_KEY: ""}})
+                        click.echo("Adding \"{}\" from value {}".format(auto_name, i))
+
+
+                if params_added > 0:
+                    click.secho("The parameters of the model component are available in the mic directory.",fg="green")
+                else:
+                    click.secho("No parameters found",fg="green")
 
     else:
         if not overwrite and name in spec[PARAMETERS_KEY]:
@@ -391,15 +397,14 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
         name = Path(_input).name
 
         if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
-            click.secho(f"Ignoring the config {item} as an input.", fg="blue")
+            click.secho(f"Ignoring the config {item} as an input.")
         else:
             # Deleting the outputs of the inputs.
             if item.is_dir():
                 if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
                     click.secho(f"Skipping {item}")
                 else:
-                    click.secho(f"""Input {name} is a directory""", fg="green")
-                    click.secho(f"""Compressing the input {name} """, fg="green")
+                    click.secho(f"""Compressing the input directory ({name})""")
                     zip_file = compress_directory(item, user_execution_directory)
                     dst_dir = data_dir
                     dst_file = dst_dir / Path(zip_file).name
@@ -407,13 +412,12 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
                         os.remove(dst_file)
                     shutil.move(str(zip_file), str(dst_dir))
                     new_inputs.append(zip_file)
-                    click.secho(f"""Input {name}  added """, fg="blue")
+                    click.secho(f"""Input {name} added """,fg="blue")
             else:
-                click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
                 shutil.copy(item, dst_file)
-                click.secho(f"""Input {name}  added """, fg="blue")
+                click.secho(f"""Input {name} added """,fg="blue")
 
     info_end_inputs(new_inputs)
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
@@ -469,7 +473,7 @@ def outputs(mic_file, custom_outputs):
         else:
             outputs.append(i)
     for i in outputs:
-        click.secho(f"""Output added: {i} """, fg="green")
+        click.secho(f"""Output added: {Path(i).name} """,fg="blue")
     info_end_outputs(outputs)
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
 
