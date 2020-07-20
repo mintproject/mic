@@ -141,14 +141,14 @@ class OrderedGroup(click.Group):
         return self.commands
 
 @cli.group(cls=OrderedGroup)
-def encapsulate():
+def pkg():
     """Command to encapsulate your model component"""
-encapsulate.add_command(start)
-encapsulate.add_command(trace)
-encapsulate.add_command(add_parameters)
-encapsulate.add_command(configs)
-encapsulate.add_command(inputs)
-encapsulate.add_command(outputs)
-encapsulate.add_command(wrapper)
-encapsulate.add_command(run)
-encapsulate.add_command(upload)
+pkg.add_command(start)
+pkg.add_command(trace)
+pkg.add_command(add_parameters)
+pkg.add_command(configs)
+pkg.add_command(inputs)
+pkg.add_command(outputs)
+pkg.add_command(wrapper)
+pkg.add_command(run)
+pkg.add_command(upload)

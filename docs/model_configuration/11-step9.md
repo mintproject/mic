@@ -6,10 +6,10 @@ MIC assumes that appropriate GitHub credentials, Docker login and MINT metadata 
 
 If you are still on the environment MIC created, type `exit`. It is usually easy to identify whether you are on the MIC environment or not, as you will see `root@<random_number>:/tmp/mint#` in your console. 
 
-Once exited, type `mic encapsulate upload`:
+Once exited, type `mic pkg upload`:
 
 ```bash
-$ mic encapsulate upload
+$ mic pkg upload
 Automatically found mic.yaml in C:\Users\dgarijo\Desktop\192\java_model\mic\mic.yaml
 This step uploads your code, DockerImage and ModelConfiguration
 Creating the git repository
@@ -66,7 +66,7 @@ You are done. Congratulations!
 ### Help command
 
 ```bash
-Usage: mic encapsulate upload [OPTIONS]
+Usage: mic pkg upload [OPTIONS]
 
   Upload your MIC wrapper (including all the contents of the /src folder)
   to GitHub, the Docker Image on DockerHub and the model component on MINT
@@ -75,11 +75,11 @@ Usage: mic encapsulate upload [OPTIONS]
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f)
   option or run the command from the same directory as mic.yaml
 
-  mic encapsulate upload -f <mic_file>
+  mic pkg upload -f <mic_file>
 
   Example:
 
-  mic encapsulate upload -f mic/mic.yaml
+  mic pkg upload -f mic/mic.yaml
 
 Options:
   -f, --mic_file FILE
