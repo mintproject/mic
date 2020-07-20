@@ -5,7 +5,6 @@ nav:
   - Configure: commands/configure.md
   - Encapsulate:
       - 'Parameters': commands/parameters.md
-  - Add model: usage-add-model.md
   - 'Creating a model component':
       - 'Overview': 'model_configuration/01-overview.md'
       - 'Before you start...': 'model_configuration/02-pre-steps.md'
