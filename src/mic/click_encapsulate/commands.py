@@ -18,8 +18,7 @@ from mic.component.executor import copy_code_to_src, compress_directory, execute
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
     render_bash_color, render_dockerfile
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
-    generate_pre_runner, \
-    find_code_files
+    generate_pre_runner, find_code_files, get_parameters_reprozip
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
@@ -272,49 +271,7 @@ def add_parameters(mic_file, name, value, overwrite, description):
 
         reprozip_spec = get_spec(repro_zip_config_file)
 
-        # run_lines = (generate_runner(reprozip_spec, user_execution_directory)).splitlines()
-
-        run_lines = ''
-        for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
-            run_lines = ' '.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
-
-        params_added = 0
-        for line in run_lines:
-            # capture invocation line(s)
-            start_pos = line.find("./")
-            if start_pos >= 0:
-                invocation_split = shlex.split(line[start_pos:len(line)])
-                invocation_split = invocation_split[1:len(invocation_split)]
-                for i in invocation_split:
-                    the_type = ""
-                    #check if there is a . in the line. This means it could be a file extension or float
-                    is_param = False
-                    if i.find(".") != -1:
-                        if i.replace(".","").isdigit():
-                            is_param = True
-                            the_type = "float"
-                    else:
-                        is_param = True
-
-                    if the_type == "":
-                        if i.isdigit():
-                            the_type = "int"
-                        else:
-                            the_type = "str"
-
-                    if is_param:
-                        params_added += 1
-                        auto_name = "param_" + str(params_added)
-                        spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
-                                                                 DATATYPE_KEY: the_type,
-                                                                 DEFAULT_DESCRIPTION_KEY: ""}})
-                        click.echo("Adding \"{}\" from value {}".format(auto_name, i))
-
-
-                if params_added > 0:
-                    click.secho("The parameters of the model component are available in the mic directory.",fg="green")
-                else:
-                    click.secho("No parameters found",fg="green")
+        spec = get_parameters_reprozip(spec, reprozip_spec)
 
     else:
         if not overwrite and name in spec[PARAMETERS_KEY]:

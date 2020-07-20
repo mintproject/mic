@@ -69,6 +69,48 @@ def get_outputs_reprozip(spec, user_execution_directory, aggregrate=False):
     return list(set(outputs))
 
 
+def get_parameters_reprozip(spec, reprozip_spec):
+    run_lines = ''
+    for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
+        run_lines = ' '.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
+
+    params_added = 0
+    for line in run_lines:
+        # capture invocation line(s)
+        start_pos = line.find("./")
+        if start_pos >= 0:
+            invocation_split = shlex.split(line[start_pos:len(line)])
+            invocation_split = invocation_split[1:len(invocation_split)]
+            for i in invocation_split:
+                the_type = ""
+                # check if there is a . in the line. This means it could be a file extension or float
+                is_param = False
+                if i.find(".") != -1:
+                    if i.replace(".", "").isdigit():
+                        is_param = True
+                        the_type = "float"
+                else:
+                    is_param = True
+
+                if the_type == "":
+                    if i.isdigit():
+                        the_type = "int"
+                    else:
+                        the_type = "str"
+
+                if is_param:
+                    params_added += 1
+                    auto_name = "param_" + str(params_added)
+                    spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
+                                                             DATATYPE_KEY: the_type,
+                                                             DEFAULT_DESCRIPTION_KEY: ""}})
+                    click.echo("Adding \"{}\" from value {}".format(auto_name, i))
+
+            if params_added > 0:
+                click.secho("The parameters of the model component are available in the mic directory.", fg="green")
+            else:
+                click.secho("No parameters found", fg="green")
+
 def generate_pre_runner(spec, user_execution_directory):
     code = ""
     paths = []
