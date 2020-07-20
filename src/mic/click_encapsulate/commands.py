@@ -4,7 +4,6 @@ import os
 import shutil
 from datetime import datetime
 from pathlib import Path
-import shlex
 
 import mic
 import semver

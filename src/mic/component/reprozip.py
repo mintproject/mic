@@ -5,6 +5,7 @@ from typing import List
 import click
 from mic.config_yaml import slugify
 from mic.constants import *
+import shlex
 
 default_path = Path(MIC_DEFAULT_PATH)
 
@@ -110,6 +111,8 @@ def get_parameters_reprozip(spec, reprozip_spec):
                 click.secho("The parameters of the model component are available in the mic directory.", fg="green")
             else:
                 click.secho("No parameters found", fg="green")
+
+            return spec
 
 def generate_pre_runner(spec, user_execution_directory):
     code = ""
