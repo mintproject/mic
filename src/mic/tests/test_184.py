@@ -66,9 +66,9 @@ def check_config(mic_config_arg):
 
 def check_parameters(mic_config_arg):
     parameters = get_parameters(Path(mic_config_arg))
-    assert parameters == {'a': {'default_value': 5.0, 'type': 'float', 'description': ''},
-                          'b': {'default_value': 4.0, 'type': 'float', 'description': 'Hello World1'},
-                          'c': {'default_value': 6.0, 'type': 'float', 'description': ''}}
+    assert parameters == {'a': {'name': 'a', 'default_value': 5.0, 'type': 'float', 'description': ''},
+                          'b': {'name': 'b', 'default_value': 4.0, 'type': 'float', 'description': 'Hello World1'},
+                          'c': {'name': 'c', 'default_value': 6.0, 'type': 'float', 'description': ''}}
 
 
 def cmd_add_parameters(mic_config_arg, runner):

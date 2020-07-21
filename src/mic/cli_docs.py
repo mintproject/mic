@@ -5,15 +5,15 @@ from validators import ValidationFailure
 
 
 def info_start_inputs():
-    click.secho("Detecting the data of your model using the information obtained by the `trace` command.", fg="blue")
-    click.secho("Creating the inputs.", fg="blue")
-    click.secho("If the data is a directory, MIC is going to compress in a zipfile.", fg="blue")
+    click.secho("Detecting the data of your model using the information obtained by the `trace` command.", fg="green")
+    click.secho("Creating the inputs.")
+    click.secho("If the data is a directory, MIC is going to compress in a zipfile.")
 
 
 def info_end_inputs(inputs):
     click.secho("Success", fg="green")
-    click.secho("The inputs of model component are available in the mic directory. ", fg="blue")
-    click.secho(f"You model component has {len(inputs)} inputs", fg="blue")
+    click.secho("The inputs of model component are available in the mic directory. ", fg="green")
+    click.secho(f"You model component has {len(inputs)} inputs", fg="green")
     click.secho("The next step is `mic pkg outputs`")
     click.secho(
         "MIC is going to detect the outputs of your model using the information obtained by the `trace` command.")
@@ -22,12 +22,12 @@ def info_end_inputs(inputs):
 
 
 def info_start_outputs():
-    click.secho("Detecting the output of your model using the information obtained by the `trace` command.", fg="blue")
+    click.secho("Detecting the output of your model using the information obtained by the `trace` command.", fg="green")
 
 
 def info_end_outputs(outputs):
     click.secho("Success", fg="green")
-    click.secho(f"You model component has {len(outputs)} outputs", fg="blue")
+    click.secho(f"You model component has {len(outputs)} outputs", fg="green")
     click.secho("The next step is `mic pkg wrapper`")
     click.secho("MIC is going to generate the directory structure and commands required to run your model.")
     click.secho("For more information, you can type.")

@@ -1,0 +1,38 @@
+step: 1
+name: parameter-test
+docker_image: parameter-test:latest
+framework: !!python/object/apply:mic.constants.Framework
+- !!python/tuple
+  - general
+  - mintproject/generic:latest
+inputs:
+  a_txt:
+    path: a.txt
+    format: txt
+  in_txt:
+    path: in.txt
+    format: txt
+code_files:
+  addtoarray_sh:
+    path: addtoarray.sh
+    format: sh
+outputs:
+  out_csv:
+    path: outputs/out.csv
+    format: csv
+parameters:
+  param_1:
+    name: ''
+    default_value: '15'
+    type: int
+    description: ''
+  param_2:
+    name: ''
+    default_value: hello
+    type: str
+    description: ''
+  param_3:
+    name: ''
+    default_value: '3.1415'
+    type: float
+    description: ''
