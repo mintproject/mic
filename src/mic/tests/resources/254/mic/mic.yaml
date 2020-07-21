@@ -1,0 +1,20 @@
+step: 1
+name: test-autoparam
+docker_image: test-autoparam:latest
+inputs:
+  a_txt:
+    path: a.txt
+    format: txt
+  in_txt:
+    path: in.txt
+    format: txt
+code_files:
+  addtoarray_sh:
+    path: addtoarray.sh
+    format: sh
+outputs:
+  out_csv:
+    path: outputs/out.csv
+    format: csv
+parameters:
+  {}
