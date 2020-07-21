@@ -1,4 +1,5 @@
 import collections
+import logging
 import sys
 from pathlib import Path
 
@@ -66,6 +67,7 @@ def credentials(server, username, password, git_username, git_token, name, docke
         configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username,
                               profile)
     except Exception as e:
+        logging.debug(f"{e}", exc_info=True)
         click.secho("Unable to create configuration file", fg="red")
 
 
