@@ -2,7 +2,7 @@ When you have finished the modifications of the MIC Wrapper. You can run step 8.
 
 ### How to perform this step?
 
-Type `mic encapsulate run`. Below is the result obtained with our simple Java model:
+Type `mic pkg run`. Below is the result obtained with our simple Java model:
 
 ```bash
 MIC needs to create new directory mic/executions/06_25_04_47_52 to run the model component Do you want to continue [Y/n]: Y
@@ -23,7 +23,7 @@ Done
 [success] The model has generated the output output.txt
 Success
 You can see the result at /tmp/mint/mic/executions/06_25_04_47_52
-The next step is `mic encapsulate upload`
+The next step is `mic pkg upload`
 The step is going to upload the MIC Wrapper to GitHub, the DockerImage on DockerHub and the Model Configuration on the MINT Model Catalog
 You model has passed all the tests. Please, review the outputs files.
 If the model is ok, type "exit" to go back to your computer
@@ -37,18 +37,18 @@ A successful test of the candidate model component.
 
 ### Help command
 ```bash
-Usage: mic encapsulate run [OPTIONS]
+Usage: mic pkg run [OPTIONS]
 
   This step will test the model component you created in previous steps.
 
   - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
   command from the same directory as mic.yaml
 
-  mic encapsulate run -f <mic_file>
+  mic pkg run -f <mic_file>
 
   Example:
 
-  mic encapsulate wrapper -f mic/mic.yaml
+  mic pkg wrapper -f mic/mic.yaml
 
 Options:
   -f, --mic_file FILE

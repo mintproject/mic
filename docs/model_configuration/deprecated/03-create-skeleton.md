@@ -3,7 +3,7 @@
 You must create the directories and sub directories
 
 ```bash
-$ mic encapsulate step1 <model_name>
+$ mic pkg step1 <model_name>
 ```
 
 MIC has created a directory `model_name`.
