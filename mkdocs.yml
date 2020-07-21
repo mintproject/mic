@@ -2,7 +2,7 @@ site_name: Model Insertion Checker (MIC)
 nav:
   - Home: index.md
   - Available commands: usage.md
-  - Configure: commands/configure.md
+  - Credentials: configure.md
   - Encapsulate:
       - 'Parameters': commands/parameters.md
   - Add model: usage-add-model.md
