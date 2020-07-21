@@ -75,9 +75,10 @@ def git_commit(repo):
 
 
 def get_local_repo(model_path: Path):
-    return pygit2.Repository(pygit2.discover_repository(model_path)) if pygit2.discover_repository(
-        model_path) else pygit2.init_repository(
-        model_path, False)
+    if pygit2.discover_repository(model_path):
+       return pygit2.Repository(pygit2.discover_repository(model_path))
+    else:
+        pygit2.init_repository(model_path, False)
 
 
 def compress_src_dir(model_path: Path):
@@ -106,6 +107,7 @@ def check_create_remote_repo(repo, profile, model_name):
         repo_github = github_create_repo(profile, model_name)
         url = repo_github.clone_url
         repo.remotes.create("origin", url)
+        git_push(repo, profile)
         click.secho(f"The url is: {url}")
         return url
 
@@ -159,12 +161,13 @@ def git_pull(repo, remote, branch="master"):
         raise AssertionError('Unknown merge analysis result')
 
 
-def git_push(repo, profile, tag):
+def git_push(repo, profile, tag=None):
     git_token, git_username = github_config(profile)
     callbacks = pygit2.RemoteCallbacks(pygit2.UserPass(git_token, 'x-oauth-basic'))
     remote = repo.remotes["origin"]
     remote.push(['refs/heads/master'], callbacks=callbacks)
-    remote.push(['refs/tags/{}'.format(tag)], callbacks=callbacks)
+    if tag:
+        remote.push(['refs/tags/{}'.format(tag)], callbacks=callbacks)
 
 
 def git_tag(repo, tagger):
@@ -204,6 +207,7 @@ def get_next_tag(repo):
     return version_today
 
 
+
 def github_create_repo(profile, model_name):
     """
     Upload the directory to git
@@ -213,10 +217,7 @@ def github_create_repo(profile, model_name):
     @param profile: the profile to use in the credentials file
     @type: directory: Path
     """
-    git_token, git_username = github_config(profile)
-    g = Github(git_username, git_token)
-    github_login(g)
-    user = g.get_user()
+    user = github_auth(profile)
     repo = None
     try:
         repo = user.get_repo(model_name)
@@ -231,6 +232,14 @@ def github_create_repo(profile, model_name):
     else:
         repo = user.create_repo(model_name)
     return repo
+
+
+def github_auth(profile):
+    git_token, git_username = github_config(profile)
+    g = Github(git_username, git_token)
+    github_login(g)
+    user = g.get_user()
+    return user
 
 
 def remove_temp_files(model_path: Path):
