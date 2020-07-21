@@ -30,10 +30,11 @@ If the model is ok, type "exit" to go back to your computer
 IMPORTANT: type "exit" and then upload your Model Component
 ```
 
-MIC will ask permission to create a folder, which will be placed under `executions` in the `mic` folder. MIC tested whether the execution of the model component finished successfully and whether the expected output (`output.txt`) was generated. After inspecing the result in `tmp/mint/mic/executions/06_25_04_47_52` and confirming that the output is correct, we conclude that the component is ready for publication
+MIC will ask permission to create a folder, which will be placed under `executions` in the `mic` folder. MIC tested whether the execution of the model component finished successfully and whether the expected output (`output.txt`) was generated. After inspecing the result in `tmp/mint/mic/executions/06_25_04_47_52` and confirming that the output is correct, we conclude that the component is ready for publication. We type `exit` to exit the MIC environment.
+
 
 ### Expected result
-A successful test of the candidate model component.
+A successful test of the candidate model component. **After you are done,  type `exit` to exit the MIC container and return to your desktop for the final step**.
 
 ### Help command
 ```bash

@@ -13,7 +13,7 @@ The sequence of commands required for encapsulating the model are:
 5. Select inputs to expose: `mic pkg inputs`
 6. Select outputs to expose: `mic pkg outputs`
 7. Create wrapper: `mic pkg wrapper`. Edit the `run` file to indicate where the parameter `p` needs to be passed on, by replacing it in the invocation command.
-8. Run wrapper and verify results: `mic pkg run`
+8. Run wrapper and verify results: `mic pkg run`. Once you are done, exit the MIC container: Type `exit`
 9. Upload: `mic pkg upload`
 
 Done!
