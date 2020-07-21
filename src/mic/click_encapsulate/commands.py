@@ -17,8 +17,7 @@ from mic.component.executor import copy_code_to_src, compress_directory, execute
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
     render_bash_color, render_dockerfile
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
-    generate_pre_runner, \
-    find_code_files
+    generate_pre_runner, find_code_files, get_parameters_reprozip
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
@@ -128,8 +127,8 @@ def trace(command, c, o):
      - All parameters used by your component and add them in the configuration file
 
     Usage example:
-    mic encapsulate trace python main.py
-    mic encapsulate trace ./your_program
+    mic pkg trace python main.py
+    mic pkg trace ./your_program
     """
     if c and o:
         click.secho("You can't use --continue and --overwrite at the same time", fg="red")
@@ -158,10 +157,11 @@ def trace(command, c, o):
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
     outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
-    print(outputs)
     reprozip_spec = get_spec(output_reprozip)
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
                                                                                reprozip_spec[OUTPUTS_KEY] else outputs
+
+
     write_to_yaml(output_reprozip, reprozip_spec)
 
 
@@ -190,14 +190,14 @@ def configs(mic_file, configuration_files, auto_param):
 
     - Pass your model configuration files as arguments
 
-    mic encapsulate configs -f <mic_file> [configuration_files]...
+    mic pkg configs -f <mic_file> [configuration_files]...
 
     If you have manually changed some parameters, the -a option will attempt to recognize the configuration files
     automatically
 
     Example:
 
-    mic encapsulate configs -f mic.yaml data/example_dir/file1.txt  data/file2.txt
+    mic pkg configs -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
@@ -224,8 +224,8 @@ def configs(mic_file, configuration_files, auto_param):
 
 
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
-@click.option('--name', "-n", help="Name of the parameter", required=True, type=click.STRING)
-@click.option('--value', "-v", help="Default value of the parameter", required=True, type=ANY_TYPE)
+@click.option('--name', "-n", help="Name of the parameter", required=False, default=None,type=click.STRING)
+@click.option('--value', "-v", help="Default value of the parameter", required=False, default=None, type=ANY_TYPE)
 @click.option('--description', "-d", help="Description for parameter", required=False, type=str)
 @click.option('--overwrite', "-o", help="Overwrite an existing parameter", is_flag=True, default=False)
 @click.option(
@@ -243,28 +243,48 @@ def add_parameters(mic_file, name, value, overwrite, description):
 
     Usage example:
 
-    mic encapsulate parameters -f <mic_file> --name PARAMETER_NAME --value PARAMETER_VALUE
+    mic pkg parameters -f <mic_file> --name PARAMETER_NAME --value PARAMETER_VALUE
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
 
     path = Path(mic_file)
     spec = get_spec(path)
+    if (name or value or description or overwrite) and not ((name is not None) and (value is not None)):
+        click.secho("Must give name and value to manually add new parameter. Aborting",fg="yellow")
+        exit(0)
 
     if PARAMETERS_KEY not in spec:
         spec[PARAMETERS_KEY] = {}
 
-    if not overwrite and name in spec[PARAMETERS_KEY]:
-        click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
-        exit(1)
-    else:
+    # Automacically add parameters from trace command. Use heuristic "if item isnt file its a parameter"
+    if name is None:
+        click.echo("Automatically adding any parameters from trace")
+        mic_config_file = Path(mic_file)
+        user_execution_directory = mic_config_file.parent.parent
 
-        if description is None:
-            description = ""
-        type_value____name__ = type(value).__name__
-        click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
-        spec[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: value, DATATYPE_KEY: type_value____name__,
-                                            DEFAULT_DESCRIPTION_KEY: description}})
+        repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
+        repro_zip_trace_dir = Path(repro_zip_trace_dir)
+        repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+
+        reprozip_spec = get_spec(repro_zip_config_file)
+
+        spec = get_parameters_reprozip(spec, reprozip_spec)
+
+    else:
+        if not overwrite and name in spec[PARAMETERS_KEY]:
+            click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
+            exit(1)
+        else:
+
+            if description is None:
+                description = ""
+            type_value____name__ = type(value).__name__
+            click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
+            spec[PARAMETERS_KEY].update({name: {NAME_KEY: name, DEFAULT_VALUE_KEY: value,
+                                                DATATYPE_KEY: type_value____name__,
+                                                DEFAULT_DESCRIPTION_KEY: description}})
+
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
 
 
@@ -284,18 +304,18 @@ def add_parameters(mic_file, name, value, overwrite, description):
 def inputs(mic_file, custom_inputs):
     """
 Describe the inputs of your model using the information obtained by the `trace` command. To identify  which inputs have
-been automatically detected, execute `mic encapsulate inputs -f mic/mic.yaml` and then inspect the mic.yaml file
+been automatically detected, execute `mic pkg inputs -f mic/mic.yaml` and then inspect the mic.yaml file
 
 - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option  or run the
 command from the same directory as mic.yaml
 
 - Identify undetected files in or directories in mic.yaml and add them as arguments to the `inputs` command
 
-mic encapsulate inputs -f <mic_file> [undetected files]...
+mic pkg inputs -f <mic_file> [undetected files]...
 
 Usage example:
 
-mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
+mic pkg inputs -f mic/mic.yaml input.txt inputs_directory
 
 
     """
@@ -332,15 +352,14 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
         name = Path(_input).name
 
         if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
-            click.secho(f"Ignoring the config {item} as an input.", fg="blue")
+            click.secho(f"Ignoring the config {item} as an input.")
         else:
             # Deleting the outputs of the inputs.
             if item.is_dir():
                 if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
                     click.secho(f"Skipping {item}")
                 else:
-                    click.secho(f"""Input {name} is a directory""", fg="green")
-                    click.secho(f"""Compressing the input {name} """, fg="green")
+                    click.secho(f"""Compressing the input directory ({name})""")
                     zip_file = compress_directory(item, user_execution_directory)
                     dst_dir = data_dir
                     dst_file = dst_dir / Path(zip_file).name
@@ -348,13 +367,12 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
                         os.remove(dst_file)
                     shutil.move(str(zip_file), str(dst_dir))
                     new_inputs.append(zip_file)
-                    click.secho(f"""Input {name}  added """, fg="blue")
+                    click.secho(f"""Input {name} added """,fg="blue")
             else:
-                click.secho(f"""Input {name} is a file""", fg="green")
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
                 shutil.copy(item, dst_file)
-                click.secho(f"""Input {name}  added """, fg="blue")
+                click.secho(f"""Input {name} added """,fg="blue")
 
     info_end_inputs(new_inputs)
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
@@ -377,7 +395,7 @@ mic encapsulate inputs -f mic/mic.yaml input.txt inputs_directory
 def outputs(mic_file, custom_outputs):
     """
   Describe the outputs of your model using the information obtained by the `trace` command.
-  To identify  which inputs have been automatically detected, execute `mic encapsulate outputs -f mic/mic.yaml`
+  To identify  which inputs have been automatically detected, execute `mic pkg outputs -f mic/mic.yaml`
   and then inspect the mic.yaml file
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option; or run the
@@ -385,11 +403,11 @@ def outputs(mic_file, custom_outputs):
 
   - Identify undetected files or directories  in the mic.yaml file and pass them as as arguments to the command
 
-  mic encapsulate outputs -f <mic_file> [undetected files]...
+  mic pkg outputs -f <mic_file> [undetected files]...
 
   Example:
 
-  mic encapsulate outputs -f mic/mic.yaml output.txt outputs_directory
+  mic pkg outputs -f mic/mic.yaml output.txt outputs_directory
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
@@ -410,7 +428,7 @@ def outputs(mic_file, custom_outputs):
         else:
             outputs.append(i)
     for i in outputs:
-        click.secho(f"""Output added: {i} """, fg="green")
+        click.secho(f"""Output added: {Path(i).name} """,fg="blue")
     info_end_outputs(outputs)
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
 
@@ -432,11 +450,11 @@ information gathered from previous steps
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the
   command from the same directory as mic.yaml
 
-  mic encapsulate wrapper -f <mic_file>
+  mic pkg wrapper -f <mic_file>
 
   Example:
 
-  mic encapsulate wrapper -f mic/mic.yaml
+  mic pkg wrapper -f mic/mic.yaml
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
@@ -459,7 +477,7 @@ information gathered from previous steps
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
-{generate_runner(reprozip_spec, user_execution_directory)}"""
+{generate_runner(reprozip_spec, user_execution_directory, mic_inputs, mic_outputs, mic_parameters)}"""
     render_bash_color(mic_directory_path)
     render_run_sh(mic_directory_path, mic_inputs, mic_parameters, mic_outputs, code)
     render_io_sh(mic_directory_path, mic_inputs, mic_parameters, mic_configs)
@@ -483,11 +501,11 @@ def run(mic_file):
   - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
   command from the same directory as mic.yaml
 
-  mic encapsulate run -f <mic_file>
+  mic pkg run -f <mic_file>
 
   Example:
 
-  mic encapsulate wrapper -f mic/mic.yaml
+  mic pkg wrapper -f mic/mic.yaml
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
@@ -536,11 +554,11 @@ def upload(mic_file, profile, mc, dt):
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the
   command from the same directory as mic.yaml
 
-  mic encapsulate upload -f <mic_file>
+  mic pkg upload -f <mic_file>
 
   Example:
 
-  mic encapsulate upload -f mic/mic.yaml
+  mic pkg upload -f mic/mic.yaml
     """
     # Searches for mic file if user does not provide one
     if mc and dt:

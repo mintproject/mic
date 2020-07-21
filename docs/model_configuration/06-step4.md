@@ -67,12 +67,12 @@ Make sure that the names of the parameters match with the names we described in 
 Once the mapping has been completed, we just need to add the file as a configuration file of the model component:
 
 ```bash
-mic encapsulate configs [configuration_files]...
+mic pkg configs [configuration_files]...
 ```
 
 In the example, we must run
 ```
-$ mic encapsulate configs data/TxtInOut/file.cio
+$ mic pkg configs data/TxtInOut/file.cio
 Added: data/TxtInOut/file.cio as a configuration file
 ```
 
@@ -100,7 +100,7 @@ configs:
 ### Help command
 
 ```bash
-Usage: mic encapsulate configs [OPTIONS] CONFIGURATION_FILES...
+Usage: mic pkg configs [OPTIONS] CONFIGURATION_FILES...
 
   Note: If your model does not use configuration files, you can skip this
   step
@@ -113,14 +113,14 @@ Usage: mic encapsulate configs [OPTIONS] CONFIGURATION_FILES...
 
   - Pass your model configuration files as arguments
 
-  mic encapsulate configs -f <mic_file> [configuration_files]...
+  mic pkg configs -f <mic_file> [configuration_files]...
 
   If you have manually changed some parameters, the -a option will attempt
   to recognize the configuration files automatically
 
   Example:
 
-  mic encapsulate configs -f mic.yaml data/example_dir/file1.txt
+  mic pkg configs -f mic.yaml data/example_dir/file1.txt
   data/file2.txt
 
 Options:

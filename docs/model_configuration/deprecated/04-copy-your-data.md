@@ -30,9 +30,9 @@ Let's suppose that you have identified two parameters:
 Then, you must run the command:
 
 ```bash
-$ mic encapsulate step2 <model_dir> --inputs_dir data/ --number-parameters 2
+$ mic pkg step2 <model_dir> --inputs_dir data/ --number-parameters 2
 or
-$ mic encapsulate step2 <model_dir>  --number-parameters 2
+$ mic pkg step2 <model_dir>  --number-parameters 2
 ```
 
 This command generates `config.yaml` file. This YAML file with the information about your model configuration
@@ -66,12 +66,12 @@ You must pass the `MIC_CONFIG_FILE` (`config.yaml`) using the option (`-f`).
 
 
 ```bash
-$ mic encapsulate step3 -f config.yaml
+$ mic pkg step3 -f config.yaml
 The invocation has been created.
 ```
 
 !!! warning
-    If you edit the inputs or the parameters section in the `config.yaml` file, you must re-run ` mic encapsulate step3 -f config.yaml`
+    If you edit the inputs or the parameters section in the `config.yaml` file, you must re-run ` mic pkg step3 -f config.yaml`
 
 
 In the next step, you are going to learn how to run your models using the MINT Wrapper

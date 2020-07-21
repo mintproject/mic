@@ -76,7 +76,7 @@ def check_mic_path(mic_dir):
             click.secho("Could not find {}. Please specify a path with -f".format(CONFIG_YAML_NAME),fg="red")
             exit(1)
         else:
-            click.echo("Automatically found {} in {}".format(CONFIG_YAML_NAME, mic_file))
+            click.echo("Found {} in {}".format(CONFIG_YAML_NAME, mic_file))
             return mic_file
     else:
         return mic_dir

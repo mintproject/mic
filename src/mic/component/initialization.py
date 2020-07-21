@@ -112,7 +112,6 @@ def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list)
     if configs is None: configs = []
 
     list_config = [value[PATH_KEY] for key, value in configs.items()]
-    print(parameters)
     with open(file, "w") as f:
         content = render_template(template=template,
                                   inputs=inputs,

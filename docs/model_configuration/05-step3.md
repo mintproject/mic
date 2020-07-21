@@ -5,7 +5,7 @@ Models may use many parameters and input files, but we may not need to expose al
 In our Java executable, we only had one parameter to expose through the command line (the parameter `p`). Note that you should use the `-f` option with the path of the mic file, typically under the `mic/mic.yaml` path:
 
 ```bash
-$ mic encapsulate parameters -f mic/mic.yaml -n p -v 1350
+$ mic pkg parameters -f mic/mic.yaml -n p -v 1350
 Adding the parameter p, value 1350 and type int
 ```
 The `-n` flag stands for `parameter name` and the `-v` flag stands for the default value you would like the parameter to have. In the case above, we defined a parameter `p` with value `1350`. MIC detected that it was an integer.
@@ -27,13 +27,13 @@ parameters:
 
 You can also add the parameter yourself to the `mic.yaml` file directly, if you prefer.
 
-**Note**: If your parameters are declared in a configuration file, please see the next step `mic encapsulate configs`.
+**Note**: If your parameters are declared in a configuration file, please see the next step `mic pkg configs`.
 
 ### Help command
 
 ```bash
-root@32fee4e4d205:/tmp/mint# mic encapsulate parameters --help
-Usage: mic encapsulate parameters [OPTIONS]
+root@32fee4e4d205:/tmp/mint# mic pkg parameters --help
+Usage: mic pkg parameters [OPTIONS]
 
   Add a parameter into the MIC file (mic.yaml).
 
@@ -43,7 +43,7 @@ Usage: mic encapsulate parameters [OPTIONS]
 
   Usage example:
 
-  mic encapsulate parameters -f <mic_file> --name PARAMETER_NAME --value
+  mic pkg parameters -f <mic_file> --name PARAMETER_NAME --value
   PARAMETER_VALUE
 
 Options:
