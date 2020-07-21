@@ -75,9 +75,10 @@ def git_commit(repo):
 
 
 def get_local_repo(model_path: Path):
-    return pygit2.Repository(pygit2.discover_repository(model_path)) if pygit2.discover_repository(
-        model_path) else pygit2.init_repository(
-        model_path, False)
+    if pygit2.discover_repository(model_path):
+        return pygit2.Repository(pygit2.discover_repository(model_path))
+    else:
+        return pygit2.init_repository(model_path, False)
 
 
 def compress_src_dir(model_path: Path):
@@ -98,6 +99,15 @@ def compress_src_dir(model_path: Path):
 def check_create_remote_repo(repo, profile, model_name):
     if "origin" in [i.name for i in repo.remotes]:
         origin__url = repo.remotes["origin"].url
+
+        try:
+            github_repo_exists(model_name, profile)
+        except Exception:
+            click.secho(f"The git repository has a remote server configured {origin__url}, "
+                        f"but it does not exist on github", fg="red")
+            click.echo("You can delete the reference to the repository running\n$ git remote remove origin")
+            exit(1)
+
         click.secho(f"The git repository has a remote server configured {origin__url}")
         return origin__url
     else:
@@ -106,6 +116,7 @@ def check_create_remote_repo(repo, profile, model_name):
         repo_github = github_create_repo(profile, model_name)
         url = repo_github.clone_url
         repo.remotes.create("origin", url)
+        git_push(repo, profile)
         click.secho(f"The url is: {url}")
         return url
 
@@ -159,12 +170,13 @@ def git_pull(repo, remote, branch="master"):
         raise AssertionError('Unknown merge analysis result')
 
 
-def git_push(repo, profile, tag):
+def git_push(repo, profile, tag=None):
     git_token, git_username = github_config(profile)
     callbacks = pygit2.RemoteCallbacks(pygit2.UserPass(git_token, 'x-oauth-basic'))
     remote = repo.remotes["origin"]
     remote.push(['refs/heads/master'], callbacks=callbacks)
-    remote.push(['refs/tags/{}'.format(tag)], callbacks=callbacks)
+    if tag:
+        remote.push(['refs/tags/{}'.format(tag)], callbacks=callbacks)
 
 
 def git_tag(repo, tagger):
@@ -213,10 +225,9 @@ def github_create_repo(profile, model_name):
     @param profile: the profile to use in the credentials file
     @type: directory: Path
     """
-    git_token, git_username = github_config(profile)
-    g = Github(git_username, git_token)
-    github_login(g)
+    g = github_auth(profile)
     user = g.get_user()
+
     repo = None
     try:
         repo = user.get_repo(model_name)
@@ -231,6 +242,21 @@ def github_create_repo(profile, model_name):
     else:
         repo = user.create_repo(model_name)
     return repo
+
+
+def github_repo_exists(model_name, profile):
+    g = github_auth(profile)
+    try:
+        g.get_user().get_repo(model_name)
+    except Exception as e:
+        raise e
+
+
+def github_auth(profile):
+    git_token, git_username = github_config(profile)
+    g = Github(git_username, git_token)
+    github_login(g)
+    return g
 
 
 def remove_temp_files(model_path: Path):
