@@ -90,45 +90,45 @@ def list_credentials(profile=None, short=False):
     print_list_credentials(profile, short)
 
 
-@cli.group()
-def model():
-    """Command to create and edit Models"""
-
-
-@model.command(short_help="Add a model")
-@click.option(
-    "--profile",
-    "-p",
-    envvar="MINT_PROFILE",
-    type=str,
-    default="default",
-    metavar="<profile-name>",
-)
-def add(profile):
-    create_model(profile=profile)
-    click.secho(f"Success", fg="green")
-
-
-@model.command(short_help="Load a model from file")
-@click.option(
-    "--filename",
-    "-f",
-    required=True,
-    prompt="Please type the path to the file",
-    type=click.Path(exists=True, file_okay=True, resolve_path=True),
-)
-@click.option(
-    "--profile",
-    "-p",
-    envvar="MINT_PROFILE",
-    type=str,
-    default="default",
-    metavar="<profile-name>",
-)
-def load(filename, profile):
-    request = file.load(filename)
-    create_model(profile=profile, request=request)
-    click.secho(f"Success", fg="green")
+# @cli.group()
+# def model():
+#     """Command to create and edit Models"""
+#
+#
+# @model.command(short_help="Add a model")
+# @click.option(
+#     "--profile",
+#     "-p",
+#     envvar="MINT_PROFILE",
+#     type=str,
+#     default="default",
+#     metavar="<profile-name>",
+# )
+# def add(profile):
+#     create_model(profile=profile)
+#     click.secho(f"Success", fg="green")
+#
+#
+# @model.command(short_help="Load a model from file")
+# @click.option(
+#     "--filename",
+#     "-f",
+#     required=True,
+#     prompt="Please type the path to the file",
+#     type=click.Path(exists=True, file_okay=True, resolve_path=True),
+# )
+# @click.option(
+#     "--profile",
+#     "-p",
+#     envvar="MINT_PROFILE",
+#     type=str,
+#     default="default",
+#     metavar="<profile-name>",
+# )
+# def load(filename, profile):
+#     request = file.load(filename)
+#     create_model(profile=profile, request=request)
+#     click.secho(f"Success", fg="green")
 
 
 class OrderedGroup(click.Group):
