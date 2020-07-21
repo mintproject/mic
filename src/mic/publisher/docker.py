@@ -1,12 +1,14 @@
 from pathlib import Path
-
+import logging
 import click
 import docker
 from docker.errors import APIError
 from mic.config_yaml import get_key_spec, write_spec
 from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR
 from mic.credentials import get_credentials
+from mic._utils import get_mic_logger, log_variable
 
+logging = get_mic_logger().getChild(Path(__file__).name)
 
 def build_image(mic_config_path, name):
     model_path = mic_config_path.parent
@@ -18,10 +20,12 @@ def build_image(mic_config_path, name):
         return image.tags[0]
     except APIError as e:
         click.secho("Error building the image", fg="red")
+        logging.error("API Error building the image: {}".format(e))
         click.echo(e)
         exit(1)
     except Exception as e:
         click.secho("Error building the image", fg="red")
+        logging.error("Error building the image: {}".format(e))
         click.echo(e)
         exit(1)
 
@@ -53,7 +57,7 @@ def publish_docker(mic_config_path, image_name, profile):
     build_image(mic_config_path, image_name)
     credentials = get_credentials(profile)
     click.secho("Uploading the Docker Image")
-
+    logging.info("Publish docker image")
     try:
         client = docker.from_env()
         if DOCKER_USERNAME_KEY not in credentials:

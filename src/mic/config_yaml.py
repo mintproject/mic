@@ -2,10 +2,10 @@ import re
 import unicodedata
 from pathlib import Path
 from typing import List
-
+import logging
 import click
 import yaml
-
+from mic._utils import log_variable, get_mic_logger
 try:
     from yaml import CLoader as Loader
 except ImportError:
@@ -14,6 +14,7 @@ except ImportError:
 from mic._makeyaml import make_yaml
 from mic.constants import *
 
+logging = get_mic_logger().getChild(Path(__file__).name)
 
 def slugify(value, allow_unicode=False):
     """
@@ -59,6 +60,7 @@ def get_key_spec(config_yaml_path: Path, key: str):
 def write_spec(config_yaml_path: Path, key: str, value: object):
     spec = yaml.load(config_yaml_path.open(), Loader=Loader)
     spec[key] = value
+    logging.debug("Writing to spec: {}".format({'file': str(config_yaml_path), 'data': {'key': key, 'value': value}}))
     write_to_yaml(config_yaml_path, spec)
 
 
@@ -250,6 +252,7 @@ def add_params_from_config(yaml_path: Path, config_path: Path):
                 mic_yaml[PARAMETERS_KEY].update({name: {DEFAULT_VALUE_KEY: 0, DEFAULT_DESCRIPTION_KEY: "",
                                                         DATATYPE_KEY: ""}})
                 click.secho("Automatically adding \"{}\" as a parameter".format(name))
+                logging.info("Automatically adding parameter from config: \"{}\"".format(name))
                 added = True
 
         write_spec(Path(yaml_path), PARAMETERS_KEY, mic_yaml[PARAMETERS_KEY])

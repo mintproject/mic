@@ -67,6 +67,7 @@ MAP_PYTHON_MODEL_CATALOG = {"str": "string", "bool": "boolean", "int": "int", "f
 DEFAULT_PARAMETER_COMMENT = "# value added by MIC. Replace with your own default value"
 DEFAULT_DESCRIPTION_MESSAGE = "# insert description left of this comment"
 EXECUTABLE_EXTENSIONS = [".sh", ".py", ".jar", ".R", ".m", ".cpp", ".c", ".exe", ".bat", ".js", ".php", ".cs", ".pl", ".vb"]
+LOG_FILE = "mic.log"
 
 # Default output messages
 DEFAULT_CONFIGURATION_WARNING = "WARNING: The profile doesn't exists. To configure it, run:\nmic configure -p"

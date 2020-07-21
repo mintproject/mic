@@ -1,5 +1,5 @@
 import logging
-import logging
+import inspect
 import os
 import shutil
 from datetime import datetime
@@ -8,7 +8,8 @@ from pathlib import Path
 import mic
 import semver
 from mic import _utils
-from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path
+from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path, make_log_file, log_system_info, \
+    get_mic_logger, log_variable, log_command
 from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
     info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
     info_end_publish_dt
@@ -27,8 +28,7 @@ from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     publish_data_transformation, create_data_transformation_resource
 
-logging.basicConfig(level=logging.WARNING)
-
+logging = get_mic_logger().getChild(Path(__file__).name)
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -76,6 +76,13 @@ def start(user_execution_directory, name, image):
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
+
+    # Start log file and log basic system info
+    if make_log_file():
+        log_system_info(get_mic_logger().name)
+    log_command(logging,"start",name=name, image=image)
+
+
     if image is None:
         framework = detect_framework_main(user_execution_directory)
     else:
@@ -85,10 +92,12 @@ def start(user_execution_directory, name, image):
         render_dockerfile(mic_dir, framework)
 
     os.system(f"docker pull {framework.image}")
+    logging.info("Starting build_docker")
     try:
         user_image = build_docker(mic_dir / DOCKER_DIR, name)
     except ValueError:
         click.secho("The extraction of dependencies has failed", fg='red')
+        logging.warning("build_docker failed")
         user_image = framework.image
 
     write_spec(mic_config_path, NAME_KEY, name)
@@ -131,8 +140,11 @@ def trace(command, c, o):
     mic pkg trace python main.py
     mic pkg trace ./your_program
     """
+    log_command(logging, "trace", invocation_command=command, continu=c,overwrite=o)
+
     if c and o:
         click.secho("You can't use --continue and --overwrite at the same time", fg="red")
+        logging.info("User tried to use -c and -o at same time")
         exit(1)
 
     append = None
@@ -155,6 +167,7 @@ def trace(command, c, o):
     status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, append, 1)
     if status != 0:
         click.secho("Program exited with non-zero code", fg="red")
+        logging.warning("Reprozip exited with non-zero code")
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
     outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
@@ -198,14 +211,18 @@ def configs(mic_file, configuration_files, auto_param):
 
     mic pkg configs -f mic.yaml data/example_dir/file1.txt  data/file2.txt
     """
+
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
+
+    log_command(logging, "configs", mic_file=mic_file, configuration_files=configuration_files, auto_param=auto_param)
 
     mic_config_file = Path(mic_file)
     user_execution_directory = mic_config_file.parent.parent
 
     if not mic_config_file.exists():
         click.secho("Error: that configuration path does not exist", fg="red")
+        logging.error("mic config file does not exist")
         exit(1)
     configuration_files = [str(Path(x).absolute()) for x in list(configuration_files)]
     try:
@@ -246,7 +263,8 @@ def add_parameters(mic_file, name, value, overwrite, description):
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
-
+    log_command(logging, "add_parameters", mic_file=mic_file, name=name,
+                value=value, overwrite=overwrite, description=description)
     path = Path(mic_file)
     spec = get_spec(path)
 
@@ -300,6 +318,7 @@ mic pkg inputs -f mic/mic.yaml input.txt inputs_directory
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
+    log_command(logging, "inputs", mic_file=mic_file, custom_inputs=custom_inputs)
 
     info_start_inputs()
     mic_config_file = Path(mic_file)
@@ -312,6 +331,7 @@ mic pkg inputs -f mic/mic.yaml input.txt inputs_directory
     custom_inputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                      list(custom_inputs)]
     inputs_reprozip = get_inputs_outputs_reprozip(spec, user_execution_directory)
+    logging.debug("Inputs found from reprozip: {}".format(inputs_reprozip))
 
     # obtain config: if a file is a config cannot be a input
     config_files = get_configs(mic_config_file)
@@ -319,6 +339,7 @@ mic pkg inputs -f mic/mic.yaml input.txt inputs_directory
                          config_files.items()] if config_files else []
 
     code_files = find_code_files(spec, inputs_reprozip, config_files_list, user_execution_directory)
+    logging.debug("code files found from reprozip: {}".format(code_files))
     new_inputs = []
     inputs_reprozip += list(custom_inputs)
     data_dir = mic_directory_path.absolute() / DATA_DIR
@@ -331,7 +352,7 @@ mic pkg inputs -f mic/mic.yaml input.txt inputs_directory
         name = Path(_input).name
 
         if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
-            click.secho(f"Ignoring the config {item} as an input.", fg="blue")
+            logging.info(f"Ignoring the config {item} as an input.")
         else:
             # Deleting the outputs of the inputs.
             if item.is_dir():
@@ -392,6 +413,7 @@ def outputs(mic_file, custom_outputs):
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
+    log_command(logging, "outputs", mic_file=mic_file, custom_outputs=custom_outputs)
 
     info_start_outputs()
     mic_config_file = Path(mic_file)
@@ -403,6 +425,7 @@ def outputs(mic_file, custom_outputs):
     custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
                       list(custom_outputs)]
     outputs = get_outputs_reprozip(spec, user_execution_directory)
+    logging.debug("Outputs found from reprozip: {}".format(outputs))
     for i in list(custom_outputs):
         if Path(i).is_dir():
             outputs += get_filepaths(i)
@@ -439,6 +462,7 @@ information gathered from previous steps
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
+    log_command(logging, "wrapper", mic_file=mic_file)
 
     info_start_wrapper()
     mic_config_file = Path(mic_file)
@@ -490,6 +514,7 @@ def run(mic_file):
     """
     # Searches for mic file if user does not provide one
     mic_file = check_mic_path(mic_file)
+    log_command(logging, "run", mic_file=mic_file)
 
     execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
     mic_config_path = Path(mic_file)
@@ -546,6 +571,7 @@ def upload(mic_file, profile, mc, dt):
         mc = False
         dt = True
     mic_file = check_mic_path(mic_file)
+    log_command(logging, "run", mic_file=mic_file, profile=profile, model_configuration=mc, data_transformation=dt)
     info_start_publish(mc)
     mic_config_path = Path(mic_file)
     name = get_key_spec(mic_config_path, NAME_KEY)
