@@ -8,7 +8,7 @@ from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_D
 from mic.credentials import get_credentials
 from mic._utils import get_mic_logger, log_variable
 
-logging = get_mic_logger().getChild(Path(__file__).name)
+logging = get_mic_logger()
 
 def build_image(mic_config_path, name):
     model_path = mic_config_path.parent
@@ -33,6 +33,7 @@ def build_image(mic_config_path, name):
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
     click.echo("Downloading the base image and building your image")
+    logging.info("Downloading and building base docker image")
     try:
         image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
         for chunk in logs:
@@ -41,11 +42,14 @@ def build_docker(docker_path: Path, name: str):
                 click.echo(f'{line}')
     except docker.errors.BuildError as err:
         click.echo(f'Build Attempt Failed[{name}]')
+        logging.warning("Build attempt failed")
+        logging.debug(err)
         click.echo(f'{err}')
         for chunk in err.build_log:
             if "stream" in chunk:
                 line = chunk["stream"].encode().decode('utf8').replace("\n", "")
                 click.echo(f'{line}')
+                logging.debug(err)
         raise ValueError
     return image.tags[0]
 

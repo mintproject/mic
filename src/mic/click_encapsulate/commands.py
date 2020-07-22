@@ -27,7 +27,7 @@ from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     publish_data_transformation, create_data_transformation_resource
 
-logging = get_mic_logger().getChild(Path(__file__).name)
+logging = get_mic_logger()
 
 @click.group()
 @click.option("--verbose", "-v", default=0, count=True)
@@ -85,18 +85,19 @@ def start(user_execution_directory, name, image):
     if image is None:
         framework = detect_framework_main(user_execution_directory)
     else:
+        logging.info("Using docker image provided by user")
         # If a user provides a image, the framework is generic.
         framework = Framework.GENERIC
         framework.image = image
         render_dockerfile(mic_dir, framework)
 
     os.system(f"docker pull {framework.image}")
-    logging.info("Starting build_docker")
     try:
         user_image = build_docker(mic_dir / DOCKER_DIR, name)
-    except ValueError:
+    except ValueError as e:
         click.secho("The extraction of dependencies has failed", fg='red')
-        logging.warning("build_docker failed")
+        logging.warning("The extraction of docker has failed")
+        logging.debug(e)
         user_image = framework.image
 
     write_spec(mic_config_path, NAME_KEY, name)
@@ -118,6 +119,7 @@ pip freeze > mic/docker/requirements.txt
         -w /tmp/mint {user_image} """
     print(docker_cmd)
     os.system(docker_cmd)
+    logging.info("start done")
 
 
 @cli.command(short_help="Trace any command line and extract the information about your model execution",
@@ -152,6 +154,8 @@ def trace(command, c, o):
     if o:
         append = False
 
+    logging.debug("Append mode: {}".format(append))
+
     import reprozip.tracer.trace
     import reprozip.traceutils
     base_dir = REPRO_ZIP_TRACE_DIR
@@ -166,16 +170,15 @@ def trace(command, c, o):
     status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, append, 1)
     if status != 0:
         click.secho("Program exited with non-zero code", fg="red")
-        logging.warning("Reprozip exited with non-zero code")
+        logging.warning("Reprozip tracer exited with non-zero code")
     reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
     outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
     reprozip_spec = get_spec(output_reprozip)
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
                                                                                reprozip_spec[OUTPUTS_KEY] else outputs
-
-
     write_to_yaml(output_reprozip, reprozip_spec)
+    logging.info("trace done")
 
 
 @cli.command(short_help="Select configuration file(s) for your model (if applicable)")
@@ -230,14 +233,17 @@ def configs(mic_file, configuration_files, auto_param):
         # Add config file names to yaml
         write_spec(mic_config_file, CONFIG_FILE_KEY, relative(configuration_files, user_execution_directory))
     except Exception as e:
-        click.secho("Failed: Error message {}".format(e), fg="red")
+        click.secho("Failed. Error message: {}".format(e), fg="red")
+        logging.error("Failed writing configs: {}".format(e))
     for item in configuration_files:
         click.secho("Added: {} as a configuration file".format(item))
+        logging.info("Added config file: {}".format(item))
         if auto_param:
             # Parse parameters from config file(s) and add them to mic.yaml
             add_params_from_config(mic_config_file, item)
 
     write_spec(mic_config_file, STEP_KEY, 2)
+    logging.info("configs done")
 
 
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
@@ -270,14 +276,17 @@ def add_parameters(mic_file, name, value, overwrite, description):
     spec = get_spec(path)
     if (name or value or description or overwrite) and not ((name is not None) and (value is not None)):
         click.secho("Must give name and value to manually add new parameter. Aborting",fg="yellow")
+        logging.info("Invalid manual parameter given")
         exit(0)
 
     if PARAMETERS_KEY not in spec:
+        logging.debug("Adding parameter field to spec")
         spec[PARAMETERS_KEY] = {}
 
     # Automacically add parameters from trace command. Use heuristic "if item isnt file its a parameter"
     if name is None:
         click.echo("Automatically adding any parameters from trace")
+        logging.info("Automatically adding any parameters from trace")
         mic_config_file = Path(mic_file)
         user_execution_directory = mic_config_file.parent.parent
 
@@ -292,6 +301,7 @@ def add_parameters(mic_file, name, value, overwrite, description):
     else:
         if not overwrite and name in spec[PARAMETERS_KEY]:
             click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
+            logging.info("Parameter already exists. aborting because overwrite flag is false")
             exit(1)
         else:
 
@@ -299,11 +309,15 @@ def add_parameters(mic_file, name, value, overwrite, description):
                 description = ""
             type_value____name__ = type(value).__name__
             click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
-            spec[PARAMETERS_KEY].update({name: {NAME_KEY: name, DEFAULT_VALUE_KEY: value,
-                                                DATATYPE_KEY: type_value____name__,
-                                                DEFAULT_DESCRIPTION_KEY: description}})
+            new_par = {name: {NAME_KEY: name,
+                              DEFAULT_VALUE_KEY: value,
+                              DATATYPE_KEY: type_value____name__,
+                              DEFAULT_DESCRIPTION_KEY: description}}
+            logging.debug("Adding parameter: {}".format(new_par))
+            spec[PARAMETERS_KEY].update(new_par)
 
     write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
+    logging.info("add_parameters done")
 
 
 @cli.command(short_help=f"""Expose model inputs into the {CONFIG_YAML_NAME} file""")
@@ -373,14 +387,14 @@ mic pkg inputs -f mic/mic.yaml input.txt inputs_directory
         name = Path(_input).name
 
         if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
-            logging.info(f"Ignoring the config {item} as an input.")
+            logging.info(f"Ignoring the config as an input: {item}")
         else:
             # Deleting the outputs of the inputs.
             if item.is_dir():
                 if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
-                    click.secho(f"Skipping {item}")
+                    logging.info(f"Skipping: {item}")
                 else:
-                    click.secho(f"""Compressing the input directory ({name})""")
+                    logging.info(f"""Compressing the input directory ({name})""")
                     zip_file = compress_directory(item, user_execution_directory)
                     dst_dir = data_dir
                     dst_file = dst_dir / Path(zip_file).name
@@ -389,15 +403,18 @@ mic pkg inputs -f mic/mic.yaml input.txt inputs_directory
                     shutil.move(str(zip_file), str(dst_dir))
                     new_inputs.append(zip_file)
                     click.secho(f"""Input {name} added """,fg="blue")
+                    logging.info("Input added: {}".format(name))
             else:
                 new_inputs.append(item)
                 dst_file = mic_directory_path / DATA_DIR / str(item.name)
                 shutil.copy(item, dst_file)
                 click.secho(f"""Input {name} added """,fg="blue")
+                logging.info("Input added: {}".format(name))
 
     info_end_inputs(new_inputs)
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
+    logging.info("inputs done")
 
 
 @cli.command(short_help=f"""Expose model outputs in the {CONFIG_YAML_NAME} file""")
@@ -454,7 +471,7 @@ def outputs(mic_file, custom_outputs):
         click.secho(f"""Output added: {Path(i).name} """,fg="blue")
     info_end_outputs(outputs)
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
-
+    logging.info("outputs done")
 
 @cli.command(
     short_help=f"""Generate the directory structure and commands required to run your model component using the information from the
@@ -500,6 +517,7 @@ information gathered from previous steps
 
     spec = get_spec(mic_config_file)
     reprozip_spec = get_spec(repro_zip_config_file)
+    logging.info("Generating wrapper code")
     code = f"""{generate_pre_runner(spec, user_execution_directory)}
 {generate_runner(reprozip_spec, user_execution_directory, mic_inputs, mic_outputs, mic_parameters)}"""
     render_bash_color(mic_directory_path)
@@ -509,7 +527,7 @@ information gathered from previous steps
     copy_code_to_src(mic_code, user_execution_directory, mic_directory_path / SRC_DIR)
     copy_config_to_src(mic_configs, user_execution_directory, mic_directory_path / SRC_DIR)
     info_end_wrapper(mic_directory_path / SRC_DIR / RUN_FILE)
-
+    logging.info("wrapper done")
 
 @cli.command(short_help=f"""Run your model component with the MIC Wrapper generated in the previous step""")
 @click.option(
@@ -550,6 +568,7 @@ def run(mic_file):
     else:
         info_end_run_failed()
 
+    logging.info("run done")
 
 @cli.command(
     short_help="Upload your code to GitHub, your image to DockerHub and your model component to the MINT Model Catalog.")
@@ -605,3 +624,5 @@ def upload(mic_file, profile, mc, dt):
         dt_response = create_data_transformation_resource(Path(mic_file), name, allow_local_path=False)
         dt_response = publish_data_transformation(dt_response, profile)
         info_end_publish_dt(None, None, obtain_id(dt_response.id), profile)
+
+    logging.info("upload done")

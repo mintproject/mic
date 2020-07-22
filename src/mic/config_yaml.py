@@ -14,7 +14,7 @@ except ImportError:
 from mic._makeyaml import make_yaml
 from mic.constants import *
 
-logging = get_mic_logger().getChild(Path(__file__).name)
+logging = get_mic_logger()
 
 def slugify(value, allow_unicode=False):
     """

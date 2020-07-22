@@ -86,12 +86,13 @@ def log_command(logger, command_name, **kwargs):
     :param kwargs:
     :return:
     """
+    logger.info("<=================>")
     if len(kwargs) > 0:
         inp = {}
         for key, value in kwargs.items():
             inp[key] = {'value': value, 'type': type(value).__name__}
 
-        logger.info("Command: {}".format({'name': command_name, 'inputs': inp }))
+        logger.info("Command: {}".format({'name': command_name, 'command_parameters': inp }))
     else:
         logger.info("Command: {}".format(command_name))
 
@@ -101,12 +102,12 @@ def get_mic_logger():
 
 def init_logger():
     logger = logging.getLogger(mic.__name__)
-    print("HANDLESR: ", logger.handlers)
     if os.path.exists(Path(MIC_DIR) / LOG_FILE):
         handler = logging.FileHandler(Path(MIC_DIR) / LOG_FILE)
     else:
         handler = logging.StreamHandler()
-    formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
+    # formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
+    formatter = logging.Formatter("%(name)-5s %(filename)-18s %(levelname)-8s %(message)s")
     handler.setFormatter(formatter)
 
     #Remove all other handlers before adding new one

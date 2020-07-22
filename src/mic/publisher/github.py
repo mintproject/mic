@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 from pathlib import Path
-
+from mic._utils import get_mic_logger
 import click
 import pygit2 as pygit2
 import semver
@@ -15,29 +15,35 @@ from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, S
     MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
 from mic.credentials import get_credentials
 
+logging = get_mic_logger()
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
-
 
 def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     repository_name = name
     click.secho("Creating the git repository")
+    logging.info("Creating the git repository")
     repo = get_local_repo(model_directory)
+    logging.info("Compressing code")
     click.secho("Compressing your code")
     compress_src_dir(model_directory)
+    logging.info("Creating a new commit")
     click.secho("Creating a new commit")
     git_commit(repo)
     click.secho("Creating or using the GitHub repository")
     url = check_create_remote_repo(repo, profile, repository_name)
     repository_name = url.split('/')[-1].replace(".git", "")
     write_spec(mic_config_path, REPO_KEY, url)
+    logging.info("Creating a new version")
     click.secho("Creating a new version")
     _version = git_tag(repo, author)
 
+    logging.info("Pushing changes to the server")
     click.secho("Pushing your changes to the server")
     remote = repo.remotes["origin"]
     try:
         git_pull(repo, remote)
     except AssertionError as e:
+        logging.error("Unable to handle git conflict, user must manually fix")
         click.secho("Unable to handle git conflict, please fix them manually", fg="red")
         exit(1)
 
@@ -53,7 +59,10 @@ def push(model_directory: Path, mic_config_path: Path, name: str, profile):
             break
     if not file:
         click.secho(f"Mint component not found {MINT_COMPONENT_ZIP}.zip", fg="red")
+        logging.error("Could not find mint component: {}.zip".format(MINT_COMPONENT_ZIP))
         exit(1)
+
+    logging.info("Push complete: {}".format({'repository': url, 'version': _version}))
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
 
@@ -99,10 +108,12 @@ def check_create_remote_repo(repo, profile, model_name):
     if "origin" in [i.name for i in repo.remotes]:
         origin__url = repo.remotes["origin"].url
         click.secho(f"The git repository has a remote server configured {origin__url}")
+        logging.debug(f"The git repository has a remote server configured:  {origin__url}")
         return origin__url
     else:
         click.secho(f"The git repository has not a remote server configured ")
         click.secho(f"Creating a new repository on GitHub")
+        logging.debug("No remote server configured. Creating new GitHub repository")
         repo_github = github_create_repo(profile, model_name)
         url = repo_github.clone_url
         repo.remotes.create("origin", url)
@@ -143,6 +154,7 @@ def git_pull(repo, remote, branch="master"):
         if repo.index.conflicts is not None:
             for conflict in repo.index.conflicts:
                 click.echo(f"Conflicts found in: {conflict[0].path}")
+                logging.debug(f"Conflicts found in: {conflict[0].path}")
             raise AssertionError('Conflicts')
 
         user = repo.default_signature
@@ -156,6 +168,7 @@ def git_pull(repo, remote, branch="master"):
         # We need to do this or git CLI will think we are still merging.
         repo.state_cleanup()
     else:
+        logging.warning("Unknown merge analysis result")
         raise AssertionError('Unknown merge analysis result')
 
 
@@ -179,6 +192,7 @@ def git_tag(repo, tagger):
                     str(version))
 
     click.secho("New version: {}".format(str(version)))
+    logging.debug(f"New version: {str(version)}")
     return str(version)
 
 
@@ -193,7 +207,6 @@ def get_next_tag(repo):
         version_str = tags[-1]
         try:
             version = semver.VersionInfo.parse(version_str)
-            click.secho("Previous version {}".format(version))
             if int(version.minor) != today.month or int(version.major) != today.year % 100:
                 return version_today
             else:
@@ -225,8 +238,10 @@ def github_create_repo(profile, model_name):
         # {"message": "Not Found", "documentation_url": "https://developer.github.com/v3/repos/#get"}
         pass
     if repo:
+        logging.info("Selected repository already exists")
         if not click.confirm("The repo {} exists. Do you want to use it?".format(model_name), default=True):
             click.secho("Please rename the directory", fg="green")
+            logging.info("User has aborted")
             exit(0)
     else:
         repo = user.create_repo(model_name)
@@ -243,7 +258,8 @@ def remove_temp_files(model_path: Path):
         if zip_folder.exists():
             os.remove(zip_folder)
 
-    except:
+    except Exception as e:
+        logging.warning("Could not remove temporary files: {}".format(e))
         click.secho("Warning: error when removing temporary files", fg="yellow")
 
 
@@ -255,6 +271,7 @@ def github_config(profile):
         git_token = credentials[GIT_TOKEN_KEY]
     except KeyError:
         click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
+        click.error(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile))
         exit(1)
     return git_token, git_username
 
