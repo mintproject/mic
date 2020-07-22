@@ -4,7 +4,7 @@ import os
 import shutil
 from datetime import datetime
 from pathlib import Path
-
+import uuid
 import mic
 import semver
 from mic import _utils
@@ -91,9 +91,12 @@ def start(user_execution_directory, name, image):
         click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
 
+    container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, user_image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
+    write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
+
     click.secho(f"""
 You are in a Linux environment Debian distribution
 We detect the following dependencies.
@@ -104,11 +107,14 @@ We detect the following dependencies.
 pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
-    docker_cmd = f"""docker run --rm -ti \
+    docker_cmd = f"""docker run -ti \
+        --name={container_name}
         --cap-add=SYS_PTRACE \
         -v {user_execution_directory}:/tmp/mint \
         -w /tmp/mint {user_image} """
     os.system(docker_cmd)
+
+
 
 
 @cli.command(short_help="Trace any command line and extract the information about your model execution",
@@ -557,8 +563,15 @@ def upload(mic_file, profile, mc, dt):
         mc = False
         dt = True
     mic_file = check_mic_path(mic_file)
-    info_start_publish(mc)
     mic_config_path = Path(mic_file)
+    info_start_publish(mc)
+
+    user_image = get_key_spec(mic_config_path, DOCKER_KEY)
+    container_name = get_key_spec(mic_config_path, CONTAINER_NAME_KEY)
+    docker_container_cmd = f"""docker container commit {container_name} {user_image} """
+    click.secho("Committing the changes into the Docker Image")
+    os.system(docker_container_cmd)
+
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
