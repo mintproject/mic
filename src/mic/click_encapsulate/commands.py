@@ -88,8 +88,8 @@ def start(user_execution_directory, name, image):
     try:
         user_image = build_docker(mic_dir / DOCKER_DIR, name)
     except ValueError:
-        click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
+        click.secho(f"Building the image has failed. Using the image {user_image}", fg='red')
 
     container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
@@ -108,7 +108,7 @@ pip freeze > mic/docker/requirements.txt
 """, fg="green")
     click.echo("Please, run your Model Component.")
     docker_cmd = f"""docker run -ti \
-        --name={container_name}
+        --name={container_name} \
         --cap-add=SYS_PTRACE \
         -v {user_execution_directory}:/tmp/mint \
         -w /tmp/mint {user_image} """
@@ -571,7 +571,7 @@ def upload(mic_file, profile, mc, dt):
     docker_container_cmd = f"""docker container commit {container_name} {user_image} """
     click.secho("Committing the changes into the Docker Image")
     os.system(docker_container_cmd)
-
+    exit(0)
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
