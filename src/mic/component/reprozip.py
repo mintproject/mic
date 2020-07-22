@@ -2,7 +2,6 @@ import re
 from pathlib import Path
 from typing import List
 
-import click
 from mic.config_yaml import slugify
 from mic.constants import *
 
@@ -102,6 +101,7 @@ pushd {dir_}
 popd"""
     return code
 
+
 def format_code(code, mic_inputs, mic_outputs):
     """
     Replaces any reference to inputs and outputs with the variable name of the yaml reference
@@ -133,9 +133,7 @@ def format_code(code, mic_inputs, mic_outputs):
         if not edit:
             new_code.append(item)
 
-
     return " ".join(new_code)
-
 
 
 def find_code_files(spec, inputs, config_files, user_execution_directory):
@@ -163,8 +161,8 @@ def find_code_files(spec, inputs, config_files, user_execution_directory):
                         code_files.append(_input)
     return list(set(code_files))
 
-def is_executable(file_path):
 
+def is_executable(file_path):
     for i in EXECUTABLE_EXTENSIONS:
         name = file_path.name.lower()
         name = "." + (name.split("."))[1]
@@ -173,8 +171,23 @@ def is_executable(file_path):
 
     return False
 
+
 def extract_parameters_from_command(command_line):
     regex = r"(\"[^\"]+\"|[^\s\"]+)"
     matches = re.finditer(regex, command_line, re.IGNORECASE)
     for matchNum, match in enumerate(matches, start=2):
         print(match.group())
+
+
+def get_packages(spec):
+    """
+
+    :param spec:
+    :type spec:
+    """
+    packages = []
+    repro_zip_packages = spec[PACKAGES_KEY] if spec[PACKAGES_KEY] else []
+    for package in repro_zip_packages:
+        if NAME_KEY in package:
+            packages.append(package[NAME_KEY])
+    return packages

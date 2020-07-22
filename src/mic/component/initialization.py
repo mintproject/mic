@@ -134,11 +134,11 @@ def detect_framework(src_dir: Path) -> Framework:
     return frameworks
 
 
-def render_dockerfile(model_directory: Path, language: Framework, custom=False) -> Path:
+def render_dockerfile(model_directory: Path, language: Framework, custom=False, packages=[]) -> Path:
     template = env.get_template(DOCKER_FILE)
     run_file = model_directory / DOCKER_DIR / DOCKER_FILE
     with open(run_file, "w") as f:
-        content = render_template(template=template, language=language, custom=custom)
+        content = render_template(template=template, language=language, custom=custom, packages=packages)
         f.write(content)
 
     entrypoint_file = model_directory / DOCKER_DIR / ENTRYPOINT_FILE
