@@ -571,7 +571,6 @@ def upload(mic_file, profile, mc, dt):
     docker_container_cmd = f"""docker container commit {container_name} {user_image} """
     click.secho("Committing the changes into the Docker Image")
     os.system(docker_container_cmd)
-    exit(0)
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
     publish_docker(mic_config_path, name, profile)
