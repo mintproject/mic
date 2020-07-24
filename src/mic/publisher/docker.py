@@ -1,15 +1,17 @@
+import logging
 import os
 from pathlib import Path
-import logging
+
 import click
 import docker
 from docker.errors import APIError
+from mic._utils import get_mic_logger
 from mic.config_yaml import get_key_spec, write_spec
-from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR, CONTAINER_NAME_KEY
+from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, CONTAINER_NAME_KEY
 from mic.credentials import get_credentials
-from mic._utils import get_mic_logger, log_variable
 
 logging = get_mic_logger()
+
 
 def build_docker(docker_path: Path, name: str):
     client = docker.from_env()
@@ -48,20 +50,19 @@ def publish_docker(mic_config_path, profile):
         pass
     container_name = get_key_spec(mic_config_path, CONTAINER_NAME_KEY)
     docker_username = get_docker_username(profile)
-
     version = get_key_spec(mic_config_path, VERSION_KEY)
     docker_image_with_version = f"""{docker_username}/{docker_image}:{version}"""
-
     docker_container_cmd = f"""docker container commit {container_name} {docker_image_with_version} """
-    click.secho(f"Committing the changes into the Docker Image"
+    click.secho(f"Committing the changes into the Docker Image "
                 f"Please wait...")
     os.system(docker_container_cmd)
-    write_spec(mic_config_path, DOCKER_KEY, docker_image_with_version)
     click.secho("Uploading the Docker Image")
     logging.info("Publish docker image")
     try:
         docker_push_cmd = f"""docker push {docker_image_with_version} """
         os.system(docker_push_cmd)
+        write_spec(mic_config_path, DOCKER_KEY, docker_image_with_version)
+
     except Exception as e:
         raise e
 

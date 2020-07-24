@@ -4,19 +4,21 @@ import os
 import re
 import shutil
 from pathlib import Path
-from mic._utils import get_mic_logger
+
 import click
 import pygit2 as pygit2
 import semver
 from distutils.version import StrictVersion
 from github import Github
-from mic.config_yaml import write_spec, get_key_spec
+from mic._utils import get_mic_logger
+from mic.config_yaml import write_spec
 from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
     MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
 from mic.credentials import get_credentials
 
 logging = get_mic_logger()
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
+
 
 def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     repository_name = name
@@ -107,18 +109,41 @@ def compress_src_dir(model_path: Path):
 def check_create_remote_repo(repo, profile, model_name):
     if "origin" in [i.name for i in repo.remotes]:
         origin__url = repo.remotes["origin"].url
+
+        try:
+            github_repo_exists(model_name, profile)
+        except Exception:
+            click.secho(f"The git repository has a remote server configured {origin__url}, "
+                        f"but it does not exist on github", fg="red")
+            click.echo("You can delete the reference to the repository running\n$ git remote remove origin")
+            exit(1)
+
         click.secho(f"The git repository has a remote server configured {origin__url}")
-        logging.debug(f"The git repository has a remote server configured:  {origin__url}")
         return origin__url
     else:
         click.secho(f"The git repository has not a remote server configured ")
         click.secho(f"Creating a new repository on GitHub")
-        logging.debug("No remote server configured. Creating new GitHub repository")
         repo_github = github_create_repo(profile, model_name)
         url = repo_github.clone_url
         repo.remotes.create("origin", url)
+        git_push(repo, profile)
         click.secho(f"The url is: {url}")
         return url
+
+
+def github_repo_exists(model_name, profile):
+    g = github_auth(profile)
+    try:
+        g.get_user().get_repo(model_name)
+    except Exception as e:
+        raise e
+
+
+def github_auth(profile):
+    git_token, git_username = github_config(profile)
+    g = Github(git_username, git_token)
+    github_login(g)
+    return g
 
 
 def get_github_repo(profile, model_name):
@@ -172,12 +197,13 @@ def git_pull(repo, remote, branch="master"):
         raise AssertionError('Unknown merge analysis result')
 
 
-def git_push(repo, profile, tag):
+def git_push(repo, profile, tag=None):
     git_token, git_username = github_config(profile)
     callbacks = pygit2.RemoteCallbacks(pygit2.UserPass(git_token, 'x-oauth-basic'))
     remote = repo.remotes["origin"]
     remote.push(['refs/heads/master'], callbacks=callbacks)
-    remote.push(['refs/tags/{}'.format(tag)], callbacks=callbacks)
+    if tag:
+        remote.push(['refs/tags/{}'.format(tag)], callbacks=callbacks)
 
 
 def git_tag(repo, tagger):
