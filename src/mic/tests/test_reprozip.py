@@ -1,8 +1,6 @@
 from pathlib import Path
-
-from mic._utils import find_dir
 from mic.component.reprozip import get_outputs_reprozip, get_inputs_outputs_reprozip, generate_runner, \
-    generate_pre_runner, REPRO_ZIP_TRACE_DIR, REPRO_ZIP_CONFIG_FILE, get_packages
+    generate_pre_runner
 from mic.config_yaml import get_spec, get_inputs, get_outputs_mic
 
 RESOURCES = "resources"
@@ -834,11 +832,3 @@ def test_generate_pre_runner_3():
     assert generate_pre_runner(spec, DEFAULT_PATH) == "\ncp -rv x.csv results/x.csv"
 
 
-def test_get_packages():
-    user_execution_directory = Path(__file__).parent / RESOURCES
-    repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
-    repro_zip_trace_dir = Path(repro_zip_trace_dir)
-    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
-    spec = get_spec(repro_zip_config_file)
-    packages = get_packages(spec)
-    assert packages == ['bash', 'coreutils', 'libc6', 'libpcre3', 'libselinux1', 'libtinfo5', 'locales']

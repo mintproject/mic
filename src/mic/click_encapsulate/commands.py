@@ -18,7 +18,7 @@ from mic.component.initialization import render_run_sh, render_io_sh, render_out
     render_bash_color, render_dockerfile
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
     generate_pre_runner, \
-    find_code_files, get_packages
+    find_code_files
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
@@ -112,6 +112,7 @@ pip freeze > mic/docker/requirements.txt
         --cap-add=SYS_PTRACE \
         -v {user_execution_directory}:/tmp/mint \
         -w /tmp/mint {user_image} """
+    print(docker_cmd)
     os.system(docker_cmd)
 
 
@@ -124,13 +125,7 @@ pip freeze > mic/docker/requirements.txt
 @click.option('--continue', 'c', is_flag=True, help="add to the previous trace, don't replace it", default=None)
 @click.option('--overwrite', 'o', is_flag=True, help="overwrite the previous trace, don't add to it", default=None)
 @click.argument('command', nargs=-1, type=click.UNPROCESSED)
-@click.option(
-    "-f",
-    "--mic_file",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    default=None
-)
-def trace(command, c, o, mic_file):
+def trace(command, c, o):
     """
     Complete the mic.yaml file with the information of the parameters and inputs you want to expose
 
@@ -173,13 +168,7 @@ def trace(command, c, o, mic_file):
     reprozip_spec[OUTPUTS_KEY] = reprozip_spec[OUTPUTS_KEY].append(outputs) if OUTPUTS_KEY in reprozip_spec and \
                                                                                reprozip_spec[OUTPUTS_KEY] else outputs
     write_to_yaml(output_reprozip, reprozip_spec)
-    mic_file = check_mic_path(mic_file)
-    mic_config_file = Path(mic_file)
-    packages = get_key_spec(mic_config_file, PACKAGES_KEY)
-    new_packages = get_packages(reprozip_spec) + packages
-    write_spec(mic_config_file, new_packages)
-    framework = get_framework(mic_config_file)
-    render_dockerfile(mic_config_file.parent, framework)
+
 
 @cli.command(short_help="Select configuration file(s) for your model (if applicable)")
 @click.argument(
