@@ -89,12 +89,11 @@ def start(user_execution_directory, name, image):
     except ValueError:
         click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
-
+    container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, user_image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
-    container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     click.secho(f"""
 You are in a Linux environment Debian distribution.
 You can use `apt` to install new packages
