@@ -40,6 +40,7 @@ def detect_framework_main(user_execution_directory):
     user_execution_directory_docker.mkdir(exist_ok=True)
 
     frameworks = detect_framework(user_execution_directory)
+    click.echo("You can disable the detection of dependencies using the option --no-dependencies ")
     if len(frameworks) > 1:
         click.secho("MIC has detect {} possible framework/language on component: {}".format(
             len(frameworks), ",".join([i.label for i in frameworks])))
@@ -58,6 +59,7 @@ def detect_framework_main(user_execution_directory):
 
     extract_dependencies(framework, user_execution_directory_docker)
     dockerfile = render_dockerfile(user_execution_directory_mic, framework)
+    click.secho("Dockerfile has been created: {}".format(dockerfile))
     return framework
 
 

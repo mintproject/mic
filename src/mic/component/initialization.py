@@ -132,7 +132,7 @@ def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list)
 
 def detect_framework(src_dir: Path) -> Framework:
     files = {}
-    frameworks = [Framework.GENERIC]
+    frameworks = []
     for root, _, filenames in os.walk(src_dir, topdown=True):
         for filename in filenames:
             filepath = Path(os.path.join(os.path.abspath(root), filename))

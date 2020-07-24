@@ -144,7 +144,7 @@ cp -rv {path.name} {str(path)}"""
         logging.error(e)
         click.secho(e,fg ="yellow")
 
-       
+        
 def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic_parameters):
     code = ''
 
@@ -159,7 +159,7 @@ popd"""
     logging.debug("Runner code: {}".format(repr(code)))
     return code
 
- 
+  
 def format_code(code, mic_inputs, mic_outputs, mic_parameters):
     """
     Replaces any reference to inputs and outputs with the variable name of the yaml reference
