@@ -116,10 +116,7 @@ def start(user_execution_directory, name, image):
     pip freeze > mic/docker/requirements.txt
     """, fg="green")
         click.echo("Please, run your Model Component.")
-        docker_cmd = f"""docker run --rm -ti \
-            --cap-add=SYS_PTRACE \
-            -v {user_execution_directory}:/tmp/mint \
-            -w /tmp/mint {user_image}"""
+        docker_cmd = f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {user_image} bash"""
 
         print(docker_cmd)
         os.system(docker_cmd)
