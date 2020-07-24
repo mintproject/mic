@@ -116,7 +116,7 @@ def start(user_execution_directory, name, image):
         docker_cmd = f"""docker run --rm -ti \
             --cap-add=SYS_PTRACE \
             -v {user_execution_directory}:/tmp/mint \
-            -w /tmp/mint {user_image} """
+            -w /tmp/mint {user_image} bash"""
         print(docker_cmd)
         os.system(docker_cmd)
         logging.info("start done")
