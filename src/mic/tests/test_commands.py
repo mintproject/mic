@@ -35,6 +35,8 @@ def test_add_parameters_exit1(tmpdir):
                                catch_exceptions=False)
     except Exception as e:
         assert False
+    print(result.output)
+    print(result.exit_code)
     assert result.exit_code == 1
 
 

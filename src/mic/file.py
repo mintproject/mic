@@ -36,7 +36,7 @@ def save(request, file_name=None):
         with open(file_name, 'w') as outfile:
             json.dump(request_dump, outfile, indent=4)
     except Exception as err:
-        logging.info(err, exc_info=True)
+        logging.exception(err)
         click.secho(f"An error occurred when saving the file", fg="red")
     click.secho(f"Success", fg="green")
     return file_name
