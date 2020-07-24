@@ -94,19 +94,25 @@ def start(user_execution_directory, name, image):
     write_spec(mic_config_path, DOCKER_KEY, user_image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
-    click.secho(f"""
-You are in a Linux environment Debian distribution.
-You can use `apt` to install new packages
-For example:
-$ apt install r-base
-""", fg="green")
-    click.echo("Please, run your Model Component.")
+
     docker_cmd = f"""docker run --rm -ti \
             --cap-add=SYS_PTRACE \
             -v {user_execution_directory}:/tmp/mint \
             -w /tmp/mint {user_image} """
-    os.system(docker_cmd)
-
+    try:
+        click.secho(f"""
+You are in a Linux environment Debian distribution.
+You can use `apt` to install new packages
+For example:
+$ apt install r-base
+        """, fg="green")
+        click.echo("Please, run your Model Component.")
+        os.system(docker_cmd)
+        logging.info("start done")
+    except Exception as e:
+        logging.exception(f"Start failed: {e}")
+        click.secho("Failed",fg="red")
+        click.secho(e)
 
 
 @cli.command(short_help="Trace any command line and extract the information about your model execution",
