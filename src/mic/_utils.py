@@ -48,7 +48,8 @@ def make_log_file():
         if not os.path.exists(Path(MIC_DIR)):
             os.mkdir(MIC_DIR)
         if not os.path.exists(Path(MIC_DIR) / LOG_FILE):
-            os.mknod(Path(MIC_DIR) / LOG_FILE)
+            with open(Path(MIC_DIR) / LOG_FILE, 'w') as fp:
+                pass
 
         init_logger()
         return True
