@@ -33,7 +33,7 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
         mic_component_dir.mkdir(exist_ok=True)
     except Exception as e:
         click.secho("Error: {} could not be created".format(mic_component_dir), fg="red")
-        logging.error("Could not create base dir: {}".format(mic_component_dir))
+        logging.exception("Could not create base dir: {}".format(mic_component_dir))
         exit(1)
 
     src = mic_component_dir / SRC_DIR

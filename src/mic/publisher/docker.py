@@ -25,7 +25,7 @@ def build_image(mic_config_path, name):
         exit(1)
     except Exception as e:
         click.secho("Error building the image", fg="red")
-        logging.error("Error building the image: {}".format(e))
+        logging.exception("Error building the image: {}".format(e))
         click.echo(e)
         exit(1)
 

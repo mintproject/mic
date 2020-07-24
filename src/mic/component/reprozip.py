@@ -136,7 +136,7 @@ def generate_pre_runner(spec, user_execution_directory):
             if isinstance(parts, tuple) and len(parts) > 1:
                 code = f"""{code}
 cp -rv {path.name} {str(path)}"""
-        logging.debug("Pre runner code: \"{}\"".format(code))
+        logging.debug("Pre runner code: {}".format(repr(code)))
         return code
     except KeyError as e:
         click.secho("Error: Malformed yaml. {} is missing expected fields".format(CONFIG_YAML_NAME),fg ="red")
@@ -156,7 +156,7 @@ def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic
 pushd {dir_}
 {code_line}
 popd"""
-    logging.debug("Runner code: \"{}\"".format(code))
+    logging.debug("Runner code: {}".format(repr(code)))
     return code
 
   

@@ -2,13 +2,14 @@ import logging
 import shutil
 import subprocess
 from pathlib import Path
-
+from mic._utils import get_mic_logger
 import click
 from dame.executor import build_parameter, build_output
 from mic.config_yaml import get_key_spec, get_inputs
 from mic.constants import SRC_DIR, EXECUTIONS_DIR, PATH_KEY, DATA_DIR, INPUTS_KEY
 from mic.publisher.model_catalog import create_model_catalog_resource
 
+logging = get_mic_logger()
 
 def copy_file(input_path: Path, src_dir_path: Path):
     return shutil.copyfile(input_path, src_dir_path / input_path.name)
@@ -71,6 +72,7 @@ def get_command_line(resource):
         parameters = resource.has_parameter
     except:
         parameters = None
+
     outputs = resource.has_output
     if inputs:
         l = build_input(inputs)

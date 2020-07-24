@@ -1,8 +1,11 @@
 import click
 import validators
+import logging
+from mic._utils import get_mic_logger
 from mic.constants import MODEL_CATALOG_URL
 from validators import ValidationFailure
 
+logging = get_mic_logger()
 
 def info_start_inputs():
     click.secho("Detecting the data of your model using the information obtained by the `trace` command.", fg="green")
@@ -54,6 +57,7 @@ def info_start_run(execution_dir):
     if not click.confirm(
             f"MIC needs to create new directory {execution_dir} to run the model component "
             "Do you want to continue", default=True):
+        logging.info("User aborted run")
         exit(0)
 
 
