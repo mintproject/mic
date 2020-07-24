@@ -4,7 +4,7 @@ import os
 import shutil
 from datetime import datetime
 from pathlib import Path
-
+import uuid
 import mic
 import semver
 from mic import _utils
@@ -75,40 +75,45 @@ def start(user_execution_directory, name, image):
     mic_dir = user_execution_directory / MIC_DIR
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
+
     if image is None:
         framework = detect_framework_main(user_execution_directory)
     else:
-        # If a user provides a image, the framework is generic.
         framework = Framework.GENERIC
         framework.image = image
         render_dockerfile(mic_dir, framework)
-
     os.system(f"docker pull {framework.image}")
     try:
         user_image = build_docker(mic_dir / DOCKER_DIR, name)
     except ValueError:
-        click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
+        click.secho(f"Building the image has failed. Using the image {user_image}", fg='red')
+        click.secho(f"Use the image {user_image}", fg='red')
 
+    container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, user_image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
+    write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
+
     click.secho(f"""
-You are in a Linux environment Debian distribution
-We detect the following dependencies.
+You are in a Linux environment Debian distribution.
+You can use `apt` to install new packages
 
-- If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile {Path(MIC_DIR) / DOCKER_DIR / DOCKER_FILE}
-- If you install new dependencies using python. Before the step `upload` run
+For example:
 
-pip freeze > mic/docker/requirements.txt
+$ apt install r-base
+
 """, fg="green")
     click.echo("Please, run your Model Component.")
-    docker_cmd = f"""docker run --rm -ti \
+    docker_cmd = f"""docker run -ti \
+        --name={container_name} \
         --cap-add=SYS_PTRACE \
         -v {user_execution_directory}:/tmp/mint \
         -w /tmp/mint {user_image} """
-    print(docker_cmd)
     os.system(docker_cmd)
+
+
 
 
 @cli.command(short_help="Trace any command line and extract the information about your model execution",
@@ -565,11 +570,11 @@ def upload(mic_file, profile, mc, dt):
         mc = False
         dt = True
     mic_file = check_mic_path(mic_file)
-    info_start_publish(mc)
     mic_config_path = Path(mic_file)
+    info_start_publish(mc)
     name = get_key_spec(mic_config_path, NAME_KEY)
     push(mic_config_path.parent, mic_config_path, name, profile)
-    publish_docker(mic_config_path, name, profile)
+    publish_docker(mic_config_path, profile)
     if mc:
         model_configuration = create_model_catalog_resource(Path(mic_file), name, allow_local_path=False)
         api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(

@@ -10,7 +10,7 @@ import pygit2 as pygit2
 import semver
 from distutils.version import StrictVersion
 from github import Github
-from mic.config_yaml import write_spec
+from mic.config_yaml import write_spec, get_key_spec
 from mic.constants import MINT_COMPONENT_ZIP, GIT_TOKEN_KEY, GIT_USERNAME_KEY, SRC_DIR, REPO_KEY, VERSION_KEY, \
     MINT_COMPONENT_KEY, DEFAULT_CONFIGURATION_WARNING
 from mic.credentials import get_credentials
