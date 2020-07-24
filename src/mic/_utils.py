@@ -2,12 +2,14 @@ import logging
 import os
 import re
 from pathlib import Path
+
 import click
+import mic
 import requests
 import validators
-import mic
 from mic._mappings import Metadata_types
 from mic.constants import DIRECTORIES_TO_IGNORE, CONFIG_YAML_NAME, MIC_DIR, LOG_FILE
+
 MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 
@@ -20,7 +22,6 @@ def obtain_id(url):
 def first_line_new(resource, i=""):
     click.echo("======= {} ======".format(resource))
     click.echo("The actual values are:")
-
 
 
 def get_filepaths(directory):
@@ -41,20 +42,24 @@ def get_filepaths(directory):
 
     return file_paths  # Self-explanatory.
 
+
 def make_log_file():
     if os.path.exists(Path(MIC_DIR) / LOG_FILE):
         return True
     try:
+        print(MIC_DIR)
         if not os.path.exists(Path(MIC_DIR)):
             os.mkdir(MIC_DIR)
         if not os.path.exists(Path(MIC_DIR) / LOG_FILE):
-            os.mknod(Path(MIC_DIR) / LOG_FILE)
-
+            with open(Path(MIC_DIR) / LOG_FILE, 'w') as fp:
+                pass
         init_logger()
         return True
     except Exception as e:
-        click.secho("WARNING: Could not make log file: \"{}\"".format(e),fg="yellow")
+        logging.error(e, exc_info=True)
+        click.secho("WARNING: Could not make log file: \"{}\"".format(e), fg="yellow")
         return False
+
 
 def log_system_info(logger):
     log = logging.getLogger(logger)
@@ -66,6 +71,7 @@ def log_system_info(logger):
     log.info("OS: {}".format(os_obj))
     log.info("MIC Version: {}".format(mic.__version__))
 
+
 def log_variable(logger, var, name="variable"):
     """
     Given a logger log a debug variable, logs variable's content and type. Optional: enter name field to give a
@@ -75,7 +81,8 @@ def log_variable(logger, var, name="variable"):
     :param name:
     :return:
     """
-    logger.debug("{}: {}".format(name,{'content': var, 'type': type(var).__name__}))
+    logger.debug("{}: {}".format(name, {'content': var, 'type': type(var).__name__}))
+
 
 def log_command(logger, command_name, **kwargs):
     """
@@ -92,9 +99,10 @@ def log_command(logger, command_name, **kwargs):
         for key, value in kwargs.items():
             inp[key] = {'value': value, 'type': type(value).__name__}
 
-        logger.info("Command: {}".format({'name': command_name, 'command_parameters': inp }))
+        logger.info("Command: {}".format({'name': command_name, 'command_parameters': inp}))
     else:
         logger.info("Command: {}".format(command_name))
+
 
 def get_mic_logger():
     return logging.getLogger(mic.__name__)
@@ -110,7 +118,7 @@ def init_logger():
     formatter = logging.Formatter("%(name)-5s %(filename)-18s %(levelname)-8s %(message)s")
     handler.setFormatter(formatter)
 
-    #Remove all other handlers before adding new one
+    # Remove all other handlers before adding new one
     for i in logger.handlers:
         logger.removeHandler(i)
 
@@ -136,11 +144,12 @@ def validate_metadata(default_type, value):
         except ValueError as ve:
             return False
 
+
 def check_mic_path(mic_dir):
     if mic_dir is None:
         mic_file = recursive_mic_search(os.getcwd())
         if mic_file is None:
-            click.secho("Could not find {}. Please specify a path with -f".format(CONFIG_YAML_NAME),fg="red")
+            click.secho("Could not find {}. Please specify a path with -f".format(CONFIG_YAML_NAME), fg="red")
             exit(1)
         else:
             click.echo("Found {} in {}".format(CONFIG_YAML_NAME, mic_file))
@@ -173,6 +182,7 @@ def recursive_mic_search(curr_dir):
 
     # Default case
     return None
+
 
 def find_dir(name, path):
     for root, dirs, files in os.walk(path):
