@@ -2,6 +2,7 @@ import logging
 import os
 import re
 from pathlib import Path
+import platform
 import click
 import requests
 import validators
@@ -60,11 +61,18 @@ def make_log_file():
 def log_system_info(logger):
     log = logging.getLogger(logger)
     log.info("Log file created")
-    os_obj = {'name': os.uname().sysname, 'data': {'version': os.uname().version,
-                                                   'release': os.uname().release,
-                                                   'machine': os.uname().machine}}
+    try:
+        plat_obj = {'name': platform.system(), 'data': {'version': platform.version(),
+                                                       'release': platform.release(),
+                                                       'platform': platform.platform()}}
+    except Exception as e:
+        log.warning("os obj got attribute error while making os object")
+        try:
+            plat_obj = {'name': os.name}
+        except Exception as e:
+            plat_obj = {'name': "Unknown os"}
 
-    log.info("OS: {}".format(os_obj))
+    log.info("OS: {}".format(plat_obj))
     log.info("MIC Version: {}".format(mic.__version__))
 
 def log_variable(logger, var, name="variable"):
