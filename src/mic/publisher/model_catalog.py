@@ -105,9 +105,8 @@ def publish_model_configuration(model_configuration, profile):
         api_response, model_id, software_version_id = handle_existing_model(profile, api_response_mc, labels, model_cli)
     else:
         api_response = create_new_model(model_cli, api_response_mc)
-        model = Model(api_response)
-        software_version_id = model.has_version[0].id
-        model_id = model.id
+        software_version_id = api_response.has_version[0].id
+        model_id = api_response.id
     click.secho("Your Model Component has been uploaded", fg="green")
     return api_response, api_response_mc, model_id, software_version_id
 

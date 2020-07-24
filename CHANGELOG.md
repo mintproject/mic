@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.2.1](https://github.com/mintproject/mic/tree/1.2.1) (2020-07-21)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.2.0...1.2.1)
+
+**Closed issues:**
+
+- Configuration file must be copied into the src directory [\#255](https://github.com/mintproject/mic/issues/255)
+- \[Documentation\] Add an estimation of how much time is it required for each step [\#239](https://github.com/mintproject/mic/issues/239)
+- Validate directory structure by step [\#130](https://github.com/mintproject/mic/issues/130)
+
+**Merged pull requests:**
+
+- fix\(git\): force push a new repository [\#263](https://github.com/mintproject/mic/pull/263) ([mosoriob](https://github.com/mosoriob))
+- F\#203 [\#253](https://github.com/mintproject/mic/pull/253) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Develop [\#251](https://github.com/mintproject/mic/pull/251) ([mosoriob](https://github.com/mosoriob))
+- Docker revert [\#250](https://github.com/mintproject/mic/pull/250) ([mosoriob](https://github.com/mosoriob))
+-  Docker must run a user on linux [\#248](https://github.com/mintproject/mic/pull/248) ([mosoriob](https://github.com/mosoriob))
+- F\#199 [\#245](https://github.com/mintproject/mic/pull/245) ([Cmheidelberg](https://github.com/Cmheidelberg))
+
+## [1.2.0](https://github.com/mintproject/mic/tree/1.2.0) (2020-07-13)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.1.1...1.2.0)
+
+**Fixed bugs:**
+
+- allow to upload dt without mc [\#252](https://github.com/mintproject/mic/issues/252)
+- Trace not working in docker [\#243](https://github.com/mintproject/mic/issues/243)
+- Inputs should be automatically in run.sh [\#203](https://github.com/mintproject/mic/issues/203)
+- Docker must run a user on linux [\#142](https://github.com/mintproject/mic/issues/142)
+
+## [1.1.1](https://github.com/mintproject/mic/tree/1.1.1) (2020-07-09)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.1.0...1.1.1)
+
+**Merged pull requests:**
+
+- Test trace [\#244](https://github.com/mintproject/mic/pull/244) ([mosoriob](https://github.com/mosoriob))
+
 ## [1.1.0](https://github.com/mintproject/mic/tree/1.1.0) (2020-07-09)
 
 [Full Changelog](https://github.com/mintproject/mic/compare/1.0.1...1.1.0)
@@ -14,12 +52,12 @@
 
 **Merged pull requests:**
 
-- Develop [\#242](https://github.com/mintproject/mic/pull/242) ([sirspock](https://github.com/sirspock))
+- Develop [\#242](https://github.com/mintproject/mic/pull/242) ([mosoriob](https://github.com/mosoriob))
 - Docs [\#241](https://github.com/mintproject/mic/pull/241) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Release new version 1.5.0 [\#240](https://github.com/mintproject/mic/pull/240) ([sirspock](https://github.com/sirspock))
-- Release v1.5.0 [\#237](https://github.com/mintproject/mic/pull/237) ([sirspock](https://github.com/sirspock))
+- Release new version 1.5.0 [\#240](https://github.com/mintproject/mic/pull/240) ([mosoriob](https://github.com/mosoriob))
+- Release v1.5.0 [\#237](https://github.com/mintproject/mic/pull/237) ([mosoriob](https://github.com/mosoriob))
 - Rename: publish command replaced with upload [\#236](https://github.com/mintproject/mic/pull/236) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- fix\(run\_line\): add quotes to string parameter [\#233](https://github.com/mintproject/mic/pull/233) ([sirspock](https://github.com/sirspock))
+- fix\(run\_line\): add quotes to string parameter [\#233](https://github.com/mintproject/mic/pull/233) ([mosoriob](https://github.com/mosoriob))
 
 ## [1.0.1](https://github.com/mintproject/mic/tree/1.0.1) (2020-07-06)
 
@@ -59,20 +97,19 @@
 - Better outputs for encapsulate steps [\#125](https://github.com/mintproject/mic/issues/125)
 - Show metadata completeness levels [\#63](https://github.com/mintproject/mic/issues/63)
 - Values get added to main menu instead of sub-menu [\#53](https://github.com/mintproject/mic/issues/53)
-- Improve code: add modelconfiguration to model version [\#37](https://github.com/mintproject/mic/issues/37)
 - In submenus, "exit" option should be "back" [\#29](https://github.com/mintproject/mic/issues/29)
 - allow adding multiple simple resources [\#16](https://github.com/mintproject/mic/issues/16)
 - Allow editing existing configurations [\#9](https://github.com/mintproject/mic/issues/9)
 
 **Merged pull requests:**
 
-- Release v1.0.1 [\#232](https://github.com/mintproject/mic/pull/232) ([sirspock](https://github.com/sirspock))
+- Release v1.0.1 [\#232](https://github.com/mintproject/mic/pull/232) ([mosoriob](https://github.com/mosoriob))
 - F\#185 [\#230](https://github.com/mintproject/mic/pull/230) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - F\#209 [\#229](https://github.com/mintproject/mic/pull/229) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- fix: allow to upload a datatransformation [\#228](https://github.com/mintproject/mic/pull/228) ([sirspock](https://github.com/sirspock))
-- fix: add docker image option [\#226](https://github.com/mintproject/mic/pull/226) ([sirspock](https://github.com/sirspock))
-- add yaml comments and improve detection of code [\#225](https://github.com/mintproject/mic/pull/225) ([sirspock](https://github.com/sirspock))
-- \#223  fix: detect binary reprozip inside the default\_path as code\_file [\#224](https://github.com/mintproject/mic/pull/224) ([sirspock](https://github.com/sirspock))
+- fix: allow to upload a datatransformation [\#228](https://github.com/mintproject/mic/pull/228) ([mosoriob](https://github.com/mosoriob))
+- fix: add docker image option [\#226](https://github.com/mintproject/mic/pull/226) ([mosoriob](https://github.com/mosoriob))
+- add yaml comments and improve detection of code [\#225](https://github.com/mintproject/mic/pull/225) ([mosoriob](https://github.com/mosoriob))
+- \#223  fix: detect binary reprozip inside the default\_path as code\_file [\#224](https://github.com/mintproject/mic/pull/224) ([mosoriob](https://github.com/mosoriob))
 - Yaml comments [\#221](https://github.com/mintproject/mic/pull/221) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [1.0.0](https://github.com/mintproject/mic/tree/1.0.0) (2020-06-26)
@@ -129,21 +166,21 @@
 
 **Merged pull requests:**
 
-- release 1.0.0 [\#222](https://github.com/mintproject/mic/pull/222) ([sirspock](https://github.com/sirspock))
-- Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([sirspock](https://github.com/sirspock))
-- fix: pull and handle the conflicts [\#218](https://github.com/mintproject/mic/pull/218) ([sirspock](https://github.com/sirspock))
-- fix: end message publish shows the url to edit it [\#213](https://github.com/mintproject/mic/pull/213) ([sirspock](https://github.com/sirspock))
+- release 1.0.0 [\#222](https://github.com/mintproject/mic/pull/222) ([mosoriob](https://github.com/mosoriob))
+- Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([mosoriob](https://github.com/mosoriob))
+- fix: pull and handle the conflicts [\#218](https://github.com/mintproject/mic/pull/218) ([mosoriob](https://github.com/mosoriob))
+- fix: end message publish shows the url to edit it [\#213](https://github.com/mintproject/mic/pull/213) ([mosoriob](https://github.com/mosoriob))
 - Yaml comments [\#206](https://github.com/mintproject/mic/pull/206) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Obtain framework safely [\#197](https://github.com/mintproject/mic/pull/197) ([sirspock](https://github.com/sirspock))
-- Exit and extract python dependencies [\#196](https://github.com/mintproject/mic/pull/196) ([sirspock](https://github.com/sirspock))
-- Testingv3 [\#195](https://github.com/mintproject/mic/pull/195) ([sirspock](https://github.com/sirspock))
+- Obtain framework safely [\#197](https://github.com/mintproject/mic/pull/197) ([mosoriob](https://github.com/mosoriob))
+- Exit and extract python dependencies [\#196](https://github.com/mintproject/mic/pull/196) ([mosoriob](https://github.com/mosoriob))
+- Testingv3 [\#195](https://github.com/mintproject/mic/pull/195) ([mosoriob](https://github.com/mosoriob))
 - Param detection [\#181](https://github.com/mintproject/mic/pull/181) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Fixing test for issue 168 [\#178](https://github.com/mintproject/mic/pull/178) ([sirspock](https://github.com/sirspock))
-- Issue 168 [\#169](https://github.com/mintproject/mic/pull/169) ([sirspock](https://github.com/sirspock))
-- documentation and f139 [\#164](https://github.com/mintproject/mic/pull/164) ([sirspock](https://github.com/sirspock))
-- Repro zip [\#163](https://github.com/mintproject/mic/pull/163) ([sirspock](https://github.com/sirspock))
+- Fixing test for issue 168 [\#178](https://github.com/mintproject/mic/pull/178) ([mosoriob](https://github.com/mosoriob))
+- Issue 168 [\#169](https://github.com/mintproject/mic/pull/169) ([mosoriob](https://github.com/mosoriob))
+- documentation and f139 [\#164](https://github.com/mintproject/mic/pull/164) ([mosoriob](https://github.com/mosoriob))
+- Repro zip [\#163](https://github.com/mintproject/mic/pull/163) ([mosoriob](https://github.com/mosoriob))
 - Update 01-overview.md [\#153](https://github.com/mintproject/mic/pull/153) ([yolandagil](https://github.com/yolandagil))
-- fix: Step6 crash if no inputs \#139  [\#150](https://github.com/mintproject/mic/pull/150) ([sirspock](https://github.com/sirspock))
+- fix: Step6 crash if no inputs \#139  [\#150](https://github.com/mintproject/mic/pull/150) ([mosoriob](https://github.com/mosoriob))
 - F\#139 [\#147](https://github.com/mintproject/mic/pull/147) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Add: output log for step6 [\#141](https://github.com/mintproject/mic/pull/141) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Fix: step7 removes temporary files [\#140](https://github.com/mintproject/mic/pull/140) ([Cmheidelberg](https://github.com/Cmheidelberg))
@@ -154,7 +191,7 @@
 
 **Merged pull requests:**
 
-- fix: tests [\#137](https://github.com/mintproject/mic/pull/137) ([sirspock](https://github.com/sirspock))
+- fix: tests [\#137](https://github.com/mintproject/mic/pull/137) ([mosoriob](https://github.com/mosoriob))
 - Improved outputs [\#135](https://github.com/mintproject/mic/pull/135) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [0.4.3](https://github.com/mintproject/mic/tree/0.4.3) (2020-06-05)
@@ -178,7 +215,7 @@
 
 **Merged pull requests:**
 
-- fixing small issues [\#129](https://github.com/mintproject/mic/pull/129) ([sirspock](https://github.com/sirspock))
+- fixing small issues [\#129](https://github.com/mintproject/mic/pull/129) ([mosoriob](https://github.com/mosoriob))
 - Improved outputs [\#127](https://github.com/mintproject/mic/pull/127) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [0.4.2](https://github.com/mintproject/mic/tree/0.4.2) (2020-06-05)
@@ -215,23 +252,23 @@
 
 **Merged pull requests:**
 
-- Detect dependencies [\#119](https://github.com/mintproject/mic/pull/119) ([sirspock](https://github.com/sirspock))
-- Develop [\#117](https://github.com/mintproject/mic/pull/117) ([sirspock](https://github.com/sirspock))
+- Detect dependencies [\#119](https://github.com/mintproject/mic/pull/119) ([mosoriob](https://github.com/mosoriob))
+- Develop [\#117](https://github.com/mintproject/mic/pull/117) ([mosoriob](https://github.com/mosoriob))
 - F\#107 108 [\#114](https://github.com/mintproject/mic/pull/114) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Add version model [\#110](https://github.com/mintproject/mic/pull/110) ([sirspock](https://github.com/sirspock))
-- Add version mdodel [\#104](https://github.com/mintproject/mic/pull/104) ([sirspock](https://github.com/sirspock))
+- Add version model [\#110](https://github.com/mintproject/mic/pull/110) ([mosoriob](https://github.com/mosoriob))
+- Add version mdodel [\#104](https://github.com/mintproject/mic/pull/104) ([mosoriob](https://github.com/mosoriob))
 - Mic ch [\#102](https://github.com/mintproject/mic/pull/102) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Model catalog push [\#100](https://github.com/mintproject/mic/pull/100) ([sirspock](https://github.com/sirspock))
+- Model catalog push [\#100](https://github.com/mintproject/mic/pull/100) ([mosoriob](https://github.com/mosoriob))
 - Mic ch [\#99](https://github.com/mintproject/mic/pull/99) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Publish [\#96](https://github.com/mintproject/mic/pull/96) ([sirspock](https://github.com/sirspock))
+- Publish [\#96](https://github.com/mintproject/mic/pull/96) ([mosoriob](https://github.com/mosoriob))
 - Mic-ch [\#95](https://github.com/mintproject/mic/pull/95) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Publising [\#87](https://github.com/mintproject/mic/pull/87) ([sirspock](https://github.com/sirspock))
-- Execution docker + outputs [\#85](https://github.com/mintproject/mic/pull/85) ([sirspock](https://github.com/sirspock))
-- Step 6 exec [\#81](https://github.com/mintproject/mic/pull/81) ([sirspock](https://github.com/sirspock))
+- Publising [\#87](https://github.com/mintproject/mic/pull/87) ([mosoriob](https://github.com/mosoriob))
+- Execution docker + outputs [\#85](https://github.com/mintproject/mic/pull/85) ([mosoriob](https://github.com/mosoriob))
+- Step 6 exec [\#81](https://github.com/mintproject/mic/pull/81) ([mosoriob](https://github.com/mosoriob))
 - GitHub [\#80](https://github.com/mintproject/mic/pull/80) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Step4: Add the YAML variable in the run [\#79](https://github.com/mintproject/mic/pull/79) ([sirspock](https://github.com/sirspock))
-- Step 4 create yaml [\#78](https://github.com/mintproject/mic/pull/78) ([sirspock](https://github.com/sirspock))
-- feat: mic component init [\#76](https://github.com/mintproject/mic/pull/76) ([sirspock](https://github.com/sirspock))
+- Step4: Add the YAML variable in the run [\#79](https://github.com/mintproject/mic/pull/79) ([mosoriob](https://github.com/mosoriob))
+- Step 4 create yaml [\#78](https://github.com/mintproject/mic/pull/78) ([mosoriob](https://github.com/mosoriob))
+- feat: mic component init [\#76](https://github.com/mintproject/mic/pull/76) ([mosoriob](https://github.com/mosoriob))
 
 ## [0.4.1](https://github.com/mintproject/mic/tree/0.4.1) (2020-06-02)
 
@@ -251,7 +288,7 @@
 
 **Merged pull requests:**
 
-- Develop [\#111](https://github.com/mintproject/mic/pull/111) ([sirspock](https://github.com/sirspock))
+- Develop [\#111](https://github.com/mintproject/mic/pull/111) ([mosoriob](https://github.com/mosoriob))
 
 ## [0.3.0](https://github.com/mintproject/mic/tree/0.3.0) (2020-05-07)
 
@@ -272,7 +309,7 @@
 
 **Merged pull requests:**
 
-- fix: reorder structure and align configure with DAME [\#75](https://github.com/mintproject/mic/pull/75) ([sirspock](https://github.com/sirspock))
+- fix: reorder structure and align configure with DAME [\#75](https://github.com/mintproject/mic/pull/75) ([mosoriob](https://github.com/mosoriob))
 - Fix \#65 [\#74](https://github.com/mintproject/mic/pull/74) ([maurya-rohit](https://github.com/maurya-rohit))
 - Fixes Issue \#49 [\#52](https://github.com/mintproject/mic/pull/52) ([dhruvp-8](https://github.com/dhruvp-8))
 
@@ -296,6 +333,7 @@
 - Adding model configuration from version makes mic crash [\#41](https://github.com/mintproject/mic/issues/41)
 - Editing version when "None" makes the program crash [\#40](https://github.com/mintproject/mic/issues/40)
 - delete saved.json [\#38](https://github.com/mintproject/mic/issues/38)
+- Improve code: add modelconfiguration to model version [\#37](https://github.com/mintproject/mic/issues/37)
 - Disable send action in subresource menu [\#33](https://github.com/mintproject/mic/issues/33)
 - Define missing fields and classes \(model config, etc.\) [\#7](https://github.com/mintproject/mic/issues/7)
 
@@ -321,7 +359,7 @@
 
 **Merged pull requests:**
 
-- Mapping property [\#35](https://github.com/mintproject/mic/pull/35) ([sirspock](https://github.com/sirspock))
+- Mapping property [\#35](https://github.com/mintproject/mic/pull/35) ([mosoriob](https://github.com/mosoriob))
 
 ## [0.0.4](https://github.com/mintproject/mic/tree/0.0.4) (2020-04-10)
 
@@ -351,9 +389,9 @@
 
 **Merged pull requests:**
 
-- Add subresources and push [\#34](https://github.com/mintproject/mic/pull/34) ([sirspock](https://github.com/sirspock))
-- fix: add defintion [\#15](https://github.com/mintproject/mic/pull/15) ([sirspock](https://github.com/sirspock))
-- feat\(subresource\): allow to select existing resources [\#12](https://github.com/mintproject/mic/pull/12) ([sirspock](https://github.com/sirspock))
+- Add subresources and push [\#34](https://github.com/mintproject/mic/pull/34) ([mosoriob](https://github.com/mosoriob))
+- fix: add defintion [\#15](https://github.com/mintproject/mic/pull/15) ([mosoriob](https://github.com/mosoriob))
+- feat\(subresource\): allow to select existing resources [\#12](https://github.com/mintproject/mic/pull/12) ([mosoriob](https://github.com/mosoriob))
 
 ## [0.0.3](https://github.com/mintproject/mic/tree/0.0.3) (2020-04-03)
 

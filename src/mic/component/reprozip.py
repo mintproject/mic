@@ -137,7 +137,7 @@ cp -rv {path.name} {str(path)}"""
         click.secho("Error: Malformed yaml. {} is missing expected fields".format(CONFIG_YAML_NAME),fg ="red")
         click.secho(e,fg ="yellow")
 
-        
+       
 def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic_parameters):
     code = ''
 
@@ -151,7 +151,7 @@ pushd {dir_}
 popd"""
     return code
 
-  
+ 
 def format_code(code, mic_inputs, mic_outputs, mic_parameters):
     """
     Replaces any reference to inputs and outputs with the variable name of the yaml reference
