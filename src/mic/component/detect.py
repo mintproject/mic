@@ -2,12 +2,13 @@ import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
-
+from mic._utils import get_mic_logger
 import click
 from mic.component.initialization import detect_framework, render_dockerfile, render_conda
 from mic.component.python3 import freeze
 from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, REPRO_ZIP_TRACE_DIR
 
+logging = get_mic_logger()
 
 def detect_new_reprozip(src_directory: Path, time: datetime, ignore_dir=[REPRO_ZIP_TRACE_DIR]):
     """
