@@ -119,7 +119,7 @@ def start(user_execution_directory, name, image):
             -w {os.path.sep}{os.path.join("tmp","mint")} {user_image}"""
 
         print(docker_cmd)
-        os.system(docker_cmd)
+        os.system(f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {user_image} bash""")
         logging.info("start done")
     except Exception as e:
         logging.exception(f"Start failed: {e}")
