@@ -65,7 +65,7 @@ def log_system_info(logger):
         plat_obj = {'name': platform.system(), 'data': {'version': platform.version(),
                                                        'release': platform.release(),
                                                        'platform': platform.platform()}}
-    except AttributeError as e:
+    except Exception as e:
         log.warning("os obj got attribute error while making os object")
         try:
             plat_obj = {'name': os.name}
