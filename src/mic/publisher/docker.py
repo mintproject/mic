@@ -1,33 +1,15 @@
+import os
 from pathlib import Path
 import logging
 import click
 import docker
 from docker.errors import APIError
 from mic.config_yaml import get_key_spec, write_spec
-from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR
+from mic.constants import DOCKER_KEY, DOCKER_USERNAME_KEY, VERSION_KEY, DOCKER_DIR, CONTAINER_NAME_KEY
 from mic.credentials import get_credentials
 from mic._utils import get_mic_logger, log_variable
 
 logging = get_mic_logger()
-
-def build_image(mic_config_path, name):
-    model_path = mic_config_path.parent
-    docker_path = model_path / DOCKER_DIR
-    try:
-        client = docker.from_env()
-        click.echo("Downloading the base image and building your image")
-        image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
-        return image.tags[0]
-    except APIError as e:
-        click.secho("Error building the image", fg="red")
-        logging.error("API Error building the image: {}".format(e))
-        click.echo(e)
-        exit(1)
-    except Exception as e:
-        click.secho("Error building the image", fg="red")
-        logging.exception("Error building the image: {}".format(e))
-        click.echo(e)
-        exit(1)
 
 
 def build_docker(docker_path: Path, name: str):
@@ -54,26 +36,42 @@ def build_docker(docker_path: Path, name: str):
     return image.tags[0]
 
 
-def publish_docker(mic_config_path, image_name, profile):
-    version = get_key_spec(mic_config_path, VERSION_KEY)
-    write_spec(mic_config_path, DOCKER_KEY, image_name)
+def publish_docker(mic_config_path, profile):
+    # DOCKER_KEY doesn't have the docker username
+    docker_image = get_key_spec(mic_config_path, DOCKER_KEY)
+    try:
+        docker_image = docker_image.split('/')[-1]
+    except:
+        pass
+    try:
+        docker_image = docker_image.split(':')[0]
+    except:
+        pass
+    container_name = get_key_spec(mic_config_path, CONTAINER_NAME_KEY)
+    docker_username = get_docker_username(profile)
 
-    build_image(mic_config_path, image_name)
-    credentials = get_credentials(profile)
+    version = get_key_spec(mic_config_path, VERSION_KEY)
+    docker_image_with_version = f"""{docker_username}/{docker_image}:{version}"""
+
+    docker_container_cmd = f"""docker container commit {container_name} {docker_image_with_version} """
+    click.secho(f"Committing the changes into the Docker Image"
+                f"Please wait...")
+    os.system(docker_container_cmd)
+    write_spec(mic_config_path, DOCKER_KEY, docker_image_with_version)
     click.secho("Uploading the Docker Image")
     logging.info("Publish docker image")
+
     try:
-        client = docker.from_env()
-        if DOCKER_USERNAME_KEY not in credentials:
-            exit(0)
-        username = credentials[DOCKER_USERNAME_KEY]
-        image = client.images.get(image_name)
-        image_name_without_version = image_name.split("/")[-1].split(':')[0]
-        repository = "{}/{}".format(username, image_name_without_version)
-        image.tag(repository, version)
-        client.images.push(repository, version)
+        docker_push_cmd = f"""docker push {docker_image_with_version} """
+        os.system(docker_push_cmd)
     except Exception as e:
         raise e
-    docker_image = "{}:{}".format(repository, version)
-    click.secho("Docker Image: {}".format(docker_image))
-    write_spec(mic_config_path, DOCKER_KEY, docker_image)
+
+
+def get_docker_username(profile):
+    credentials = get_credentials(profile)
+    if DOCKER_USERNAME_KEY not in credentials:
+        click.secho(f"Docker username not found. Please run"
+                    f"$ mic credentials -p {profile}")
+        exit(0)
+    return credentials[DOCKER_USERNAME_KEY]

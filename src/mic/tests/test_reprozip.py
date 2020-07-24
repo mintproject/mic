@@ -783,6 +783,7 @@ def test_generate_runner():
 
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
     result = generate_runner(spec, DEFAULT_PATH, {}, {}, {})
+
     expected = """
 pushd TxtInOut
 ./swat670
@@ -798,6 +799,7 @@ def test_generate_runner_v1():
 
     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
     result = generate_runner(spec, DEFAULT_PATH, {}, {}, {})
+
     expected = """
 pushd TxtInOut
 ./swat670
