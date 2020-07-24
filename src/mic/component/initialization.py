@@ -151,13 +151,36 @@ def render_dockerfile(model_directory: Path, language: Framework, custom=False) 
         content = render_template(template=template, language=language, custom=custom)
         f.write(content)
 
+
     entrypoint_file = model_directory / DOCKER_DIR / ENTRYPOINT_FILE
     template = env.get_template(ENTRYPOINT_FILE)
     with open(entrypoint_file, "w") as f:
         content = render_template(template=template)
         f.write(content)
     # language_tasks(model_directory, language)
+
     return run_file
+
+def recursive_convert_to_lf(dir):
+    """
+    Convert windows CRLF endings into unix LF endigns. Returns an array of converted files
+    :param dir:
+    :return: converted_files
+    """
+    converted_files = []
+    for root, dirs, file_path in os.walk(dir):
+        for file in file_path:
+            if root.find(".git") == -1:
+                with open(Path(root) / Path(file), 'rb') as open_file:
+                    content = open_file.read()
+    
+                content = content.replace(b'\r\n', b'\n')
+                converted_files.append("{}".format(file))
+
+                with open(Path(root) / Path(file), 'wb') as open_file:
+                    open_file.write(content)
+
+    return converted_files
 
 
 def render_bash_color(directory: Path) -> Path:

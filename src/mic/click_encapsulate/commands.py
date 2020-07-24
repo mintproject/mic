@@ -16,7 +16,7 @@ from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapp
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
-    render_bash_color, render_dockerfile
+    render_bash_color, render_dockerfile, recursive_convert_to_lf
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
     generate_pre_runner, find_code_files, get_parameters_reprozip
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
@@ -100,6 +100,9 @@ def start(user_execution_directory, name, image):
             logging.debug(e)
             user_image = framework.image
 
+        conv_arr = recursive_convert_to_lf(mic_dir)
+        logging.debug("Converting any CRLF to LF: {}".format(conv_arr))
+
         write_spec(mic_config_path, NAME_KEY, name)
         write_spec(mic_config_path, DOCKER_KEY, user_image)
         write_spec(mic_config_path, FRAMEWORK_KEY, framework)
@@ -115,11 +118,11 @@ def start(user_execution_directory, name, image):
         click.echo("Please, run your Model Component.")
         docker_cmd = f"""docker run --rm -ti \
             --cap-add=SYS_PTRACE \
-            -v {user_execution_directory}:{os.path.sep}{os.path.join("tmp","mint")} \
-            -w {os.path.sep}{os.path.join("tmp","mint")} {user_image}"""
+            -v {user_execution_directory}:/tmp/mint \
+            -w /tmp/mint {user_image}"""
 
         print(docker_cmd)
-        os.system(f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {user_image} bash""")
+        os.system(docker_cmd)
         logging.info("start done")
     except Exception as e:
         logging.exception(f"Start failed: {e}")
