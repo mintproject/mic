@@ -75,6 +75,7 @@ def start(user_execution_directory, name, image):
     mic_dir = user_execution_directory / MIC_DIR
     if make_log_file():
         log_system_info(get_mic_logger().name)
+
     log_command(logging,"start",name=name, image=image)
 
     create_base_directories(mic_dir)
@@ -101,7 +102,8 @@ def start(user_execution_directory, name, image):
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
 
-    docker_cmd = f"""docker run --rm -ti \
+    docker_cmd = f"""docker run -ti \
+            --name={container_name} \
             --cap-add=SYS_PTRACE \
             -v {user_execution_directory}:/tmp/mint \
             -w /tmp/mint {user_image} """

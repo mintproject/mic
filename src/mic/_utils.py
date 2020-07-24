@@ -113,6 +113,8 @@ def init_logger():
     logger = logging.getLogger(mic.__name__)
     if os.path.exists(Path(MIC_DIR) / LOG_FILE):
         handler = logging.FileHandler(Path(MIC_DIR) / LOG_FILE)
+    elif os.path.exists(LOG_FILE):
+        handler = logging.FileHandler(LOG_FILE)
     else:
         handler = logging.StreamHandler()
     formatter = logging.Formatter("%(name)-5s %(filename)-18s %(levelname)-8s %(message)s")
