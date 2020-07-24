@@ -115,7 +115,6 @@ def init_logger():
         handler = logging.FileHandler(Path(MIC_DIR) / LOG_FILE)
     else:
         handler = logging.StreamHandler()
-    # formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %(message)s")
     formatter = logging.Formatter("%(name)-5s %(filename)-18s %(levelname)-8s %(message)s")
     handler.setFormatter(formatter)
 

@@ -73,8 +73,14 @@ def start(user_execution_directory, name, image):
      """
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
+    if make_log_file():
+        log_system_info(get_mic_logger().name)
+    log_command(logging,"start",name=name, image=image)
+
     create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
+
+
     if image is None:
         framework = detect_framework_main(user_execution_directory)
     else:
