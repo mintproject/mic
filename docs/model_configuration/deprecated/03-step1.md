@@ -10,13 +10,13 @@ A MIC file template (mic.yaml). This file (which will be completed in subsequent
 To run this step, you must type the following command (where <model_component> is the name of your model component):
 
 ```bash
-$ mic encapsulate step1 <model_component>
+$ mic pkg step1 <model_component>
 ```
 
 For example,
 
 ```bash
-$ mic encapsulate step1 swat_precipitation_rates
+$ mic pkg step1 swat_precipitation_rates
 Created: /Users/mosorio/tmp/swat_precipitation_rates/src
 Created: /Users/mosorio/tmp/swat_precipitation_rates/docker
 Created: /Users/mosorio/tmp/swat_precipitation_rates/data
@@ -50,13 +50,13 @@ step: 1
 #### Help command
 
 ```bash
-Usage: mic encapsulate step1 [OPTIONS] MODEL_COMPONENT_NAME
+Usage: mic pkg step1 [OPTIONS] MODEL_COMPONENT_NAME
 
 This step is going to create:
 The required directories 
 And the MIC file. The MIC file contains the metadata about your model component.
 
-  mic encapsulate step1 <model_component_name>
+  mic pkg step1 <model_component_name>
 
   The argument: `model_component_name` is the name of your model
   component

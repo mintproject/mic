@@ -5,33 +5,33 @@ from validators import ValidationFailure
 
 
 def info_start_inputs():
-    click.secho("Detecting the data of your model using the information obtained by the `trace` command.", fg="blue")
-    click.secho("Creating the inputs.", fg="blue")
-    click.secho("If the data is a directory, MIC is going to compress in a zipfile.", fg="blue")
+    click.secho("Detecting the data of your model using the information obtained by the `trace` command.", fg="green")
+    click.secho("Creating the inputs.")
+    click.secho("If the data is a directory, MIC is going to compress in a zipfile.")
 
 
 def info_end_inputs(inputs):
     click.secho("Success", fg="green")
-    click.secho("The inputs of model component are available in the mic directory. ", fg="blue")
-    click.secho(f"You model component has {len(inputs)} inputs", fg="blue")
-    click.secho("The next step is `mic encapsulate outputs`")
+    click.secho("The inputs of model component are available in the mic directory. ", fg="green")
+    click.secho(f"You model component has {len(inputs)} inputs", fg="green")
+    click.secho("The next step is `mic pkg outputs`")
     click.secho(
         "MIC is going to detect the outputs of your model using the information obtained by the `trace` command.")
     click.secho("For more information, you can type.")
-    click.secho("mic encapsulate outputs --help")
+    click.secho("mic pkg outputs --help")
 
 
 def info_start_outputs():
-    click.secho("Detecting the output of your model using the information obtained by the `trace` command.", fg="blue")
+    click.secho("Detecting the output of your model using the information obtained by the `trace` command.", fg="green")
 
 
 def info_end_outputs(outputs):
     click.secho("Success", fg="green")
-    click.secho(f"You model component has {len(outputs)} outputs", fg="blue")
-    click.secho("The next step is `mic encapsulate wrapper`")
+    click.secho(f"You model component has {len(outputs)} outputs", fg="green")
+    click.secho("The next step is `mic pkg wrapper`")
     click.secho("MIC is going to generate the directory structure and commands required to run your model.")
     click.secho("For more information, you can type.")
-    click.secho("mic encapsulate wrapper --help")
+    click.secho("mic pkg wrapper --help")
 
 
 def info_start_wrapper():
@@ -43,11 +43,11 @@ def info_start_wrapper():
 def info_end_wrapper(run):
     click.secho("Success", fg="green")
     click.secho(f"The wrapper has been generated. You can see it at {run}", fg="blue")
-    click.secho("The next step is `mic encapsulate run`")
+    click.secho("The next step is `mic pkg run`")
     click.secho("The command run is going to create a new directory (execution directory), "
                 "and MIC is going the inputs, code, and configuration files and run the model.")
     click.secho("For more information, you can type.")
-    click.secho("mic encapsulate run --help")
+    click.secho("mic pkg run --help")
 
 
 def info_start_run(execution_dir):
@@ -60,7 +60,7 @@ def info_start_run(execution_dir):
 def info_end_run(execution_dir):
     click.secho("Success", fg="green")
     click.secho(f"You can see the result at {execution_dir}", fg="blue")
-    click.secho("The next step is `mic encapsulate upload`")
+    click.secho("The next step is `mic pkg upload`")
     click.secho("The step is going to upload the MIC Wrapper to GitHub, "
                 "the DockerImage on DockerHub and the Model Configuration on the MINT Model Catalog")
 

@@ -13,7 +13,7 @@ input.txt  test_192-1.0-SNAPSHOT-jar-with-dependencies.jar
 Then, in the folder, type:
 
 ```bash
-$ mic encapsulate start
+$ mic pkg start
 ```
 MIC will ask for the component name you want to use (you may use any name you want), and will show you a message similar to this:
 
@@ -74,7 +74,7 @@ framework:
 #### Help command
 
 ```bash
-Usage: mic encapsulate start [OPTIONS] USER_EXECUTION_DIRECTORY
+Usage: mic pkg start [OPTIONS] USER_EXECUTION_DIRECTORY
 
   Generates mic.yaml and the directories (data/, src/, docker/) for your
   model component. Also initializes a local GitHub repository

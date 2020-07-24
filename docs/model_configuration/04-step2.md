@@ -4,7 +4,7 @@ In this step, MIC will trace the execution of your component to make sure it cap
 
 ### Testing your model in the execution environment prepared by MIC
 
-The `mic encapsulate start` command created a blank execution environment that is independent of the installed dependencies of your computer; and mounted the folder you chose. In our example, we have a folder with an executable (jar) and an input file (input.txt): 
+The `mic pkg start` command created a blank execution environment that is independent of the installed dependencies of your computer; and mounted the folder you chose. In our example, we have a folder with an executable (jar) and an input file (input.txt): 
 
 ![Diagram](figures/folder.png)
 
@@ -27,7 +27,7 @@ Once you have tested your model, you can trace its execution
 Type: 
 
 ```bash
-$ mic encapsulate trace <your_execution_command>
+$ mic pkg trace <your_execution_command>
 ```
 
 Where `<your_execution_command>` corresponds to the way you would invoke your model, exactly as you would like to expose it.
@@ -35,7 +35,7 @@ Where `<your_execution_command>` corresponds to the way you would invoke your mo
 In the case above:
 
 ```bash
-$ mic encapsulate trace java -jar test_192-1.0-SNAPSHOT-jar-with-dependencies.jar -i input.txt -p 1500 -o output.txt
+$ mic pkg trace java -jar test_192-1.0-SNAPSHOT-jar-with-dependencies.jar -i input.txt -p 1500 -o output.txt
 ```
 
 **What does this do?** MIC uses [Reprozip](https://www.reprozip.org/), a program to track all the system calls of your model, to automatically track down all the file and dependencies being used. The result is saved in a file called `reprozip-trace`, which we will call `trace` for simplicity.
@@ -67,7 +67,7 @@ If you are curious, you may open the `config.yaml` file inside `.reprozip-trace`
 #### Help command
 
 ```bash
-Usage: mic encapsulate trace [OPTIONS] [COMMAND]...
+Usage: mic pkg trace [OPTIONS] [COMMAND]...
 
   Complete the mic.yaml file with the information of the parameters and
   inputs you want to expose
@@ -77,7 +77,7 @@ Usage: mic encapsulate trace [OPTIONS] [COMMAND]...
   All parameters used by your component and add them in the configuration
   file
 
-  Usage example: mic encapsulate trace python main.py mic encapsulate trace
+  Usage example: mic pkg trace python main.py
   ./your_program
 
 Options:
