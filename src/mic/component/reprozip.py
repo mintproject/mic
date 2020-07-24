@@ -1,12 +1,14 @@
 import re
 from pathlib import Path
 from typing import List
-
+import logging
 import click
 from mic.config_yaml import slugify
 from mic.constants import *
 import shlex
+from mic._utils import get_mic_logger
 
+logging = get_mic_logger()
 default_path = Path(MIC_DEFAULT_PATH)
 
 
@@ -106,11 +108,13 @@ def get_parameters_reprozip(spec, reprozip_spec):
                                                              DATATYPE_KEY: the_type,
                                                              DEFAULT_DESCRIPTION_KEY: ""}})
                     click.echo("Adding \"{}\" from value {}".format(auto_name, i))
+                    logging.debug("Adding parameter: {}".format(auto_name))
 
             if params_added > 0:
                 click.secho("The parameters of the model component are available in the mic directory.", fg="green")
             else:
                 click.secho("No parameters found", fg="green")
+                logging.info("No parameters added")
 
             return spec
 
@@ -132,12 +136,15 @@ def generate_pre_runner(spec, user_execution_directory):
             if isinstance(parts, tuple) and len(parts) > 1:
                 code = f"""{code}
 cp -rv {path.name} {str(path)}"""
+        logging.debug("Pre runner code: {}".format(repr(code)))
         return code
     except KeyError as e:
         click.secho("Error: Malformed yaml. {} is missing expected fields".format(CONFIG_YAML_NAME),fg ="red")
+        logging.error("Error: Malformed yaml")
+        logging.error(e)
         click.secho(e,fg ="yellow")
 
-       
+        
 def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic_parameters):
     code = ''
 
@@ -149,9 +156,10 @@ def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic
 pushd {dir_}
 {code_line}
 popd"""
+    logging.debug("Runner code: {}".format(repr(code)))
     return code
 
- 
+  
 def format_code(code, mic_inputs, mic_outputs, mic_parameters):
     """
     Replaces any reference to inputs and outputs with the variable name of the yaml reference
@@ -183,7 +191,8 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
                 except KeyError:
                     # Prevents the same bad keys from being repeated
                     if key not in known_bad_keys:
-                        click.secho("Warning: No path found for {}".format(key),fg="yellow")
+                        logging.warning("Warning: No path found for {}".format(key))
+                        click.secho("No path found for: {}".format(key),fg="yellow")
                         known_bad_keys.append(key)
 
         if not edit:
@@ -196,6 +205,7 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
                 except KeyError:
                     if key not in known_bad_keys:
                         click.secho("Warning: Could not check default value for {}".format(key),fg="yellow")
+                        logging.warning("Could not check default value for: {}".format(key))
                         known_bad_keys.append(key)
         if not edit:
             new_code.append(item)
@@ -225,6 +235,7 @@ def find_code_files(spec, inputs, config_files, user_execution_directory):
                     if is_executable(files_path):
                         code_files.append(_input)
                         click.echo("Adding {} as executable".format(files_path.name))
+                        logging.debug("Adding executable: {}".format(files_path.name))
     return list(set(code_files))
 
 def is_executable(file_path):
