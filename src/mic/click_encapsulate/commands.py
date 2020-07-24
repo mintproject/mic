@@ -115,8 +115,8 @@ def start(user_execution_directory, name, image):
         click.echo("Please, run your Model Component.")
         docker_cmd = f"""docker run --rm -ti \
             --cap-add=SYS_PTRACE \
-            -v {user_execution_directory}:{os.path.join(".","tmp","mint")} \
-            -w {os.path.join(".","tmp","mint")} {user_image}"""
+            -v {user_execution_directory}:{os.path.sep}{os.path.join("tmp","mint")} \
+            -w {os.path.sep}{os.path.join("tmp","mint")} {user_image}"""
 
         print(docker_cmd)
         os.system(docker_cmd)
