@@ -2,7 +2,6 @@ FROM {{ language.image }}
 
 {% if "python3" in language.label  -%}
 ADD requirements.txt /tmp/requirements.txt
-RUN dos2unix /usr/local/bin/entrypoint.sh
 RUN pip3 install -U pip
 RUN pip3 install -r /tmp/requirements.txt
 
@@ -10,7 +9,6 @@ RUN pip3 install -r /tmp/requirements.txt
 
 {% if "conda" in language.label  -%}
 ADD environment.yml /tmp/environment.yml
-RUN dos2unix /usr/local/bin/entrypoint.sh
 RUN conda env update -f /tmp/environment.yml
 
 {% endif -%}
@@ -20,8 +18,9 @@ RUN conda env update -f /tmp/environment.yml
 #ADD bin/* /usr/bin/
 {% endif -%}
 RUN pip install reprozip mic
-RUN dos2unix /usr/local/bin/entrypoint.sh
+RUN apt-get update && apt-get install dos2unix
 COPY entrypoint.sh /set_umask.sh
+RUN dos2unix /set_umask.sh
 RUN chmod +x /set_umask.sh
 ENTRYPOINT ["/set_umask.sh"]
 
