@@ -5,6 +5,7 @@ from mic._utils import get_mic_logger
 from jinja2 import Environment, PackageLoader, select_autoescape
 from mic.constants import *
 from mic.publisher.github import get_local_repo
+import platform
 
 env = Environment(
     loader=PackageLoader('mic', 'templates'),
@@ -147,8 +148,20 @@ def detect_framework(src_dir: Path) -> Framework:
 def render_dockerfile(model_directory: Path, language: Framework, custom=False) -> Path:
     template = env.get_template(DOCKER_FILE)
     run_file = model_directory / DOCKER_DIR / DOCKER_FILE
+
+    try:
+        os = platform.system().lower()
+        logging.debug("OS name: {}".format(os))
+    except exception as e:
+        os = "unknown"
+        logging.debug("OS name: {}".format(os))
+        logging.warning("Error while detecting os: {}".format(e))
+
     with open(run_file, "w") as f:
-        content = render_template(template=template, language=language, custom=custom)
+        if os == "windows":
+            logging.info("Windows os detected. Adding dos2unix in Dockerfile")
+
+        content = render_template(template=template, language=language, custom=custom, os=os)
         f.write(content)
 
 

@@ -17,10 +17,18 @@ RUN conda env update -f /tmp/environment.yml
 #If you put an executable in the bin directory, uncomment the next file
 #ADD bin/* /usr/bin/
 {% endif -%}
+
+
 RUN pip install reprozip mic
-RUN apt-get update && apt-get install dos2unix
 COPY entrypoint.sh /set_umask.sh
+
+{% if os -%}
+{% if os == "windows"-%}
+RUN apt-get update && apt-get install dos2unix
 RUN dos2unix /set_umask.sh
+{% endif -%}
+{% endif -%}
+
 RUN chmod +x /set_umask.sh
 ENTRYPOINT ["/set_umask.sh"]
 
