@@ -68,8 +68,9 @@ def extract_dependencies(framework, user_execution_directory_docker):
     elif (framework == Framework.PYTHON37 or framework == Framework.PYTHON38):
         requirements_file = user_execution_directory_docker / REQUIREMENTS_FILE
         freeze(requirements_file)
-        click.echo("Extracting the Python dependencies.\nYou can view or edit the dependencies file {} ".format(
-            requirements_file))
+        click.echo("Extracting the Python dependencies")
+        click.secho(f"""MIC does not install the dependencies. To install run in the container:
+$ pip3 install -r mic/docker/{REQUIREMENTS_FILE}""", fg="yellow")
     # elif framework == Framework.CONDA:
     #     try:
     #         reqs = subprocess.check_output(['conda', 'env', 'export', '--from-history'])
