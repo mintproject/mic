@@ -21,7 +21,7 @@ def build_docker(docker_path: Path, name: str):
         image, logs = client.images.build(path=str(docker_path), tag="{}".format(name), nocache=True)
         for chunk in logs:
             if "stream" in chunk:
-                line = chunk["stream"].encode().decode('utf8').replace("\n", "")
+                line = chunk["stream"].encode().decode('ascii').replace("\n", "")
                 click.echo(f'{line}')
     except docker.errors.BuildError as err:
         click.echo(f'Build Attempt Failed[{name}]')
@@ -30,7 +30,7 @@ def build_docker(docker_path: Path, name: str):
         click.echo(f'{err}')
         for chunk in err.build_log:
             if "stream" in chunk:
-                line = chunk["stream"].encode().decode('utf8').replace("\n", "")
+                line = chunk["stream"].encode().decode('ascii').replace("\n", "")
                 click.echo(f'{line}')
                 logging.debug(err)
         raise ValueError
