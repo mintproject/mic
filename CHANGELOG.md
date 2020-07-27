@@ -1,16 +1,22 @@
 # Changelog
 
-## [Unreleased](https://github.com/mintproject/mic/tree/HEAD)
+## [1.3.1](https://github.com/mintproject/mic/tree/1.3.1) (2020-07-27)
 
-[Full Changelog](https://github.com/mintproject/mic/compare/1.3.0...HEAD)
+[Full Changelog](https://github.com/mintproject/mic/compare/1.3.0...1.3.1)
+
+**Fixed bugs:**
+
+- If the requerimients.txt contains uninstallable packages, mic fails [\#284](https://github.com/mintproject/mic/issues/284)
 
 **Closed issues:**
 
+- Synchronize MIC in images [\#277](https://github.com/mintproject/mic/issues/277)
 - feat detect parameters in the invocation line [\#202](https://github.com/mintproject/mic/issues/202)
 
 **Merged pull requests:**
 
 - Edit: add mic.log field to bug report template \(\#279\) [\#280](https://github.com/mintproject/mic/pull/280) ([mosoriob](https://github.com/mosoriob))
+- Edit: add mic.log field to bug report template [\#279](https://github.com/mintproject/mic/pull/279) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [1.3.0](https://github.com/mintproject/mic/tree/1.3.0) (2020-07-27)
 
@@ -29,7 +35,6 @@
 
 **Merged pull requests:**
 
-- Edit: add mic.log field to bug report template [\#279](https://github.com/mintproject/mic/pull/279) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - fix: cleaning code [\#278](https://github.com/mintproject/mic/pull/278) ([mosoriob](https://github.com/mosoriob))
 - fix: upload [\#276](https://github.com/mintproject/mic/pull/276) ([mosoriob](https://github.com/mosoriob))
 - Develop [\#275](https://github.com/mintproject/mic/pull/275) ([mosoriob](https://github.com/mosoriob))
@@ -37,10 +42,10 @@
 - F\#266 [\#273](https://github.com/mintproject/mic/pull/273) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Testo [\#272](https://github.com/mintproject/mic/pull/272) ([mosoriob](https://github.com/mosoriob))
 - Logging [\#271](https://github.com/mintproject/mic/pull/271) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Develop [\#270](https://github.com/mintproject/mic/pull/270) ([mosoriob](https://github.com/mosoriob))
 - System packages [\#269](https://github.com/mintproject/mic/pull/269) ([mosoriob](https://github.com/mosoriob))
 - Remove: mic model command [\#259](https://github.com/mintproject/mic/pull/259) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Auto params [\#258](https://github.com/mintproject/mic/pull/258) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- F\#215 [\#256](https://github.com/mintproject/mic/pull/256) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [1.2.1](https://github.com/mintproject/mic/tree/1.2.1) (2020-07-21)
 
@@ -54,8 +59,8 @@
 
 **Merged pull requests:**
 
+- Develop [\#270](https://github.com/mintproject/mic/pull/270) ([mosoriob](https://github.com/mosoriob))
 - fix\(git\): force push a new repository [\#263](https://github.com/mintproject/mic/pull/263) ([mosoriob](https://github.com/mosoriob))
-- F\#215 [\#256](https://github.com/mintproject/mic/pull/256) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - F\#203 [\#253](https://github.com/mintproject/mic/pull/253) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Develop [\#251](https://github.com/mintproject/mic/pull/251) ([mosoriob](https://github.com/mosoriob))
 - Docker revert [\#250](https://github.com/mintproject/mic/pull/250) ([mosoriob](https://github.com/mosoriob))
@@ -140,7 +145,9 @@
 - Better outputs for encapsulate steps [\#125](https://github.com/mintproject/mic/issues/125)
 - Show metadata completeness levels [\#63](https://github.com/mintproject/mic/issues/63)
 - Values get added to main menu instead of sub-menu [\#53](https://github.com/mintproject/mic/issues/53)
+- Improve code: add modelconfiguration to model version [\#37](https://github.com/mintproject/mic/issues/37)
 - In submenus, "exit" option should be "back" [\#29](https://github.com/mintproject/mic/issues/29)
+- allow adding multiple simple resources [\#16](https://github.com/mintproject/mic/issues/16)
 - Allow editing existing configurations [\#9](https://github.com/mintproject/mic/issues/9)
 
 **Merged pull requests:**
@@ -153,6 +160,7 @@
 - add yaml comments and improve detection of code [\#225](https://github.com/mintproject/mic/pull/225) ([mosoriob](https://github.com/mosoriob))
 - \#223  fix: detect binary reprozip inside the default\_path as code\_file [\#224](https://github.com/mintproject/mic/pull/224) ([mosoriob](https://github.com/mosoriob))
 - Yaml comments [\#221](https://github.com/mintproject/mic/pull/221) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([mosoriob](https://github.com/mosoriob))
 
 ## [1.0.0](https://github.com/mintproject/mic/tree/1.0.0) (2020-06-26)
 
@@ -209,7 +217,6 @@
 **Merged pull requests:**
 
 - release 1.0.0 [\#222](https://github.com/mintproject/mic/pull/222) ([mosoriob](https://github.com/mosoriob))
-- Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([mosoriob](https://github.com/mosoriob))
 - fix: pull and handle the conflicts [\#218](https://github.com/mintproject/mic/pull/218) ([mosoriob](https://github.com/mosoriob))
 - fix: end message publish shows the url to edit it [\#213](https://github.com/mintproject/mic/pull/213) ([mosoriob](https://github.com/mosoriob))
 - Yaml comments [\#206](https://github.com/mintproject/mic/pull/206) ([Cmheidelberg](https://github.com/Cmheidelberg))
@@ -295,9 +302,9 @@
 **Merged pull requests:**
 
 - Detect dependencies [\#119](https://github.com/mintproject/mic/pull/119) ([mosoriob](https://github.com/mosoriob))
-- Develop [\#117](https://github.com/mintproject/mic/pull/117) ([mosoriob](https://github.com/mosoriob))
 - F\#107 108 [\#114](https://github.com/mintproject/mic/pull/114) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Add version model [\#110](https://github.com/mintproject/mic/pull/110) ([mosoriob](https://github.com/mosoriob))
+- Add version mdodel [\#104](https://github.com/mintproject/mic/pull/104) ([mosoriob](https://github.com/mosoriob))
 - Mic ch [\#102](https://github.com/mintproject/mic/pull/102) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Model catalog push [\#100](https://github.com/mintproject/mic/pull/100) ([mosoriob](https://github.com/mosoriob))
 - Mic ch [\#99](https://github.com/mintproject/mic/pull/99) ([Cmheidelberg](https://github.com/Cmheidelberg))
@@ -305,6 +312,7 @@
 - Mic-ch [\#95](https://github.com/mintproject/mic/pull/95) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Publising [\#87](https://github.com/mintproject/mic/pull/87) ([mosoriob](https://github.com/mosoriob))
 - Execution docker + outputs [\#85](https://github.com/mintproject/mic/pull/85) ([mosoriob](https://github.com/mosoriob))
+- Step 6 exec [\#81](https://github.com/mintproject/mic/pull/81) ([mosoriob](https://github.com/mosoriob))
 - GitHub [\#80](https://github.com/mintproject/mic/pull/80) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Step4: Add the YAML variable in the run [\#79](https://github.com/mintproject/mic/pull/79) ([mosoriob](https://github.com/mosoriob))
 - Step 4 create yaml [\#78](https://github.com/mintproject/mic/pull/78) ([mosoriob](https://github.com/mosoriob))
@@ -328,8 +336,8 @@
 
 **Merged pull requests:**
 
+- Develop [\#117](https://github.com/mintproject/mic/pull/117) ([mosoriob](https://github.com/mosoriob))
 - Develop [\#111](https://github.com/mintproject/mic/pull/111) ([mosoriob](https://github.com/mosoriob))
-- Add version mdodel [\#104](https://github.com/mintproject/mic/pull/104) ([mosoriob](https://github.com/mosoriob))
 
 ## [0.3.0](https://github.com/mintproject/mic/tree/0.3.0) (2020-05-07)
 
@@ -374,7 +382,6 @@
 - Adding model configuration from version makes mic crash [\#41](https://github.com/mintproject/mic/issues/41)
 - Editing version when "None" makes the program crash [\#40](https://github.com/mintproject/mic/issues/40)
 - delete saved.json [\#38](https://github.com/mintproject/mic/issues/38)
-- Improve code: add modelconfiguration to model version [\#37](https://github.com/mintproject/mic/issues/37)
 - Disable send action in subresource menu [\#33](https://github.com/mintproject/mic/issues/33)
 - Define missing fields and classes \(model config, etc.\) [\#7](https://github.com/mintproject/mic/issues/7)
 
@@ -400,7 +407,6 @@
 
 **Merged pull requests:**
 
-- Step 6 exec [\#81](https://github.com/mintproject/mic/pull/81) ([mosoriob](https://github.com/mosoriob))
 - Mapping property [\#35](https://github.com/mintproject/mic/pull/35) ([mosoriob](https://github.com/mosoriob))
 
 ## [0.0.4](https://github.com/mintproject/mic/tree/0.0.4) (2020-04-10)
@@ -420,7 +426,6 @@
 - Delete complex resource [\#19](https://github.com/mintproject/mic/issues/19)
 - Difference between "add" and "create" is not clear [\#18](https://github.com/mintproject/mic/issues/18)
 - Edit in complex object [\#17](https://github.com/mintproject/mic/issues/17)
-- allow adding multiple simple resources [\#16](https://github.com/mintproject/mic/issues/16)
 - readd definition [\#14](https://github.com/mintproject/mic/issues/14)
 - show\_choices is showing a lot parameters [\#13](https://github.com/mintproject/mic/issues/13)
 - Allow adding multiple complex \(or simple\) objects [\#8](https://github.com/mintproject/mic/issues/8)
