@@ -1,38 +1,14 @@
 import logging
 import modelcatalog
 from dame.utils import obtain_id
-from mic._mappings import mapping_person, mapping_model, mapping_software_version, mapping_image
 from modelcatalog import ApiException, Model
-import click
-
-from mic._menu import call_menu_select_property
-from mic.resources.person import PersonCli
-from mic.resources.image import ImageCli
-from mic.resources.software_version import SoftwareVersionCli
-
 from mic.model_catalog_utils import get_api
 
 RESOURCE = "Model"
 
 
-def create(profile=None, request=None):
-    click.clear()
-    call_menu_select_property(mapping_model, ModelCli(profile), request)
-
-
 class ModelCli:
     name = RESOURCE
-
-    author = {"mapping": mapping_person, "resource": PersonCli}
-    contributor = {"mapping": mapping_person, "resource": PersonCli}
-    has_version = {"mapping": mapping_software_version, "resource": SoftwareVersionCli}
-    has_contact_person = {"mapping": mapping_person, "resource": PersonCli}
-
-    author = {"mapping": mapping_person, "resource": PersonCli}
-    contributor = {"mapping": mapping_person, "resource": PersonCli}
-    has_version = {"mapping": mapping_software_version, "resource": SoftwareVersionCli}
-    has_contact_person = {"mapping": mapping_person, "resource": PersonCli}
-    logo = {"mapping": mapping_image, "resource": ImageCli}
 
     def __init__(self, profile):
         self.profile = profile

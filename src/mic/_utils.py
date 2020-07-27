@@ -7,7 +7,6 @@ import click
 import requests
 import validators
 import mic
-from mic._mappings import Metadata_types
 from mic.constants import DIRECTORIES_TO_IGNORE, CONFIG_YAML_NAME, MIC_DIR, LOG_FILE
 MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
@@ -135,17 +134,6 @@ def get_latest_version():
         raise e
 
 
-def validate_metadata(default_type, value):
-    if default_type == Metadata_types.Url:
-        regex = r"http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+"
-        return re.match(regex, value)
-    elif default_type == Metadata_types.Float:
-        try:
-            convert_to_float = float(value)
-            return True
-        except ValueError as ve:
-            return False
-
 def check_mic_path(mic_dir):
     if mic_dir is None:
         mic_file = recursive_mic_search(os.getcwd())
@@ -188,3 +176,10 @@ def find_dir(name, path):
     for root, dirs, files in os.walk(path):
         if os.path.basename(root) == name:
             return root
+
+def parse(value):
+    try:
+        return int(value)
+    except:
+        return value
+

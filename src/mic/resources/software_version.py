@@ -3,10 +3,7 @@ import modelcatalog
 from mic.model_catalog_utils import MODEL_CATALOG_URL
 from mic._utils import first_line_new
 from mic.model_catalog_utils import get_api
-from mic._mappings import mapping_model_configuration
-
 from modelcatalog import ApiException, SoftwareVersion
-from mic.resources.model_configuration import ModelConfigurationCli
 
 RESOURCE = "Software Version"
 
@@ -18,7 +15,6 @@ def create():
 
 class SoftwareVersionCli:
     name = RESOURCE
-    has_configuration = {"mapping": mapping_model_configuration, "resource": ModelConfigurationCli}
 
     def __init__(self, profile=None):
         self.profile = profile
