@@ -305,11 +305,13 @@ def github_config(profile):
 def github_login(g, debug=False):
     try:
         if g.get_user().login is None:
+            click.secho("User profile GitHub credentials are invalid. Please enter a valid token and username")
             logging.error("User profile GitHub credentials are invalid. Please enter a valid token and username")
             exit(1)
     # I know its bad to except Exception but it doesnt catch it when I except TypeError, and the only way this *should*
     # fail is if the credentials are bad so...
     except Exception as e:
+        click.secho("User profile GitHub credentials are invalid. Please enter a valid token and username")
         logging.error("User profile GitHub credentials are invalid. Please enter a valid token and username")
         if debug:
             click.secho(e, fg="yellow")

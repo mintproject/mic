@@ -4,8 +4,7 @@ from pathlib import Path
 import click
 import validators
 from dame.cli_methods import create_sample_resource
-from mic._menu import parse
-from mic._utils import obtain_id
+from mic._utils import obtain_id, parse
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
     TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, FORMAT_KEY, PATH_KEY, \
