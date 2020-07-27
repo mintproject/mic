@@ -110,9 +110,12 @@ def start(user_execution_directory, name, image):
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
 
-    
-    docker_cmd = f"""docker run --rm -ti --cap-add=SYS_PTRACE -v {user_execution_directory}:/tmp/mint -w /tmp/mint {user_image} bash"""
 
+    docker_cmd = f"""docker run -ti \
+            --name={container_name} \
+            --cap-add=SYS_PTRACE \
+            -v {user_execution_directory}:/tmp/mint \
+            -w /tmp/mint {user_image} """
 
     if custom_image:
         click.secho(f"""
