@@ -11,7 +11,6 @@ try:
 except ImportError:
     from yaml import Loader
 
-from mic._makeyaml import make_yaml
 from mic.constants import *
 
 logging = get_mic_logger()
@@ -306,5 +305,3 @@ def get_code(config_yaml_path):
     code = spec[CODE_KEY] if CODE_KEY in spec else {}
     return code
 
-def create_file_yaml_basic(config_yaml_path: Path):
-    make_yaml(config_yaml_path)
