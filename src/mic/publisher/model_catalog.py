@@ -4,8 +4,7 @@ from pathlib import Path
 import click
 import validators
 from dame.cli_methods import create_sample_resource
-from mic._menu import parse
-from mic._utils import obtain_id
+from mic._utils import obtain_id, parse
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
     TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, FORMAT_KEY, PATH_KEY, \
@@ -105,9 +104,8 @@ def publish_model_configuration(model_configuration, profile):
         api_response, model_id, software_version_id = handle_existing_model(profile, api_response_mc, labels, model_cli)
     else:
         api_response = create_new_model(model_cli, api_response_mc)
-        model = Model(api_response)
-        software_version_id = model.has_version[0].id
-        model_id = model.id
+        software_version_id = api_response.has_version[0].id
+        model_id = api_response.id
     click.secho("Your Model Component has been uploaded", fg="green")
     return api_response, api_response_mc, model_id, software_version_id
 

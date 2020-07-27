@@ -20,6 +20,9 @@ Steps to reproduce the behavior:
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
+**MIC log file**
+If you used mic pkg, attach the mic.log file found in your model's mic/ directory here
+
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 

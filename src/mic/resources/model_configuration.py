@@ -1,26 +1,14 @@
 import logging
 
 import modelcatalog
-from mic._mappings import mapping_dataset_specification, mapping_parameter, mapping_model_configuration
-from mic._menu import call_menu_select_property
 from mic.model_catalog_utils import get_api
-from mic.resources.data_specification import DataSpecificationCli
-from mic.resources.parameter import ParameterCli
 from modelcatalog import ApiException, ModelConfiguration
 
 RESOURCE = "Model Configuration"
 
 
-def create(profile=None, request=None, parent=None):
-    call_menu_select_property(mapping_model_configuration, ModelConfigurationCli(profile), request, parent=parent)
-
-
 class ModelConfigurationCli:
     name = RESOURCE
-
-    has_input = {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli}
-    has_output = {"mapping": mapping_dataset_specification, "resource": DataSpecificationCli}
-    has_parameter = {"mapping": mapping_parameter, "resource": ParameterCli}
 
     def __init__(self, profile):
         self.profile = profile

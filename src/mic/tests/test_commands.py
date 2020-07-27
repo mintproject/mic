@@ -101,7 +101,7 @@ def test_start(tmp_path, monkeypatch):
 def test_start_image(tmp_path, monkeypatch):
     runner = CliRunner()
     os.chdir(tmp_path)
-    monkeypatch.setattr('sys.stdin', io.StringIO("\nexit\n"))
+    monkeypatch.setattr('sys.stdin', io.StringIO("\nY\n"))
     result = runner.invoke(start, ["--name", "test", "--image", "busybox"], catch_exceptions=False)
     assert result.exit_code == 0
 

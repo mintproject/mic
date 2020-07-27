@@ -18,8 +18,6 @@ RUN conda env update -f /tmp/environment.yml
 #ADD bin/* /usr/bin/
 {% endif -%}
 
-
-RUN pip install reprozip mic
 COPY entrypoint.sh /set_umask.sh
 
 {% if os -%}
