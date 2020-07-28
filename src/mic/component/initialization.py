@@ -154,7 +154,6 @@ def render_dockerfile(model_directory: Path, language: Framework, custom=False) 
 
     try:
         os = platform.system().lower()
-        os = "windows" # REMOVE THIS ONCE DONE DEBUGGING!!!
         logging.debug("OS name: {}".format(os))
     except exception as e:
         os = "unknown"

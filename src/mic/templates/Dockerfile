@@ -22,8 +22,9 @@ COPY entrypoint.sh /set_umask.sh
 
 {% if os -%}
 {% if os == "windows"-%}
-RUN chmod +x /dos2unix.sh
-RUN bash -c "dos2unix.sh entrypoint.sh /set_umask.sh"
+COPY dos2unix.sh /d2u.sh
+RUN chmod +x /d2u.sh
+RUN bash -c "./d2u.sh set_umask.sh"
 {% endif -%}
 {% endif -%}
 
