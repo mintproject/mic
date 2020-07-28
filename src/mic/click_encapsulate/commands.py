@@ -16,7 +16,7 @@ from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapp
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
-    render_bash_color, render_dockerfile
+    render_bash_color, render_dockerfile, recursive_convert_to_lf
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
     generate_pre_runner, find_code_files, get_parameters_reprozip
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
@@ -91,6 +91,7 @@ def start(user_execution_directory, name, image):
         framework = Framework.GENERIC
         framework.image = image
         os.system(f"docker pull {framework.image}")
+
         render_dockerfile(mic_dir, framework)
 
     os.system(f"docker pull {framework.image}")
@@ -99,11 +100,16 @@ def start(user_execution_directory, name, image):
     except ValueError:
         click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
+    
+    conv_arr = recursive_convert_to_lf(mic_dir)
+    logging.debug("Converting any CRLF to LF: {}".format(conv_arr))
+    
     container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, user_image)
     write_spec(mic_config_path, FRAMEWORK_KEY, framework)
     write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
+
 
     docker_cmd = f"""docker run -ti \
             --name={container_name} \
