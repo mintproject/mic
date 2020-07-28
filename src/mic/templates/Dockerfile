@@ -22,9 +22,8 @@ COPY entrypoint.sh /set_umask.sh
 
 {% if os -%}
 {% if os == "windows"-%}
-COPY dos2unix.sh /d2u.sh
-RUN chmod +x /d2u.sh
-RUN bash -c "./d2u.sh set_umask.sh"
+RUN echo "Converting line endings"
+RUN sed -i 's/\r//' set_umask.sh
 {% endif -%}
 {% endif -%}
 
