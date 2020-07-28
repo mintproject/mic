@@ -147,19 +147,28 @@ def detect_framework(src_dir: Path) -> Framework:
 
 def render_dockerfile(model_directory: Path, language: Framework, custom=False) -> Path:
     template = env.get_template(DOCKER_FILE)
+    dtu_template = env.get_template("dos2unix.sh")
+
     run_file = model_directory / DOCKER_DIR / DOCKER_FILE
+    dos_to_unix_file = model_directory / DOCKER_DIR / "dos2unix.sh"
 
     try:
         os = platform.system().lower()
+        os = "windows" # REMOVE THIS ONCE DONE DEBUGGING!!!
         logging.debug("OS name: {}".format(os))
     except exception as e:
         os = "unknown"
         logging.debug("OS name: {}".format(os))
         logging.warning("Error while detecting os: {}".format(e))
 
+    # make dos2unix shell script
+    if os == "windows":
+        logging.info("Windows os detected. Adding dos2unix in Dockerfile")
+        with open(dos_to_unix_file, "w") as f:
+            c = render_template(template=dtu_template)
+            f.write(c)
+
     with open(run_file, "w") as f:
-        if os == "windows":
-            logging.info("Windows os detected. Adding dos2unix in Dockerfile")
 
         content = render_template(template=template, language=language, custom=custom, os=os)
         f.write(content)

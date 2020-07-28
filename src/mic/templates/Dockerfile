@@ -22,10 +22,11 @@ COPY entrypoint.sh /set_umask.sh
 
 {% if os -%}
 {% if os == "windows"-%}
-RUN apt-get update && apt-get install dos2unix
-RUN dos2unix /set_umask.sh
+RUN chmod +x /dos2unix.sh
+RUN bash -c "dos2unix.sh entrypoint.sh /set_umask.sh"
 {% endif -%}
 {% endif -%}
+
 
 RUN chmod +x /set_umask.sh
 ENTRYPOINT ["/set_umask.sh"]
