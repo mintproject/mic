@@ -75,7 +75,16 @@ def get_outputs_reprozip(spec, user_execution_directory, aggregrate=False):
 def get_parameters_reprozip(spec, reprozip_spec):
     run_lines = ''
     for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
-        run_lines = shlex.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
+
+        # Adds quotes around any cell that contains a space
+        quoted_run = []
+        for i in rep_run[REPRO_ZIP_ARGV]:
+            if " " in i:
+                quoted_run.append("\"" + i + "\"")
+            else:
+                quoted_run.append(i)
+
+        run_lines = " ".join(map(str, quoted_run)).splitlines()
 
     params_added = 0
     for line in run_lines:
@@ -150,7 +159,16 @@ def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic
     code = ''
 
     for run in spec[REPRO_ZIP_RUNS]:
-        code_line = shlex.join(map(str, run[REPRO_ZIP_ARGV]))
+
+        # Adds quotes around any cell that contains a space
+        quoted_run = []
+        for i in run[REPRO_ZIP_ARGV]:
+            if " " in i:
+                quoted_run.append("\"" + i + "\"")
+            else:
+                quoted_run.append(i)
+
+        code_line = ' '.join(map(str, quoted_run))
         code_line = format_code(code_line, mic_inputs, mic_outputs, mic_parameters)
         dir_ = str(Path(run[REPRO_ZIP_WORKING_DIR]).relative_to(default_path))
         code = f"""{code}
