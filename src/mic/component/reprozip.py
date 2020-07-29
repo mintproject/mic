@@ -7,6 +7,7 @@ from mic.config_yaml import slugify
 from mic.constants import *
 import shlex
 from mic._utils import get_mic_logger
+import os
 
 logging = get_mic_logger()
 default_path = Path(MIC_DEFAULT_PATH)
@@ -80,7 +81,7 @@ def get_parameters_reprozip(spec, reprozip_spec):
         quoted_run = []
         for i in rep_run[REPRO_ZIP_ARGV]:
             if " " in i:
-                quoted_run.append("\"" + i + "\"")
+                quoted_run.append(f"\"{i}\"")
             else:
                 quoted_run.append(i)
 
@@ -97,19 +98,41 @@ def get_parameters_reprozip(spec, reprozip_spec):
                 the_type = ""
                 # check if there is a . in the line. This means it could be a file extension or float
                 is_param = False
-                if i.find("-") != 0:
-                    if i.find(".") != -1:
-                        if i.replace(".", "").isdigit():
-                            is_param = True
-                            the_type = "float"
-                    else:
-                        is_param = True
 
-                    if the_type == "":
-                        if i.isdigit():
-                            the_type = "int"
-                        else:
-                            the_type = "str"
+                if i.find(".") != -1:
+                    try:
+                        float(i)
+                        is_param = True
+                        the_type = "float"
+
+                    except ValueError:
+                        # i is a file (file.txt)
+                        pass
+
+                if the_type == "":
+                    try:
+                        # i is an int
+                        int(i)
+                        the_type = "int"
+                        is_param = True
+                    except ValueError:
+                        # Not a parameter if it starts with a hyphen (--option) or exists as a file (inputs.csv)
+                        if i.find("-") != 0 and not os.path.exists(i):
+                            # not a parameter if it is already an input or output
+                            is_io = False
+
+                            if INPUTS_KEY in spec:
+                                if i.replace(".","_") in spec[INPUTS_KEY].keys():
+                                    is_io = True
+
+                            if OUTPUTS_KEY in spec:
+                               if i.replace(".","_") in spec[OUTPUTS_KEY].keys():
+                                   is_io = True
+
+                            if not is_io:
+                                # i is a string
+                                the_type = "str"
+                                is_param = True
 
                 if is_param:
                     params_added += 1
@@ -164,7 +187,7 @@ def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic
         quoted_run = []
         for i in run[REPRO_ZIP_ARGV]:
             if " " in i:
-                quoted_run.append("\"" + i + "\"")
+                quoted_run.append(f"\"{i}\"")
             else:
                 quoted_run.append(i)
 
