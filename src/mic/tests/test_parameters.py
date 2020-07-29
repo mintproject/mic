@@ -61,7 +61,7 @@ def test_wrapper_code():
     params = get_parameters(Path(__file__).parent / RESOURCES / mic_yaml)
 
     code = generate_runner(repro_spec, DEFAULT_PATH, inp, outp, params)
-    assert code == "\npushd .\n/bin/sh ./addtoarray.sh ${a_txt} ${in_txt} ${param_1} ${param_2} ${param_3}\npopd"
+    assert code == "\npushd .\n/bin/sh ./addtoarray.sh ${a_txt} ${in_txt} ${param_1} \"${param_2}\" ${param_3}\npopd"
 
 #
 #

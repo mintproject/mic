@@ -75,7 +75,7 @@ def get_outputs_reprozip(spec, user_execution_directory, aggregrate=False):
 def get_parameters_reprozip(spec, reprozip_spec):
     run_lines = ''
     for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
-        run_lines = ' '.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
+        run_lines = shlex.join(map(str, rep_run[REPRO_ZIP_ARGV])).splitlines()
 
     params_added = 0
     for line in run_lines:
@@ -88,18 +88,19 @@ def get_parameters_reprozip(spec, reprozip_spec):
                 the_type = ""
                 # check if there is a . in the line. This means it could be a file extension or float
                 is_param = False
-                if i.find(".") != -1:
-                    if i.replace(".", "").isdigit():
-                        is_param = True
-                        the_type = "float"
-                else:
-                    is_param = True
-
-                if the_type == "":
-                    if i.isdigit():
-                        the_type = "int"
+                if i.find("-") != 0:
+                    if i.find(".") != -1:
+                        if i.replace(".", "").isdigit():
+                            is_param = True
+                            the_type = "float"
                     else:
-                        the_type = "str"
+                        is_param = True
+
+                    if the_type == "":
+                        if i.isdigit():
+                            the_type = "int"
+                        else:
+                            the_type = "str"
 
                 if is_param:
                     params_added += 1
@@ -149,7 +150,7 @@ def generate_runner(spec, user_execution_directory, mic_inputs, mic_outputs, mic
     code = ''
 
     for run in spec[REPRO_ZIP_RUNS]:
-        code_line = ' '.join(map(str, run[REPRO_ZIP_ARGV]))
+        code_line = shlex.join(map(str, run[REPRO_ZIP_ARGV]))
         code_line = format_code(code_line, mic_inputs, mic_outputs, mic_parameters)
         dir_ = str(Path(run[REPRO_ZIP_WORKING_DIR]).relative_to(default_path))
         code = f"""{code}
@@ -166,7 +167,7 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
     Ex:
     ./my_script.py -i inp.txt -p 4 -o out.txt
     Becomes:
-    ./my_script.py -i ${inp_txt} -p 4 -o ${out_txt}
+    ./my_script.py -i ${inp_txt} -p ${param_1} -o ${out_txt}
     Note: this works by checking if a input/output on the command like matches an i/o from the yaml
     :param code:
     :param mic_inputs:
@@ -176,7 +177,7 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
     """
 
     data = [mic_inputs,mic_outputs]
-    code = code.split(" ")
+    code = shlex.split(code)
     new_code = []
     known_bad_keys = []
     for item in code:
@@ -200,7 +201,13 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
             for key in mic_parameters:
                 try:
                     if (mic_parameters[key])["default_value"] == item:
-                        new_code.append("${" + key + "}")
+
+                        # Check if param is a str. If it is add quotes around it
+                        if (mic_parameters[key])["type"] == "str":
+                            new_code.append("\"${" + key + "}\"")
+                        else:
+                            new_code.append("${" + key + "}")
+
                         edit = True
                 except KeyError:
                     if key not in known_bad_keys:
