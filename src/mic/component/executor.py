@@ -1,5 +1,6 @@
 import logging
 import shutil
+import shlex
 import subprocess
 from pathlib import Path
 from mic._utils import get_mic_logger
@@ -46,7 +47,12 @@ Destination: {src_executions_dir}""")
 
 
 def run_execution(line, execution_dir):
-    proc = subprocess.Popen(line.split(' '), cwd=execution_dir)
+
+    # Splits by white space keeping things in quotes
+    exe_arr = shlex.split(line)
+
+    logging.debug("exe_arr: {}".format(exe_arr))
+    proc = subprocess.Popen(exe_arr, cwd=execution_dir)
     proc.wait()
     return proc.returncode
 
@@ -54,10 +60,13 @@ def run_execution(line, execution_dir):
 def execute_local(mint_config_file: Path, execution_name):
     execution_dir = create_execution_directory(mint_config_file, execution_name)
     resource = create_model_catalog_resource(mint_config_file, name=None, execution_dir=execution_dir)
+
     try:
         line = get_command_line(resource)
     except:
         logging.error("Unable to cmd_line", exc_info=True)
+
+    logging.info("Running: {}".format(line))
     click.secho("Running\n{}".format(line))
     if run_execution(line, execution_dir) == 0:
         return True
