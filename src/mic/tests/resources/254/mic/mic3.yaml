@@ -33,6 +33,21 @@ parameters:
     description: ''
   param_3:
     name: ''
-    default_value: '3.1415'
+    default_value: '-3.1415'
     type: float
+    description: ''
+  param_4:
+    name: ''
+    default_value: '-15'
+    type: int
+    description: ''
+  param_5:
+    name: ''
+    default_value: 'test.txt'
+    type: str
+    description: ''
+  param_6:
+    name: ''
+    default_value: 'string-special'
+    type: str
     description: ''

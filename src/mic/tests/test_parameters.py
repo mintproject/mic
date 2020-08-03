@@ -1,14 +1,14 @@
 from pathlib import Path
 
-from mic.component.reprozip import get_outputs_reprozip, get_inputs_outputs_reprozip, generate_runner, \
-    generate_pre_runner, get_parameters_reprozip
+from mic.component.reprozip import generate_runner, \
+    get_parameters_reprozip
 from mic.config_yaml import get_spec, get_inputs, get_outputs_mic, get_parameters
 
 RESOURCES = "resources"
 DEFAULT_PATH = Path("/tmp/mint/")
 
 
-#Test that mic can detect parameters from trace command
+# Test that mic can detect parameters from trace command
 def test_param_detection():
     mic_yaml = Path("254/mic/mic.yaml")
     mic_spec = get_spec(Path(__file__).parent / RESOURCES / mic_yaml)
@@ -22,11 +22,12 @@ def test_param_detection():
     assert spec == {"step": 1,
                     "name": "test-autoparam",
                     "docker_image": "test-autoparam:latest",
-                    "inputs": {"a_txt": {"path": "a.txt","format": "txt"},
-                               "in_txt": {"path": "in.txt","format": "txt"}},
-                    "code_files": {"addtoarray_sh": {"path": "addtoarray.sh","format": "sh"}},
-                    "outputs": {"out_csv": {"path": "outputs/out.csv","format": "csv"}},
-                    "parameters": {"param_1": {"name": "","default_value": "15","type": "int","description": ""}}}
+                    "inputs": {"a_txt": {"path": "a.txt", "format": "txt"},
+                               "in_txt": {"path": "in.txt", "format": "txt"}},
+                    "code_files": {"addtoarray_sh": {"path": "addtoarray.sh", "format": "sh"}},
+                    "outputs": {"out_csv": {"path": "outputs/out.csv", "format": "csv"}},
+                    "parameters": {"param_1": {"name": "", "default_value": "15", "type": "int", "description": ""}}}
+
 
 def test_param_detection_v2():
     mic_yaml = Path("254/mic/mic2.yaml")
@@ -41,14 +42,19 @@ def test_param_detection_v2():
     assert spec == {"step": 1,
                     "name": "parameter-test",
                     "docker_image": "parameter-test:latest",
-                    "inputs": {"a_txt": {"path": "a.txt","format": "txt"},
-                               "in_txt": {"path": "in.txt","format": "txt"}},
-                    "code_files": {"addtoarray_sh": {"path": "addtoarray.sh","format": "sh"}},
-                    "outputs": {"out_csv": {"path": "outputs/out.csv","format": "csv"}},
+                    "inputs": {"a_txt": {"path": "a.txt", "format": "txt"},
+                               "in_txt": {"path": "in.txt", "format": "txt"}},
+                    "code_files": {"addtoarray_sh": {"path": "addtoarray.sh", "format": "sh"}},
+                    "outputs": {"out_csv": {"path": "outputs/out.csv", "format": "csv"}},
                     "parameters": {
-                        "param_1": {"name": "","default_value": "15","type": "int","description": ""},
-                        "param_2": {"name": "","default_value": "hello","type": "str","description": ""},
-                        "param_3": {"name": "","default_value": "3.1415","type": "float","description": ""}}}
+                        "param_1": {"name": "", "default_value": "15", "type": "int", "description": ""},
+                        "param_2": {"name": "", "default_value": "hello", "type": "str", "description": ""},
+                        "param_3": {"name": "", "default_value": "-3.1415", "type": "float", "description": ""},
+                        "param_4": {"name": "", "default_value": "-15", "type": "int", "description": ""},
+                        "param_5": {"name": "", "default_value": "test.txt", "type": "str", "description": ""},
+                        "param_6": {"name": "", "default_value": "string-special", "type": "str", "description": ""}
+                    }
+                    }
 
 def test_wrapper_code():
     mic_yaml = Path("254/mic/mic3.yaml")
@@ -61,7 +67,8 @@ def test_wrapper_code():
     params = get_parameters(Path(__file__).parent / RESOURCES / mic_yaml)
 
     code = generate_runner(repro_spec, DEFAULT_PATH, inp, outp, params)
-    assert code == "\npushd .\n/bin/sh ./addtoarray.sh ${a_txt} ${in_txt} ${param_1} ${param_2} ${param_3}\npopd"
+    assert code == "\npushd .\n/bin/sh ./addtoarray.sh ${a_txt} ${in_txt} ${param_1} \"${param_2}\" ${param_3} " \
+                   "${param_4} \"${param_5}\" \"${param_6}\"\npopd"
 
 #
 #
@@ -130,5 +137,3 @@ def test_wrapper_code():
 #     yml = "mic_3.yaml"
 #     spec = get_spec(Path(__file__).parent / RESOURCES / yml)
 #     assert generate_pre_runner(spec, DEFAULT_PATH) == "\ncp -rv x.csv results/x.csv"
-
-
