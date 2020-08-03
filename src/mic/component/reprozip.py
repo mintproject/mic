@@ -2,9 +2,12 @@ import re
 from pathlib import Path
 from typing import List
 import logging
+import shutil
 import click
-from mic.config_yaml import slugify
+from mic.config_yaml import slugify, get_spec, get_configs, write_spec
 from mic.constants import *
+from mic.cli_docs import info_end_inputs
+from mic.component.executor import compress_directory
 import shlex
 from mic._utils import get_mic_logger
 import os
@@ -301,3 +304,59 @@ def extract_parameters_from_command(command_line):
     matches = re.finditer(regex, command_line, re.IGNORECASE)
     for matchNum, match in enumerate(matches, start=2):
         print(match.group())
+
+
+def add_inputs_from_trace(mic_config_file, repro_zip_trace_dir):
+    mic_directory_path = mic_config_file.parent
+    user_execution_directory = mic_config_file.parent.parent
+    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+    spec = get_spec(repro_zip_config_file)
+    inputs_reprozip = get_inputs_outputs_reprozip(spec, user_execution_directory)
+    logging.debug("Inputs found from reprozip: {}".format(inputs_reprozip))
+
+    # obtain config: if a file is a config cannot be a input
+    config_files = get_configs(mic_config_file)
+    config_files_list = [str(user_execution_directory / item[PATH_KEY]) for key, item in
+                         config_files.items()] if config_files else []
+
+    code_files = find_code_files(spec, inputs_reprozip, config_files_list, user_execution_directory)
+    logging.debug("code files found from reprozip: {}".format(code_files))
+    new_inputs = []
+    data_dir = mic_directory_path.absolute() / DATA_DIR
+    if data_dir.exists():
+        shutil.rmtree(data_dir)
+    data_dir.mkdir()
+    _outputs = get_outputs_reprozip(spec, user_execution_directory)
+    for _input in inputs_reprozip:
+        item = user_execution_directory / _input
+        name = Path(_input).name
+
+        if str(item) in config_files_list or str(item) in code_files or str(item) in _outputs:
+            logging.info(f"Ignoring the config as an input: {item}")
+        else:
+            # Deleting the outputs of the inputs.
+            if item.is_dir():
+                if sorted([str(i) for i in item.iterdir()]) == sorted(_outputs):
+                    logging.info(f"Skipping: {item}")
+                else:
+                    logging.info(f"""Compressing the input directory ({name})""")
+                    zip_file = compress_directory(item, user_execution_directory)
+                    dst_dir = data_dir
+                    dst_file = dst_dir / Path(zip_file).name
+                    if dst_file.exists():
+                        os.remove(dst_file)
+                    shutil.move(str(zip_file), str(dst_dir))
+                    new_inputs.append(zip_file)
+                    click.secho(f"""Input {name} added """, fg="blue")
+                    logging.info("Input added: {}".format(name))
+            else:
+                new_inputs.append(item)
+                dst_file = mic_directory_path / DATA_DIR / str(item.name)
+                shutil.copy(item, dst_file)
+                click.secho(f"""Input {name} added """, fg="blue")
+                logging.info("Input added: {}".format(name))
+
+    info_end_inputs(new_inputs)
+    write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
+    write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
+    logging.info("inputs done")
