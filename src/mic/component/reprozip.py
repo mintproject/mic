@@ -6,7 +6,7 @@ import shutil
 import click
 from mic.config_yaml import slugify, get_spec, get_configs, write_spec
 from mic.constants import *
-from mic.cli_docs import info_end_inputs
+from mic.cli_docs import info_end_inputs, info_end_outputs
 from mic.component.executor import compress_directory
 import shlex
 from mic._utils import get_mic_logger
@@ -360,3 +360,16 @@ def add_inputs_from_trace(mic_config_file, repro_zip_trace_dir):
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
     logging.info("inputs done")
+
+def add_outputs_from_trace(mic_config_file, repro_zip_trace_dir):
+
+    user_execution_directory = mic_config_file.parent.parent
+    repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+    spec = get_spec(repro_zip_config_file)
+    outputs = get_outputs_reprozip(spec, user_execution_directory)
+    logging.debug("Outputs found from reprozip: {}".format(outputs))
+
+    for i in outputs:
+        click.secho(f"""Output added: {Path(i).name} """, fg="blue")
+    info_end_outputs(outputs)
+    write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))

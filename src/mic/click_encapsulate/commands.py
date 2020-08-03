@@ -18,7 +18,7 @@ from mic.component.executor import copy_code_to_src, compress_directory, execute
 from mic.component.initialization import render_run_sh, render_io_sh, render_output, create_base_directories, \
     render_bash_color, render_dockerfile, recursive_convert_to_lf
 from mic.component.reprozip import get_inputs_outputs_reprozip, get_outputs_reprozip, relative, generate_runner, \
-    generate_pre_runner, find_code_files, get_parameters_reprozip, add_inputs_from_trace
+    generate_pre_runner, find_code_files, get_parameters_reprozip, add_inputs_from_trace, add_outputs_from_trace
 from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, create_config_file_yaml, get_configs, \
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
@@ -236,7 +236,14 @@ def trace(mic_file,command, c, o, da):
             else:
                 logging.info("Skipping auto inputs")
                 click.echo("Skipping auto detection of inputs")
-    
+
+            if "outputs" not in ignoring:
+                add_outputs_from_trace(mic_config_file, repro_zip_trace_dir)
+            else:
+                logging.info("Skipping auto output")
+                click.echo("Skipping auto detection of inputs")
+
+
 
         logging.info("trace done")
     except Exception as e:
@@ -540,21 +547,26 @@ mic pkg outputs -f mic/mic.yaml output.txt outputs_directory
         user_execution_directory = mic_config_file.parent.parent
         repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
         repro_zip_trace_dir = Path(repro_zip_trace_dir)
-        repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
-        spec = get_spec(repro_zip_config_file)
-        custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
-                          list(custom_outputs)]
-        outputs = get_outputs_reprozip(spec, user_execution_directory)
-        logging.debug("Outputs found from reprozip: {}".format(outputs))
-        for i in list(custom_outputs):
-            if Path(i).is_dir():
-                outputs += get_filepaths(i)
-            else:
-                outputs.append(i)
-        for i in outputs:
-            click.secho(f"""Output added: {Path(i).name} """, fg="blue")
-        info_end_outputs(outputs)
-        write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
+
+        add_outputs_from_trace(mic_config_file, repro_zip_trace_dir)
+        # user_execution_directory = mic_config_file.parent.parent
+        # repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
+        # repro_zip_trace_dir = Path(repro_zip_trace_dir)
+        # repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+        # spec = get_spec(repro_zip_config_file)
+        # custom_outputs = [str(user_execution_directory / Path(i).relative_to(user_execution_directory)) for i in
+        #                   list(custom_outputs)]
+        # outputs = get_outputs_reprozip(spec, user_execution_directory)
+        # logging.debug("Outputs found from reprozip: {}".format(outputs))
+        # for i in list(custom_outputs):
+        #     if Path(i).is_dir():
+        #         outputs += get_filepaths(i)
+        #     else:
+        #         outputs.append(i)
+        # for i in outputs:
+        #     click.secho(f"""Output added: {Path(i).name} """, fg="blue")
+        # info_end_outputs(outputs)
+        # write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
         logging.info("outputs done")
     except Exception as e:
         logging.exception(f"Outputs failed: {e}")
