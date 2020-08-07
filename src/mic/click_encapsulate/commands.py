@@ -74,12 +74,15 @@ def start(user_execution_directory, name, image):
      """
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
+
+    create_base_directories(mic_dir)
+
+    # Cant log the start command until the mic dir has been created. Else mic will think the directory already exists
     if make_log_file():
         log_system_info(get_mic_logger().name)
 
     log_command(logging, "start", name=name, image=image)
 
-    create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
     custom_image = False
 
@@ -100,9 +103,10 @@ def start(user_execution_directory, name, image):
     except ValueError:
         click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
-    
-    conv_arr = recursive_convert_to_lf(mic_dir)
-    logging.debug("Converting any CRLF to LF: {}".format(conv_arr))
+
+    # This function may be unneeded now. It was added to try to fix the windows issue with line endings
+    # conv_arr = recursive_convert_to_lf(mic_dir)
+    # logging.debug("Converting any CRLF to LF: {}".format(conv_arr))
     
     container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
@@ -189,7 +193,7 @@ def trace(command, c, o):
         status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, append, 1)
         if status != 0:
             click.secho("Program exited with non-zero code", fg="red")
-            logging.warning("Reprozip tracer exited with non-zero code")
+            logging.warning("Reprozip tracer exited with non-zero code: {}".format(status))
         reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
         outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
