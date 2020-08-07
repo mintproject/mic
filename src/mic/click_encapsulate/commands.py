@@ -231,18 +231,35 @@ def trace(mic_file,command, c, o, da):
                     else:
                         ignoring.append(i.lower())
 
-            if "inputs" not in ignoring:
+            if "inputs" not in ignoring and "input" not in ignoring:
+                click.secho("Automatically adding inputs detected by trace", fg="green")
                 add_inputs_from_trace(mic_config_file, repro_zip_trace_dir)
             else:
                 logging.info("Skipping auto inputs")
-                click.echo("Skipping auto detection of inputs")
+                click.secho("Skipping auto detection of inputs",fg="green")
 
-            if "outputs" not in ignoring:
+            if "outputs" not in ignoring and "output" not in ignoring:
+                click.secho("Automatically adding outputs detected by trace", fg="green")
                 add_outputs_from_trace(mic_config_file, repro_zip_trace_dir)
             else:
                 logging.info("Skipping auto output")
-                click.echo("Skipping auto detection of inputs")
+                click.secho("Skipping auto detection of outputs",fg="green")
 
+            if "parameters" not in ignoring and "parameter" not in ignoring:
+                click.secho("Automatically adding parameters detected by trace",fg="green")
+                logging.info("Automatically adding any parameters from trace")
+                repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
+                reprozip_spec = get_spec(repro_zip_config_file)
+                spec = get_spec(Path(mic_file))
+
+                if PARAMETERS_KEY not in spec:
+                    spec[PARAMETERS_KEY] = {}
+                    
+                spec = get_parameters_reprozip(spec, reprozip_spec)
+                write_spec(Path(mic_file), PARAMETERS_KEY, spec[PARAMETERS_KEY])
+            else:
+                logging.info("Skipping auto parameters")
+                click.secho("Skipping auto detection of parameters",fg="green")
 
 
         logging.info("trace done")
@@ -352,7 +369,7 @@ def add_parameters(mic_file, name, value, overwrite, description):
     try:
         path = Path(mic_file)
         spec = get_spec(path)
-        if (name or value or description or overwrite) and not ((name is not None) and (value is not None)):
+        if name is not None and value is not None:
             click.secho("Must give name and value to manually add new parameter. Aborting", fg="yellow")
             logging.info("Invalid manual parameter given")
             exit(0)
@@ -360,38 +377,22 @@ def add_parameters(mic_file, name, value, overwrite, description):
         if PARAMETERS_KEY not in spec:
             spec[PARAMETERS_KEY] = {}
 
-        # Automacically add parameters from trace command. Use heuristic "if item isnt file its a parameter"
-        if name is None:
-            click.echo("Automatically adding any parameters from trace")
-            logging.info("Automatically adding any parameters from trace")
-            mic_config_file = Path(mic_file)
-            user_execution_directory = mic_config_file.parent.parent
-
-            repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
-            repro_zip_trace_dir = Path(repro_zip_trace_dir)
-            repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
-
-            reprozip_spec = get_spec(repro_zip_config_file)
-
-            spec = get_parameters_reprozip(spec, reprozip_spec)
-
+        if not overwrite and name in spec[PARAMETERS_KEY]:
+            click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
+            logging.info("Parameter already exists. aborting because overwrite flag is false")
+            exit(1)
         else:
-            if not overwrite and name in spec[PARAMETERS_KEY]:
-                click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
-                logging.info("Parameter already exists. aborting because overwrite flag is false")
-                exit(1)
-            else:
 
-                if description is None:
-                    description = ""
-                type_value____name__ = type(value).__name__
-                click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
-                new_par = {name: {NAME_KEY: name,
-                                  DEFAULT_VALUE_KEY: value,
-                                  DATATYPE_KEY: type_value____name__,
-                                  DEFAULT_DESCRIPTION_KEY: description}}
-                logging.debug("Adding parameter: {}".format(new_par))
-                spec[PARAMETERS_KEY].update(new_par)
+            if description is None:
+                description = ""
+            type_value____name__ = type(value).__name__
+            click.echo(f"Adding the parameter {name}, value {value} and type {type_value____name__}")
+            new_par = {name: {NAME_KEY: name,
+                              DEFAULT_VALUE_KEY: value,
+                              DATATYPE_KEY: type_value____name__,
+                              DEFAULT_DESCRIPTION_KEY: description}}
+            logging.debug("Adding parameter: {}".format(new_par))
+            spec[PARAMETERS_KEY].update(new_par)
 
         write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
         logging.info("add_parameters done")

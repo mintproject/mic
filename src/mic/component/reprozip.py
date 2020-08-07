@@ -356,7 +356,7 @@ def add_inputs_from_trace(mic_config_file, repro_zip_trace_dir):
                 click.secho(f"""Input {name} added """, fg="blue")
                 logging.info("Input added: {}".format(name))
 
-    info_end_inputs(new_inputs)
+    click.secho(f"mic has added {len(new_inputs)} items as inputs")
     write_spec(mic_config_file, INPUTS_KEY, relative(new_inputs, user_execution_directory))
     write_spec(mic_config_file, CODE_KEY, relative(code_files, user_execution_directory))
     logging.info("inputs done")
@@ -371,5 +371,5 @@ def add_outputs_from_trace(mic_config_file, repro_zip_trace_dir):
 
     for i in outputs:
         click.secho(f"""Output added: {Path(i).name} """, fg="blue")
-    info_end_outputs(outputs)
+    click.secho(f"mic has added {len(outputs)} items as outputs")
     write_spec(mic_config_file, OUTPUTS_KEY, relative(outputs, user_execution_directory))
