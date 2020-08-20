@@ -15,6 +15,9 @@ Then, in the folder, type:
 ```bash
 $ mic pkg start
 ```
+!!! warning
+    If you want MIC to start from your own Docker image, you should use the flag `mic pkg start --image <yourimage:version>`. Do not forget to install MIC in your image with `pip install mic` so you have all the commands available.
+
 MIC will ask for the component name you want to use (you may use any name you want), and will show you a message similar to this:
 
 ```bash

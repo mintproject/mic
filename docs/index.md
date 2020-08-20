@@ -2,7 +2,7 @@ Model Insertion CLI (MIC) is a command-line interface for adding  models on a Mo
 
 MIC is an application that will guide you through the steps required for encapsulating your model component and exposing a set of inputs and parameters of interest. MIC also allows describing basic model metadata: model version, model configuration, parameters, inputs, outputs, authors and contribuors.
 
-MIC has been tested in OSX and Linux, and we are currently testing it in Windows. It is installed through a simple pip command.
+MIC has been tested in OSX, Linux and Windows. It is installed through a simple pip command. 
 
 !!! info
     MIC is an ALPHA version, which we are still testing and developing continuously. If you find an error or experience any issue, please report them [here](https://github.com/mintproject/mic/issues/new/choose).
@@ -50,6 +50,10 @@ You should see a message similar to:
 ```bash
 mic v1.0.1
 ```
+
+## Limitations
+
+Note that MIC has been designed to run Unix-based applications. Windows based applications (e.g., models that execute through an .exe) are not currently supported.
 
 ## Development version
 

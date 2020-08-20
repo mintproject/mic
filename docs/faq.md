@@ -1,19 +1,10 @@
 
 ## Frequently Asked Questions
 
-**What do the properties in the table mean?**
+**How do I create several variations of a component?** 
 
-If you find any of the fields in the metadata table confusing, just select them for editing. You will be shown a definition of what each property means. For example by editing property 16 (Purpose):
+We recommend generating several components (model configurations). When uploading the components in the last step, you will be able to associate all these model configurations to the same model, relating all of them together.
 
-```bash
-Current value for Purpose is: ['Crop seasonal production']
-Definition: Objective or main functionality that can be achieved by running this model
-```
+**What happens if I submit my component twice?** 
 
-**I don't know all metadata of my model right now. Can I save my progress?**
-
-Yes. You can use the `save` command at any point to save your progress. Your metadata will be saved as a JSON file, which you can load with the `load` command. When you are ready to submit, just type `send`.
-
-**What happens if I submit my model metadata twice?** 
-
-Right now MIC does not support editing model metadata. If you submit the same model metadata twice, you will create two entries in the catalog. We are working to support this feature.
+Right now MIC does not allow editing model metadata, so if a component already exists, it will be uploaded as a different version.
