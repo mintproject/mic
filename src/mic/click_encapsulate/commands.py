@@ -110,10 +110,6 @@ def start(user_execution_directory, name, image):
     except ValueError:
         click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
-
-    # This function may be unneeded now. It was added to try to fix the windows issue with line endings
-    # conv_arr = recursive_convert_to_lf(mic_dir)
-    # logging.debug("Converting any CRLF to LF: {}".format(conv_arr))
     
     container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
@@ -125,8 +121,9 @@ def start(user_execution_directory, name, image):
     docker_cmd = f"""docker run -ti \
             --name={container_name} \
             --cap-add=SYS_PTRACE \
-            -v {user_execution_directory}:/tmp/mint \
+            -v \"{user_execution_directory}\":/tmp/mint \
             -w /tmp/mint {user_image} """
+
 
     if custom_image:
         click.secho(f"""
