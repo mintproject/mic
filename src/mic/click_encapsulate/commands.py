@@ -97,6 +97,13 @@ def start(user_execution_directory, name, image):
 
         render_dockerfile(mic_dir, framework)
 
+
+    # Make sure the name given is valid
+    if not name.islower():
+        logging.debug("User's model name does not contain all lowercase characters. Setting it to lower")
+        click.secho("Model name must be lower case. Mic will replace any uppercase letters",fg='yellow')
+        name = name.lower()
+
     os.system(f"docker pull {framework.image}")
     try:
         user_image = build_docker(mic_dir / DOCKER_DIR, name)
