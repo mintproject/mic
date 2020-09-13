@@ -286,15 +286,16 @@ def find_code_files(spec, inputs, config_files, user_execution_directory):
                         logging.debug("Adding executable: {}".format(files_path.name))
     return list(set(code_files))
 
+
 def is_executable(file_path):
 
-    for i in EXECUTABLE_EXTENSIONS:
-        name = file_path.name.lower()
-        name = "." + (name.split("."))[1]
-        if i.lower() == name.lower():
-            return True
+    ext = os.path.splitext(file_path)[-1] # Only grab the extension
+    print(ext)
+    if ext.lower() in EXECUTABLE_EXTENSIONS:
+        return True
+    else:
+        return False
 
-    return False
 
 def extract_parameters_from_command(command_line):
     regex = r"(\"[^\"]+\"|[^\s\"]+)"
