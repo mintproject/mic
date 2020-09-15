@@ -74,12 +74,15 @@ def start(user_execution_directory, name, image):
      """
     user_execution_directory = Path(user_execution_directory)
     mic_dir = user_execution_directory / MIC_DIR
+
+    create_base_directories(mic_dir)
+
+    # Cant log the start command until the mic dir has been created. Else mic will think the directory already exists
     if make_log_file():
         log_system_info(get_mic_logger().name)
 
     log_command(logging, "start", name=name, image=image)
 
-    create_base_directories(mic_dir)
     mic_config_path = create_config_file_yaml(mic_dir)
     custom_image = False
 
@@ -94,15 +97,19 @@ def start(user_execution_directory, name, image):
 
         render_dockerfile(mic_dir, framework)
 
+
+    # Make sure the name given is valid
+    if not name.islower():
+        logging.debug("User's model name does not contain all lowercase characters. Setting it to lower")
+        click.secho("Model name must be lower case. Mic will replace any uppercase letters",fg='yellow')
+        name = name.lower()
+
     os.system(f"docker pull {framework.image}")
     try:
         user_image = build_docker(mic_dir / DOCKER_DIR, name)
     except ValueError:
         click.secho("The extraction of dependencies has failed", fg='red')
         user_image = framework.image
-    
-    conv_arr = recursive_convert_to_lf(mic_dir)
-    logging.debug("Converting any CRLF to LF: {}".format(conv_arr))
     
     container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
@@ -114,8 +121,9 @@ def start(user_execution_directory, name, image):
     docker_cmd = f"""docker run -ti \
             --name={container_name} \
             --cap-add=SYS_PTRACE \
-            -v {user_execution_directory}:/tmp/mint \
+            -v \"{user_execution_directory}\":/tmp/mint \
             -w /tmp/mint {user_image} """
+
 
     if custom_image:
         click.secho(f"""
@@ -189,7 +197,7 @@ def trace(command, c, o):
         status = reprozip.tracer.trace.trace(command[0], list(command), base_dir, append, 1)
         if status != 0:
             click.secho("Program exited with non-zero code", fg="red")
-            logging.warning("Reprozip tracer exited with non-zero code")
+            logging.warning("Reprozip tracer exited with non-zero code: {}".format(status))
         reprozip.tracer.trace.write_configuration(base, identify_packages, identify_inputs_outputs, overwrite=False)
 
         outputs = [str(i.absolute()) for i in detect_new_reprozip(Path("."), now)]
