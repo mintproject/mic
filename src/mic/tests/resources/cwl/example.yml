@@ -1,0 +1,42 @@
+arguments:
+- --
+baseCommand: /app/cwl/bin/main_ERC
+class: CommandLineTool
+cwlVersion: v1.1
+hints:
+  DockerRequirement:
+    dockerImageId: r2d-2ftmp-2frepo2cwl-5f3m7a4xqh-2frepo1601492912
+inputs:
+  MODFLOW:
+    inputBinding:
+      prefix: --MODFLOW
+    type: boolean
+  MT3MDS:
+    inputBinding:
+      prefix: --MT3MDS
+    type: boolean
+  case:
+    inputBinding:
+      prefix: --case
+    type: int
+  conc:
+    inputBinding:
+      prefix: --conc
+    type: int
+  degr:
+    inputBinding:
+      prefix: --degr
+    type: string
+  hydr:
+    inputBinding:
+      prefix: --hydr
+    type: string
+  inic:
+    inputBinding:
+      prefix: --inic
+    type: string
+  rech:
+    inputBinding:
+      prefix: --rech
+    type: string
+outputs: {}
