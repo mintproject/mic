@@ -7,6 +7,7 @@ import semver
 from mic import _utils
 from mic.cli_docs import *
 from mic.click_encapsulate.commands import start, trace, configs, add_parameters, inputs, outputs, run, upload, wrapper
+from mic.commands_notebook import cwl
 from mic.credentials import configure_credentials, print_list_credentials
 from modelcatalog import Configuration
 
@@ -101,6 +102,12 @@ class OrderedGroup(click.Group):
 @cli.group(cls=OrderedGroup)
 def pkg():
     """Command to encapsulate your model component"""
+
+
+@cli.group(cls=OrderedGroup)
+def notebook():
+    """Command to encapsulate your jupyter notebook. BETA VERSION"""
+
 pkg.add_command(start)
 pkg.add_command(trace)
 pkg.add_command(add_parameters)
@@ -110,3 +117,7 @@ pkg.add_command(outputs)
 pkg.add_command(wrapper)
 pkg.add_command(run)
 pkg.add_command(upload)
+
+
+
+notebook.add_command(cwl)
