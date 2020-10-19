@@ -8,7 +8,7 @@ from mic._utils import obtain_id, parse
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
     TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, FORMAT_KEY, PATH_KEY, \
-    TYPE_DATA_TRANSFORMATION, MAP_PYTHON_MODEL_CATALOG
+    TYPE_DATA_TRANSFORMATION, MAP_PYTHON_MODEL_CATALOG, CWL_KEY
 from mic.drawer import print_choices
 from mic.model_catalog_utils import get_label_from_response
 from mic.resources.data_specification import DataSpecificationCli
@@ -22,6 +22,33 @@ from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage
 
 def generate_uuid():
     return "https://w3id.org/okn/i/mint/{}".format(str(uuid.uuid4()))
+
+
+def create_model_catalog_resource_cwl(mint_config_file, name=None, execution_dir=None, allow_local_path=True, cwl_path=None):
+    name = name if name else mint_config_file.parent.name
+    inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
+
+    model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
+                                                    execution_dir) if inputs else None
+    model_catalog_outputs = create_data_set_resource(False, outputs,
+                                                     mint_config_file.parent) if outputs else None
+    model_catalog_parameters = create_parameter_resource(parameters)
+
+    code = get_key_spec(mint_config_file, CWL_KEY)
+    model_configuration = ModelConfiguration(type=[TYPE_MODEL_CONFIGURATION],
+                                             label=[str(name)],
+                                             has_input=model_catalog_inputs,
+                                             has_output=model_catalog_outputs,
+                                             has_parameter=model_catalog_parameters,
+                                             )
+    if allow_local_path:
+        return model_configuration
+
+    if code is None:
+        click.secho("Failed to upload. Missing information zip file", fg="red")
+    else:
+        model_configuration.has_component_location = [code]
+    return model_configuration
 
 
 def create_model_catalog_resource(mint_config_file, name=None, execution_dir=None, allow_local_path=True):
@@ -64,6 +91,8 @@ def create_parameter_resource(parameters):
     for key, item in parameters.items():
         data_type = "string"
         if "type" in item and item["type"] != '' and item["type"] is not None:
+            print(item)
+            print(item["type"])
             data_type = MAP_PYTHON_MODEL_CATALOG[item["type"]]
         _parameter = Parameter(id=generate_uuid(), label=[key], position=[position], type=[TYPE_PARAMETER], has_data_type=[data_type])
         _parameter.has_default_value = [item["default_value"]]

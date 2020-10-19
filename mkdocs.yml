@@ -23,7 +23,16 @@ theme:
   logo: 'logo.png'
 markdown_extensions:
   - admonition
-  - codehilite:
-      guess_lang: false
+  - pymdownx.superfences:
+      # make exceptions to highlighting of code:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
   - toc:
       permalink: true
+plugins:
+  - mermaid2:
+      arguments:
+        securityLevel: 'loose'    
+      version: 8.6.4
