@@ -1,5 +1,54 @@
 # Changelog
 
+## [1.3.4](https://github.com/mintproject/mic/tree/1.3.4) (2020-09-15)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.3.3...1.3.4)
+
+**Implemented enhancements:**
+
+- mintproject/generic:latest is not up to date [\#287](https://github.com/mintproject/mic/issues/287)
+
+**Fixed bugs:**
+
+- files with hyphen in yaml causes issues with run [\#293](https://github.com/mintproject/mic/issues/293)
+- Param auto detector will detect "multiple words in quotes" as several parameters [\#290](https://github.com/mintproject/mic/issues/290)
+- String parameters in commands fail in components due to extra quotes. [\#288](https://github.com/mintproject/mic/issues/288)
+
+**Merged pull requests:**
+
+- Executables file [\#304](https://github.com/mintproject/mic/pull/304) ([mosoriob](https://github.com/mosoriob))
+- Fix: inputs bug for SWAT model [\#303](https://github.com/mintproject/mic/pull/303) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Fix: start thinks mic dir exists every time [\#297](https://github.com/mintproject/mic/pull/297) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Fix: replace hyphens with underscore for yaml input direcory names [\#295](https://github.com/mintproject/mic/pull/295) ([Cmheidelberg](https://github.com/Cmheidelberg))
+
+## [1.3.3](https://github.com/mintproject/mic/tree/1.3.3) (2020-08-03)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.3.2...1.3.3)
+
+**Fixed bugs:**
+
+- MIC is not working in WINDOWS [\#266](https://github.com/mintproject/mic/issues/266)
+
+**Merged pull requests:**
+
+- Develop [\#294](https://github.com/mintproject/mic/pull/294) ([mosoriob](https://github.com/mosoriob))
+- Fix: use shlex instead of split by space to keep quoted strings [\#291](https://github.com/mintproject/mic/pull/291) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Windowsfix [\#281](https://github.com/mintproject/mic/pull/281) ([Cmheidelberg](https://github.com/Cmheidelberg))
+
+## [1.3.2](https://github.com/mintproject/mic/tree/1.3.2) (2020-07-28)
+
+[Full Changelog](https://github.com/mintproject/mic/compare/1.3.1...1.3.2)
+
+**Fixed bugs:**
+
+- start command fails with python [\#285](https://github.com/mintproject/mic/issues/285)
+
+**Merged pull requests:**
+
+- fix: convert CRLF to LF [\#286](https://github.com/mintproject/mic/pull/286) ([mosoriob](https://github.com/mosoriob))
+- Windowsfix [\#283](https://github.com/mintproject/mic/pull/283) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Revert "Windowsfix" [\#282](https://github.com/mintproject/mic/pull/282) ([mosoriob](https://github.com/mosoriob))
+
 ## [1.3.1](https://github.com/mintproject/mic/tree/1.3.1) (2020-07-27)
 
 [Full Changelog](https://github.com/mintproject/mic/compare/1.3.0...1.3.1)
@@ -42,6 +91,7 @@
 - F\#266 [\#273](https://github.com/mintproject/mic/pull/273) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Testo [\#272](https://github.com/mintproject/mic/pull/272) ([mosoriob](https://github.com/mosoriob))
 - Logging [\#271](https://github.com/mintproject/mic/pull/271) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Develop [\#270](https://github.com/mintproject/mic/pull/270) ([mosoriob](https://github.com/mosoriob))
 - System packages [\#269](https://github.com/mintproject/mic/pull/269) ([mosoriob](https://github.com/mosoriob))
 - Remove: mic model command [\#259](https://github.com/mintproject/mic/pull/259) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Auto params [\#258](https://github.com/mintproject/mic/pull/258) ([Cmheidelberg](https://github.com/Cmheidelberg))
@@ -59,7 +109,6 @@
 
 **Merged pull requests:**
 
-- Develop [\#270](https://github.com/mintproject/mic/pull/270) ([mosoriob](https://github.com/mosoriob))
 - fix\(git\): force push a new repository [\#263](https://github.com/mintproject/mic/pull/263) ([mosoriob](https://github.com/mosoriob))
 - F\#203 [\#253](https://github.com/mintproject/mic/pull/253) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Develop [\#251](https://github.com/mintproject/mic/pull/251) ([mosoriob](https://github.com/mosoriob))
@@ -102,7 +151,6 @@
 
 - Develop [\#242](https://github.com/mintproject/mic/pull/242) ([mosoriob](https://github.com/mosoriob))
 - Docs [\#241](https://github.com/mintproject/mic/pull/241) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Release new version 1.5.0 [\#240](https://github.com/mintproject/mic/pull/240) ([mosoriob](https://github.com/mosoriob))
 - Release v1.5.0 [\#237](https://github.com/mintproject/mic/pull/237) ([mosoriob](https://github.com/mosoriob))
 - Rename: publish command replaced with upload [\#236](https://github.com/mintproject/mic/pull/236) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - fix\(run\_line\): add quotes to string parameter [\#233](https://github.com/mintproject/mic/pull/233) ([mosoriob](https://github.com/mosoriob))
@@ -152,6 +200,7 @@
 
 **Merged pull requests:**
 
+- Release new version 1.5.0 [\#240](https://github.com/mintproject/mic/pull/240) ([mosoriob](https://github.com/mosoriob))
 - Release v1.0.1 [\#232](https://github.com/mintproject/mic/pull/232) ([mosoriob](https://github.com/mosoriob))
 - F\#185 [\#230](https://github.com/mintproject/mic/pull/230) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - F\#209 [\#229](https://github.com/mintproject/mic/pull/229) ([Cmheidelberg](https://github.com/Cmheidelberg))
@@ -160,7 +209,6 @@
 - add yaml comments and improve detection of code [\#225](https://github.com/mintproject/mic/pull/225) ([mosoriob](https://github.com/mosoriob))
 - \#223  fix: detect binary reprozip inside the default\_path as code\_file [\#224](https://github.com/mintproject/mic/pull/224) ([mosoriob](https://github.com/mosoriob))
 - Yaml comments [\#221](https://github.com/mintproject/mic/pull/221) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([mosoriob](https://github.com/mosoriob))
 
 ## [1.0.0](https://github.com/mintproject/mic/tree/1.0.0) (2020-06-26)
 
@@ -217,6 +265,7 @@
 **Merged pull requests:**
 
 - release 1.0.0 [\#222](https://github.com/mintproject/mic/pull/222) ([mosoriob](https://github.com/mosoriob))
+- Release v1.0.0 [\#220](https://github.com/mintproject/mic/pull/220) ([mosoriob](https://github.com/mosoriob))
 - fix: pull and handle the conflicts [\#218](https://github.com/mintproject/mic/pull/218) ([mosoriob](https://github.com/mosoriob))
 - fix: end message publish shows the url to edit it [\#213](https://github.com/mintproject/mic/pull/213) ([mosoriob](https://github.com/mosoriob))
 - Yaml comments [\#206](https://github.com/mintproject/mic/pull/206) ([Cmheidelberg](https://github.com/Cmheidelberg))
@@ -232,7 +281,6 @@
 - fix: Step6 crash if no inputs \#139  [\#150](https://github.com/mintproject/mic/pull/150) ([mosoriob](https://github.com/mosoriob))
 - F\#139 [\#147](https://github.com/mintproject/mic/pull/147) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Add: output log for step6 [\#141](https://github.com/mintproject/mic/pull/141) ([Cmheidelberg](https://github.com/Cmheidelberg))
-- Fix: step7 removes temporary files [\#140](https://github.com/mintproject/mic/pull/140) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [0.4.4](https://github.com/mintproject/mic/tree/0.4.4) (2020-06-08)
 
@@ -241,7 +289,6 @@
 **Merged pull requests:**
 
 - fix: tests [\#137](https://github.com/mintproject/mic/pull/137) ([mosoriob](https://github.com/mosoriob))
-- Improved outputs [\#135](https://github.com/mintproject/mic/pull/135) ([Cmheidelberg](https://github.com/Cmheidelberg))
 
 ## [0.4.3](https://github.com/mintproject/mic/tree/0.4.3) (2020-06-05)
 
@@ -294,6 +341,7 @@
 - Improve message step3 [\#115](https://github.com/mintproject/mic/issues/115)
 - rename run file to `mic run file` [\#108](https://github.com/mintproject/mic/issues/108)
 - rename `mic configuration file` to `mic file` [\#107](https://github.com/mintproject/mic/issues/107)
+- rename command mic configure to mic credentials [\#105](https://github.com/mintproject/mic/issues/105)
 - Documentation \[End of May\] [\#67](https://github.com/mintproject/mic/issues/67)
 - Extend documentation in MIC with guidelines on good component design [\#62](https://github.com/mintproject/mic/issues/62)
 - New feature: initialize docker image [\#58](https://github.com/mintproject/mic/issues/58)
@@ -301,7 +349,10 @@
 
 **Merged pull requests:**
 
+- Fix: step7 removes temporary files [\#140](https://github.com/mintproject/mic/pull/140) ([Cmheidelberg](https://github.com/Cmheidelberg))
+- Improved outputs [\#135](https://github.com/mintproject/mic/pull/135) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Detect dependencies [\#119](https://github.com/mintproject/mic/pull/119) ([mosoriob](https://github.com/mosoriob))
+- Develop [\#117](https://github.com/mintproject/mic/pull/117) ([mosoriob](https://github.com/mosoriob))
 - F\#107 108 [\#114](https://github.com/mintproject/mic/pull/114) ([Cmheidelberg](https://github.com/Cmheidelberg))
 - Add version model [\#110](https://github.com/mintproject/mic/pull/110) ([mosoriob](https://github.com/mosoriob))
 - Add version mdodel [\#104](https://github.com/mintproject/mic/pull/104) ([mosoriob](https://github.com/mosoriob))
@@ -330,13 +381,11 @@
 
 - fix: compatibility between the mic and dame [\#109](https://github.com/mintproject/mic/issues/109)
 - rename config.yaml to mic.yaml [\#106](https://github.com/mintproject/mic/issues/106)
-- rename command mic configure to mic credentials [\#105](https://github.com/mintproject/mic/issues/105)
 - step1 create .gitignore [\#98](https://github.com/mintproject/mic/issues/98)
 - mic publish - git [\#77](https://github.com/mintproject/mic/issues/77)
 
 **Merged pull requests:**
 
-- Develop [\#117](https://github.com/mintproject/mic/pull/117) ([mosoriob](https://github.com/mosoriob))
 - Develop [\#111](https://github.com/mintproject/mic/pull/111) ([mosoriob](https://github.com/mosoriob))
 
 ## [0.3.0](https://github.com/mintproject/mic/tree/0.3.0) (2020-05-07)

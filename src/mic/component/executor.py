@@ -17,7 +17,7 @@ def copy_file(input_path: Path, src_dir_path: Path):
 
 
 def compress_directory(directory_path: Path, working_dir):
-    zip_file_path = shutil.make_archive(directory_path.name, 'zip', root_dir=directory_path.parent,
+    zip_file_path = shutil.make_archive(directory_path.name.replace("-","_"), 'zip', root_dir=directory_path.parent,
                                         base_dir=directory_path.name)
     data_zip = working_dir / Path(zip_file_path).name
     shutil.move(zip_file_path, data_zip)
