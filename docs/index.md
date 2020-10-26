@@ -63,3 +63,13 @@ If you want to install the latest development version, open a terminal and type:
 $ pip install git+https://github.com/mintproject/mic.git@develop -U
 ```
 Note theat the development version may be unstable.
+
+## Issues, Troubleshooting and Feature Requests
+
+Known issues with MIC are listed [here](https://github.com/mintproject/mic/issues).
+
+If you experience any issues when using MIC, or if you would like us to support additional exciting features, please open an issue on our [GitHub repository](https://github.com/mintproject/mic/issues). 
+
+## Code Releases and Next Updates
+
+The [latest release of MIC is available in GitHub](https://github.com/mintproject/mic/releases/latest). You can check the issues and updates we are working on for the next releases [here](https://github.com/mintproject/mic/milestones).
