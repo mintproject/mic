@@ -11,7 +11,7 @@ install_requires = [
     "Jinja2>=2.11.2",
     "PyYAML>=5.3.1",
     "modelcatalog-api==6.0.0",
-    "dame-cli>=5.4.3",
+    "dame-cli>=5.4.5",
     "pygit2>=1.2.1",
     "PyGithub>=1.43.5"
 ]
