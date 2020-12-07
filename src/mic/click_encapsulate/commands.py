@@ -337,7 +337,7 @@ def add_parameters(mic_file, name, value, overwrite, description):
             spec = get_parameters_reprozip(spec, reprozip_spec)
 
         else:
-            if not overwrite and name in spec[PARAMETERS_KEY]:
+            if not overwrite and name in spec.get(PARAMETERS_KEY):
                 click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
                 logging.info("Parameter already exists. aborting because overwrite flag is false")
                 exit(1)
@@ -352,9 +352,9 @@ def add_parameters(mic_file, name, value, overwrite, description):
                                   DATATYPE_KEY: type_value____name__,
                                   DEFAULT_DESCRIPTION_KEY: description}}
                 logging.debug("Adding parameter: {}".format(new_par))
-                spec[PARAMETERS_KEY].update(new_par)
+                spec.get(PARAMETERS_KEY).update(new_par)
 
-        write_spec(path, PARAMETERS_KEY, spec[PARAMETERS_KEY])
+        write_spec(path, PARAMETERS_KEY, spec.get(PARAMETERS_KEY))
         logging.info("add_parameters done")
 
     except Exception as e:

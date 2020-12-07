@@ -72,10 +72,10 @@ def get_outputs_reprozip(spec, user_execution_directory, aggregrate=False):
                     outputs.append(str(user_execution_directory / Path(i).relative_to(default_path)))
     return list(set(outputs))
 
-
+# Return a spec with auto generated params ignoring i/o files from reprozip trace
 def get_parameters_reprozip(spec, reprozip_spec):
-    run_lines = ''
-    for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
+    run_lines = []
+    for rep_run in reprozip_spec.get(REPRO_ZIP_RUNS):
 
         # Adds quotes around any cell that contains a space
         quoted_run = []
@@ -85,71 +85,149 @@ def get_parameters_reprozip(spec, reprozip_spec):
             else:
                 quoted_run.append(i)
 
-        run_lines = " ".join(map(str, quoted_run)).splitlines()
+        run_lines.append(" ".join(map(str, quoted_run)))
 
-    params_added = 0
+    # Generate a list of all the code files from mic.yaml
+    code_dict = spec.get(CODE_KEY)
+    code_file_names = []
+    for code_file in code_dict:
+        code_file_names.append(code_dict.get(code_file).get(PATH_KEY))
+
+    possible_params = 0
     for line in run_lines:
-        # capture invocation line(s)
-        start_pos = line.find("./")
-        if start_pos >= 0:
-            invocation_split = shlex.split(line[start_pos:len(line)])
-            invocation_split = invocation_split[1:len(invocation_split)]
-            for i in invocation_split:
-                the_type = ""
-                # check if there is a . in the line. This means it could be a file extension or float
-                is_param = False
 
-                if i.find(".") != -1:
-                    try:
-                        float(i)
-                        is_param = True
-                        the_type = "float"
+        # Get the start position. That is the earliest reference to a known code file. (ie: python3 mycode.py)
+        start_pos = -1
+        for c in code_file_names:
+            tmp = line.find(c)
+            if tmp != -1 and (start_pos > tmp or start_pos == -1):
+                start_pos = tmp
 
-                    except ValueError:
-                        # i is a file (file.txt)
-                        pass
+        # auto check for parameters only if the current invocation line has a recognisable code file
+        # This means the current run line is within the mic.yaml code_files
+        if start_pos < 0:
+            continue
 
-                if the_type == "":
-                    try:
-                        # i is an int
-                        int(i)
-                        the_type = "int"
-                        is_param = True
-                    except ValueError:
-                        # Not a parameter if it starts with a hyphen (--option) or exists as a file (inputs.csv)
-                        if i.find("-") != 0 and not os.path.exists(i):
-                            # not a parameter if it is already an input or output
-                            is_io = False
+        # Splits all possible parameters into a list. Ignores command line code call
+        invocation_split = shlex.split(line[start_pos:len(line)])
+        invocation_split = invocation_split[1:len(invocation_split)]
+        
+        for i in invocation_split:
+            
+            # huristically check if curr invocation split is file (contains one '.' 
+            # and has at least one character in it)
+            if i.count(".") == 1:
+                tmp = i.split(".")
+                for t in tmp:
 
-                            if INPUTS_KEY in spec:
-                                if i.replace(".","_") in spec[INPUTS_KEY].keys():
-                                    is_io = True
+                    # This removes a hyphen from the first position. That way negative floats doent get
+                    # detected as files 
+                    if len(t) > 0 and t[0] == "-":
+                        t = t[1:]
 
-                            if OUTPUTS_KEY in spec:
-                               if i.replace(".","_") in spec[OUTPUTS_KEY].keys():
-                                   is_io = True
+                    if not t.isdigit():
+                        logging.debug("File is not parameter: {}".format(i))
+                        continue
 
-                            if not is_io:
-                                # i is a string
-                                the_type = "str"
-                                is_param = True
+            possible_params += 1
+            
+            auto_name = "param_" + str(possible_params)
+            spec.get(PARAMETERS_KEY).update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
+                                                     DATATYPE_KEY: "str",
+                                                     DEFAULT_DESCRIPTION_KEY: ""}})
+            click.echo("Adding \"{}\" from value {}".format(auto_name, i))
+            logging.debug("Adding parameter: {}".format(auto_name))
 
-                if is_param:
-                    params_added += 1
-                    auto_name = "param_" + str(params_added)
-                    spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
-                                                             DATATYPE_KEY: the_type,
-                                                             DEFAULT_DESCRIPTION_KEY: ""}})
-                    click.echo("Adding \"{}\" from value {}".format(auto_name, i))
-                    logging.debug("Adding parameter: {}".format(auto_name))
 
-            if params_added > 0:
-                click.secho("The parameters of the model component are available in the mic directory.", fg="green")
-            else:
-                click.secho("No parameters found", fg="green")
-                logging.info("No parameters added")
+    if possible_params > 0:
+        click.secho("The parameters of the model component are available in the mic.yaml file.", fg="green")
+    else:
+        click.secho("No parameters found", fg="green")
+        logging.info("No parameters added")
 
-            return spec
+    return spec
+
+# def get_parameters_reprozip(spec, reprozip_spec):
+#     run_lines = ''
+#     for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
+
+#         # Adds quotes around any cell that contains a space
+#         quoted_run = []
+#         for i in rep_run[REPRO_ZIP_ARGV]:
+#             if " " in i:
+#                 quoted_run.append(f"\"{i}\"")
+#             else:
+#                 quoted_run.append(i)
+
+#         run_lines = " ".join(map(str, quoted_run)).splitlines()
+
+
+#     logging.debug("spec: {}".format(spec))
+#     logging.debug("reprozip_spec: {}".format(reprozip_spec))
+
+#     params_added = 0
+#     for line in run_lines:
+#         # capture invocation line(s)
+#         start_pos = line.find("./")
+#         if start_pos >= 0:
+#             invocation_split = shlex.split(line[start_pos:len(line)])
+#             invocation_split = invocation_split[1:len(invocation_split)]
+#             for i in invocation_split:
+#                 the_type = ""
+#                 # check if there is a . in the line. This means it could be a file extension or float
+#                 is_param = False
+
+#                 if i.find(".") != -1:
+#                     try:
+#                         float(i)
+#                         is_param = True
+#                         the_type = "float"
+
+#                     except ValueError:
+#                         # i is a file (file.txt)
+#                         pass
+
+#                 if the_type == "":
+#                     try:
+#                         # i is an int
+#                         int(i)
+#                         the_type = "int"
+#                         is_param = True
+#                     except ValueError:
+#                         # Not a parameter if it starts with a hyphen (--option) or exists as a file (inputs.csv)
+#                         if i.find("-") != 0 and not os.path.exists(i):
+#                             # not a parameter if it is already an input or output
+#                             is_io = False
+
+#                             if INPUTS_KEY in spec:
+#                                 if i.replace(".","_") in spec[INPUTS_KEY].keys():
+#                                     is_io = True
+
+#                             if OUTPUTS_KEY in spec:
+#                                if i.replace(".","_") in spec[OUTPUTS_KEY].keys():
+#                                    is_io = True
+
+#                             if not is_io:
+#                                 # i is a string
+#                                 the_type = "str"
+#                                 is_param = True
+
+#                 if is_param:
+#                     params_added += 1
+#                     auto_name = "param_" + str(params_added)
+#                     spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
+#                                                              DATATYPE_KEY: the_type,
+#                                                              DEFAULT_DESCRIPTION_KEY: ""}})
+#                     click.echo("Adding \"{}\" from value {}".format(auto_name, i))
+#                     logging.debug("Adding parameter: {}".format(auto_name))
+
+#             if params_added > 0:
+#                 click.secho("The parameters of the model component are available in the mic directory.", fg="green")
+#             else:
+#                 click.secho("No parameters found", fg="green")
+#                 logging.info("No parameters added")
+
+#             return spec
 
 def generate_pre_runner(spec, user_execution_directory):
     code = ""
