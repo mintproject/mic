@@ -41,14 +41,14 @@ def get_filepaths(directory):
 
     return file_paths  # Self-explanatory.
 
-def make_log_file():
-    if os.path.exists(Path(MIC_DIR) / LOG_FILE):
+def make_log_file(mic_path=Path(MIC_DIR)):
+    if os.path.exists(Path(mic_path / LOG_FILE)):
         return True
     try:
-        if not os.path.exists(Path(MIC_DIR)):
-            os.mkdir(MIC_DIR)
-        if not os.path.exists(Path(MIC_DIR) / LOG_FILE):
-            with open(Path(MIC_DIR) / LOG_FILE, 'w') as fp:
+        if not os.path.exists(mic_path):
+            os.mkdir(mic_path)
+        if not os.path.exists(mic_path / LOG_FILE):
+            with open(mic_path / LOG_FILE, 'w') as fp:
                 pass
 
         init_logger()

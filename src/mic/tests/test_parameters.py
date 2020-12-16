@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from mic.component.reprozip import generate_runner, \
-    get_parameters_reprozip
+    get_parameters_reprozip, get_parameter_type
 from mic.config_yaml import get_spec, get_inputs, get_outputs_mic, get_parameters
 
 RESOURCES = "resources"
@@ -51,8 +51,7 @@ def test_param_detection_v2():
                         "param_2": {"name": "", "default_value": "hello", "type": "str", "description": ""},
                         "param_3": {"name": "", "default_value": "-3.1415", "type": "float", "description": ""},
                         "param_4": {"name": "", "default_value": "-15", "type": "int", "description": ""},
-                        "param_5": {"name": "", "default_value": "test.txt", "type": "str", "description": ""},
-                        "param_6": {"name": "", "default_value": "string-special", "type": "str", "description": ""}
+                        "param_5": {"name": "", "default_value": "string-special", "type": "str", "description": ""}
                     }
                     }
 
@@ -70,8 +69,28 @@ def test_wrapper_code():
     assert code == "\npushd .\n/bin/sh ./addtoarray.sh ${a_txt} ${in_txt} ${param_1} \"${param_2}\" ${param_3} " \
                    "${param_4} \"${param_5}\" \"${param_6}\"\npopd"
 
-#
-#
+
+
+# General test cases to make sure mic auto param can guess the parameter's type from the command line
+def test_get_parameter_type():
+    assert get_parameter_type("15") == "int"
+    assert get_parameter_type("-1243432") == "int"
+    assert get_parameter_type("22.43566457") == "float"
+    assert get_parameter_type("-9574322.4667853") == "float"
+    assert get_parameter_type("0") == "int"
+    assert get_parameter_type("-0") == "int"
+    assert get_parameter_type("-0.0") == "float"
+    assert get_parameter_type("0.0") == "float"
+    assert get_parameter_type("this is a long string parameter") == "str"
+    assert get_parameter_type("[1,2,3,4,5,6]") == "str"
+    assert get_parameter_type("--") == "str"
+    assert get_parameter_type(".") == "char"
+    assert get_parameter_type("c") == "char"
+    assert get_parameter_type("TRUE") == "bool"
+    assert get_parameter_type("-false") == "str"
+
+
+
 # def test_get_inputs_aggregate_false():
 #     """
 #     We're testing the reprozip keys: inputs_outputs and other_files using aggregate false

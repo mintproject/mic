@@ -72,6 +72,7 @@ def get_outputs_reprozip(spec, user_execution_directory, aggregrate=False):
                     outputs.append(str(user_execution_directory / Path(i).relative_to(default_path)))
     return list(set(outputs))
 
+
 # Return a spec with auto generated params ignoring i/o files from reprozip trace
 def get_parameters_reprozip(spec, reprozip_spec):
     run_lines = []
@@ -94,6 +95,8 @@ def get_parameters_reprozip(spec, reprozip_spec):
         code_file_names.append(code_dict.get(code_file).get(PATH_KEY))
 
     possible_params = 0
+    old_invo_out = ""
+    new_invo_out = ""
     for line in run_lines:
 
         # Get the start position. That is the earliest reference to a known code file. (ie: python3 mycode.py)
@@ -109,11 +112,14 @@ def get_parameters_reprozip(spec, reprozip_spec):
             continue
 
         # Splits all possible parameters into a list. Ignores command line code call
-        invocation_split = shlex.split(line[start_pos:len(line)])
-        invocation_split = invocation_split[1:len(invocation_split)]
+        invocation_split_full = shlex.split(line[start_pos:len(line)])
+        invocation_split = invocation_split_full[1:len(invocation_split_full)]
         
+        formatted_invocation = []
         for i in invocation_split:
-            
+           
+            is_param = True
+            logging.debug("invocation_split: {}".format(i))
             # huristically check if curr invocation split is file (contains one '.' 
             # and has at least one character in it)
             if i.count(".") == 1:
@@ -127,19 +133,36 @@ def get_parameters_reprozip(spec, reprozip_spec):
 
                     if not t.isdigit():
                         logging.debug("File is not parameter: {}".format(i))
-                        continue
+                        is_param = False
 
-            possible_params += 1
+            if is_param:
+                possible_params += 1
             
-            auto_name = "param_" + str(possible_params)
-            spec.get(PARAMETERS_KEY).update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
-                                                     DATATYPE_KEY: "str",
-                                                     DEFAULT_DESCRIPTION_KEY: ""}})
-            click.echo("Adding \"{}\" from value {}".format(auto_name, i))
-            logging.debug("Adding parameter: {}".format(auto_name))
+                
+                auto_name = "param_" + str(possible_params)
+                formatted_invocation.append("${" + auto_name + "}")
+
+                spec.get(PARAMETERS_KEY).update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
+                                                         DATATYPE_KEY: get_parameter_type(i),
+                                                         DEFAULT_DESCRIPTION_KEY: ""}})
+                click.echo("Adding \"{}\" from value {}".format(auto_name, i))
+                logging.debug("Adding parameter: {}".format(auto_name))
+            else:
+                formatted_invocation.append(i)
+            
+        # print out user's invocation line(s) showing which vatiables have become parameters.
+        new_invo_out += line[0:start_pos] + invocation_split_full[0]
+        for l in formatted_invocation:
+            new_invo_out = new_invo_out + " " + l + ""
+        
+
+        new_invo_out += "\n"
+        old_invo_out += line + "\n"
+        
 
 
     if possible_params > 0:
+        click.echo("\nInvocation line(s):\n" + old_invo_out + "Become(s):\n" + new_invo_out)
         click.secho("The parameters of the model component are available in the mic.yaml file.", fg="green")
     else:
         click.secho("No parameters found", fg="green")
@@ -147,87 +170,35 @@ def get_parameters_reprozip(spec, reprozip_spec):
 
     return spec
 
-# def get_parameters_reprozip(spec, reprozip_spec):
-#     run_lines = ''
-#     for rep_run in reprozip_spec[REPRO_ZIP_RUNS]:
 
-#         # Adds quotes around any cell that contains a space
-#         quoted_run = []
-#         for i in rep_run[REPRO_ZIP_ARGV]:
-#             if " " in i:
-#                 quoted_run.append(f"\"{i}\"")
-#             else:
-#                 quoted_run.append(i)
+# Helper function for get_parameters_reprozip. Returns the type of a passed parameter string (int/double/str)
+def get_parameter_type(parameter):
+    
+    # check if param is int
+    try:
+        int(parameter)
+        return "int"
+    except ValueError:
+        pass
 
-#         run_lines = " ".join(map(str, quoted_run)).splitlines()
+    # Check if char
+    if len(parameter) == 1:
+        return "char"
 
+    # Check if boolean
+    if parameter.lower() == "true" or parameter.lower() == "false":
+        return "bool"
 
-#     logging.debug("spec: {}".format(spec))
-#     logging.debug("reprozip_spec: {}".format(reprozip_spec))
+    # Check if double
+    try:
+        float(parameter)
+        return "float"
+    except ValueError:
+        pass
 
-#     params_added = 0
-#     for line in run_lines:
-#         # capture invocation line(s)
-#         start_pos = line.find("./")
-#         if start_pos >= 0:
-#             invocation_split = shlex.split(line[start_pos:len(line)])
-#             invocation_split = invocation_split[1:len(invocation_split)]
-#             for i in invocation_split:
-#                 the_type = ""
-#                 # check if there is a . in the line. This means it could be a file extension or float
-#                 is_param = False
+    # Default to string
+    return "str"
 
-#                 if i.find(".") != -1:
-#                     try:
-#                         float(i)
-#                         is_param = True
-#                         the_type = "float"
-
-#                     except ValueError:
-#                         # i is a file (file.txt)
-#                         pass
-
-#                 if the_type == "":
-#                     try:
-#                         # i is an int
-#                         int(i)
-#                         the_type = "int"
-#                         is_param = True
-#                     except ValueError:
-#                         # Not a parameter if it starts with a hyphen (--option) or exists as a file (inputs.csv)
-#                         if i.find("-") != 0 and not os.path.exists(i):
-#                             # not a parameter if it is already an input or output
-#                             is_io = False
-
-#                             if INPUTS_KEY in spec:
-#                                 if i.replace(".","_") in spec[INPUTS_KEY].keys():
-#                                     is_io = True
-
-#                             if OUTPUTS_KEY in spec:
-#                                if i.replace(".","_") in spec[OUTPUTS_KEY].keys():
-#                                    is_io = True
-
-#                             if not is_io:
-#                                 # i is a string
-#                                 the_type = "str"
-#                                 is_param = True
-
-#                 if is_param:
-#                     params_added += 1
-#                     auto_name = "param_" + str(params_added)
-#                     spec[PARAMETERS_KEY].update({auto_name: {NAME_KEY: "", DEFAULT_VALUE_KEY: i,
-#                                                              DATATYPE_KEY: the_type,
-#                                                              DEFAULT_DESCRIPTION_KEY: ""}})
-#                     click.echo("Adding \"{}\" from value {}".format(auto_name, i))
-#                     logging.debug("Adding parameter: {}".format(auto_name))
-
-#             if params_added > 0:
-#                 click.secho("The parameters of the model component are available in the mic directory.", fg="green")
-#             else:
-#                 click.secho("No parameters found", fg="green")
-#                 logging.info("No parameters added")
-
-#             return spec
 
 def generate_pre_runner(spec, user_execution_directory):
     code = ""
