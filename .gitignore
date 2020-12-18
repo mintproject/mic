@@ -1,5 +1,4 @@
-mydir/
-test
+
 Scripts/
 *.json
 pyvenv.cfg
@@ -17,6 +16,7 @@ setups/
 
 # temporary files which can be created if a process still has a handle open of a deleted file
 .fuse_hidden*
+*.swp
 
 # KDE directory preferences
 .directory
