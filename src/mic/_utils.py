@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import re
 from pathlib import Path
 import platform
@@ -51,12 +52,13 @@ def make_log_file(mic_path=Path(MIC_DIR)):
             with open(mic_path / LOG_FILE, 'w') as fp:
                 pass
 
-        init_logger()
+        init_logger(mic_path)
         return True
     except Exception as e:
         click.secho("WARNING: Could not make log file: \"{}\"".format(e),fg="yellow")
         return False
 
+# Gathers basic system information and writes it to the log file
 def log_system_info(logger):
     log = logging.getLogger(logger)
     log.info("Log file created")
@@ -108,10 +110,10 @@ def get_mic_logger():
     return logging.getLogger(mic.__name__)
 
 
-def init_logger():
+def init_logger(file_path=MIC_DIR):
     logger = logging.getLogger(mic.__name__)
-    if os.path.exists(Path(MIC_DIR) / LOG_FILE):
-        handler = logging.FileHandler(Path(MIC_DIR) / LOG_FILE)
+    if os.path.exists(Path(file_path) / LOG_FILE):
+        handler = logging.FileHandler(Path(file_path) / LOG_FILE)
     elif os.path.exists(LOG_FILE):
         handler = logging.FileHandler(LOG_FILE)
     else:
@@ -134,12 +136,15 @@ def get_latest_version():
         raise e
 
 
-def check_mic_path(mic_dir):
+def check_mic_path(mic_dir,exit_on_fail=True):
     if mic_dir is None:
         mic_file = recursive_mic_search(os.getcwd())
         if mic_file is None:
-            click.secho("Could not find {}. Please specify a path with -f".format(CONFIG_YAML_NAME),fg="red")
-            exit(1)
+            if exit_on_fail: 
+                click.secho("Could not find {}. Please specify a path with -f".format(CONFIG_YAML_NAME),fg="red")
+                sys.exit()
+            else:
+                return None
         else:
             click.echo("Found {} in {}".format(CONFIG_YAML_NAME, mic_file))
             return mic_file
@@ -172,10 +177,12 @@ def recursive_mic_search(curr_dir):
     # Default case
     return None
 
+
 def find_dir(name, path):
     for root, dirs, files in os.walk(path):
         if os.path.basename(root) == name:
             return root
+
 
 def parse(value):
     try:
