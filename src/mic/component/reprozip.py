@@ -119,7 +119,6 @@ def get_parameters_reprozip(spec, reprozip_spec):
         for i in invocation_split:
            
             is_param = True
-            logging.debug("invocation_split: {}".format(i))
             # huristically check if curr invocation split is file (contains one '.' 
             # and has at least one character in it)
             if i.count(".") == 1:
@@ -269,7 +268,14 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
     data = [mic_inputs,mic_outputs]
     code = shlex.split(code)
     new_code = []
+    
+    # Keep track of which keys have already been output in a warning message
+    # This way the same key isnt output as a warning many times in a row
     known_bad_keys = []
+    
+    # prevent reusing params with same default value
+    used_keys = []
+
     for item in code:
         edit = False
         # Appends tag to inputs and outputs
@@ -287,10 +293,12 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
                         known_bad_keys.append(key)
 
         if not edit:
+
+
             # appends tag to parameters
             for key in mic_parameters:
                 try:
-                    if (mic_parameters[key])["default_value"] == item:
+                    if (mic_parameters[key])["default_value"] == item and key not in used_keys:
 
                         # Check if param is a str. If it is add quotes around it
                         if (mic_parameters[key])["type"] == "str":
@@ -298,10 +306,12 @@ def format_code(code, mic_inputs, mic_outputs, mic_parameters):
                         else:
                             new_code.append("${" + key + "}")
 
+                        used_keys.append(key)
                         edit = True
+                        break
                 except KeyError:
                     if key not in known_bad_keys:
-                        click.secho("Warning: Could not check default value for {}".format(key),fg="yellow")
+                        click.secho("Warning: Could not find default value for {}. Check mic.yaml for errors".format(key),fg="yellow")
                         logging.warning("Could not check default value for: {}".format(key))
                         known_bad_keys.append(key)
         if not edit:
