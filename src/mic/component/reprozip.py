@@ -134,6 +134,12 @@ def get_parameters_reprozip(spec, reprozip_spec):
                         logging.debug("File is not parameter: {}".format(i))
                         is_param = False
 
+            # dont detect command line options as parameters
+            if i.startswith("--"):
+                logging.debug("Option is not parameter: {}".format(i))
+                is_param = False
+
+
             if is_param:
                 possible_params += 1
             
