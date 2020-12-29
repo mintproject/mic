@@ -1,20 +1,20 @@
 import os
-
 from setuptools import find_packages, setup
 
 install_requires = [
     "Click>=7.0",
     "jsonschema>=3.0.0",
     "semver>=2.8.1",
-    "requests",
+    "requests==2.24.0",
     "tabulate>=0.8.1",
     "Jinja2>=2.11.2",
     "PyYAML>=5.3.1",
     "modelcatalog-api==3.0.1",
     "dame-cli>=5.3.0",
     "pygit2>=1.2.1",
-    "PyGithub>=1.43.5"
-]
+    "PyGithub>=1.43.5",
+    "validators"
+    ]
 
 
 # Utility function to read the README file.
