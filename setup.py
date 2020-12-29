@@ -13,7 +13,8 @@ install_requires = [
     "dame-cli>=5.3.0",
     "pygit2>=1.2.1",
     "PyGithub>=1.43.5",
-    "validators"
+    "validators",
+    "wrapt"
     ]
 
 
