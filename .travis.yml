@@ -21,6 +21,7 @@ install:
   - pip install decorator==4.4.2
   - pip install markupsafe
   - pip install pathlib
+  - pip install docker
 script:
 - python setup.py install
 - pytest
