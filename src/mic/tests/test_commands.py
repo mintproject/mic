@@ -68,6 +68,7 @@ def test_add_parameters_float(tmpdir):
             assert False
         print("CURR: mic_file(",mic_file,") | index(",index, ")")
         print(get_spec(mic_file))
+        print(get_parameters(mic_file))
         assert get_parameters(mic_file)[index]["default_value"] == float(value)
         assert get_parameters(mic_file)[index][DATATYPE_KEY] == "float"
         assert result.exit_code == 0
