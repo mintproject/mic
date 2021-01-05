@@ -35,7 +35,7 @@ Below is an overview of the different steps in MIC.
 
 ![Diagram](figures/overview_01.png)
 
-### Step 1: Start a MIC enacpsulation component 
+### Step 1: Start a MIC encapsulation component 
 Select a working directory (i.e., the directory where you have your input datasets and model executables) and start a new execution environment to run your model. MIC will create a template *MIC file* that will be modified in subsequent steps with information about the model component. The execution environment is created from scratch based on the files in your working directory. For example, if you have python executables, MIC will prepare a python Docker image to execute your model.
 
 **Expected outcomes of this step**: A folder (`mic`) with  a placeholder MIC file that shows up as `mic.yaml` file in that folder.
