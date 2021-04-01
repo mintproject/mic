@@ -18,12 +18,12 @@ Encapsulating software into components allows other users to easily access and r
 
 A **model component** corresponds to a single invocation function for model software.  From a sophisticated model software package, a model component could be created to include only certain model processes and variables while excluding others. For example, from a hydrology model software package we could create a component for arid zones that includes infiltration processes but not snowmelt processes from the package.  The invocation function for that configuration could have as input the recharge rates.     
 
+In preparation for creating a model component, you should consider what set of processes you would like others to represent.  For each function, think about what variables you would like to preset and which ones you would want them to easily change through the function call. 
 
-## Getting Started
+## Prepare your exceutable
 
-In preparation for creating a model component, you should consider what set of functions you would like others to use to run your model.  For each function, think about what parameters you would like to preset and which ones you would want them to easily change through the function call. 
-
-Prepare your model code in a local directory so it can be invoked from a command line, and loading any input data and configuration files from that directory.  You should remove any hardcoded paths and other local dependencies, and instead make them explicit by reading them from a configuration file.  Once you have done this preliminary preparation, MIC can help you create a model component.
+1. Place your model code in a local directory so it can be invoked from a command line along with any input data and configuration files needed. MIC will test that the code can be executed and will do so three times during the encapsulation process. Therefore, we recommend that your execution can be completed in a manner of minutes, for example, by reducing the size of the dataset (e.g., only considering a few months instead of a year). Because of limitation on GitHub which will be used during the process, files should not exceed **100 MB** each.
+2.  The code should not contain any hardcoded paths or values for the input files/variables that you wish to expose. We recommend making them explicit in a configuration file or as parameters from the command line execution.  
 
 ## How MIC Works
 
