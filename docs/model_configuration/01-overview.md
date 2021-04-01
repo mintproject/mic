@@ -6,42 +6,35 @@ There are several reasons for creating a model component:
 
 * You will be able to expose only the inputs and parameters that are more important for a particular use of the model, pre-setting the rest and making them internal to the model component and inaccessible to other users.
 * You will be able to create a secure environment for executing the model. When others want to run your model, they will be reassured that the model will not disrupt or delete anything in their local environment.
-* Everyone will be able to find your component in the [MINT model catalog](https://models.mint.isi.edu/) using [DAME](dame-cli.readthedocs.io/).  
-* Everyone will be able to execute your model in their own local environments and operating systems (Linux, macOS or Windows).
-
-
-
+* Everyone will be able to find your component in a model catalog supported by the [MINT model catalog ontology](https://github.com/mintproject/Mint-ModelCatalog-Ontology) such as [MINT model catalog](https://models.mint.isi.edu/) using [DAME](dame-cli.readthedocs.io/).  
+* Everyone will be able to execute your model in their own local environments and operating systems (Linux, MacOS or Windows).
 
 ##  What is a Model Component
 
-Encapsulating software into components allows other users to easily access and run software in their own environments.  Following well-established component-based software engineering principles, we want to create self-contained software components that only reveal functionality that is of interest to third parties.  This is important because models are often implemented in large software packages or libraries that contain many tools and functions to run the model in many different ways, to prepare data, to visualize data, etc.  It is hard to navigate all the possible functions, especially for those who are interested in sophisticated functionality that may be hard to achieve.  Other models have graphical user interfaces that are convenient to use, but cannot be used for invoking the model from another program.  A user interface button to run a model would call a specific function of the model software, and that function (sometimes called a *command line invocation*, or *invocation function*) is what we want to capture.  That function is known as the *component interface*, and its inputs can be provided when invoking the component but all other data or parameters will be pre-set and internal to the component so noone will be able to change them.  Finally, for reproducibility reasons, we want to be able to record how a model execution was set up, which means having an explicit description of the specific function call that was used to run the model.  These issues are addressed by encapsulating software.
+In preparation for creating a model component, you should consider what set of processes you would like to represent and what variables should be preset vs the ones you would want other users to vary.
 
-A **model component** corresponds to a single invocation function for model software.  From a sophisticated model software package, a model component could be created to include only certain model processes and variables while excluding others. For example, from a hydrology model software package we could create a component for arid zones that includes infiltration processes but not snowmelt processes from the package.  The invocation function for that configuration could have as input the recharge rates.     
-
-In preparation for creating a model component, you should consider what set of processes you would like others to represent.  For each function, think about what variables you would like to preset and which ones you would want them to easily change through the function call. 
-
-## Prepare your exceutable
+## Prepare your executable
 
 1. Place your model code in a local directory so it can be invoked from a command line along with any input data and configuration files needed. MIC will test that the code can be executed and will do so three times during the encapsulation process. Therefore, we recommend that your execution can be completed in a manner of minutes, for example, by reducing the size of the dataset (e.g., only considering a few months instead of a year). Because of limitation on GitHub which will be used during the process, files should not exceed **100 MB** each.
 2.  The code should not contain any hardcoded paths or values for the input files/variables that you wish to expose. We recommend making them explicit in a configuration file or as parameters from the command line execution.  
 
-## How MIC Works
+## Before you start
 
-MIC guides you to create a model component and uploading it to the MINT Model Catalog so it is available to others.   This involves nine major steps. MIC has an `pkg` command that will guide you through those steps in the form of nine subcommands. Each subcommand represents one of the nine steps to encapsulate your model. The steps should be followed in order, and after each step you will have a chance to check what MIC is doing to help you create your model component.  
+Before you start, you should have a GitHub and Docker account setup following [these guidelines](02-pre-steps.md). 
+
+## Overview of the MIC process
+
+MIC has an `pkg` command that will guide you through those steps in the form of nine subcommands. Each subcommand represents one of the nine steps to encapsulate your model. The steps should be followed in order, and after each step you will have a chance to check what MIC is doing to help you create your model component.  
 
 MIC creates: 1) a MIC Directory, 2) a MIC File, 3) a MIC Wrapper, 4) a component virtualization image, 5) archival versions of your model code, MIC directories and files, and image in GitHub and DockerHub, and 6) a model component entry in the MINT Model Catalog.
 
-Below is an overview of the different steps in MIC. 
-
-![Diagram](figures/overview_01.png)
-
-### Step 1: Start a MIC encapsulation component 
+### Step 1: Start a MIC encapsulation component
 Select a working directory (i.e., the directory where you have your input datasets and model executables) and start a new execution environment to run your model. MIC will create a template *MIC file* that will be modified in subsequent steps with information about the model component. The execution environment is created from scratch based on the files in your working directory. For example, if you have python executables, MIC will prepare a python Docker image to execute your model.
 
 **Expected outcomes of this step**: A folder (`mic`) with  a placeholder MIC file that shows up as `mic.yaml` file in that folder.
 
 ### Step 2: Trace your model execution
-Install any missing dependency needed to execute your model and trace the execution of your model. 
+Install any missing dependency needed to execute your model and trace the execution of your model.
 
 **Expected outcome of this step**: You will see that your model took a little longer to run and that a .reprozip trace file was successfully added to your folder.
 
@@ -68,14 +61,14 @@ MIC detects automatically most of the outputs your component produced after its 
 ### Step 7: Prepare MIC wrapper
 Create three subfolders (`data`, `src` and `docker`) in the mic folder and *MIC wrapper* that indicates how the component invocation from Step 2 corresponds to the functions implemented in your model software.
 
-**Expected outcome of this step**: The MIC Wrapper will automatically set up three files (run, io.sh, and output.sh) that capture how the component has been run. They can be found in the /src folder of the MIC directory. 
+**Expected outcome of this step**: The MIC Wrapper will automatically set up three files (run, io.sh, and output.sh) that capture how the component has been run. They can be found in the /src folder of the MIC directory.
 
 ### Step 8: Run your model through the MIC wrapper
 Use the wrapper generated in Step 7 to execute your model.
 
 **Expected outcome of this step**: A successful test run of your model.  If the tests are successful, the encapsulation of your model component has been successful.
 
-### Step 9: Upload the model component software and image 
+### Step 9: Upload the model component software and image
 MIC will upload the MIC Wrapper and your model software in GitHub.  MIC will also upload the model component image in DockerHub and upload your model in the MINT model catalog, which will make it accessible by others through MINT services and interfaces to be run in their own local hosts and servers. This will give them unique identifiers that represent the snapshot of the model that you wanted to encapsulate so that any future updates to your model or your model component can be distinct from each other.
 
 **Expected results after completing this step**: Your model component wrapper will be uploaded to Github, and your model component image to DockerHub. Both will receive a tag and will be versioned, and will be archived so they are available to anyone anywhere.  MINT will have an entry for your model component in the MINT Model Catalog, which will be accessible through your browser.  Anyone using DAME can run your component with their own data.  Anyone using MINT can run your component with any dataset in MINT.
@@ -117,5 +110,3 @@ Commands:
 ```
 
 You have to follow the commands in order to successfully upload your component. If you want to know more about a specific step, just do `mic pkg <stepName> --help`, where `<stepName>` represents one of the steps listed above (e.g., `trace`).
-
-
