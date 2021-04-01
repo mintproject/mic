@@ -15,7 +15,7 @@ For more information, you can type.
 mic pkg wrapper --help
 ```
 
-### Expected results 
+### Expected results
 If we inspect the `mic.yaml` file, we see that the output has been added correctly:
 
 ```yaml
@@ -26,6 +26,8 @@ outputs:
 ```
 
 If you detect that an output is missing from the `mic.yaml` file, you can always add it through the `outputs` command. For example, by doing `mic pkg outputs <path_to_file>`, where <path_to_file> represents the path to an output you would like to expose. Added files must exist, or the program will issue an error. MIC will use this information to confirm that the output files are generated when testing the component.
+
+If your code generates intermediate outputs that do not need to be exposed to a user, you can remove them from the `mic.yaml` file. 
 
 ### Help command
 

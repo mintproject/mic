@@ -20,13 +20,19 @@ In preparation for creating a model component, you should consider what set of p
 
 ## Before you start
 
-Before you start, you should have a GitHub and Docker account setup following [these guidelines](02-pre-steps.md). 
+Before you start, you should have a GitHub and Docker account setup following [these guidelines](02-pre-steps.md).
 
 ## Overview of the MIC process
 
 MIC has an `pkg` command that will guide you through those steps in the form of nine subcommands. Each subcommand represents one of the nine steps to encapsulate your model. The steps should be followed in order, and after each step you will have a chance to check what MIC is doing to help you create your model component.  
 
 MIC creates: 1) a MIC Directory, 2) a MIC File, 3) a MIC Wrapper, 4) a component virtualization image, 5) archival versions of your model code, MIC directories and files, and image in GitHub and DockerHub, and 6) a model component entry in the MINT Model Catalog.
+
+Below is a summary of the steps, please click on each page for detailed instructions and troubleshooting.
+
+!!! warning
+DO NOT CLOSE the terminal in-between each step.
+After inspecting the `.yml` file in-between steps, CLOSE the file. 
 
 ### Step 1: Start a MIC encapsulation component
 Select a working directory (i.e., the directory where you have your input datasets and model executables) and start a new execution environment to run your model. MIC will create a template *MIC file* that will be modified in subsequent steps with information about the model component. The execution environment is created from scratch based on the files in your working directory. For example, if you have python executables, MIC will prepare a python Docker image to execute your model.

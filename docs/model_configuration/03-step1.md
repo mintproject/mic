@@ -10,6 +10,12 @@ $ ls
 input.txt  test_192-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
+You can proceed in two different ways:
+1. Use MIC to create a docker image for you
+2. Use a customized docker image (you may need to follow this step if you require specialized environments such as when working with Anaconda/Miniconda or a specific Linux OS)
+
+#### Option 1: Creating an image through MIC
+
 Then, in the folder, type:
 
 ```bash
@@ -18,7 +24,7 @@ $ mic pkg start
 !!! warning
     If you want MIC to start from your own Docker image, you should use the flag `mic pkg start --image <yourimage:version>`. Do not forget to install MIC in your image with `pip install mic` so you have all the commands available.
 
-MIC will ask for the component name you want to use (you may use any name you want), and will show you a message similar to this:
+MIC will ask for the component name you want to use (you may use any name you want even when creating a new version of the component), and will show you a message similar to this:
 
 ```bash
 Model component name: test_192
@@ -52,14 +58,60 @@ As can be seen in the message above, MIC is creating an execution environment fr
 !!! warning
     This command must **NOT** be executed on a folder already tracked by GitHub.
 
+#### Option 2: Create your own Image
+
+-> Link to tutorial on creating docker images
+
+```bash
+$ mic pkg start --name [yourname] --image [imagename]
+```
+Example:
+
+```bash
+$ mic pkg start --name drought --image dsiv1.2.0
+```
+
+```bash
+MIC has initialized the component.
+[Created] data:      /Users/deborahkhider/Documents/MINT/Drought/ForMIC2/mic/data
+[Created] docker:    /Users/deborahkhider/Documents/MINT/Drought/ForMIC2/mic/docker
+[Created] src:       /Users/deborahkhider/Documents/MINT/Drought/ForMIC2/mic/src
+[Created] mic.yaml:  /Users/deborahkhider/Documents/MINT/Drought/ForMIC2/mic/mic.yaml
+/Users/deborahkhider/Documents/MINT/Drought/ForMIC2/mic/mic.yaml created
+Using default tag: latest
+Error response from daemon: pull access denied for dsiv1.2.0, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+Using default tag: latest
+Error response from daemon: pull access denied for dsiv1.2.0, repository does not exist or may require 'docker login': denied: requested access to the resource is denied
+Downloading the base image and building your image
+Step 1/4 : FROM dsiv1.2.0
+
+ ---> 091f544d11b8
+Step 2/4 : COPY entrypoint.sh /set_umask.sh
+
+ ---> 42aa41d755cb
+Step 3/4 : RUN chmod +x /set_umask.sh
+
+ ---> Running in 376c2e4304d6
+ ---> 4270eb9cf0f0
+Step 4/4 : ENTRYPOINT ["/set_umask.sh"]
+
+ ---> Running in 74c8ef789627
+ ---> 49d4a9636391
+Successfully built 49d4a9636391
+Successfully tagged drought:latest
+
+    You are using a custom image
+    You must install mic and reprozip
+    $ pip3 install mic reprozip
+```
 
 #### Expected Results
 
 After executing the previous command, MIC creates a `mic` directory with three sub-directories and a MIC file (mic.yaml):
 
-- data/: It contains your data (now it will be empty). 
-- src/: It contains your code and MIC Wrapper (i.e., the  file that executes your code). In the next step, you are going to specify how to run your model in the command line. MIC will capture all the required information automatically.
-- docker/: It contains the required files to create the Docker Image (if everything goes well, you will not have to modify this directory). In later steps, MIC will populate this directory with the files that are needed to capture your computational infrastructure. 
+- data/: folder for the input data (should be empty).
+- src/: folder for code and MIC wrapper (i.e., the  file that executes your code). This folder should be empty at this stage. In the next step, you are going to specify how to run your model in the command line. MIC will capture all the required information automatically.
+- docker/: It contains the required files to create the Docker Image (should not require further modifications). In later steps, MIC will populate this directory with the files that are needed to capture your computational infrastructure.
 
 The MIC file will have a few lines at the moment, capturing the dependencies of the current environment:
 
@@ -67,31 +119,37 @@ The MIC file will have a few lines at the moment, capturing the dependencies of 
 step: 1
 name: test_192
 docker_image: dgarijo/test_192:20.6.1
-framework: 
+framework:
   - java8
   - mintproject/java:8
   - .jar
 ```
 
+MIC will also redirect you to the container. The command line path should look something like this:
+
+```bash
+root@4914deed9c58:/tmp/mint#
+```
+
+Note: If you are using a conda environment, the name of the environment will show up before the path:
+
+```bash
+(climate) root@4914deed9c58:/tmp/mint
+```
 
 #### Help command
 
 ```bash
 Usage: mic pkg start [OPTIONS] USER_EXECUTION_DIRECTORY
 
-  Generates mic.yaml and the directories (data/, src/, docker/) for your
-  model component. Also initializes a local GitHub repository
+  This step generates a mic.yaml file and the directories (data/, src/,
+  docker/). It also initializes a local GitHub repository
 
-  The argument: `model_configuration_name` is the name of your model
-  configuration
+  The argument: `model_configuration_name` is the name of the model
+  component you are defining in MIC
 
 Options:
-  --dependencies / --no-dependencies Enable/Disable tracking dependencies   
-                                    (enabled by default)
-  --name TEXT     Name of the model component
-  --help          Show this message and exit.
+  --name TEXT   Name of the model component you want for your model
+  --image TEXT  (Optional) If you have a DockerImage, you can use it
+  --help        Show this message and exit.
 ```
-
-!!! info
-    Next releases of MIC will allow customizing an initial Docker image.
-

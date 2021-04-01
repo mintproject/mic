@@ -1,5 +1,7 @@
 Models may use many parameters and input files, but we may not need to expose all of them as part of our model component. If you know individual parameters that you would like to expose in your model component, you may expose them with the `parameters` command.
 
+If your using a `config` file to set the input variables values and file path, you still need to complete this step, entering each of the parameters you wish to expose from the file one at a time.
+
 ### How to perform this step?
 
 In our Java executable, we only had one parameter to expose through the command line (the parameter `p`). Note that you should use the `-f` option with the path of the mic file, typically under the `mic/mic.yaml` path:
@@ -27,7 +29,7 @@ parameters:
 
 You can also add the parameter yourself to the `mic.yaml` file directly, if you prefer.
 
-**Note**: If your parameters are declared in a configuration file, please see the next step `mic pkg configs`.
+**Note**: If your parameters are declared in a configuration file, you must also complete the next step `mic pkg configs`.
 
 ### Help command
 
@@ -55,5 +57,3 @@ Options:
   -f, --mic_file FILE
   --help                          Show this message and exit.
 ```
-
-

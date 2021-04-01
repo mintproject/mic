@@ -5,7 +5,7 @@ The MINT Wrapper does the following tasks:
 - Feed the parameter values to your models.
 - Detect errors on execution time.
 
-The commands in the MINT Wrapper are a mixture of commands we would normally type ourselves on the command line (such as ls or cp). If this sequence of commands is needed to execute your model, we need to preserve it in your model component. Remember that anything you can run normally on the command line can be put into a script with equivalent functionality. 
+The commands in the MINT Wrapper are a mixture of commands we would normally type ourselves on the command line (such as ls or cp). If this sequence of commands is needed to execute your model, we need to preserve it in your model component. Remember that anything you can run normally on the command line can be put into a script with equivalent functionality.
 
 !!! info
     Many models have graphical interfaces for data preparation purposes and set up. However, the scope of this effort is making your model available on any infrastructure. Cloud servers and supercomputers don’t usually provide graphical interfaces, and therefore we cannot assume a graphical interface to be available. It is a good engineering practice to deliver a component that can be used without a graphical interface.
@@ -27,9 +27,15 @@ For more information, you can type.
 mic pkg run --help
 ```
 ### Expected results
-As it can be seen in the text above, MIC has successfully created the wrapper and drafted an executable automatically.
+If MIC has successfully created the wrapper and drafted an executable automatically, you should see the following:
 
-Now we have to make sure that the executable is correct. In our case, the executable at `/tmp/mint/mic/src/run` looks like follows:
+1. The data has been moved to the data folder
+2. Model code moved to src. If you are using a `config` file, this should also have been moved to the src folder.
+3. `output.sh`, `input.sh` and `run` have been created.
+
+Next, you should ensure that the executable is correct. If using `config` file, you should not have to change anything in `run`.
+
+Otherwise you need to update the command line execution to reflect the parameters. From our example, the executable at `/tmp/mint/mic/src/run` looks like follows:
 
 ```bash
 #!/bin/bash
@@ -68,7 +74,7 @@ We see that MIC prepared already the command to run our component based on our t
 ```
 java -jar test_192-1.0-SNAPSHOT-jar-with-dependencies.jar -i input.txt -p 1500 -o output.txt
 ```
-to be 
+to be
 ```
 java -jar test_192-1.0-SNAPSHOT-jar-with-dependencies.jar -i ${input_txt} -p ${p} -o output.txt
 ```
@@ -85,6 +91,13 @@ inputs:
     path: input.txt
     format: txt
 ```
+
+If you are using a `config` file, then the command:
+
+```
+python3 example.py config.json
+```
+is correct. 
 
 ### Help command
 ```bash

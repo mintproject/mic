@@ -1,10 +1,10 @@
 [Skip background explanation](#how-to-perform-this-step)
 
-In this step, MIC will trace the execution of your component to make sure it captures all its implicit file dependencies and its invocation command. First, you will have to make sure your model executed in the environment prepared by MIC, and then you will have to trace its execution.
+In this step, MIC will trace the execution of your component to make sure it captures all its implicit file dependencies and its invocation command. First, you will have to make sure your model is being executed in the environment prepared by MIC, and then you will have to trace its execution.
 
 ### Testing your model in the execution environment prepared by MIC
 
-The `mic pkg start` command created a blank execution environment that is independent of the installed dependencies of your computer; and mounted the folder you chose. In our example, we have a folder with an executable (jar) and an input file (input.txt): 
+The `mic pkg start` command created a blank execution environment that is independent of the installed dependencies of your computer; and mounted the folder you chose. In our example, we have a folder with an executable (jar) and an input file (input.txt):
 
 ![Diagram](figures/folder.png)
 
@@ -24,7 +24,7 @@ Once you have tested your model, you can trace its execution
 
 ### How to perform this step?
 
-Type: 
+Type:
 
 ```bash
 $ mic pkg trace <your_execution_command>
@@ -38,7 +38,7 @@ In the case above:
 $ mic pkg trace java -jar test_192-1.0-SNAPSHOT-jar-with-dependencies.jar -i input.txt -p 1500 -o output.txt
 ```
 
-**What does this do?** MIC uses [Reprozip](https://www.reprozip.org/), a program to track all the system calls of your model, to automatically track down all the file and dependencies being used. The result is saved in a file called `reprozip-trace`, which we will call `trace` for simplicity.
+**What does this do?** MIC uses [Reprozip](https://www.reprozip.org/), a program to track all the system calls of your model, to automatically track down all the file and dependencies being used. The result is saved in a file called `.reprozip-trace`, which we will call `trace` for simplicity.
 
 If multiple commands are required for your model execution, trace each of them separately (or create a script including them and trace the invocation of the script). If you are capturing multiple traces, you will see a message like this one:
 
@@ -62,7 +62,7 @@ A new folder called `.reprozip-trace` will have been created in your directory:
 
 If you are curious, you may open the `config.yaml` file inside `.reprozip-trace` folder, but no manipulation is required and you may proceed to the next step.
 
-
+Note that `.reprozip-trace` is a hidden folder and you may need to enable this view on your computer. 
 
 #### Help command
 
@@ -84,7 +84,4 @@ Options:
   --continue   add to the previous trace, don't replace it
   --overwrite  overwrite the previous trace, don't add to it
   --help       Show this message and exit.
-
 ```
-
-
