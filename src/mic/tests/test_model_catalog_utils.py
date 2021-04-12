@@ -26,10 +26,10 @@ def test_get_api():
     model_catalog_username = os.environ['MODEL_CATALOG_USERNAME_TEST']
     model_catalog_password = os.environ['MODEL_CATALOG_PASSWORD_TEST']
     result = runner.invoke(credentials, [
-        "--username", "mosorio@isi.edu",
+        "--username", model_catalog_username,
         "--git_username", "mintbot",
         "--git_token", "asdfsafs",
-        "--password", model_catalog,
+        "--password", model_catalog_password,
         "--dockerhub_username", "a",
         "--name", "pedro",
         "--profile", "testing"
