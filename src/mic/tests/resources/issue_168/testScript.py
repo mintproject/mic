@@ -1,1 +1,1 @@
-/dev/null
+print('hi')
