@@ -24,6 +24,8 @@ from mic.publisher.github import push, push_cwl
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     create_model_catalog_resource_cwl
 
+from ipython2cwl.repo2cwl import repo2cwl
+
 logging = get_mic_logger()
 
 
@@ -49,15 +51,56 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
             fg="yellow",
         )
 
+
+
 @cli.command(short_help="Expect a cwl definition a values")
+@click.argument(
+    "url",
+    type=click.Path(),
+    required=True
+)
+def read(url, profile):
+    repo2cwl([url, "-o", "."])
+
+
+
+@cli.command(short_help="Convert CWL Document to ModelCatalog")
 @click.argument(
     "spec_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     required=True
 )
+def transform(spec_file):
+    mic_dir = Path('.')
+    name = str(Path(spec_file).stem)
+    mic_config_path = create_config_file_yaml(mic_dir, f"mic_{name}.yaml")
+    cwl_spec = get_spec(Path(spec_file))
+    write_spec(mic_config_path, NAME_KEY, name)
+    supported(cwl_spec)
+    cwl_line = get_base_command(cwl_spec)
 
+
+    parameters = get_parameters(cwl_spec)
+    inputs = get_inputs(cwl_spec)
+    outputs = cwl_spec["outputs"]
+    cwl_values = {}
+    for key, item in parameters.items():
+        click.secho(f"""Complete information about the input {key}""")
+        _type = int
+        value = click.prompt(f"""Please enter a valid {item['type']}""", type=_type)
+        cwl_values[key] = value
+        cwl_line = f"{cwl_line} {item['inputBinding']['prefix']} {cwl_values[key]}"
+    
+    add_inputs(mic_config_path, inputs, cwl_values)
+    add_outputs(mic_config_path, outputs, cwl_values)
+    add_parameters(mic_config_path, parameters, cwl_values)
+    name = get_key_spec(mic_config_path, NAME_KEY)
+    docker_image = get_docker_image(cwl_spec)
+    write_spec(mic_config_path, DOCKER_KEY, docker_image)
+
+@cli.command(short_help="Upload the DockerImage")
 @click.argument(
-    "values_file",
+    "mic_file",
     type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
     required=True
 )
@@ -68,22 +111,13 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
     type=str,
     default="default",
     metavar="<profile-name>",
+    help="specify a profile to list"
 )
-@click.option('--name', prompt="Model component name", help="Name of the model component you want for your model")
-def cwl(name, spec_file, values_file, profile):
-    # Make sure the name given is valid
-    if not name.islower():
-        logging.debug("User's model name does not contain all lowercase characters. Setting it to lower")
-        click.secho("Model name must be lower case. Mic will replace any uppercase letters",fg='yellow')
-        name = name.lower()
-    mic_dir = Path('.')
-    mic_config_path = create_config_file_yaml(mic_dir)
-    cwl_spec = get_spec(Path(spec_file))
-    cwl_values = get_spec(Path(values_file))
-    write_spec(mic_config_path, NAME_KEY, name)
-    supported(cwl_spec)
-    cwl_line = get_base_command(cwl_spec)
-    docker_image = get_docker_image(cwl_spec)
+def upload_image(mic_file, profile):
+    mic_config_path = Path(mic_file)
+    if not mic_config_path.exists():
+        exit(1)
+    docker_image = get_key_spec(mic_config_path, DOCKER_KEY)
     try:
         docker_username = get_docker_username(profile)
         docker_image_with_version = f"""{docker_username}/{docker_image}:latest"""
@@ -95,15 +129,22 @@ def cwl(name, spec_file, values_file, profile):
         raise e
 
 
-    parameters = get_parameters(cwl_spec)
-    inputs = get_inputs(cwl_spec)
-    outputs = cwl_spec["outputs"]
-    for key, item in parameters.items():
-        cwl_line = f"{cwl_line} {item['inputBinding']['prefix']} {cwl_values[key]}"
-    add_inputs(mic_config_path, inputs, cwl_values)
-    add_outputs(mic_config_path, outputs, cwl_values)
-    add_parameters(mic_config_path, parameters, cwl_values)
-    name = get_key_spec(mic_config_path, NAME_KEY)
+@cli.command(short_help="Upload the DockerImage")
+@click.argument(
+    "mic_file",
+    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
+    required=True
+)
+@click.option(
+    "--profile",
+    "-p",
+    envvar="MINT_PROFILE",
+    type=str,
+    default=None,
+    metavar="<profile-name>",
+    help="specify a profile to list"
+)
+def upload_configuration(mic_file, profile):
     model_configuration = create_model_catalog_resource_cwl(Path(mic_config_path), name, allow_local_path=False)
     api_response_model, api_response_mc, model_id, software_version_id = publish_model_configuration(model_configuration, profile)
     info_end_publish(obtain_id(model_id), obtain_id(software_version_id), obtain_id(api_response_mc.id),profile)

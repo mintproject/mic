@@ -30,8 +30,11 @@ def slugify(value, allow_unicode=False):
     return re.sub(r'[-\s]+', '-', value)
 
 
-def create_config_file_yaml(model_path: Path) -> Path:
-    config_yaml_path = model_path / CONFIG_YAML_NAME
+def create_config_file_yaml(model_path: Path, name = None) -> Path:
+    if name:
+        config_yaml_path = model_path / name
+    else:
+        config_yaml_path = model_path / CONFIG_YAML_NAME
     if not model_path.exists():
         click.secho("Failed: Directory {} doesn't exist".format(model_path), fg="red")
         exit(1)
