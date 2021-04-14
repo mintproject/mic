@@ -59,7 +59,7 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
     type=click.Path(),
     required=True
 )
-def read(url, profile):
+def read(url):
     repo2cwl([url, "-o", "."])
 
 
