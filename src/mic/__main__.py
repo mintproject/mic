@@ -121,6 +121,6 @@ pkg.add_command(upload)
 
 
 notebook.add_command(read)
-notebook.add_command(transform)
-notebook.add_command(upload_image)
-notebook.add_command(upload_configuration)
+#notebook.add_command(transform)
+#notebook.add_command(upload_image)
+#notebook.add_command(upload_configuration)

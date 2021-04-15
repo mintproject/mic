@@ -5,10 +5,10 @@
 The command `clone` create the following artifacts for each notebook:
 
 - Docker Image
-- A CWL document: CWL is a way to describe command line.
+- A CWL document: CWL is a way your Jupyter notebook as a command.
 
 ```bash
-$ mic notebook clone <repo_url>
+$ mic notebook read <repo_url>
 
 ...
 [Repo2Docker] Successfully tagged r2d-2ftmp-2frepo2cwl-5factynwz1-2frepo1618407245:latest
@@ -19,9 +19,6 @@ $ mic notebook clone <repo_url>
 
 ## Transform 
 
-```bash
-$ mic notebook transform index.cwl
-```
 
 
 ## Upload 

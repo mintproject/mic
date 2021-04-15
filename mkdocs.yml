@@ -16,6 +16,11 @@ nav:
       - '8. Test run': 'model_configuration/10-step8.md'
       - '9. Upload to GitHub, DockerHub and MINT ': 'model_configuration/11-step9.md'
       - 'Summarized example ': 'model_configuration/12-end-to-end-example.md'
+  - 'Creating a model component from a Jupyter Notebook':
+      - 'Overview': 'notebooks/index.md'
+      - 'Prepare your Binder repository': 'notebooks/prepare_binder.md'
+      - 'Expose your model inputs and outputs': 'notebooks/expose_inputs_outputs.md'
+      - 'Convert the Jupyter Notebook': 'notebooks/convert_notebook.md'
   - Glossary: glossary.md
 
 theme: 

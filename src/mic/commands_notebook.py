@@ -10,7 +10,7 @@ from mic._utils import get_mic_logger, check_mic_path, obtain_id
 from mic.cli_docs import info_start_publish, info_end_publish
 from mic.component.initialization import render_bash_color, render_run_sh, render_io_sh, render_output
 from mic.component.reprozip import format_code
-from mic.config_yaml import get_spec, create_config_file_yaml, write_spec, get_key_spec
+from mic.config_yaml import write_to_yaml, get_spec, create_config_file_yaml, write_spec, get_key_spec
 from mic.constants import DOCKER_KEY, NAME_KEY
 
 from mic.config_yaml import get_parameters as mic_get_parameters
@@ -71,7 +71,7 @@ def read(url):
     required=True
 )
 def transform(spec_file):
-    mic_dir = Path('.')
+    mic_dir = Path(spec_file).parent
     name = str(Path(spec_file).stem)
     mic_config_path = create_config_file_yaml(mic_dir, f"mic_{name}.yaml")
     cwl_spec = get_spec(Path(spec_file))
@@ -97,6 +97,7 @@ def transform(spec_file):
     name = get_key_spec(mic_config_path, NAME_KEY)
     docker_image = get_docker_image(cwl_spec)
     write_spec(mic_config_path, DOCKER_KEY, docker_image)
+    write_to_yaml(mic_dir / f"""{name}_values.yaml""", cwl_values)
 
 @cli.command(short_help="Upload the DockerImage")
 @click.argument(
