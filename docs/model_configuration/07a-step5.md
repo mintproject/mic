@@ -1,12 +1,16 @@
+!!! warning
+    DO NOT CLOSE the terminal in-between each step.  
+    After inspecting the `mic.yml` file in-between steps, CLOSE the file.
+
 After tracing your execution, MIC has recorded all the input/output files that are needed and produced by your model component. However, we need to identify which of these input types you want to allow others to change. This step will help you describe the input data exposed in your model component. All inputs will be added by MIC in the MIC file.
 
-Note that even though we are referring to concrete files in this step, these represent placeholders that will be expected as input for running your model component. For example, if your model uses a `precip.csv` file with precipitation data and you expose it, your model component will expect a `precip` file as input in order to run; independently of its name.
+Note that even though we are referring to concrete files in this step, these represent placeholders that will be expected as inputs for running your model component. For example, if your model uses a `precip.csv` file with precipitation data and you expose it, your model component will expect a `precip` file as input in order to run; independently of its name.
 
-### How to perform this step?
-Just type the following command: `mic pkg inputs`. MIC will ask you about whether the inputs and outputs used and produced are code or not, and based on that MIC will add the appropriate inputs into the `mic.yaml` file. For our simple Java example, this is the result of the command execution:
+## How to perform this step?
+Just type the following command: `mic pkg inputs`. MIC will ask you about whether the inputs and outputs used and produced are code, and based on that MIC will add the appropriate inputs into the `mic.yaml` file. For our simple Java example, this is the result of the command execution:
 
 ```bash
-$ mic pkg inputs 
+$ mic pkg inputs
 Automatically found mic.yaml in /tmp/mint/mic/mic.yaml
 Detecting the data of your model using the information obtained by the `trace` command.
 Creating the inputs.
@@ -25,7 +29,7 @@ MIC is going to detect the outputs of your model using the information obtained 
 For more information, you can type.
 mic pkg outputs --help
 ```
-### Expected results 
+## Expected results
 If we inspect the `mic.yaml` file, we now see that the inputs and executable files have been correctly annotated:
 
 ```yaml
@@ -41,9 +45,7 @@ code_files:
 
 If you detect that an input is missing, you can always add it through the `inputs` command. For example, by doing `mic pkg inputs <path_to_file>`, where <path_to_file> represents the path to an input you would like to expose. Added files must exist, or the program will issue an error.
 
-If your input is defined in a configuration file, you may use the same method as with parameters for MIC to replace its value in the configuration file. For example, if the model in the example above used a configuration file, the path to `input.txt` could have been changed with `${input.txt}`
-
-### Help command
+## Help command
 
 ```bash
 Usage: mic pkg inputs [OPTIONS] [CUSTOM_INPUTS]...

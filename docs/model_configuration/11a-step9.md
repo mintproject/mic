@@ -1,10 +1,10 @@
 Now that we have tested our model component, it's time do a snapshot of the mic wrapper, the docker image and save the model metadata in MINT.
 
-MIC assumes that appropriate GitHub credentials, Docker login and MINT metadata credentials have been set up with the `mic credentials` command.
+MIC assumes that appropriate GitHub credentials, Docker login and MINT metadata credentials have been set up with the [`mic credentials` command](/commands/configure/). 
 
 ### How to perform this step?
 
-If you are still on the environment MIC created, type `exit`. It is usually easy to identify whether you are on the MIC environment or not, as you will see `root@<random_number>:/tmp/mint#` in your console. 
+If you are still on the environment MIC created, type `exit`. It is usually easy to identify whether you are on the MIC environment or not, as you will see `root@<random_number>:/tmp/mint#` in your console.
 
 Once exited, type `mic pkg upload`:
 
@@ -46,7 +46,7 @@ Select enter the number of version to use [1]: 1
 ```
 In this case, we selected a model that already exists (`test_192`). If the model component does not have a model associated yet, MIC will prompt you to describe its name and version.
 
-### Expected results 
+### Expected results
 MIC will create a GitHub repository for your component (if the repository exist, it will create a new release in it); a Docker image and a MINT model configuration entry.
 
 For example, for our Java component, MIC automatically created:
