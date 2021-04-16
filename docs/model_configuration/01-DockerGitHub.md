@@ -1,24 +1,25 @@
-In order to use MIC, you should create a GitHub and a DockerHub account. We will use these accounts in MIC to help you upload your component. You only need to perform these steps once. Even though we recommend you performing these steps before starting using MIC, **you only need them for performing the `upload` step**.
+In order to use MIC, you need to create a GitHub and a DockerHub account. We will use these accounts in MIC to help you upload your component. Even though we recommend you performing these steps before starting using MIC, you only need them for performing the `upload` step.
 
+**You only need to perform these steps once.** If you have already used MIC to encapsulate a component, skip to [Preparing your executable](/model_configuration/02-Preparing your executable).
 
-## Create a GitHub account
+## Creating a GitHub account
 
 GitHub is a website and cloud-based service that helps developers store and manage their code, as well as track and control changes to their code. MIC uses GitHub to store a snapshot of your code and invocation by creating a GitHub repository and pushing your local code files. The code is stored in your account, so you will be the owner.
 
 ### Obtain your GitHub access token
 
-In order for MIC to push code in your repository, you must generate a GitHub Token. 
+In order for MIC to push code in your repository, you must generate a GitHub Token.
 
 This token can be generated on the GitHub website. Once logged, in at the top right dropdown menu there will be a "signed in as **[username]**"
 
 The `GitHub Token` is the user's [personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line). To create a personal access token click [here](https://github.com/settings/tokens/new), or go to GitHub.com -> Settings -> Developer settings -> personal access token. Click **Generate new token** this will open the new personal access token page. The following options must be checked:
- 
+
   - [x] repo: | Full control of private repositories
   - [x] write:packages | Upload packages to github package registry
   - [x] read:packages | Download packages from github package registry
- 
+
  Writing "mic access token" under notes is also recommended
- 
+
  When done click **Generate token** at the bottom of the page. Once the token is generated be sure to copy and save it in a secure location. Enter this key in the `GitHub API token` field when prompted by MIC.
 
 !!! warning
@@ -42,7 +43,6 @@ Username: frink
 Password:
 ```
 
-### Configure MIC
+## Configure MIC
 
-Type `mic credentials` and fill in the information requested. You only need to do this once.
-
+You need to give MIC access to these credentials. The [`mic credentials` command](/commands/configure) will assist you with that step.
