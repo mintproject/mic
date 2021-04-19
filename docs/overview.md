@@ -2,7 +2,7 @@
 
 MIC assists a user in encapsulating their software in 9 easy steps summarize in the figure below.
 
-![Diagram](model_configuration/figures/overview_01.png)
+![Diagram](figures/overview_01.png)
 
 Below is a summary of the steps. This is not meant as a user guide. See the [detailed instructions](model_configuration/01-DockerGithub) for a step-by-step guide.
 
