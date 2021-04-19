@@ -31,5 +31,6 @@ MIC is meant to work with the [MINT Model Catalog](https://github.com/mintprojec
 * [Installing MIC](installation)
 * [Overview of the MIC process](overview)
 * [Available commands](usage)
-* [Step-by-step instructions](/model_configuration/01-overview) for creating a software component
+* [Step-by-step instructions](model_configuration/01-overview) for creating a software component
 * Report bugs and problems with the code or documentation to our [GitHub repository](https://github.com/mintproject/mic/issues).
+* [Frequently asked questions](faq)

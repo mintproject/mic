@@ -30,6 +30,7 @@ nav:
         - 'Summarized example ': 'model_configuration/12b-end-to-end-example.md'
       - Credentials: 'commands/configure.md'
   - Available commands: usage.md
+  - FAQ: faq.md
   - Glossary: glossary.md
 
 theme:
