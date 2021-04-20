@@ -2,19 +2,21 @@ Use the `mic` to convert the repository.
 
 
 !!! info
-
-URL must be the repository url.
+    URL must be the repository url.
 
 ```bash
 $ mic notebook read <repository_url>
 ```
 
-The commands performs the following actions:
+The commands performs the following actions for each annotated notebook in the repository:
 
 1. Download the repository.
 2. Build a Docker Image reading the Binder configuration files.
 3. Convert each IPython Notebook to a command line script.
-4. Generate a CWL Document for each notebook. The notebook will be ignored if it does not contain annotations, 
+4. Generate a CWL Document for each notebook. 
+
+!!! info
+    The notebook will be ignored if it does not contain annotations.
 
 
 ## What is a CWL Document?
@@ -58,7 +60,9 @@ outputs:
 
 ```
 
-Next, you must provide the input values. Create a file `values-example1.yml` 
+### How to run it?
+
+Next, create a file called simpleModelAnnotatedValues.yml, containing the following boxed text, which will describe the input of a run.
 
 ```yaml
 a: 1
@@ -69,10 +73,16 @@ input_file:
   path: https://raw.githubusercontent.com/mosoriob/simpleModel-1/master/x.csv
 ```
 
-Now, you can run the model using `cwltool`
+Now, you can run the model using `cwltool` or [other CWL implementations](https://www.commonwl.org/#Implementations)
+
+To install `cwl`
+
+```
+$ pip install cwltool
+```
 
 ```bash
-$ cwltool simpleModelAnnotated.cwl simpleModelAnnotated.cwl 
+$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.cwl 
 INFO [job simpleModelAnnotated.cwl] completed success
 {
     "output_file": {
