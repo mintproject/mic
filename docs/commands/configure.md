@@ -44,7 +44,10 @@ Authors's GitHub API Token. More information can be found in the [setting up Git
 Username for dockerhub
 
 
-## <a name="GitHubCreds">Setting up GitHub credentials</a> 
+## <a name="GitHubCreds">Setting up GitHub credentials</a>
+
+!!! info
+    If you are transforming IPython Notebook, you can skip this section
  
 The `GitHub Username` field is the users GitHub username. If unknown the username can be found at [GitHub.com](https://github.com/). Once logged, in at the top right dropdown menu there will be a "signed in as **[username]**"
 
@@ -61,7 +64,7 @@ The `GitHub Token` is the user's [personal access token](https://help.github.com
 !!! warning
     If this token is lost there is no way to recover it without generating a new one.
 
-### Setting up DockerHub credentials
+## Setting up DockerHub credentials
 
 MIC will prompt you to add your user in [DockerHub](hub.docker.com/), a repository used for publishing Docker images. MIC will help you publish the computational dependencies of your model as a virtual image, giving you full control over the result.
 

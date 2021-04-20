@@ -1,11 +1,37 @@
-Use the `mic` to convert the repository. 
+Use the `mic` to convert the repository. Go to your computer and install `mic`
 
+## Read the repository
 
 !!! info
     URL must be the repository url.
 
 ```bash
 $ mic notebook read <repository_url>
+```
+
+### Example 
+
+```bash
+$ mic notebook read https://github.com/<your_user_name>/simpleModel-1
+[Repo2Docker] Successfully tagged r2d-2ftmp-2frepo2cwl-5f60lguuht-2frepo1618948318:latest
+
+repo2cwl - INFO - Generated image id: r2d-2ftmp-2frepo2cwl-5f60lguuht-2frepo1618948318
+repo2cwl - INFO - Creating CWL command line tool: simpleModelAnnotated-List-Input.cwl
+repo2cwl - INFO - Creating CWL command line tool: simpleModelAnnotated.cwl
+repo2cwl - INFO - Creating CWL command line tool: simpleModelAnnotated-Output-Wildcard.cwl
+repo2cwl - INFO - Cleaning local temporary directory /tmp/repo2cwl_60lguuht/repo...
+repo2cwl - INFO - cloning repo to temp directory: /tmp/repo2cwl_60lguuht/repo2021-04-20 15:51:57,957 - repo2cwl - INFO - Notebook /tmp/repo2cwl_60lguuht/repo/simpleModel.ipynb does not contains typing annotations. skipping...
+
+...
+
+[Repo2Docker] Successfully tagged r2d-2ftmp-2frepo2cwl-5f60lguuht-2frepo1618948318:latest
+
+repo2cwl - INFO - Generated image id: r2d-2ftmp-2frepo2cwl-5f60lguuht-2frepo1618948318
+repo2cwl - INFO - Creating CWL command line tool: simpleModelAnnotated-List-Input.cwl
+repo2cwl - INFO - Creating CWL command line tool: simpleModelAnnotated.cwl
+repo2cwl - INFO - Creating CWL command line tool: simpleModelAnnotated-Output-Wildcard.cwl
+repo2cwl - INFO - Cleaning local temporary directory /tmp/repo2cwl_60lguuht/repo...
+
 ```
 
 The commands performs the following actions for each annotated notebook in the repository:
@@ -18,12 +44,18 @@ The commands performs the following actions for each annotated notebook in the r
 !!! info
     The notebook will be ignored if it does not contain annotations.
 
+## CWL Document
 
-## What is a CWL Document?
+### What is a CWL Document?
 
-CWL is a way to describe command line tools and connect them together to create workflows. Because CWL is a specification and not a specific piece of software, tools and workflows described using CWL are portable across a variety of platforms that support the CWL standard.
+CWL is a way to describe model components (using command line tools)
+Because CWL is a specification and not a specific piece of software, tools and workflows 
+described using CWL are portable across a variety of platforms that support the CWL standard.
 
 ### Example
+
+In our example, the command generates four CWL Document. 
+Let's check the file `simpleModelAnnoted.cwl` and the important section for you.
 
 
 ```yaml
@@ -60,44 +92,9 @@ outputs:
 
 ```
 
-### How to run it?
-
-Next, create a file called simpleModelAnnotatedValues.yml, containing the following boxed text, which will describe the input of a run.
-
-```yaml
-a: 1
-b: 20
-c: 30
-input_file:
-  class: File
-  path: https://raw.githubusercontent.com/mosoriob/simpleModel-1/master/x.csv
-```
-
-Now, you can run the model using `cwltool` or [other CWL implementations](https://www.commonwl.org/#Implementations)
-
-To install `cwl`
-
-```
-$ pip install cwltool
-```
-
-```bash
-$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.cwl 
-INFO [job simpleModelAnnotated.cwl] completed success
-{
-    "output_file": {
-        "location": "file:///home/mosorio/tmp/demo/y.csv",
-        "basename": "y.csv",
-        "class": "File",
-        "checksum": "sha1$b70550bfaf3178152371dada56c7aaa826c85127",
-        "size": 24950,
-        "path": "/home/mosorio/tmp/demo/y.csv"
-    }
-}
-INFO Final process status is success
-```
-
-
-### Possible issues
-
-- Can we select a set of outputs as a collections
+- DockerRequirement: Indicates that a model component should be run in a Docker container, 
+    and specifies how to fetch the image.
+- inputs: Defines the input parameters of the model component. The component is ready to run when 
+  all required input parameters are associated with concrete values. 
+- outputs: Defines the parameters representing the output of the process. 
+  May be used to generate and/or validate the output object.
