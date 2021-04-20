@@ -22,7 +22,7 @@ modelcatalog-api==2.5.0
 more-itertools==8.4.0
 packaging==20.4
 pluggy==0.13.1
-py==1.8.2
+py==1.10.0
 pycparser==2.20
 pygit2==1.2.1
 PyGithub==1.51
