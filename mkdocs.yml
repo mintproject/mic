@@ -20,7 +20,7 @@ nav:
       - 'Overview': 'notebooks/index.md'
       - 'Prepare your Binder repository': 'notebooks/prepare_binder.md'
       - 'Expose your model inputs and outputs': 'notebooks/expose_inputs_outputs.md'
-      - 'Convert the Jupyter Notebook': 'notebooks/convert_notebook.md'
+      - 'Convert the repository': 'notebooks/convert_repository.md'
   - Glossary: glossary.md
 
 theme: 

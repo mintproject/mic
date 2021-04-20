@@ -1,20 +1,27 @@
-Use the `mic` to convert the notebook
+Use the `mic` to convert the repository. 
+
+
+!!! info
+
+URL must be the repository url.
 
 ```bash
-$ mic notebook get <url>
+$ mic notebook read <repository_url>
 ```
 
 The commands performs the following actions:
 
-1. Download the repository
-2. Build a Docker Image reading the Binder configuration files
-3. Generate a CWL Document
+1. Download the repository.
+2. Build a Docker Image reading the Binder configuration files.
+3. Convert each IPython Notebook to a command line script.
+4. Generate a CWL Document for each notebook. The notebook will be ignored if it does not contain annotations, 
 
 
-## CWL Document
+## What is a CWL Document?
 
 CWL is a way to describe command line tools and connect them together to create workflows. Because CWL is a specification and not a specific piece of software, tools and workflows described using CWL are portable across a variety of platforms that support the CWL standard.
 
+### Example
 
 
 ```yaml
