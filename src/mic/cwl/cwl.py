@@ -43,7 +43,7 @@ def get_inputs(spec: Dict):
     return inputs
 
 
-def get_docker_image(cwl_spec):
+def get_docker_image(cwl_spec: Dict):
     if "hints" in cwl_spec and "DockerRequirement" in cwl_spec['hints']:
         return cwl_spec['hints']['DockerRequirement']['dockerImageId']
     else:
@@ -77,8 +77,7 @@ def supported(cwl_spec):
 
 
 def add_parameters(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
-    spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
-    spec[PARAMETERS_KEY] = {}
+    spec = {PARAMETERS_KEY: {}}
     for key, item in cwl_spec.items():
         name = key
         value = values[key]
@@ -99,8 +98,7 @@ def add_parameters(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
 
 
 def add_inputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
-    spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
-    spec[INPUTS_KEY] = {}
+    spec = {INPUTS_KEY: {}}
     for key, item in cwl_spec.items():
         name = key
         value = values[key] if key in values else ""
@@ -114,12 +112,11 @@ def add_inputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
     except Exception as e:
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in spec[INPUTS_KEY]:
-        click.secho("Added: {} as a output".format(item))
+        click.secho("Added: {} as a input".format(item))
 
 
 def add_outputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
-    spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
-    spec[OUTPUTS_KEY] = {}
+    spec = {OUTPUTS_KEY: {}}
     for key, item in cwl_spec.items():
         name = key
         value = values[key] if key in values else ""
@@ -135,40 +132,4 @@ def add_outputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in spec[OUTPUTS_KEY]:
         click.secho("Added: {} as a output".format(item))
-
-def run(mic_file):
-    """
-  This step will test the model component you created in previous steps.
-
-  - You must pass the MIC_FILE (mic.yaml) using the option (-f) or run the
-  command from the same directory as mic.yaml
-
-  mic pkg run -f <mic_file>
-
-  Example:
-
-  mic pkg wrapper -f mic/mic.yaml
-    """
-    # Searches for mic file if user does not provide one
-    mic_file = check_mic_path(mic_file)
-
-    try:
-        execution_name = datetime.now().strftime("%m_%d_%H_%M_%S")
-        mic_config_path = Path(mic_file)
-        execution_dir = Path(mic_config_path.parent / EXECUTIONS_DIR / execution_name)
-        info_start_run(execution_dir.relative_to(mic_config_path.parent.parent))
-        if execute_local(mic_config_path, execution_name):
-            info_end_run(execution_dir)
-            logging.info("Run passed")
-            click.echo("You model has passed all the tests. Please, review the outputs files.")
-            click.echo('If the model is ok, type "exit" to go back to your computer')
-            click.echo('IMPORTANT: type "exit" and then upload your Model Component')
-        else:
-            logging.warning("Run failed")
-            info_end_run_failed()
-
-        logging.info("run done")
-    except Exception as e:
-        logging.exception(f"Run failed: {e}")
-        click.secho("Failed", fg="red")
 

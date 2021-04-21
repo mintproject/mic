@@ -71,10 +71,10 @@ def info_end_run(execution_dir):
 
 def info_end_run_failed():
     click.secho("Failed", fg="red")
-    click.secho(f"Something is wrong. You can report this problem at https://bit.ly/2zR1Tew", fg="blue")
+    click.secho("Something is wrong. You can report this problem at https://bit.ly/2zR1Tew", fg="blue")
 
 
-def info_start_publish(mc):
+def info_start_publish(mc = True):
     resource = "Model Configuration" if mc else "Data Transformation"
     click.echo(f"This step publishes your code, DockerImage and {resource}")
 
@@ -89,6 +89,7 @@ def info_end_publish_dt(model_id, model_version_id, model_configuration_id, prof
                 click.secho(url)
         except ValidationFailure as e:
             click.secho("Unable to generate the public url")
+            logging.debug(e, exc_info=True)
             exit(1)
     click.echo("You can run the Model using DAME")
     click.echo(f"dame run {model_configuration_id} -p {profile}")

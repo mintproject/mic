@@ -70,7 +70,23 @@ def publish_docker(mic_config_path, profile):
 def get_docker_username(profile):
     credentials = get_credentials(profile)
     if DOCKER_USERNAME_KEY not in credentials:
-        click.secho(f"Docker username not found. Please run"
-                    f"$ mic credentials -p {profile}")
+        click.secho(
+            f"""
+Docker username not found.
+Please run
+$ mic credentials -p {profile}
+""")
         exit(0)
     return credentials[DOCKER_USERNAME_KEY]
+
+def image_exists(image_name: str):
+    client = docker.from_env()
+    try:
+        client.images.get(image_name)
+    except docker.errors.ImageNotFound:
+        click.echo(f"""Image {image_name} not found""")
+        exit(1)
+    except docker.errors.APIError:
+        click.echo(f"""Unable to Docker with Docker""")
+        exit(1)        
+
