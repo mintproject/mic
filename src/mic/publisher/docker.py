@@ -86,15 +86,18 @@ def image_exists(image_name: str):
     except docker.errors.ImageNotFound:
         click.echo(f"""Image {image_name} not found""")
         exit(1)
-    except docker.errors.APIError:
-        click.echo(f"""Unable to Docker with Docker""")
+    except docker.errors.APIError as e:
+        click.echo(f"""Unable to connect with Docker""")
+        logging.error(e, exc_info=True)
         exit(1)        
 
 def parse_docker_name(docker_name: str) -> dict:
     username = None
     image_name = None
     version = None
-    regex = '((?P<username>[a-z]+)/)?(?P<image_name>[a-z]+)(:(?P<version>[a-z0-9]+))?'
+    regex = re.compile("((?P<username>[a-z]+)/)?"
+                "(?P<image_name>([a-z0-9]+((?:[._]|__|[-])|[a-z0-9])*))"
+                "(:(?P<version>[\w][\w.-]{0,127}))?")
     m = re.search(regex, docker_name)
     username = m.group('username')
     image_name = m.group('image_name')

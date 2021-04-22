@@ -17,10 +17,10 @@ def test_get_docker():
             'username': None,
             'version': 'version'
         },
-        'name': {
-            'image_name': 'name',
-            'username': None,
-            'version': None
+        'r2d-2ftmp-2frepo2cwl-5f6bijhvkv-2frepo1619012710': {
+             'image_name': 'r2d-2ftmp-2frepo2cwl-5f6bijhvkv-2frepo1619012710',
+             'username': None,
+             'version': None
         }
     }
 

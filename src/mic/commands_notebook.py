@@ -121,9 +121,9 @@ def upload_image(cwl_document, profile):
     image_exists(docker_image)
     click.echo(f"""Image {docker_image} detected""")
     #Get the DockerUsername from crendentials
+    docker_username = get_docker_username(profile)
     #Generate a unique version from the time
     version = datetime.now().strftime("%Y%m%d-%H%M%S")
-    docker_username = docker_image_parsed['username']
     click.echo(f"""Docker username detected: {docker_username}""")
     docker_image_name = docker_image_parsed["image_name"]
     docker_image_with_version = f"""{docker_username}/{docker_image_name}:{version}"""
@@ -134,8 +134,6 @@ def upload_image(cwl_document, profile):
         click.echo('Unable to push the image')
         exit(1)
         raise e
-
-    write_spec(cwl_path, DOCKER_KEY, docker_image_with_version)
     update_docker_image(cwl_path, docker_image_with_version)
 
 @cli.command(short_help="Upload the Component")
