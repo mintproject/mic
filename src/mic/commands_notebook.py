@@ -158,7 +158,7 @@ def upload_image(cwl_document, profile):
 )
 def upload_configuration(cwl_document, cwl_values, profile):
     # create a temporal file
-    mic_config_path = tempfile.NamedTemporaryFile(suffix=".yml", prefix="mic")
+    mic_config_path = tempfile.NamedTemporaryFile(suffix=".yml", prefix="mic", delete=False)
     # get the name from cwl document and write
     name = Path(cwl_document).stem
     write_spec(mic_config_path, NAME_KEY, name)
@@ -171,7 +171,7 @@ def upload_configuration(cwl_document, cwl_values, profile):
     # obtain the docker image from cwl
     docker_image = get_docker_image(cwl_document)
     write_spec(mic_config_path, DOCKER_KEY, docker_image)
-
+    exit(0)
     # Message publish start
     info_start_publish(True)
     # push the component
