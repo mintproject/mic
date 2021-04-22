@@ -77,7 +77,7 @@ def supported(cwl_spec):
 
 
 def add_parameters(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
-    spec = {PARAMETERS_KEY: {}}
+    spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
     for key, item in cwl_spec.items():
         name = key
         value = values[key]
@@ -98,7 +98,7 @@ def add_parameters(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
 
 
 def add_inputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
-    spec = {INPUTS_KEY: {}}
+    spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
     for key, item in cwl_spec.items():
         name = key
         value = values[key] if key in values else ""
@@ -116,7 +116,7 @@ def add_inputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
 
 
 def add_outputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
-    spec = {OUTPUTS_KEY: {}}
+    spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
     for key, item in cwl_spec.items():
         name = key
         value = values[key] if key in values else ""

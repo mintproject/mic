@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-
+import re
 import click
 import docker
 from docker.errors import APIError
@@ -89,4 +89,16 @@ def image_exists(image_name: str):
     except docker.errors.APIError:
         click.echo(f"""Unable to Docker with Docker""")
         exit(1)        
+
+def parse_docker_name(docker_name: str) -> dict:
+    username = None
+    image_name = None
+    version = None
+    regex = '((?P<username>[a-z]+)/)?(?P<image_name>[a-z]+)(:(?P<version>[a-z0-9]+))?'
+    m = re.search(regex, docker_name)
+    username = m.group('username')
+    image_name = m.group('image_name')
+    version = m.group('version')
+    return { 'username': username, 'image_name': image_name, 'version': version}
+
 

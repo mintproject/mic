@@ -21,7 +21,7 @@ from mic.config_yaml import get_spec, write_spec, get_key_spec
 from mic.constants import DOCKER_KEY, NAME_KEY
 from mic.cwl.cwl import add_parameters, add_outputs, get_docker_image, \
     add_inputs, update_docker_image
-from mic.publisher.docker import get_docker_username, image_exists
+from mic.publisher.docker import get_docker_username, image_exists, parse_docker_name
 from mic.publisher.model_catalog import publish_model_configuration, \
     create_model_catalog_resource_cwl
 
@@ -114,17 +114,19 @@ def upload_image(cwl_document, profile):
     cwl_spec = get_spec(cwl_path)
     try:
         docker_image = get_docker_image(cwl_spec)
+        docker_image_parsed = parse_docker_name(docker_image)
     except ValueError as e:
         click.secho(f"""Unable to find image, please verify the {cwl_document}""")
         exit(1)
     image_exists(docker_image)
     click.echo(f"""Image {docker_image} detected""")
     #Get the DockerUsername from crendentials
-    docker_username = get_docker_username(profile)
-    click.echo(f"""Docker username detected: {docker_username}""")
     #Generate a unique version from the time
     version = datetime.now().strftime("%Y%m%d-%H%M%S")
-    docker_image_with_version = f"""{docker_username}/{docker_image}:{version}"""
+    docker_username = docker_image_parsed['username']
+    click.echo(f"""Docker username detected: {docker_username}""")
+    docker_image_name = docker_image_parsed["image_name"]
+    docker_image_with_version = f"""{docker_username}/{docker_image_name}:{version}"""
     docker_push_cmd = f"""docker tag {docker_image} {docker_image_with_version} && docker push {docker_image_with_version}"""
     try:
         os.system(docker_push_cmd)
