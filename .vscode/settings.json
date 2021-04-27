@@ -1,6 +1,11 @@
 {
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintArgs": [
+        "--enable=W0614"
+    ],
+    "python.pythonPath": "/home/mosorio/.pyenv/versions/mic/bin/python",
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "python.testing.pytestArgs": ["--collect-only"]
-  }
+    "python.testing.pytestEnabled": true
+}
