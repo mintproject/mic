@@ -3,14 +3,13 @@ from pathlib import Path
 
 import click
 import validators
-from dame.cli_methods import create_sample_resource
 from mic._utils import obtain_id, parse, upload_code
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
     TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, FORMAT_KEY, PATH_KEY, \
     TYPE_DATA_TRANSFORMATION, MAP_PYTHON_MODEL_CATALOG, CWL_KEY
 from mic.drawer import print_choices
-from mic.model_catalog_utils import get_label_from_response
+from mic.model_catalog_utils import get_label_from_response, create_sample_resource
 from mic.resources.data_specification import DataSpecificationCli
 from mic.resources.data_transformation import DataTransformationCli
 from mic.resources.model import ModelCli

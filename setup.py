@@ -11,10 +11,10 @@ install_requires = [
     "Jinja2>=2.11.2",
     "PyYAML>=5.3.1",
     "modelcatalog-api==7.1.0",
-    "dame-cli>=5.6.0",
     "pygit2>=1.2.1",
     "PyGithub>=1.43.5",
     "ipython2cwl",
+    "validators"
 ]
 
 

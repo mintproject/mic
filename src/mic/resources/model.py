@@ -1,8 +1,7 @@
 import logging
 import modelcatalog
-from dame.utils import obtain_id
 from modelcatalog import ApiException, Model
-from mic.model_catalog_utils import get_api
+from mic.model_catalog_utils import get_api, obtain_id
 
 RESOURCE = "Model"
 

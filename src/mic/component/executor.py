@@ -5,7 +5,7 @@ import subprocess
 from pathlib import Path
 from mic._utils import get_mic_logger
 import click
-from dame.executor import build_parameter, build_output
+from mic.model_catalog_utils import build_parameter, build_output
 from mic.config_yaml import get_key_spec, get_inputs
 from mic.constants import SRC_DIR, EXECUTIONS_DIR, PATH_KEY, DATA_DIR, INPUTS_KEY
 from mic.publisher.model_catalog import create_model_catalog_resource
