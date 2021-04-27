@@ -209,11 +209,11 @@ def upload_code(upload_file: Path):
             r = requests.put(url, headers=header, data=f, verify=True, auth=HTTPBasicAuth(user, password))
         r.raise_for_status()
         return r
-    except requests.exceptions.Timeout:
+    except requests.exceptions.Timeout as e:
         # Maybe set up for a retry, or continue in a retry loop
         logging.error(e)
         exit(1)
-    except requests.exceptions.TooManyRedirects:
+    except requests.exceptions.TooManyRedirects as e:
         # Tell the user their URL was bad and try a different one
         logging.error(e)
         exit(1)
@@ -237,11 +237,11 @@ def download(url: str):
         r = requests.get(url)
         r.raise_for_status()
         return r
-    except requests.exceptions.Timeout:
+    except requests.exceptions.Timeout as e:
         # Maybe set up for a retry, or continue in a retry loop
         logging.error(e)
         exit(1)
-    except requests.exceptions.TooManyRedirects:
+    except requests.exceptions.TooManyRedirects as e:
         # Tell the user their URL was bad and try a different one
         logging.error(e)
         exit(1)
