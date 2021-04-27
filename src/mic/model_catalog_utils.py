@@ -89,3 +89,46 @@ def _api_configuration(username, password, profile, server=None):
         logging.error("Exception when calling DefaultApi->user_login_get: %s\n" % e)
         quit()
     return configuration
+
+def obtain_id(url):
+    if validators.url(url):
+        return url.split('/')[-1]
+    return url
+
+def build_output(outputs):
+    line = ""
+    for _output in outputs:
+        _output = convert_object_to_dict(_output)
+        if not _output.keys() >= KEYS_REQUIRED_OUTPUT:
+            raise ValueError(f'{_output["id"]}  has not the required information')
+        label = _output["label"][0]
+        extension = _output["has_format"][0]
+        position = _output["position"][0]
+        line += " -o{} {}.{}".format(position, label, extension)
+    return line
+
+
+def build_parameter(parameters):
+    line = ""
+    for _parameter in parameters:
+        _parameter = convert_object_to_dict(_parameter)
+        if not _parameter.keys() >= KEYS_REQUIRED_PARAMETER:
+            raise ValueError(f'{_parameter["id"]} has not the required information ')
+        if "has_fixed_resource" in _parameter:
+            value = _parameter["has_fixed_resource"][0]
+        else:
+            value = _parameter["has_default_value"][0]
+        position = _parameter["position"][0]
+        if 'has_data_type' not in  _parameter or _parameter["has_data_type"] is None or "string" in _parameter["has_data_type"]:
+            line += " -p{} \"{}\"".format(position, value)
+        else:
+            line += " -p{} {}".format(position, value)
+
+    return line
+
+def create_sample_resource(_input, uri):
+    s = SampleResource(id="https://w3id.org/okn/i/mint/".format(str(uuid.uuid4())),
+                       data_catalog_identifier="FFF-3s5c112e-c7ae-4cda-ba23-2e4f2286a18o",
+                       value=[uri])
+    _input.has_fixed_resource = [s.to_dict()]
+    
