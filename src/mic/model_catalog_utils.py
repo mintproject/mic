@@ -1,7 +1,9 @@
 import ast
 import json
 import logging
-
+import validators
+from modelcatalog import ApiException, SampleResource
+import uuid
 import click
 import modelcatalog
 from mic.credentials import get_credentials
@@ -9,6 +11,14 @@ from modelcatalog import ApiException, ApiClient, User
 from mic.constants import DEFAULT_CONFIGURATION_WARNING
 
 MODEL_CATALOG_URL = "https://w3id.org/okn/i/mint/"
+KEYS_REQUIRED_PARAMETER = {"has_default_value", "position"}
+KEYS_REQUIRED_OUTPUT = {"label", "has_format", "position"}
+KEYS_REQUIRED_INPUT = {"has_fixed_resource"}
+
+def convert_object_to_dict(o):
+    if isinstance(o, object):
+        return o.to_dict()
+    return o
 
 
 def get_label_from_response(response):
@@ -127,8 +137,8 @@ def build_parameter(parameters):
     return line
 
 def create_sample_resource(_input, uri):
-    s = SampleResource(id="https://w3id.org/okn/i/mint/".format(str(uuid.uuid4())),
+    _id = f"""https://w3id.org/okn/i/mint/${str(uuid.uuid4())}"""
+    s = SampleResource(id=_id,
                        data_catalog_identifier="FFF-3s5c112e-c7ae-4cda-ba23-2e4f2286a18o",
                        value=[uri])
     _input.has_fixed_resource = [s.to_dict()]
-    
