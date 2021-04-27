@@ -11,7 +11,6 @@ import semver
 from datetime import datetime
 
 from ipython2cwl.repo2cwl import repo2cwl
-from cwltool.main import run as cwltool_run
 import mic
 from mic import _utils
 from mic._utils import get_mic_logger, obtain_id
@@ -73,21 +72,6 @@ def read(url):
         url ([type]): [description]
     """
     repo2cwl([url, "-o", "."])
-
-
-@cli.command(short_help="Run and test your Model Compoent")
-@click.argument(
-    "cwl_document",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    required=True
-)
-@click.argument(
-    "cwl_values",
-    type=click.Path(exists=True, dir_okay=False, file_okay=True, resolve_path=True),
-    required=True
-)
-def run(cwl_document, cwl_values):
-    cwltool_run([cwl_document, cwl_values])
 
 
 @cli.command(short_help="Upload the DockerImage")
