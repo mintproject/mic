@@ -1,8 +1,14 @@
-Models may use many parameters and input files, but we may not need to expose all of them as part of our model component. If you know individual parameters that you would like to expose in your model component, you may expose them with the `parameters` command.
+!!! warning
+    DO NOT CLOSE the terminal in-between each step.  
+    After inspecting the `mic.yml` file in-between steps, CLOSE the file.
 
-### How to perform this step?
+Models may use many parameters and input files, but we may not need to expose all of them as part of our component. The goal of this step is to only expose some parameters.
 
-In our Java executable, we only had one parameter to expose through the command line (the parameter `p`). Note that you should use the `-f` option with the path of the mic file, typically under the `mic/mic.yaml` path:
+## How to perform this step?
+
+In our Java executable, we only had one parameter to expose through the command line (the parameter `p`). If you need to expose more than one parameter, you need to do so one at a time.
+
+Note that you can use the `-f` option with the path of the mic file, typically under the `mic/mic.yaml` path:
 
 ```bash
 $ mic pkg parameters -f mic/mic.yaml -n p -v 1350
@@ -13,9 +19,9 @@ The `-n` flag stands for `parameter name` and the `-v` flag stands for the defau
 !!! warning
     Parameters are case sensitive: a parameter `start_year` is different from `START_YEAR`.
 
-### Expected result
+## Expected result
 
-If you edit the mic.yaml file, you should see that the parameter has been added. We **encourage** adding a description so the role of the parameter becomes clear:
+If you open the `mic.yaml` file, you should see that the parameter has been added. We **encourage** adding a description so the role of the parameter becomes clear:
 
 ```yaml
 parameters:
@@ -27,9 +33,7 @@ parameters:
 
 You can also add the parameter yourself to the `mic.yaml` file directly, if you prefer.
 
-**Note**: If your parameters are declared in a configuration file, please see the next step `mic pkg configs`.
-
-### Help command
+## Help command
 
 ```bash
 root@32fee4e4d205:/tmp/mint# mic pkg parameters --help
@@ -55,5 +59,3 @@ Options:
   -f, --mic_file FILE
   --help                          Show this message and exit.
 ```
-
-

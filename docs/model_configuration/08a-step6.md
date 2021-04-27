@@ -1,4 +1,10 @@
+!!! warning
+    DO NOT CLOSE the terminal in-between each step.  
+    After inspecting the `mic.yml` file in-between steps, CLOSE the file.
+
 Similarly to what we did with inputs, we must identify which outputs to expose in our model component. MIC will detect some of them automatically based on what we entered in previous steps, avoiding redundant questions.
+
+## How to perform this step?
 
 For example, for our Java simple model, the command `mic pkg outputs` does most of the work for us:
 
@@ -15,7 +21,7 @@ For more information, you can type.
 mic pkg wrapper --help
 ```
 
-### Expected results 
+## Expected results
 If we inspect the `mic.yaml` file, we see that the output has been added correctly:
 
 ```yaml
@@ -27,7 +33,9 @@ outputs:
 
 If you detect that an output is missing from the `mic.yaml` file, you can always add it through the `outputs` command. For example, by doing `mic pkg outputs <path_to_file>`, where <path_to_file> represents the path to an output you would like to expose. Added files must exist, or the program will issue an error. MIC will use this information to confirm that the output files are generated when testing the component.
 
-### Help command
+If your code generates intermediate outputs that do not need to be exposed to a user, you can remove them from the `mic.yaml` file.
+
+## Help command
 
 ```bash
 Usage: mic pkg outputs [OPTIONS] [CUSTOM_OUTPUTS]...

@@ -1,21 +1,35 @@
 site_name: Model Insertion Checker (MIC)
 nav:
   - Home: index.md
+  - Installation: installation.md
+  - MIC Overview: overview.md
+  - 'Instructions':
+      - 'Setting up Docker and GitHub': 'model_configuration/01-DockerGitHub.md'
+      - 'Preparing your executable': 'model_configuration/02-Preparing your executable.md'
+      - 'Option 1: Parameters values passed through command line':
+        - '1. Starting a new component': 'model_configuration/03a-step1.md'
+        - '2. Tracing execution': 'model_configuration/04a-step2.md'
+        - '3. Exposing parameters': 'model_configuration/05a-step3.md'
+        - '4. Editing component configuration files [skipped]': 'model_configuration/06a-step4.md'
+        - '5. Exposing input files': 'model_configuration/07a-step5.md'
+        - '6. Exposing outputs': 'model_configuration/08a-step6.md'
+        - '7. Wrapping execution': 'model_configuration/09a-step7.md'
+        - '8. Testing run': 'model_configuration/10a-step8.md'
+        - '9. Uploading to GitHub, DockerHub and MINT ': 'model_configuration/11a-step9.md'
+        - 'Summarized example ': 'model_configuration/12a-end-to-end-example.md'
+      - 'Option 2: Parameters values passed through config files':
+        - '1. Starting a new component': 'model_configuration/03b-step1.md'
+        - '2. Tracing execution': 'model_configuration/04b-step2.md'
+        - '3. Exposing parameters': 'model_configuration/05b-step3.md'
+        - '4. Editing component configuration files': 'model_configuration/06b-step4.md'
+        - '5. Exposing input files': 'model_configuration/07b-step5.md'
+        - '6. Exposing outputs': 'model_configuration/08b-step6.md'
+        - '7. Wrapping execution': 'model_configuration/09b-step7.md'
+        - '8. Testing run': 'model_configuration/10b-step8.md'
+        - '9. Uploading to GitHub, DockerHub and MINT ': 'model_configuration/11a-step9.md'
+        - 'Summarized example ': 'model_configuration/12b-end-to-end-example.md'
+      - Credentials: 'commands/configure.md'
   - Available commands: usage.md
-  - Credentials: 'commands/configure.md'
-  - 'Creating a model component':
-      - 'Overview': 'model_configuration/01-overview.md'
-      - 'Before you start...': 'model_configuration/02-pre-steps.md'
-      - '1. Start a new component': 'model_configuration/03-step1.md'
-      - '2. Trace execution': 'model_configuration/04-step2.md'
-      - '3. Expose model parameters': 'model_configuration/05-step3.md'
-      - '4. Edit component configuration files': 'model_configuration/06-step4.md'
-      - '5. Expose model inputs': 'model_configuration/07-step5.md'
-      - '6. Expose model outputs': 'model_configuration/08-step6.md'
-      - '7. Wrap execution': 'model_configuration/09-step7.md'
-      - '8. Test run': 'model_configuration/10-step8.md'
-      - '9. Upload to GitHub, DockerHub and MINT ': 'model_configuration/11-step9.md'
-      - 'Summarized example ': 'model_configuration/12-end-to-end-example.md'
   - 'Creating a model component from a Jupyter Notebook':
       - 'Overview': 'notebooks/index.md'
       - 'Prepare your Binder repository': 'notebooks/prepare_binder.md'
@@ -23,11 +37,9 @@ nav:
       - 'Convert the repository to model components': 'notebooks/convert_repository.md'
       - 'Run and test and model component': 'notebooks/run_component.md'
       - 'Upload your model component': 'notebooks/upload_component.md'
-
-
   - Glossary: glossary.md
 
-theme: 
+theme:
   name: material
   logo: 'logo.png'
 markdown_extensions:

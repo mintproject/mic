@@ -1,6 +1,10 @@
-When you have finished the modifications of the MIC Wrapper. You can run step 8. This step will attempt to run your model component using the MIC wrapper and will validate that the expected output files are successfully generated.
+!!! warning
+    DO NOT CLOSE the terminal in-between each step.  
+    After inspecting the `mic.yml` file in-between steps, CLOSE the file.
 
-### How to perform this step?
+This step will attempt to run your model component using the MIC wrapper and will validate that the expected output files are successfully generated.
+
+## How to perform this step?
 
 Type `mic pkg run`. Below is the result obtained with our simple Java model:
 
@@ -30,13 +34,12 @@ If the model is ok, type "exit" to go back to your computer
 IMPORTANT: type "exit" and then upload your Model Component
 ```
 
-MIC will ask permission to create a folder, which will be placed under `executions` in the `mic` folder. MIC tested whether the execution of the model component finished successfully and whether the expected output (`output.txt`) was generated. After inspecing the result in `tmp/mint/mic/executions/06_25_04_47_52` and confirming that the output is correct, we conclude that the component is ready for publication. We type `exit` to exit the MIC environment.
+MIC will ask permission to create a folder, which will be placed under `executions` in the `mic` folder. MIC tested whether the execution of the model component finished successfully and whether the expected output (`output.txt`) was generated. After inspecting the result in `tmp/mint/mic/executions/06_25_04_47_52` and confirming that the output is correct, we conclude that the component is ready for publication.
 
-
-### Expected result
+## Expected result
 A successful test of the candidate model component. **After you are done,  type `exit` to exit the MIC container and return to your desktop for the final step**.
 
-### Help command
+## Help command
 ```bash
 Usage: mic pkg run [OPTIONS]
 

@@ -1,65 +1,35 @@
-Model Insertion CLI (MIC) is a command-line interface for adding  models on a Model Catalog Service.
+## Introduction
 
-MIC is an application that will guide you through the steps required for encapsulating your model component and exposing a set of inputs and parameters of interest. MIC also allows describing basic model metadata: model version, model configuration, parameters, inputs, outputs, authors and contribuors.
-
-MIC has been tested in OSX, Linux and Windows. It is installed through a simple pip command. 
+The Model Insertion command-line interface (MIC) is an application to assist scientists in encapsulating their softwares (e.g., models, pre-processing and post-processing codes, visualizations) in a virtual environment to ensure their execution independently of the evolution of the libraries used to support them. In addition, MIC allows scientists to expose a set of inputs and parameters of interest and to describe basic metadata information to ensure maximum reuse.
 
 !!! info
     MIC is an ALPHA version, which we are still testing and developing continuously. If you find an error or experience any issue, please report them [here](https://github.com/mintproject/mic/issues/new/choose).
 
-## Requirements
+### What is a software component?
 
-MIC has the following requirements:
+Encapsulating software into components allows other users to easily access and run software on their own machine without worrying about the environment the software needs. Following well-established component-based software engineering principles, we want to create self-contained software components that only reveal functionality that is of interest to third party users. This is important because scientific softwares are often implemented in large packages or libraries that can be used for various steps such as data preparation and visualization in addition to writing software to model specific processes (such as atmospheric dynamics for climate models, runoff and infiltration for hydrology models, fuel density for fire modeling...).
 
-1. Python >= 3.6
-2. Docker
+These packages can be quite overwhelming for users, even if they are associated with the scientific domain for which the package has been written. It becomes an impossible tasks for users outside of the domain but who could make use of specific results.
 
+Over the years, scientists have created various user interfaces to conveniently provide access to their software but these interfaces are often not reusable from another program, requiring significant movement of data from one platform to the next. However, the basic framework for these user interfaces involves a specific function to call the software from a button in the interface and a fillable form that sets specific parameters. That call (sometimes called a *command line invocation*) is reusable from one framework to the next, provided that the software itself is containerized in such as way that it can be executed from any local machine in its specific environment.  The call function is known as the *component interface*, and its inputs can be provided when invoking the component (as is done in a user interface where the values for some input parameters are filled out.) Other inputs can be pre-set within the component (including data files) if there are no reasons for third party users to change them given a specific application.
 
-### Python 3
+A **software component** corresponds to a single invocation function for software.  From a sophisticated software package, a software component could be created to include only certain processes and variables, a specific pre-processing step, or a specific visualization. For example, a hydrology model software could be pre-set to be working in hot arid region only and ignore the processes (and therefore inputs) describing snowmelt.   
 
-DAME uses Python. Please, follow the steps bellow to install it:
+The purpose of MIC is to assist a scientist in creating a model component for various pieces of their workflows, including data preparation and pre-processing, modeling, and visualizations.
 
-- [Installation on Linux](https://realpython.com/installing-python/#linux)
-- [Installation on Windows](https://realpython.com/installing-python/#windows)
-- [Installation on Mac](https://realpython.com/installing-python/#macos-mac-os-x)
+MIC is meant to work with the [MINT Model Catalog](https://github.com/mintproject/ModelCatalog). However, the container it creates in the process can be reused outside of this framework.
 
-### Docker
+### Why should you create a software component?
 
-MIC uses Docker test and run model components.
+* Everyone will be able to execute your model in their own local environments and operating systems (Linux, MacOS or Windows).
+* You can simplify the number of inputs needed for a particular application.
+* You will be able to create a secure environment for executing the model. When others want to run your model, they will be reassured that the model will not disrupt or delete anything in their local environment.
+* Everyone will be able to find your component in a model catalog supported by the [MINT model catalog ontology](https://github.com/mintproject/Mint-ModelCatalog-Ontology) such as [MINT model catalog](https://models.mint.isi.edu/) using [DAME](dame-cli.readthedocs.io/).  
 
-- [Installation on Linux](https://docs.docker.com/engine/install/)
-- [Installation on MacOS](https://docs.docker.com/docker-for-mac/install/)
+## Getting Started
 
-
-## Installation
-
-To install MIC, open a terminal and run:
-
-```bash
-$ pip install mic
-```
-
-You did it! If you want to verify the installation just type:
-
-```bash
-$ mic version
-```
-
-You should see a message similar to:
-
-```bash
-mic v1.0.1
-```
-
-## Limitations
-
-Note that MIC has been designed to run Unix-based applications. Windows based applications (e.g., models that execute through an .exe) are not currently supported.
-
-## Development version
-
-If you want to install the latest development version, open a terminal and type:
-
-```bash
-$ pip install git+https://github.com/mintproject/mic.git@develop -U
-```
-Note theat the development version may be unstable.
+* [Installing MIC](installation)
+* [Overview of the MIC process](overview)
+* [Available commands](usage)
+* [Step-by-step instructions](/model_configuration/01-overview) for creating a software component
+* Report bugs and problems with the code or documentation to our [GitHub repository](https://github.com/mintproject/mic/issues).
