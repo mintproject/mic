@@ -140,7 +140,7 @@ def upload_image(cwl_document, profile):
     metavar="<profile-name>",
     help="specify a profile to list"
 )
-def upload_configuration(cwl_document, cwl_values, profile):
+def upload_component(cwl_document, cwl_values, profile):
     # create a temporal file
     cwl_document_path = Path(cwl_document)
     name = cwl_document_path.stem
@@ -153,12 +153,13 @@ def upload_configuration(cwl_document, cwl_values, profile):
     cwl_document_dict = get_spec(cwl_document_path)
     # get the input, parameters and outputs from CWL document
     inputs = get_inputs(cwl_document_dict)
-    #outputs = get_outputs(cwl_document_dict)
+    outputs = get_outputs(cwl_document_dict)
     parameters = get_parameters(cwl_document_dict)
     # write then on MIC file
     add_inputs(mic_config_path, inputs, cwl_values_dict)
-    #add_outputs(mic_config_path, outputs, cwl_values)
+    add_outputs(mic_config_path, outputs, cwl_values)
     add_parameters(mic_config_path, parameters, cwl_values_dict)
+
     # obtain the docker image from cwl
     docker_image = get_docker_image(cwl_document_dict)
     write_spec(mic_config_path, DOCKER_KEY, docker_image)
