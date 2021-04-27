@@ -18,7 +18,6 @@ from mic.resources.model_configuration import ModelConfigurationCli
 from mic.resources.software_version import SoftwareVersionCli
 from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter, Model, SoftwareVersion, \
     DataTransformation
-import requests
 
 def generate_uuid():
     return "https://w3id.org/okn/i/mint/{}".format(str(uuid.uuid4()))
@@ -31,8 +30,8 @@ def create_model_catalog_resource_cwl(mint_config_file, name=None, execution_dir
     if code is None:
         click.secho("Failed to upload. Missing information zip file", fg="red")
     else:
-        url = upload_code(Path(code))
-
+        response = upload_code(Path(code))
+        url = response.text
     model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
                                                     execution_dir) if inputs else None
     model_catalog_outputs = create_data_set_resource(False, outputs,
@@ -93,8 +92,6 @@ def create_parameter_resource(parameters):
     for key, item in parameters.items():
         data_type = "string"
         if "type" in item and item["type"] != '' and item["type"] is not None:
-            print(item)
-            print(item["type"])
             data_type = MAP_PYTHON_MODEL_CATALOG[item["type"]]
         _parameter = Parameter(id=generate_uuid(), label=[key], position=[position], type=[TYPE_PARAMETER], has_data_type=[data_type])
         _parameter.has_default_value = [item["default_value"]]

@@ -128,8 +128,7 @@ def init_logger():
         logger.removeHandler(i)
 
     logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-
+    logger.setLevel(logging.WARNING)
 
 def get_latest_version():
     try:
@@ -205,10 +204,9 @@ def upload_code(upload_file: Path):
     user = "upload"
     password = "HVmyqAPWDNuk5SmkLOK2"
     header = {'Content-Type': 'application/binary'}
-    
     try:
         with open(upload_file, 'rb') as f:
-            r = requests.put(url, headers=header, data=f, verify=False, auth=HTTPBasicAuth(user, password))
+            r = requests.put(url, headers=header, data=f, verify=True, auth=HTTPBasicAuth(user, password))
         r.raise_for_status()
         return r
     except requests.exceptions.Timeout:

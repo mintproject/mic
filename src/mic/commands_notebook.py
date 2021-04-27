@@ -170,7 +170,6 @@ def upload_configuration(cwl_document, cwl_values, profile):
     inputs = get_inputs(cwl_document_dict)
     #outputs = get_outputs(cwl_document_dict)
     parameters = get_parameters(cwl_document_dict)
-    print(parameters)
     # write then on MIC file
     add_inputs(mic_config_path, inputs, cwl_values_dict)
     #add_outputs(mic_config_path, outputs, cwl_values)
@@ -182,7 +181,7 @@ def upload_configuration(cwl_document, cwl_values, profile):
     #obtain cwl command
     write_spec(mic_config_path, CWL_KEY, cwl_document_path)
     # Message publish start
-    info_start_publish(True)
+    #info_start_publish(True)
     # push the component
     model_configuration = create_model_catalog_resource_cwl(
         Path(mic_config_path),

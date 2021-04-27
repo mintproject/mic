@@ -86,8 +86,6 @@ def supported(cwl_spec):
 def add_parameters(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
     spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
     spec[PARAMETERS_KEY] = {}
-    print(cwl_spec)
-    print(values)
     for key, item in cwl_spec.items():
         name = key
         value = values[key]
