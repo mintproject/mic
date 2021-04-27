@@ -13,7 +13,8 @@ install_requires = [
     "modelcatalog-api==7.1.0",
     "dame-cli>=5.6.0",
     "pygit2>=1.2.1",
-    "PyGithub>=1.43.5"
+    "PyGithub>=1.43.5",
+    "ipython2cwl",
 ]
 
 

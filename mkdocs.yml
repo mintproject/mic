@@ -30,6 +30,13 @@ nav:
         - 'Summarized example ': 'model_configuration/12b-end-to-end-example.md'
       - Credentials: 'commands/configure.md'
   - Available commands: usage.md
+  - 'Creating a model component from a Jupyter Notebook':
+      - 'Overview': 'notebooks/index.md'
+      - 'Prepare your Binder repository': 'notebooks/prepare_binder.md'
+      - 'Expose your model inputs and outputs': 'notebooks/expose_inputs_outputs.md'
+      - 'Convert the repository to model components': 'notebooks/convert_repository.md'
+      - 'Run and test and model component': 'notebooks/run_component.md'
+      - 'Upload your model component': 'notebooks/upload_component.md'
   - Glossary: glossary.md
 
 theme:
@@ -37,7 +44,16 @@ theme:
   logo: 'logo.png'
 markdown_extensions:
   - admonition
-  - codehilite:
-      guess_lang: false
+  - pymdownx.superfences:
+      # make exceptions to highlighting of code:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid
   - toc:
       permalink: true
+plugins:
+  - mermaid2:
+      arguments:
+        securityLevel: 'loose'    
+      version: 8.6.4

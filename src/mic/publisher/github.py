@@ -19,6 +19,53 @@ from mic.credentials import get_credentials
 logging = get_mic_logger()
 author = pygit2.Signature('MIC Bot', 'bot@mint.isi.edu')
 
+def push_cwl(model_directory: Path, mic_config_path: Path, name: str, profile):
+    repository_name = name
+    click.secho("Creating the git repository")
+    logging.info("Creating the git repository")
+    repo = get_local_repo(model_directory)
+    logging.info("Compressing code")
+    logging.info("Creating a new commit")
+    click.secho("Creating a new commit")
+    git_commit(repo)
+    click.secho("Creating or using the GitHub repository")
+    url = check_create_remote_repo(repo, profile, repository_name)
+    repository_name = url.split('/')[-1].replace(".git", "")
+    write_spec(mic_config_path, REPO_KEY, url)
+    logging.info("Creating a new version")
+    click.secho("Creating a new version")
+    _version = git_tag(repo, author)
+
+    logging.info("Pushing changes to the server")
+    click.secho("Pushing your changes to the server")
+    remote = repo.remotes["origin"]
+    try:
+        git_pull(repo, remote)
+    except AssertionError as e:
+        logging.error("Unable to handle git conflict, user must manually fix")
+        click.secho("Unable to handle git conflict, please fix them manually", fg="red")
+        exit(1)
+
+    git_push(repo, profile, _version)
+    write_spec(mic_config_path, VERSION_KEY, _version)
+
+    repo = get_github_repo(profile, repository_name)
+    file = None
+    for i in repo.get_contents(""):
+        if i.name == "{}.cwl".format(MINT_COMPONENT_ZIP):
+            file = i
+            write_spec(mic_config_path, MINT_COMPONENT_KEY, file.download_url)
+            break
+    if not file:
+        click.secho(f"Mint component not found {MINT_COMPONENT_ZIP}.cwl", fg="red")
+        logging.error("Could not find mint component: {}.zip".format(MINT_COMPONENT_ZIP))
+        exit(1)
+
+    logging.info("Push complete: {}".format({'repository': url, 'version': _version}))
+    click.secho("Repository: {}".format(url))
+    click.secho("Version: {}".format(_version))
+
+
 
 def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     repository_name = name

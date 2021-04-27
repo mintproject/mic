@@ -1,13 +1,17 @@
 import logging
 import os
+import platform
 import re
 from pathlib import Path
-import platform
+
 import click
 import requests
 import validators
+from requests.auth import HTTPBasicAuth
+
 import mic
-from mic.constants import DIRECTORIES_TO_IGNORE, CONFIG_YAML_NAME, MIC_DIR, LOG_FILE
+from mic.constants import CONFIG_YAML_NAME, DIRECTORIES_TO_IGNORE, LOG_FILE, MIC_DIR
+
 MODEL_ID_URI = "https://w3id.org/okn/i/mint/"
 __DEFAULT_MINT_API_CREDENTIALS_FILE__ = "~/.mint/credentials"
 
@@ -124,8 +128,7 @@ def init_logger():
         logger.removeHandler(i)
 
     logger.addHandler(handler)
-    logger.setLevel(logging.DEBUG)
-
+    logger.setLevel(logging.WARNING)
 
 def get_latest_version():
     try:
@@ -183,3 +186,65 @@ def parse(value):
     except:
         return value
 
+
+def upload_code(upload_file: Path):
+    """Upload a file using HTTP and HTTP basic
+
+    Args:
+        upload_file (Path): Path to the file
+
+    Raises:
+        SystemExit: Exit the cli if there a error
+
+    Returns:
+        [Response]: [description]
+    """
+    server = "https://publisher.mint.isi.edu"
+    url = f"""{server}/{upload_file.name}"""
+    user = "upload"
+    password = "HVmyqAPWDNuk5SmkLOK2"
+    header = {'Content-Type': 'application/binary'}
+    try:
+        with open(upload_file, 'rb') as f:
+            r = requests.put(url, headers=header, data=f, verify=True, auth=HTTPBasicAuth(user, password))
+        r.raise_for_status()
+        return r
+    except requests.exceptions.Timeout as e:
+        # Maybe set up for a retry, or continue in a retry loop
+        logging.error(e)
+        exit(1)
+    except requests.exceptions.TooManyRedirects as e:
+        # Tell the user their URL was bad and try a different one
+        logging.error(e)
+        exit(1)
+    except requests.exceptions.RequestException as e:
+        # catastrophic error. bail.
+        raise SystemExit(e)
+
+
+def download(url: str):
+    """Download file using HTTP
+    Args:
+        url (str): Path to the file
+
+    Raises:
+        SystemExit: Exit the cli if there a error
+
+    Returns:
+        [Response]: [description]
+    """
+    try:
+        r = requests.get(url)
+        r.raise_for_status()
+        return r
+    except requests.exceptions.Timeout as e:
+        # Maybe set up for a retry, or continue in a retry loop
+        logging.error(e)
+        exit(1)
+    except requests.exceptions.TooManyRedirects as e:
+        # Tell the user their URL was bad and try a different one
+        logging.error(e)
+        exit(1)
+    except requests.exceptions.RequestException as e:
+        # catastrophic error. bail.
+        raise SystemExit(e)
