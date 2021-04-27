@@ -72,7 +72,8 @@ def read(url):
         url ([type]): [description]
     """
     repo2cwl([url, "-o", "."])
-
+    click.secho("The model compontents have been generated. Use `cwltool` or other CWL tools to run the them")
+    click.secho("https://github.com/common-workflow-language/cwltool#install")
 
 @cli.command(short_help="Upload the DockerImage")
 @click.argument(

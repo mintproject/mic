@@ -30,10 +30,12 @@ class: `File` and `path`.
 
 ## Run and test your component
 
-Use the command `run` to run and test your component
+Use a CWL implementation to run and test your component
+
+- [cwltool](https://github.com/common-workflow-language/cwltool#install)
 
 ```bash
-$ mic notebook test simpleModelAnnotated.cwl simpleModelAnnotatedValues.cwl 
+$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.cwl 
 INFO [job simpleModelAnnotated.cwl] completed success
 {
     "output_file": {
