@@ -38,6 +38,7 @@ def create_model_catalog_resource_cwl(mint_config_file, name=None, execution_dir
     model_catalog_parameters = create_parameter_resource(parameters)
 
     
+    image = get_key_spec(mint_config_file, DOCKER_KEY)
     model_configuration = ModelConfiguration(type=[TYPE_MODEL_CONFIGURATION],
                                              label=[str(name)],
                                              has_input=model_catalog_inputs,
@@ -47,6 +48,11 @@ def create_model_catalog_resource_cwl(mint_config_file, name=None, execution_dir
     if allow_local_path:
         return model_configuration
 
+    if image is None:
+        click.secho("Upload Failed. Missing information DockerImage", fg='red')
+    else:
+        software_image = SoftwareImage(id=generate_uuid(), label=[image], type=[TYPE_SOFTWARE_IMAGE])
+        model_configuration.has_software_image = [software_image]
     model_configuration.has_component_location = [url]
     return model_configuration
 
