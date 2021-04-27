@@ -7,7 +7,7 @@ import semver
 from mic import _utils
 from mic.click_encapsulate.commands import start, trace, configs,\
     add_parameters, inputs, outputs, run, upload, wrapper
-from mic.commands_notebook import read, upload_image, upload_configuration
+from mic.commands_notebook import read, upload_image, upload_component
 from mic.credentials import configure_credentials, print_list_credentials
 from modelcatalog import Configuration
 
@@ -122,4 +122,4 @@ pkg.add_command(upload)
 
 notebook.add_command(read)
 notebook.add_command(upload_image)
-notebook.add_command(upload_configuration)
+notebook.add_command(upload_component)

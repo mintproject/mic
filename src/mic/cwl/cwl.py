@@ -14,7 +14,7 @@ from mic.constants import PARAMETERS_KEY, DEFAULT_DESCRIPTION_KEY, DEFAULT_VALUE
     OUTPUTS_KEY, INPUTS_KEY, EXECUTIONS_DIR
 
 parameter_list = ["int", "boolean", "string"]
-input_list = ["File"]
+file_list = ["File"]
 
 
 def is_parameter(_type: str):
@@ -23,7 +23,7 @@ def is_parameter(_type: str):
 
 
 def is_input(_type: str):
-    _exit = True if _type in input_list else False
+    _exit = True if _type in file_list else False
     return _exit
 
 
@@ -44,11 +44,11 @@ def get_inputs(spec: Dict):
 
 
 def get_outputs(spec: Dict):
-    inputs = {}
-    for key, item in spec["inputs"].items():
+    files = {}
+    for key, item in spec["outputs"].items():
         if "type" in item and is_input(item["type"]):
-            inputs[key] = item
-    return inputs
+            files[key] = item
+    return files
 
 def get_docker_image(cwl_spec: Dict):
     if "hints" in cwl_spec and "DockerRequirement" in cwl_spec['hints']:
