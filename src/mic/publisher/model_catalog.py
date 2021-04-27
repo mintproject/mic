@@ -4,7 +4,7 @@ from pathlib import Path
 import click
 import validators
 from dame.cli_methods import create_sample_resource
-from mic._utils import obtain_id, parse
+from mic._utils import obtain_id, parse, upload_code
 from mic.config_yaml import get_inputs_parameters, get_key_spec, DOCKER_KEY
 from mic.constants import TYPE_PARAMETER, TYPE_DATASET, TYPE_SOFTWARE_IMAGE, MINT_COMPONENT_KEY, \
     TYPE_MODEL_CONFIGURATION, TYPE_SOFTWARE_VERSION, MINT_INSTANCE, FORMAT_KEY, PATH_KEY, \
@@ -18,7 +18,7 @@ from mic.resources.model_configuration import ModelConfigurationCli
 from mic.resources.software_version import SoftwareVersionCli
 from modelcatalog import DatasetSpecification, ModelConfiguration, SoftwareImage, Parameter, Model, SoftwareVersion, \
     DataTransformation
-
+import requests
 
 def generate_uuid():
     return "https://w3id.org/okn/i/mint/{}".format(str(uuid.uuid4()))
@@ -27,6 +27,11 @@ def generate_uuid():
 def create_model_catalog_resource_cwl(mint_config_file, name=None, execution_dir=None, allow_local_path=True, cwl_path=None):
     name = name if name else mint_config_file.parent.name
     inputs, parameters, outputs, configs = get_inputs_parameters(mint_config_file)
+    code = get_key_spec(mint_config_file, CWL_KEY)
+    if code is None:
+        click.secho("Failed to upload. Missing information zip file", fg="red")
+    else:
+        url = upload_code(Path(code))
 
     model_catalog_inputs = create_data_set_resource(allow_local_path, inputs,
                                                     execution_dir) if inputs else None
@@ -34,7 +39,7 @@ def create_model_catalog_resource_cwl(mint_config_file, name=None, execution_dir
                                                      mint_config_file.parent) if outputs else None
     model_catalog_parameters = create_parameter_resource(parameters)
 
-    code = get_key_spec(mint_config_file, CWL_KEY)
+    
     model_configuration = ModelConfiguration(type=[TYPE_MODEL_CONFIGURATION],
                                              label=[str(name)],
                                              has_input=model_catalog_inputs,
@@ -44,10 +49,7 @@ def create_model_catalog_resource_cwl(mint_config_file, name=None, execution_dir
     if allow_local_path:
         return model_configuration
 
-    if code is None:
-        click.secho("Failed to upload. Missing information zip file", fg="red")
-    else:
-        model_configuration.has_component_location = [code]
+    model_configuration.has_component_location = [url]
     return model_configuration
 
 

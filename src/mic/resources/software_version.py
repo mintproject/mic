@@ -46,7 +46,8 @@ class SoftwareVersionCli:
 
         try:
             version_id = software_version.id.replace(MODEL_CATALOG_URL, '')
-            api_response = api_instance.softwareversions_id_put(version_id, username,
+            api_response = api_instance.softwareversions_id_put(id=version_id,
+                                                                user=username,
                                                                 software_version=software_version)
             return api_response
         except ApiException as e:
@@ -60,7 +61,7 @@ class SoftwareVersionCli:
         api_instance = modelcatalog.SoftwareVersionApi(api)
         software_version = SoftwareVersion(**request) if isinstance(request, dict) else request
         try:
-            api_response = api_instance.softwareversions_post(username, software_version=software_version)
+            api_response = api_instance.softwareversions_post(user=username, software_version=software_version)
             return api_response
         except ApiException as e:
             logging.error("Exception when calling ModelConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)

@@ -26,7 +26,7 @@ class ModelConfigurationSetupCli:
         api_instance = modelcatalog.ModelConfigurationApi(api)
         model_configuration = ModelConfiguration(**request) if isinstance(request, dict) else request
         try:
-            api_response = api_instance.modelconfigurations_post(username, model_configuration=model_configuration)
+            api_response = api_instance.modelconfigurations_post(user=username, model_configuration=model_configuration)
             return api_response
         except ApiException as e:
             logging.error(

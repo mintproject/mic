@@ -43,6 +43,13 @@ def get_inputs(spec: Dict):
     return inputs
 
 
+def get_outputs(spec: Dict):
+    inputs = {}
+    for key, item in spec["inputs"].items():
+        if "type" in item and is_input(item["type"]):
+            inputs[key] = item
+    return inputs
+
 def get_docker_image(cwl_spec: Dict):
     if "hints" in cwl_spec and "DockerRequirement" in cwl_spec['hints']:
         return cwl_spec['hints']['DockerRequirement']['dockerImageId']
@@ -78,6 +85,9 @@ def supported(cwl_spec):
 
 def add_parameters(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
     spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
+    spec[PARAMETERS_KEY] = {}
+    print(cwl_spec)
+    print(values)
     for key, item in cwl_spec.items():
         name = key
         value = values[key]
@@ -99,6 +109,7 @@ def add_parameters(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
 
 def add_inputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
     spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
+    spec[INPUTS_KEY] = {}
     for key, item in cwl_spec.items():
         name = key
         value = values[key] if key in values else ""
@@ -117,6 +128,7 @@ def add_inputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
 
 def add_outputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
     spec = yaml.load(config_yaml_path.open(), Loader=yaml.Loader)
+    spec[OUTPUTS_KEY] = {}
     for key, item in cwl_spec.items():
         name = key
         value = values[key] if key in values else ""
@@ -132,4 +144,3 @@ def add_outputs(config_yaml_path: Path, cwl_spec: Dict, values: Dict):
         click.secho("Failed: Error message {}".format(e), fg="red")
     for item in spec[OUTPUTS_KEY]:
         click.secho("Added: {} as a output".format(item))
-

@@ -6,7 +6,6 @@ Implementation for the notebook commands.
 """
 import os
 from pathlib import Path
-import tempfile
 import click
 import semver
 from datetime import datetime
@@ -17,10 +16,10 @@ import mic
 from mic import _utils
 from mic._utils import get_mic_logger, obtain_id
 from mic.cli_docs import info_start_publish, info_end_publish
-from mic.config_yaml import get_spec, write_spec, get_key_spec
-from mic.constants import DOCKER_KEY, NAME_KEY
+from mic.config_yaml import get_spec, write_spec, create_config_file_yaml
+from mic.constants import DOCKER_KEY, NAME_KEY, CWL_KEY
 from mic.cwl.cwl import add_parameters, add_outputs, get_docker_image, \
-    add_inputs, update_docker_image
+    add_inputs, update_docker_image, get_inputs, get_parameters, get_outputs, get_base_command
 from mic.publisher.docker import get_docker_username, image_exists, parse_docker_name
 from mic.publisher.model_catalog import publish_model_configuration, \
     create_model_catalog_resource_cwl
@@ -152,26 +151,36 @@ def upload_image(cwl_document, profile):
     "-p",
     envvar="MINT_PROFILE",
     type=str,
-    default=None,
+    default="default",
     metavar="<profile-name>",
     help="specify a profile to list"
 )
 def upload_configuration(cwl_document, cwl_values, profile):
     # create a temporal file
-    mic_config_path = tempfile.NamedTemporaryFile(suffix=".yml", prefix="mic", delete=False)
+    cwl_document_path = Path(cwl_document)
+    name = cwl_document_path.stem
+    cwl_dir = cwl_document_path.parent
+    mic_config_path = create_config_file_yaml(cwl_dir, f"""{name}_mic.yaml""")
+    cwl_values_dict = get_spec(Path(cwl_values))
     # get the name from cwl document and write
-    name = Path(cwl_document).stem
     write_spec(mic_config_path, NAME_KEY, name)
     # read the CWL document and stored as dict
-    cwl_document_dict = get_spec(cwl_document)
-    # get the input, parameters and outputs from cwl and create MIC file
-    add_inputs(mic_config_path, cwl_document_dict, cwl_values)
-    add_outputs(mic_config_path, cwl_document_dict, cwl_values)
-    add_parameters(mic_config_path, cwl_document_dict, cwl_values)
+    cwl_document_dict = get_spec(cwl_document_path)
+    # get the input, parameters and outputs from CWL document
+    inputs = get_inputs(cwl_document_dict)
+    #outputs = get_outputs(cwl_document_dict)
+    parameters = get_parameters(cwl_document_dict)
+    print(parameters)
+    # write then on MIC file
+    add_inputs(mic_config_path, inputs, cwl_values_dict)
+    #add_outputs(mic_config_path, outputs, cwl_values)
+    add_parameters(mic_config_path, parameters, cwl_values_dict)
     # obtain the docker image from cwl
-    docker_image = get_docker_image(cwl_document)
+    docker_image = get_docker_image(cwl_document_dict)
     write_spec(mic_config_path, DOCKER_KEY, docker_image)
-    exit(0)
+
+    #obtain cwl command
+    write_spec(mic_config_path, CWL_KEY, cwl_document_path)
     # Message publish start
     info_start_publish(True)
     # push the component
