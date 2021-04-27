@@ -14,6 +14,7 @@ install_requires = [
     "pygit2>=1.2.1",
     "PyGithub>=1.43.5",
     "ipython2cwl",
+    "validators"
 ]
 
 
