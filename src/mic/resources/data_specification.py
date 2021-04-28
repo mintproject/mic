@@ -38,7 +38,7 @@ class DataSpecificationCli:
         api_instance = modelcatalog.DatasetSpecificationApi(api)
         model_configuration = DatasetSpecification(**request) if isinstance(request, dict) else request
         try:
-            api_response = api_instance.datasetspecifications_post(username, dataset_specification=model_configuration)
+            api_response = api_instance.datasetspecifications_post(user=username, dataset_specification=model_configuration)
             return api_response
         except ApiException as e:
             logging.error(
@@ -54,7 +54,7 @@ class DataSpecificationCli:
 
         try:
             # Update a Model
-            return api_instance.datasetspecifications_id_put(model_id, username, dataset_specification=data_set)
+            return api_instance.datasetspecifications_id_put(id=model_id, user=username, dataset_specification=data_set)
         except ApiException as e:
             logging.error(
                 "Exception when calling ModelConfigurationConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)

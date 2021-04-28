@@ -1,7 +1,7 @@
 import logging
 import os
 from pathlib import Path
-
+import re
 import click
 import docker
 from docker.errors import APIError
@@ -70,7 +70,38 @@ def publish_docker(mic_config_path, profile):
 def get_docker_username(profile):
     credentials = get_credentials(profile)
     if DOCKER_USERNAME_KEY not in credentials:
-        click.secho(f"Docker username not found. Please run"
-                    f"$ mic credentials -p {profile}")
+        click.secho(
+            f"""
+Docker username not found.
+Please run
+$ mic credentials -p {profile}
+""")
         exit(0)
     return credentials[DOCKER_USERNAME_KEY]
+
+def image_exists(image_name: str):
+    client = docker.from_env()
+    try:
+        client.images.get(image_name)
+    except docker.errors.ImageNotFound:
+        click.echo(f"""Image {image_name} not found""")
+        exit(1)
+    except docker.errors.APIError as e:
+        click.echo(f"""Unable to connect with Docker""")
+        logging.error(e, exc_info=True)
+        exit(1)        
+
+def parse_docker_name(docker_name: str) -> dict:
+    username = None
+    image_name = None
+    version = None
+    regex = re.compile("((?P<username>[a-z]+)/)?"
+                "(?P<image_name>([a-z0-9]+((?:[._]|__|[-])|[a-z0-9])*))"
+                "(:(?P<version>[\w][\w.-]{0,127}))?")
+    m = re.search(regex, docker_name)
+    username = m.group('username')
+    image_name = m.group('image_name')
+    version = m.group('version')
+    return { 'username': username, 'image_name': image_name, 'version': version}
+
+

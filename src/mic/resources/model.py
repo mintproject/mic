@@ -1,8 +1,7 @@
 import logging
 import modelcatalog
-from dame.utils import obtain_id
 from modelcatalog import ApiException, Model
-from mic.model_catalog_utils import get_api
+from mic.model_catalog_utils import get_api, obtain_id
 
 RESOURCE = "Model"
 
@@ -30,7 +29,7 @@ class ModelCli:
         api_instance = modelcatalog.ModelApi(api)
         model = Model(**request) if isinstance(request, dict) else request
         try:
-            api_response = api_instance.models_post(username, model=model)
+            api_response = api_instance.models_post(user=username, model=model)
             return api_response
         except ApiException as e:
             logging.error("Exception when calling ModelConfigurationSetupApi->modelconfigurationsetups_post: %s\n" % e)
@@ -44,6 +43,6 @@ class ModelCli:
 
         try:
             # Update a Model
-            return api_instance.models_id_put(model_id, username, model=model)
+            return api_instance.models_id_put(id=model_id, user=username, model=model)
         except ApiException as e:
             print("Exception when calling ModelApi->models_id_put: %s\n" % e)

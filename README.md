@@ -1,5 +1,4 @@
-# Model Insertion Checker (MIC) [![Build Status](https://travis-ci.com/mintproject/mic.svg?branch=master)](https://travis-ci.com/mintproject/mic)
-
+# Model Insertion Checker (MIC) [![Tests](https://github.com/mintproject/mic/actions/workflows/python-packages.yml/badge.svg)](https://github.com/mintproject/mic/actions/workflows/python-packages.yml)[![Upload Python Package](https://github.com/mintproject/mic/actions/workflows/python-publish.yml/badge.svg)](https://github.com/mintproject/mic/actions/workflows/python-publish.yml)
 Model Insertion Checker (MIC) is a command line wizard for users to add new calibrated models and their metadata.
 
 MIC is an application that asks the information of your model, model version, model configuration, parameters, inputs, outputs, authors and contributors.
