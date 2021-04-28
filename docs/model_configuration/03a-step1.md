@@ -67,7 +67,7 @@ For tutorials on creating docker images, see the [Docker website](https://docs.d
 
 If you are using Anaconda, the easiest method is to [export your conda environment to a `.yml` file](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment) and use a DockerFile to build the image. Below is an example of a DockerFile to build an image from the base Miniconda image. The subsequent commands create a new environment requiring Python 3.8 and all other dependencies contained in the `environment.yml` file. The last command opens up the container for the image in the right environment.
 
-![Example DockerFile](/model_configuration/figures/DockerFile.png)
+![Example DockerFile](figures/DockerFile.png)
 
 Then use the following command to direct MIC towards your image:
 

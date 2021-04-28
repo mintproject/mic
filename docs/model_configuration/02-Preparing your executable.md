@@ -23,4 +23,4 @@ $ python mysoftware.py p1 p2 p3
 $ python mysoftware.py config.json
 ```
 
-Depending on which options your sofware falls under, the encapsulation steps are slightly different. 
+Depending on which of the two options your software falls under, the encapsulation steps are slightly different. If you are using a mix of config files and command line parameters, you will need to merge the instructions (namely steps 3, 4 and 7).

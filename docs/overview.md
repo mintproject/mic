@@ -2,9 +2,9 @@
 
 MIC assists a user in encapsulating their software in 9 easy steps summarize in the figure below.
 
-![Diagram](/model_configuration/figures/overview_01.png)
+![Diagram](figures/overview_01.png)
 
-Below is a summary of the steps. This is not meant as a user guide. See the [detailed instructions](/model_configuration/01-DockerGithub) for a step-by-step guide.
+Below is a summary of the steps. This is not meant as a user guide. See the [detailed instructions](model_configuration/01-DockerGithub) for a step-by-step guide.
 
 ## The MIC process
 
@@ -16,7 +16,7 @@ In this step, MIC will automatically detect the execution environment (e.g., pyt
 ### Step 2: Trace your model execution
 In this step, you will install any missing dependency needed to execute the software and trace its execution. The execution traces present the order of the statements that are touched during the execution of test cases.
 
-**Expected outcome of this step**: The tracing process will cause the execution to be slower than normal. At the end of the process,a `.reprozip` trace file will be added to the folder if the execution succeeded.
+**Expected outcome of this step**: The tracing process will cause the execution to be slower than normal. At the end of the process, a `.reprozip-trace` file will be added to the folder if the execution succeeded.
 
 ### Step 3: Select input parameters to expose
 In this step, you will expose specific input parameters to your software component. You can expose as little or as many parameters as needed. It entirely depends on the application and who the expected end user of the component is. Note that it is possible to create different component of the same executable aimed at different audiences.

@@ -37,6 +37,7 @@ nav:
       - 'Convert the repository to model components': 'notebooks/convert_repository.md'
       - 'Run and test and model component': 'notebooks/run_component.md'
       - 'Upload your model component': 'notebooks/upload_component.md'
+  - FAQ: faq.md
   - Glossary: glossary.md
 
 theme:
