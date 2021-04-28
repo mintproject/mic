@@ -10,7 +10,7 @@ complex types are `array` and; in addition there are special type `File`.
 The following example demonstrates some input parameters with different types 
 and appearing on the command line in different ways.
 
-Create a file called simpleModelAnnotatedValues.yml, containing the following boxed text
+Create a file called `simpleModelAnnotatedValues.yml`, containing the following boxed text
 
 ```yaml
 a: 1
@@ -35,7 +35,7 @@ Use a CWL implementation to run and test your component
 - [cwltool](https://github.com/common-workflow-language/cwltool#install)
 
 ```bash
-$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.cwl 
+$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.yml 
 INFO [job simpleModelAnnotated.cwl] completed success
 {
     "output_file": {
