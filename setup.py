@@ -13,7 +13,7 @@ install_requires = [
     "modelcatalog-api==7.1.0",
     "pygit2>=1.2.1",
     "PyGithub>=1.43.5",
-    "ipython2cwl",
+    "ipython2cwl  @ git+ssh://git@github.com/mosorio/ipython2cwl@master#egg=ipython2cwl",
     "validators"
 ]
 
