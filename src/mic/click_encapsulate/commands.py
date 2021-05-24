@@ -113,7 +113,7 @@ def start(user_execution_directory, name, image):
     container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, user_image)
-    write_spec(mic_config_path, FRAMEWORK_KEY, framework)
+    write_spec(mic_config_path, FRAMEWORK_KEY, framework.label)
     write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
 
 
