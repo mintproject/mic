@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 import click
 from mic.credentials import get_credentials
-from mint_upload import Uploader 
+from mint_upload.object_storage import Uploader
 from mic.config_yaml import write_spec
 from mic.constants import VERSION_KEY, MINT_COMPONENT_KEY, MINT_COMPONENT_ZIP, SRC_DIR
 

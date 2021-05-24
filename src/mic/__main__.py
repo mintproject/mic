@@ -62,14 +62,11 @@ def version(debug=False):
 @click.option('--password', prompt="Password",
               required=True, hide_input=True, help="Your password")
 @click.option('--name', prompt='Name', help='Your name', required=True)
-@click.option('--git_username', prompt='GitHub Username', help='Your GitHub Username', required=True)
-@click.option('--git_token', prompt='GitHub API token', help='Your GitHub API token', required=True, hide_input=False)
 @click.option('--dockerhub_username', prompt='Docker Username', help='Your Docker Username')
-def credentials(server, username, password, git_username, git_token, name, dockerhub_username, profile="default"):
+def credentials(server, username, password, name, dockerhub_username, profile="default"):
     try:
         email = username
-        configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username,
-                              profile)
+        configure_credentials(server, username, password, name, email, dockerhub_username, profile)
     except Exception as e:
         click.secho("Unable to create configuration file", fg="red")
 
