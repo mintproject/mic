@@ -1,12 +1,12 @@
 import os
-import subprocess
 from datetime import datetime
 from pathlib import Path
-from mic._utils import get_mic_logger
 import click
-from mic.component.initialization import detect_framework, render_dockerfile, render_conda
+from mic._utils import get_mic_logger
+from mic.component.initialization import detect_framework, render_dockerfile
 from mic.component.python3 import freeze
-from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, MIC_DIR, REPRO_ZIP_TRACE_DIR
+from mic.constants import DOCKER_DIR, handle, Framework, REQUIREMENTS_FILE, \
+    MIC_DIR, REPRO_ZIP_TRACE_DIR
 
 logging = get_mic_logger()
 
@@ -46,7 +46,7 @@ def detect_framework_main(user_execution_directory):
 
         click.secho("Please select the correct option")
         click.secho("This information allows MIC to select the correct Docker Image")
-        framework = click.prompt("Select a option ".format(Framework),
+        framework = click.prompt(f"""Select a option {Framework}""",
                                  show_choices=True,
                                  type=click.Choice(frameworks, case_sensitive=False),
                                  value_proc=handle

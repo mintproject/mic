@@ -43,12 +43,9 @@ ENVIRONMENT_FILE = "environment.yml"
 EXECUTIONS_DIR = "executions"
 TOTAL_STEPS = 8
 MINT_COMPONENT_ZIP = "mint_component"
-GIT_TOKEN_KEY = "git_token"
-GIT_USERNAME_KEY = "git_username"
 DOCKER_KEY = "docker_image"
 FRAMEWORK_KEY = "framework"
 LAST_EXECUTION_DIR = "last_execution_dir"
-REPO_KEY = "github_repo_url"
 VERSION_KEY = "version"
 DOCKER_USERNAME_KEY = "dockerhub_username"
 MINT_COMPONENT_KEY = "mint_component_url"
@@ -82,7 +79,7 @@ class Framework(Enum):
     PYTHON38 = ("python3.8", "mintproject/python:3.8", ".py")
     CONDA = ("conda4.7.12", "mintproject/conda:4.7.12", ".py")
     JAVA = ("java8", "mintproject/java:8", ".jar")
-    GENERIC = ("general", "mintproject/generic:latest")
+    GENERIC = ("general", "mintproject/generic:latest", None)
 
     def __init__(self, label, image, extension=None):
         self.label = label

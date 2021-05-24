@@ -8,10 +8,10 @@ from pathlib import Path
 import mic
 import semver
 from mic import _utils
-from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path, make_log_file, log_system_info, \
-    get_mic_logger, log_command
-from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
-    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
+from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path, make_log_file,\
+    log_system_info, get_mic_logger, log_command
+from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, \
+    info_end_outputs, info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
     info_end_publish_dt
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
@@ -23,10 +23,9 @@ from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, c
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
-from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     publish_data_transformation, create_data_transformation_resource
-
+from mic.publisher.s3 import push
 logging = get_mic_logger()
 
 

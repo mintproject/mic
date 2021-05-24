@@ -1,3 +1,6 @@
+"""Main file for cmd
+"""
+
 import collections
 import sys
 from pathlib import Path
@@ -16,6 +19,8 @@ from modelcatalog import Configuration
 @click.option("--verbose", "-v", default=0, count=True)
 def cli(verbose):
     _utils.init_logger()
+    if verbose:
+        pass
     try:
         lv = ".".join(_utils.get_latest_version().split(".")[:3])
     except Exception as e:

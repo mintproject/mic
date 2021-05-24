@@ -38,8 +38,6 @@ def configure_credentials(server, username, password, git_username, git_token, n
         "server": server,
         "username": username,
         "password": password,
-        "git_username": git_username,
-        "git_token": git_token,
         "name": name,
         "email": email,
         "dockerhub_username": dockerhub_username,

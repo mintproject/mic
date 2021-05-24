@@ -4,7 +4,6 @@ import logging
 from mic._utils import get_mic_logger
 from jinja2 import Environment, PackageLoader, select_autoescape
 from mic.constants import *
-from mic.publisher.github import get_local_repo
 import platform
 
 env = Environment(
@@ -16,6 +15,7 @@ env = Environment(
 
 logging = get_mic_logger()
 
+
 def set_mask(value):
     os.umask(value)
 
@@ -24,7 +24,8 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
     if mic_component_dir.exists():
         click.secho("The directory {} already exists. If you continue, you can lose a previous component".format(
             mic_component_dir.name), fg="yellow")
-        logging.info("When creating base dir found base directory already exists: {}".format(mic_component_dir))
+        logging.info("When creating base dir found base directory already exists: {}".format(
+            mic_component_dir))
         if interactive and not click.confirm("Do you want to continue?", default=True, show_default=True):
             logging.info("User aborted initialization")
             click.secho("Initialization aborted", fg="blue")
@@ -33,7 +34,8 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
         set_mask(0)
         mic_component_dir.mkdir(exist_ok=True)
     except Exception as e:
-        click.secho("Error: {} could not be created".format(mic_component_dir), fg="red")
+        click.secho("Error: {} could not be created".format(
+            mic_component_dir), fg="red")
         logging.exception("Could not create base dir: {}".format(mic_component_dir))
         exit(1)
 
@@ -43,13 +45,14 @@ def create_base_directories(mic_component_dir: Path, interactive=True):
     src.mkdir(parents=True, exist_ok=True)
     docker.mkdir(parents=True, exist_ok=True)
     data.mkdir(parents=True, exist_ok=True)
-    get_local_repo(mic_component_dir)
     logging.info("MIC has initialized the component")
     click.secho("MIC has initialized the component.")
     click.secho("[Created] {}:      {}".format(DATA_DIR, mic_component_dir / DATA_DIR))
-    click.secho("[Created] {}:    {}".format(DOCKER_DIR, mic_component_dir / DOCKER_DIR))
+    click.secho("[Created] {}:    {}".format(
+        DOCKER_DIR, mic_component_dir / DOCKER_DIR))
     click.secho("[Created] {}:       {}".format(SRC_DIR, mic_component_dir / SRC_DIR))
-    click.secho("[Created] {}:  {}".format(CONFIG_YAML_NAME, mic_component_dir / CONFIG_YAML_NAME))
+    click.secho("[Created] {}:  {}".format(
+        CONFIG_YAML_NAME, mic_component_dir / CONFIG_YAML_NAME))
     return mic_component_dir
 
 
@@ -118,7 +121,8 @@ def render_run_sh(directory: Path,
 def render_io_sh(directory: Path, inputs: dict, parameters: dict, configs: list) -> Path:
     template = env.get_template(IO_FILE)
     file = directory / SRC_DIR / IO_FILE
-    if configs is None: configs = []
+    if configs is None:
+        configs = []
 
     list_config = [value[PATH_KEY] for key, value in configs.items()]
     with open(file, "w") as f:
@@ -152,19 +156,19 @@ def render_dockerfile(model_directory: Path, language: Framework, custom=False) 
     try:
         os = platform.system().lower()
         logging.debug("OS name: {}".format(os))
-    except exception as e:
+    except Exception as e:
         os = "unknown"
         logging.debug("OS name: {}".format(os))
         logging.warning("Error while detecting os: {}".format(e))
 
     with open(run_file, "w") as f:
-        content = render_template(template=template, language=language, custom=custom, os=os)
+        content = render_template(
+            template=template, language=language, custom=custom, os=os)
 
         if os == "windows":
             logging.info("Windows os detected. Converting line endings")
 
         f.write(content)
-
 
     entrypoint_file = model_directory / DOCKER_DIR / ENTRYPOINT_FILE
     template = env.get_template(ENTRYPOINT_FILE)
@@ -174,6 +178,7 @@ def render_dockerfile(model_directory: Path, language: Framework, custom=False) 
     # language_tasks(model_directory, language)
 
     return run_file
+
 
 def recursive_convert_to_lf(dir):
     """
@@ -187,7 +192,7 @@ def recursive_convert_to_lf(dir):
             if root.find(".git") == -1:
                 with open(Path(root) / Path(file), 'rb') as open_file:
                     content = open_file.read()
-    
+
                 content = content.replace(b'\r\n', b'\n')
                 converted_files.append("{}".format(file))
 
