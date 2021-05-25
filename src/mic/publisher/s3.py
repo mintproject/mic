@@ -52,7 +52,7 @@ def compress_src_dir(model_path: Path, version: str) -> Path:
     name = f"""{MINT_COMPONENT_ZIP}_{version}"""
     zip_file_name = model_path / name
     src_dir = model_path / SRC_DIR
-    mic_component_path = model_path / f"{MINT_COMPONENT_ZIP}.zip"
+    mic_component_path = model_path / f"{name}.zip"
     if mic_component_path.exists():
         os.remove(mic_component_path)
     zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
