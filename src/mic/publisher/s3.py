@@ -39,8 +39,9 @@ def upload_file(file_name: Path, profile, bucket_name):
             str(file_name),
             bucket_name
         )
-    except:
-        logging.error("Unable to upload")
+    except Exception as error:
+        logging.error("Unable to upload", exc_info=True)
+        exit(0)
     return f"""{mint_s3_server}/{bucket_name}/{file_name.name}"""
 
 
