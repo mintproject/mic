@@ -22,7 +22,7 @@ def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     click.secho("Compressing your code")
     zip_file = compress_src_dir(model_directory, _version)
     url = upload_file(zip_file, profile, "components")
-    write_spec(mic_config_path, MINT_COMPONENT_ZIP, url)
+    write_spec(mic_config_path, MINT_COMPONENT_KEY, url)
     logging.info("Push complete: {}".format({'repository': url, 'version': _version}))
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
