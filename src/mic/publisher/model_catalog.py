@@ -86,6 +86,7 @@ def create_model_catalog_resource(mint_config_file, name=None, execution_dir=Non
 
     if code is None:
         click.secho("Failed to upload. Missing information zip file", fg="red")
+        exit(0)
     else:
         model_configuration.has_component_location = [code]
     return model_configuration
