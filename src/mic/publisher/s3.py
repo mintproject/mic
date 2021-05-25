@@ -22,11 +22,12 @@ def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     click.secho("Compressing your code")
     zip_file = compress_src_dir(model_directory, _version)
     url = upload_file(zip_file, profile, "components")
+    write_spec(mic_config_path, MINT_COMPONENT_ZIP, url)
     logging.info("Push complete: {}".format({'repository': url, 'version': _version}))
     click.secho("Repository: {}".format(url))
     click.secho("Version: {}".format(_version))
 
-def upload_file(file_name, profile, bucket_name):
+def upload_file(file_name: Path, profile, bucket_name):
     mint_auth_server = "https://auth.mint.mosorio.dev/auth/realms/development/protocol/openid-connect/token" 
     mint_s3_server   = "https://s3.mint.mosorio.dev"
     credentials = get_credentials(profile)
@@ -35,15 +36,15 @@ def upload_file(file_name, profile, bucket_name):
     uploader = Uploader(mint_s3_server, mint_auth_server, username, password)
     try:
         uploader.upload_file(
-            file_name,
+            str(file_name),
             bucket_name
         )
     except:
         logging.error("Unable to upload")
-    return f"""{mint_s3_server}/{bucket_name}/{file_name}"""
+    return f"""{mint_s3_server}/{bucket_name}/{file_name.name}"""
 
 
-def compress_src_dir(model_path: Path, version: str):
+def compress_src_dir(model_path: Path, version: str) -> Path:
     """
     Compress the directory src and create a zip file
     """
@@ -56,4 +57,4 @@ def compress_src_dir(model_path: Path, version: str):
     zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
                                         base_dir=src_dir.relative_to(model_path.parent))
     shutil.move(zip_file_path, mic_component_path)
-    return zip_file_path
+    return Path(zip_file_path)
