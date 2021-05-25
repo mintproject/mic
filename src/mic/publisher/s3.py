@@ -33,15 +33,6 @@ def upload_file(file_name, profile, bucket_name):
     username = credentials["username"]
     password = credentials["password"]
     uploader = Uploader(mint_s3_server, mint_auth_server, username, password)
-    uploader.client.put_public_access_block(
-        Bucket=bucket_name,
-        PublicAccessBlockConfiguration={
-            'BlockPublicAcls': True,
-            'IgnorePublicAcls': True,
-            'BlockPublicPolicy': True,
-            'RestrictPublicBuckets': True
-        },
-    )
     try:
         uploader.upload_file(
             file_name,
