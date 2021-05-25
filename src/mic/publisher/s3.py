@@ -58,4 +58,4 @@ def compress_src_dir(model_path: Path, version: str) -> Path:
     zip_file_path = shutil.make_archive(zip_file_name.name, 'zip', root_dir=model_path.parent,
                                         base_dir=src_dir.relative_to(model_path.parent))
     shutil.move(zip_file_path, mic_component_path)
-    return Path(zip_file_path)
+    return Path(mic_component_path)
