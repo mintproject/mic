@@ -7,6 +7,9 @@ MIC has been tested on Mac, Linux, and Windows Platforms
 1. Python >= 3.6
 2. Docker
 
+If using MIC with a Jupyter Notebook, the following Python package is also needed:
+3. [cwltool](https://github.com/common-workflow-language/cwltool#install)
+
 ### Getting Python 3
 
 To install Python:
@@ -21,6 +24,8 @@ You can also complete the installation using alternative distribution such as [A
 $ conda create --name myenv
 $ conda activate myenv
 ```
+
+Detailed instructions are available [here](/creating_new_env).
 
 ### Docker
 

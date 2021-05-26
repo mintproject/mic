@@ -1,16 +1,16 @@
-## Specify the Input parameters
+## How to perform this step?
 
-The `inputs` of a model component is a list of input parameters that control how to run it. 
-Each parameter has an `id` for the `name` of parameter, and `type` describing 
-what types of values are valid for that parameter.
+### Specifying the inputs in a yaml file.
 
-Available primitive types are `string`, `int`, and `null`; 
+The `inputs` of a model component is a list of input parameters/files that control its execution. Each input has an `id` for the `name`, and `type` describing
+what types of values are valid for that input.
+
+Available primitive types are `string`, `int`, and `null`;
 complex types are `array` and; in addition there are special type `File`.
 
-The following example demonstrates some input parameters with different types 
-and appearing on the command line in different ways.
+To direct its execution, the inputs must be specified in a `.yml` file.
 
-Create a file called `simpleModelAnnotatedValues.yml`, containing the following boxed text
+Using our simple line fitting model, we create a file called `simpleModelAnnotatedValues.yml`, containing the following text, representative of the input file, parameters, and output files in our Notebook:
 
 ```yaml
 a: 1
@@ -21,21 +21,28 @@ input_file:
   path: https://raw.githubusercontent.com/mosoriob/simpleModel-1/master/x.csv
 ```
 
-Notice that `input_file`, as a File type, must be provided as an object with the fields
-class: `File` and `path`.
+Notice that `input_file`, as a File type, must be provided as an object with the fields class: `File` and `path`.
 
 !!! info
-    If the input file is hosted on GitHub, remember to copy the sharable download URL. 
+    If the input file is hosted on GitHub, remember to copy the sharable download URL.
     [GitHub: how to find the sharable download URL for files on GitHub ](https://help.data.world/hc/en-us/articles/115006300048-GitHub-how-to-find-the-sharable-download-URL-for-files-on-GitHub)
 
-## Run and test your component
+### Run and test your component
 
-Use a CWL implementation to run and test your component
+!!! warning
+    Make sure that [cwltool](https://github.com/common-workflow-language/cwltool#install) is installed on your system before proceeding.
 
-- [cwltool](https://github.com/common-workflow-language/cwltool#install)
+The command line execution looks something like:
+```bash
+$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.yml
+```
+
+where `simplemodelAnnotated.cwl` was automatically created [in the previous step](/notebooks/convert_repository/) and `simpleModelAnnotatedValues.yml` is the file generated above.
+
+## Expected results
 
 ```bash
-$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.yml 
+$ cwltool simpleModelAnnotated.cwl simpleModelAnnotatedValues.yml
 INFO [job simpleModelAnnotated.cwl] completed success
 {
     "output_file": {
@@ -50,4 +57,4 @@ INFO [job simpleModelAnnotated.cwl] completed success
 INFO Final process status is success
 ```
 
-The command returns the output files
+The output file `y.csv` is generated in this step. 

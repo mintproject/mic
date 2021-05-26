@@ -1,13 +1,9 @@
-
-
-We use IPython2CWL for a tool for converting [IPython](https://ipython.org/) Jupyter Notebooks to
+We use IPython2CWL for a tool to convert [IPython](https://ipython.org/) Jupyter Notebooks to
 [CWL (Common Workflow Language)](https://www.commonwl.org/) Command Line Tools by simply providing typing annotation.
 
 ## Supported Types
 
-### Basic Data Types
-
-Each variable can be an input or an output. The basic data types are:
+The basic date types are:
 
 - Inputs:
     - CWLFilePathInput
@@ -20,9 +16,10 @@ Each variable can be an input or an output. The basic data types are:
     - CWLDumpableFile
     - CWLDumpableBinaryFile
 
-## Example
+!!! warning
+    the `float` datatype is currently not supported. Use a string input and coerce the string to float within the notebook.
 
-In our example, we have parameters (variables: a, b, c), a input file (variable: input_file) and a output file (variable: output_file)
+In our example, we have 3 parameters `a`, `b` and `c`, an input file (which represents `x`) and a output file (which represents `y`)
 
 ```python
 a = 5
@@ -32,9 +29,9 @@ input_file = "./x.csv"
 output_file = "./y.csv"
 ```
 
+## How to perform this step?
 
-You should annotate them using CWL typing annotation and the result will be:
-
+Annotate the parameters, input and outputs using CWL typing annotation.
 
 ```python
 a : 'CWLIntInput' = 5
@@ -50,8 +47,9 @@ You can check the final notebook at
 https://github.com/mosoriob/simpleModel-1/blob/master/simpleModelAnnotated.ipynb
 ```
 
+!!! note
+    You will still be able to execute your notebook outside of MINT with the annotation.
 
+## Check your work
 
-## Before to continue
-
-Go to [mybinder.org](mybinder.org) and run the whole notebook without errors. If it works, continue
+Run your notebook through [mybinder.org](mybinder.org) and make sure it executes without error or human input at any step.
