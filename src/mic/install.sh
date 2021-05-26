@@ -325,138 +325,23 @@ do_install() {
 	# Run setup for each distro accordingly
 	case "$lsb_dist" in
 		ubuntu|debian|raspbian)
-			pre_reqs="apt-transport-https ca-certificates curl"
-			if [ "$lsb_dist" = "debian" ]; then
-				# libseccomp2 does not exist for debian jessie main repos for aarch64
-				if [ "$(uname -m)" = "aarch64" ] && [ "$dist_version" = "jessie" ]; then
-					add_debian_backport_repo "$dist_version"
-				fi
-			fi
-
-			if ! command -v gpg > /dev/null; then
-				pre_reqs="$pre_reqs gnupg"
-			fi
-			apt_repo="deb [arch=$(dpkg --print-architecture)] $DOWNLOAD_URL/linux/$lsb_dist $dist_version $CHANNEL"
 			(
 				if ! is_dry_run; then
 					set -x
 				fi
-				$sh_c 'apt-get update -qq >/dev/null'
-				$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $pre_reqs >/dev/null"
-				$sh_c "curl -fsSL \"$DOWNLOAD_URL/linux/$lsb_dist/gpg\" | apt-key add -qq - >/dev/null"
-				$sh_c "echo \"$apt_repo\" > /etc/apt/sources.list.d/mic.list"
-				$sh_c 'apt-get update -qq >/dev/null'
-			)
-			pkg_version=""
-			if [ -n "$VERSION" ]; then
-				if is_dry_run; then
-					echo "# WARNING: VERSION pinning is not supported in DRY_RUN"
-				else
-					# Will work for incomplete versions IE (17.12), but may not actually grab the "latest" if in the test channel
-					pkg_pattern="$(echo "$VERSION" | sed "s/-ce-/~ce~.*/g" | sed "s/-/.*/g").*-0~$lsb_dist"
-					search_command="apt-cache madison 'mic-ce' | grep '$pkg_pattern' | head -1 | awk '{\$1=\$1};1' | cut -d' ' -f 3"
-					pkg_version="$($sh_c "$search_command")"
-					echo "INFO: Searching repository for VERSION '$VERSION'"
-					echo "INFO: $search_command"
-					if [ -z "$pkg_version" ]; then
-						echo
-						echo "ERROR: '$VERSION' not found amongst apt-cache madison results"
-						echo
-						exit 1
-					fi
-					search_command="apt-cache madison 'mic-ce-cli' | grep '$pkg_pattern' | head -1 | awk '{\$1=\$1};1' | cut -d' ' -f 3"
-					# Don't insert an = for cli_pkg_version, we'll just include it later
-					cli_pkg_version="$($sh_c "$search_command")"
-					pkg_version="=$pkg_version"
-				fi
-			fi
-			(
-				if ! is_dry_run; then
-					set -x
-				fi
-				if [ -n "$cli_pkg_version" ]; then
-					$sh_c "apt-get install -y -qq --no-install-recommends mic-ce-cli=$cli_pkg_version >/dev/null"
-				fi
-				$sh_c "apt-get install -y -qq --no-install-recommends mic-ce$pkg_version >/dev/null"
-				# shellcheck disable=SC2030
-				if [ -n "$has_rootless_extras" ]; then
-					# Install mic-ce-rootless-extras without "--no-install-recommends", so as to install slirp4netns when available
-					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq mic-ce-rootless-extras$pkg_version >/dev/null"
-				fi
+			apt install python3 python3-dev python3-pip -y
+			pip install reprozip mic
 			)
 			echo_mic_as_nonroot
 			exit 0
 			;;
 		centos|fedora|rhel)
-			yum_repo="$DOWNLOAD_URL/linux/$lsb_dist/$REPO_FILE"
-			if ! curl -Ifs "$yum_repo" > /dev/null; then
-				echo "Error: Unable to curl repository file $yum_repo, is it valid?"
-				exit 1
-			fi
-			if [ "$lsb_dist" = "fedora" ]; then
-				pkg_manager="dnf"
-				config_manager="dnf config-manager"
-				enable_channel_flag="--set-enabled"
-				disable_channel_flag="--set-disabled"
-				pre_reqs="dnf-plugins-core"
-				pkg_suffix="fc$dist_version"
-			else
-				pkg_manager="yum"
-				config_manager="yum-config-manager"
-				enable_channel_flag="--enable"
-				disable_channel_flag="--disable"
-				pre_reqs="yum-utils"
-				pkg_suffix="el"
-			fi
-			(
-				if ! is_dry_run; then
-					set -x
-				fi
-				$sh_c "$pkg_manager install -y -q $pre_reqs"
-				$sh_c "$config_manager --add-repo $yum_repo"
-
-				if [ "$CHANNEL" != "stable" ]; then
-					$sh_c "$config_manager $disable_channel_flag mic-ce-*"
-					$sh_c "$config_manager $enable_channel_flag mic-ce-$CHANNEL"
-				fi
-				$sh_c "$pkg_manager makecache"
-			)
-			pkg_version=""
-			if [ -n "$VERSION" ]; then
-				if is_dry_run; then
-					echo "# WARNING: VERSION pinning is not supported in DRY_RUN"
-				else
-					pkg_pattern="$(echo "$VERSION" | sed "s/-ce-/\\\\.ce.*/g" | sed "s/-/.*/g").*$pkg_suffix"
-					search_command="$pkg_manager list --showduplicates 'mic-ce' | grep '$pkg_pattern' | tail -1 | awk '{print \$2}'"
-					pkg_version="$($sh_c "$search_command")"
-					echo "INFO: Searching repository for VERSION '$VERSION'"
-					echo "INFO: $search_command"
-					if [ -z "$pkg_version" ]; then
-						echo
-						echo "ERROR: '$VERSION' not found amongst $pkg_manager list results"
-						echo
-						exit 1
-					fi
-					search_command="$pkg_manager list --showduplicates 'mic-ce-cli' | grep '$pkg_pattern' | tail -1 | awk '{print \$2}'"
-					# It's okay for cli_pkg_version to be blank, since older versions don't support a cli package
-					cli_pkg_version="$($sh_c "$search_command" | cut -d':' -f 2)"
-					# Cut out the epoch and prefix with a '-'
-					pkg_version="-$(echo "$pkg_version" | cut -d':' -f 2)"
-				fi
-			fi
 			(
 				if ! is_dry_run; then
 					set -x
 				fi
 				# install the correct cli version first
-				if [ -n "$cli_pkg_version" ]; then
-					$sh_c "$pkg_manager install -y -q mic-ce-cli-$cli_pkg_version"
-				fi
-				$sh_c "$pkg_manager install -y -q mic-ce$pkg_version"
-				# shellcheck disable=SC2031
-				if [ -n "$has_rootless_extras" ]; then
-					$sh_c "$pkg_manager install -y -q mic-ce-rootless-extras$pkg_version"
-				fi
+				yum install -y python3 python3-pip pytho3-devel
 			)
 			echo_mic_as_nonroot
 			exit 0
