@@ -47,15 +47,7 @@ theme:
 markdown_extensions:
   - admonition
   - pymdownx.superfences:
-      # make exceptions to highlighting of code:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid
+      # make exceptions to highlighting of code
   - toc:
       permalink: true
-plugins:
-  - mermaid2:
-      arguments:
-        securityLevel: 'loose'
-      version: 8.6.4
+
