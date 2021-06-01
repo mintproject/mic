@@ -266,7 +266,7 @@ do_install() {
 
 	if is_wsl; then
 		echo
-		echo "WSL DETECTED: We recommend using Docker Desktop for Windows."
+		echo "WSL DETECTED: We recommend using Docker Desktop for Windows"
 		echo "Please get Docker Desktop from https://www.mic.com/products/mic-desktop"
 		echo
 		cat >&2 <<-'EOF'
@@ -330,10 +330,16 @@ do_install() {
 					set -x
 				fi
 			$sh_c 'apt-get update -qq >/dev/null'
-			$sh_c 'DEBIAN_FRONTEND=noninteractive  apt-get install -y python3 python3-pip dos2unix'
-			$sh_c 'pip install reprozip mic > /dev/null'
+			$sh_c 'DEBIAN_FRONTEND=noninteractive  apt-get install --no-install-recommends -y python3 python3-pip python3-dev git dos2unix > /dev/null'
+			echo "Installing MIC"
+			$sh_c 'pip3 install reprozip mic > /dev/null'
+			set -x
+			echo
+			echo "You are in a Linux environment Debian distribution."
+			echo "You can use apt to install new packages."
+			echo "MIC is going to push new changes with these changes."
+			set +x
 			)
-			echo_mic_as_nonroot
 			exit 0
 			;;
 		centos|fedora|rhel)
@@ -344,7 +350,6 @@ do_install() {
 				# install the correct cli version first
 				$sh_c 'yum install -y python3 python3-pip pytho3-devel dos2unix'
 			)
-			echo_mic_as_nonroot
 			exit 0
 			;;
 		*)
@@ -352,7 +357,6 @@ do_install() {
 				if is_darwin; then
 					echo
 					echo "ERROR: Unsupported operating system 'macOS'"
-					echo "Please get Docker Desktop from https://www.mic.com/products/mic-desktop"
 					echo
 					exit 1
 				fi
