@@ -1,10 +1,7 @@
 step: 1
 name: parameter-test
 docker_image: parameter-test:latest
-framework: !!python/object/apply:mic.constants.Framework
-- !!python/tuple
-  - general
-  - mintproject/generic:latest
+framework: generic
 inputs:
   a_txt:
     path: a.txt
