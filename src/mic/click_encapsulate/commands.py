@@ -126,17 +126,9 @@ def start(user_execution_directory, name, image):
 
     if custom_image:
         click.secho(f"""
-    You are using a custom image
-    You must install mic and reprozip
-    $ pip3 install mic reprozip           
+You are using a custom image
+Installing MIC and some dependencies
         """, fg="green")
-    else:
-        click.secho(f"""
-        You are in a Linux environment Debian distribution.
-        You can use `apt` to install new packages
-        For example:
-        $ apt install r-base
-                """, fg="green")
 
     try:
         os.system(docker_cmd)
