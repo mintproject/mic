@@ -88,17 +88,7 @@ def print_list_credentials(profile, short):
         if not short:
             for field in prof:
                 # Dont print password or token
-                if field != "password" and field != "git_token":
+                if field != "password":
                     click.secho("   {}".format(field), nl=False, fg="green")
                     click.secho(": {}".format(prof[field]))
-                # Dont print full token for security reasons
-                elif field == "git_token":
-                    # Its safe to print if its obviously not a github token
-                    if len(prof[field]) < 6:
-                        click.secho("   {}".format(field), nl=False, fg="green")
-                        click.secho(": {}".format(prof[field]))
-
-                    else:
-                        click.secho("   {}".format(field), nl=False, fg="green")
-                        click.secho(": Ending in \"...{}\"".format((prof[field])[-5:]))
             click.echo("\n")

@@ -25,8 +25,6 @@ Searching files in the directory /Users/mosorio/tmp/swat_precipitation_rates
 MIC has created the directories
 You must add your data (files or directories) into the directory: /Users/mosorio/tmp/swat_precipitation_rates/data
 ```
-!!!warning
-    This command must **NOT** be executed on a folder already tracked by GitHub.
 
 
 #### Expected Results

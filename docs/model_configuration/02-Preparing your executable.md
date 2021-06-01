@@ -4,7 +4,8 @@ Ultimately, a user will want to run your code with whatever data is available. H
 
 Once you are ready to proceed:
 
-1. Place your software code in a local directory so it can be invoked from a command line along with any input data and configuration files if applicable. MIC will test that the code can be executed and will do so three times during the encapsulation process. Therefore, we recommend that your execution can be completed in a manner of minutes, for example, by reducing the size of the dataset (e.g., only considering a few months instead of a year). Because of GitHub limitations, files should not exceed **100 MB** each.
+1. Place your software code in a local directory so it can be invoked from a command line along with any input data and configuration files if applicable. MIC will test that the code can be executed and will do so three times during the encapsulation process. Therefore, we recommend that your execution can be completed in a manner of minutes, for example, by reducing the size of the dataset (e.g., only considering a few months instead of a year). 
+
 2.  The code should not contain any hardcoded paths or values for the input files/variables that you wish to expose. We recommend making them explicit in a configuration file or as parameters from the command line execution.
 
 ## Parameters

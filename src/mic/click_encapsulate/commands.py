@@ -66,8 +66,7 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
               default=None)
 def start(user_execution_directory, name, image):
     """
-    This step generates a mic.yaml file and the directories (data/, src/, docker/). It also initializes a local
-    GitHub repository
+    This step generates a mic.yaml file and the directories (data/, src/, docker/). 
 
     The argument: `model_configuration_name` is the name of the model component you are defining in MIC
      """
@@ -631,7 +630,7 @@ def run(mic_file):
 
 
 @cli.command(
-    short_help="Upload your code to GitHub, your image to DockerHub and your model component to the MINT Model Catalog.")
+    short_help="Upload your code, your image to DockerHub and your model component to the MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",
@@ -652,7 +651,7 @@ def run(mic_file):
               default=None)
 def upload(mic_file, profile, mc, dt):
     """
-  Upload your MIC wrapper (including all the contents of the /src folder) to GitHub, the Docker Image to DockerHub
+  Upload your MIC wrapper (including all the contents of the /src folder), the Docker Image to DockerHub
   and the model component to MINT Model Catalog.
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the

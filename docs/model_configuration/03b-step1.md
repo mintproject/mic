@@ -45,19 +45,11 @@ Successfully built 4950fcaa2d0d
 Successfully tagged test_192:latest
 
 You are in a Linux environment Debian distribution
-We detect the following dependencies.
-
-- If you install new dependencies using `apt` or `apt-get`, remember to add them in Dockerfile mic\docker\Dockerfile
-- If you install new dependencies using python. Before the step `upload` run:
-
-pip freeze > mic/docker/requirements.txt
 
 Please, run your Model Component.
 ```
 As can be seen in the message above, MIC is creating an execution environment to make sure we capture the minimum set of dependencies needed for execution. Since we had a java executable, MIC already selected a Java environment. If we had python files, MIC would have promted us to select which version of Python to start from.
 
-!!! warning
-    This command must **NOT** be executed on a folder already tracked by GitHub.
 
 ### Creating your own image
 

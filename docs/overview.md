@@ -49,16 +49,16 @@ Use the wrapper generated in Step 7 to execute your model.
 **Expected outcome of this step**: A successful test run and encapsulation of your software.
 
 ### Step 9: Upload the model component software and image
-MIC will upload the MIC Wrapper and your software in GitHub.  MIC will also upload the component image in DockerHub and upload your software in the MINT Model Catalog, which will make it accessible by others through MINT services and interfaces to be run in their own local hosts and servers. This will give them unique identifiers that represent the snapshot of the software that you wanted to encapsulate so that any future updates to your software or your software component can be distinct from each other.
+MIC will upload the MIC Wrapper and your software in the MINT storage server.  MIC will also upload the component image in DockerHub and upload your software in the MINT Model Catalog, which will make it accessible by others through MINT services and interfaces to be run in their own local hosts and servers. This will give them unique identifiers that represent the snapshot of the software that you wanted to encapsulate so that any future updates to your software or your software component can be distinct from each other.
 
-**Expected results after completing this step**: Your model component wrapper will be uploaded to Github, and your model component image to DockerHub. Both will receive a tag and will be versioned, and will be archived so they are available to anyone anywhere.  MINT will have an entry for your component in the MINT Model Catalog, which will be accessible through your browser.  Anyone using [DAME](dame-cli.readthedocs.io/) can run your component with their own data.  Anyone using MINT can run your component with appropriate datasets available in MINT.
+**Expected results after completing this step**: Your model component wrapper will be uploaded to MINT server, and your model component image to DockerHub. Both will receive a tag and will be versioned, and will be archived so they are available to anyone anywhere.  MINT will have an entry for your component in the MINT Model Catalog, which will be accessible through your browser.  Anyone using [DAME](dame-cli.readthedocs.io/) can run your component with their own data.  Anyone using MINT can run your component with appropriate datasets available in MINT.
 
 
 ## Using MIC to Create Model Components
 
 The `pkg` command  in MIC guides you through nine steps to create a model component that encapsulates your model code and makes it available so others can easily run it in their own local environments. To accomplish this, MIC relies on state-of-the-art virtualization tools (including Docker), software engineering best practices, and semantic reasoning for validation.
 
-MIC creates: 1) a MIC Directory, 2) a MIC File, 3) a MIC Wrapper, 4) a component virtualization image, 5) archival versions of your model code, MIC directories and files, and image in GitHub and DockerHub, and 6) a model component entry in the MINT Model Catalog.
+MIC creates: 1) a MIC Directory, 2) a MIC File, 3) a MIC Wrapper, 4) a component virtualization image, 5) archival versions of your model code, MIC directories and files, and image in the MINT Storage server  and DockerHub, and 6) a model component entry in the MINT Model Catalog.
 
 Once you have MIC installed, you can type `mic pkg --help` to see the following message that lists all the steps:
 
@@ -89,7 +89,7 @@ Commands:
   run         Run your model component with the MIC Wrapper generated in the
               previous step
 
-  upload     Upload your code to GitHub, DockerHub and your
+  upload     Upload your code to DockerHub and your
               model component on the MINT Model Catalog.
 ```
 

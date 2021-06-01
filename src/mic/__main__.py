@@ -46,7 +46,7 @@ def version(debug=False):
 
 
 @cli.command(short_help="Configure credentials", help="Configure your credentials to access the Model Catalog API, "
-                                                      "GitHub and Docker features")
+                                                      "and Docker features")
 @click.option(
     "--profile",
     "-p",
