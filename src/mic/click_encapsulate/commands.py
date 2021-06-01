@@ -126,17 +126,10 @@ def start(user_execution_directory, name, image):
 
     if custom_image:
         click.secho(f"""
-    You are using a custom image
-    You must install mic and reprozip
-    $ pip3 install mic reprozip           
+You are using a custom image
+Installing mic and some dependencies.
         """, fg="green")
-    else:
-        click.secho(f"""
-        You are in a Linux environment Debian distribution.
-        You can use `apt` to install new packages
-        For example:
-        $ apt install r-base
-                """, fg="green")
+
 
     try:
         os.system(docker_cmd)
@@ -283,8 +276,8 @@ def configs(mic_file, configuration_files, auto_param):
 
 
 @cli.command(short_help="Expose parameters in the " + CONFIG_YAML_NAME + " file", name="parameters")
-@click.option('--name', "-n", help="Name of the parameter", required=False, default=None, type=click.STRING)
-@click.option('--value', "-v", help="Default value of the parameter", required=False, default=None, type=ANY_TYPE)
+@click.option('--name', "-n", help="Name of the parameter", required=True, default=None, type=click.STRING)
+@click.option('--value', "-v", help="Default value of the parameter", required=True, default=None, type=ANY_TYPE)
 @click.option('--description', "-d", help="Description for parameter", required=False, type=str)
 @click.option('--overwrite', "-o", help="Overwrite an existing parameter", is_flag=True, default=False)
 @click.option(
@@ -321,21 +314,6 @@ def add_parameters(mic_file, name, value, overwrite, description):
             spec[PARAMETERS_KEY] = {}
 
         # Automacically add parameters from trace command. Use heuristic "if item isnt file its a parameter"
-        if name is None:
-            click.echo("Automatically adding any parameters from trace")
-            logging.info("Automatically adding any parameters from trace")
-            mic_config_file = Path(mic_file)
-            user_execution_directory = mic_config_file.parent.parent
-
-            repro_zip_trace_dir = find_dir(REPRO_ZIP_TRACE_DIR, user_execution_directory)
-            repro_zip_trace_dir = Path(repro_zip_trace_dir)
-            repro_zip_config_file = repro_zip_trace_dir / REPRO_ZIP_CONFIG_FILE
-
-            reprozip_spec = get_spec(repro_zip_config_file)
-
-            spec = get_parameters_reprozip(spec, reprozip_spec)
-
-        else:
             if not overwrite and name in spec[PARAMETERS_KEY]:
                 click.echo("The parameter exists. Add the option --overwrite to overwrite it.")
                 logging.info("Parameter already exists. aborting because overwrite flag is false")
