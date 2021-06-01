@@ -6,37 +6,38 @@ nav:
   - 'Instructions':
       - 'Setting up Docker': 'model_configuration/01-DockerGitHub.md'
       - 'Preparing your executable': 'model_configuration/02-Preparing your executable.md'
-      - 'Option 1: Parameters values passed through command line':
-        - '1. Starting a new component': 'model_configuration/03a-step1.md'
-        - '2. Tracing execution': 'model_configuration/04a-step2.md'
-        - '3. Exposing parameters': 'model_configuration/05a-step3.md'
-        - '4. Editing component configuration files [skipped]': 'model_configuration/06a-step4.md'
-        - '5. Exposing input files': 'model_configuration/07a-step5.md'
-        - '6. Exposing outputs': 'model_configuration/08a-step6.md'
-        - '7. Wrapping execution': 'model_configuration/09a-step7.md'
-        - '8. Testing run': 'model_configuration/10a-step8.md'
-        - '9. Uploading to DockerHub and MINT ': 'model_configuration/11a-step9.md'
-        - 'Summarized example ': 'model_configuration/12a-end-to-end-example.md'
-      - 'Option 2: Parameters values passed through config files':
-        - '1. Starting a new component': 'model_configuration/03b-step1.md'
-        - '2. Tracing execution': 'model_configuration/04b-step2.md'
-        - '3. Exposing parameters': 'model_configuration/05b-step3.md'
-        - '4. Editing component configuration files': 'model_configuration/06b-step4.md'
-        - '5. Exposing input files': 'model_configuration/07b-step5.md'
-        - '6. Exposing outputs': 'model_configuration/08b-step6.md'
-        - '7. Wrapping execution': 'model_configuration/09b-step7.md'
-        - '8. Testing run': 'model_configuration/10b-step8.md'
-        - '9. Uploading to GitHub, DockerHub and MINT ': 'model_configuration/11a-step9.md'
-        - 'Summarized example ': 'model_configuration/12b-end-to-end-example.md'
+      - 'Using the command line':
+        - 'Option 1: Parameters values passed through command line':
+          - '1. Starting a new component': 'model_configuration/03a-step1.md'
+          - '2. Tracing execution': 'model_configuration/04a-step2.md'
+          - '3. Exposing parameters': 'model_configuration/05a-step3.md'
+          - '4. Editing component configuration files [skipped]': 'model_configuration/06a-step4.md'
+          - '5. Exposing input files': 'model_configuration/07a-step5.md'
+          - '6. Exposing outputs': 'model_configuration/08a-step6.md'
+          - '7. Wrapping execution': 'model_configuration/09a-step7.md'
+          - '8. Testing run': 'model_configuration/10a-step8.md'
+          - '9. Uploading to GitHub, DockerHub and MINT ': 'model_configuration/11a-step9.md'
+          - 'Summarized example ': 'model_configuration/12a-end-to-end-example.md'
+        - 'Option 2: Parameters values passed through config files':
+          - '1. Starting a new component': 'model_configuration/03b-step1.md'
+          - '2. Tracing execution': 'model_configuration/04b-step2.md'
+          - '3. Exposing parameters': 'model_configuration/05b-step3.md'
+          - '4. Editing component configuration files': 'model_configuration/06b-step4.md'
+          - '5. Exposing input files': 'model_configuration/07b-step5.md'
+          - '6. Exposing outputs': 'model_configuration/08b-step6.md'
+          - '7. Wrapping execution': 'model_configuration/09b-step7.md'
+          - '8. Testing run': 'model_configuration/10b-step8.md'
+          - '9. Uploading to GitHub, DockerHub and MINT ': 'model_configuration/11a-step9.md'
+          - 'Summarized example ': 'model_configuration/12b-end-to-end-example.md'
+      - 'Creating a software component from a Jupyter Notebook':
+        - 'Overview': 'notebooks/index.md'
+        - 'Preparing a Binder repository': 'notebooks/prepare_binder.md'
+        - 'Exposing software inputs and outputs': 'notebooks/expose_inputs_outputs.md'
+        - 'Converting the repository to a software component': 'notebooks/convert_repository.md'
+        - 'Testing run': 'notebooks/run_component.md'
+        - 'Uploading to DockerHub and MINT': 'notebooks/upload_component.md'
       - Credentials: 'commands/configure.md'
   - Available commands: usage.md
-  - 'Creating a model component from a Jupyter Notebook':
-      - 'Overview': 'notebooks/index.md'
-      - 'Prepare your Binder repository': 'notebooks/prepare_binder.md'
-      - 'Expose your model inputs and outputs': 'notebooks/expose_inputs_outputs.md'
-      - 'Convert the repository to model components': 'notebooks/convert_repository.md'
-      - 'Run and test and model component': 'notebooks/run_component.md'
-      - 'Upload your model component': 'notebooks/upload_component.md'
   - FAQ: faq.md
   - Glossary: glossary.md
 
@@ -46,15 +47,7 @@ theme:
 markdown_extensions:
   - admonition
   - pymdownx.superfences:
-      # make exceptions to highlighting of code:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid
+      # make exceptions to highlighting of code
   - toc:
       permalink: true
-plugins:
-  - mermaid2:
-      arguments:
-        securityLevel: 'loose'    
-      version: 8.6.4
+

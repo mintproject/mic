@@ -1,18 +1,14 @@
+## How to perform this step?
 
-In order to prepare your repository for use with the `BinderHub` ,all you need to do is ensure that the following conditions are met:
+### Prepare your files
 
+Prepare your repository for use with the `BinderHub`:
 
-- The repository is in a public location online (e.g., on GitHub or BitBucket)
+- The online repository (e.g., on GitHub or BitBucket) containing the notebook is public
 - The repository does not require any personal or sensitive information (such as passwords)
-- The repository has configuration files that specify its environment (see below for an example)
-- The repository contains content designed for people to read.
+- The repository has configuration files that specify its environment (e.g. environment.yml, requirements.txt)
 
-#### Example
-
-For example, let's take a look at a simple repository that requires a
-few packages in order to run.
-
-##### Explore the repository contents
+Let's consider a simple model housed in the [following repository](https://github.com/mosoriob/simpleModel-1).
 
 If we inspect the contents of this repository, we see the following
 files:
@@ -20,16 +16,15 @@ files:
 ```bash
 ./
 ├── environment.yml
-├── simpleModel.ipynb 
+├── simpleModel.ipynb
 └── README.md
 ```
 
 In this case, we have two important files:
 
--   **A content file**: `simpleModel.ipynb` is a short Jupyter Notebook that
-    generates a result.
+-   **A content (Notebook) file**: `simpleModel.ipynb` is a simple example using line fitting. In this case, we are trying to predict `y` (the output), given the input data `x` and input parameters `a,b,c` according to the following equation: `y=ax+b+c`. The input data `x` is contained in a `.csv` file and the model outputs `y` in a `.csv` file.
 -   **An environment configuration file**: `environment.yml` is a
-    standard file that specifies an Anaconda environment.
+    standard file that specifies an Anaconda environment. The environment contains information about the packages needed to execute the notebook. To learn how to create `environment.yml` file from Anaconda, follow [this guide](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment).
 
 !!! importart
     You may notice that `environment.yml` is not Binder-specific. This is
@@ -37,14 +32,6 @@ In this case, we have two important files:
     are already standards in the data science community. For a list of all
     configuration files available, see the  [Binder](https://mybinder.readthedocs.io/en/latest/using/config_files.html#config-files) page.
 
-
-### Get your own copy of this repository
-
-You can find a repository with these files at the following link:
-
-[https://github.com/mosoriob/simpleModel-1](https://github.com/mosoriob/simpleModel-1)
-
-To watch Binder in action, first fork this repository. This will give you your own copy of the repository.
 
 ### Build your repository
 
@@ -75,8 +62,7 @@ the Binder link will not re-trigger the build process. However, if you
 push any changes to the repository, then it will be re-built the next time
 somebody clicks a link.
 
-If your environment files and content files are not housed in the same branch of the same repository, see the [](external_binder_setup) page for how to generate a URL.
+If your environment files and content files are not housed in the same branch of the same repository, see [this documentation](https://mybinder.readthedocs.io/en/latest/howto/external_binder_setup.html) on how to generate a URL.
 
-Now that you're acquainted with Binder, see the [](using-binder) page
+Now that you're acquainted with Binder, see [this page](https://mybinder.readthedocs.io/en/latest/introduction.html)
 for more information about what you can do with it.
-

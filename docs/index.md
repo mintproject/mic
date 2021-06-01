@@ -31,6 +31,6 @@ MIC is meant to work with the [MINT Model Catalog](https://github.com/mintprojec
 * [Installing MIC](installation)
 * [Overview of the MIC process](overview)
 * [Available commands](usage)
-* [Step-by-step instructions](model_configuration/01-overview) for creating a software component
+* [Step-by-step instructions](model_configuration/01-DockerGitHub) for creating a software component. MIC offers [two options](model_configuration/02-Preparing your executable) to encapsulate a model: using command line instructions or through a Jupyter Notebook. 
 * Report bugs and problems with the code or documentation to our [GitHub repository](https://github.com/mintproject/mic/issues).
 * [Frequently asked questions](faq)

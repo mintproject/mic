@@ -1,15 +1,15 @@
-Use the `mic` to convert the repository. Go to your computer and install `mic`
+This steps require the use of the `mic` package installed on your local machine. If you haven't already done so, [install `mic`](/installation).
 
-## Read the repository
-
-!!! info
-    URL must be the repository url.
+## How to perform this step?
 
 ```bash
 $ mic notebook read <repository_url>
 ```
 
-### Example 
+!!! info
+    URL must be the repository url, not the direct link to the notebook.
+
+For instance,
 
 ```bash
 $ mic notebook read https://github.com/<your_user_name>/simpleModel-1
@@ -39,24 +39,22 @@ The commands performs the following actions for each annotated notebook in the r
 1. Download the repository.
 2. Build a Docker Image reading the Binder configuration files.
 3. Convert each IPython Notebook to a command line script.
-4. Generate a CWL Document for each notebook. 
+4. Generate a CWL Document for each notebook.
 
-!!! info
+!!! warning
     The notebook will be ignored if it does not contain annotations.
 
-## CWL Document
+!!! info
+    If the repository contains more than one notebook, a separate model component will be created for each notebook.   
 
-### What is a CWL Document?
+!!! info
+    CWL is a way to describe model components (using command line tools)
+    Because CWL is a specification and not a specific piece of software, tools and workflows described using CWL are portable across a variety of platforms that support the CWL standard.
 
-CWL is a way to describe model components (using command line tools)
-Because CWL is a specification and not a specific piece of software, tools and workflows 
-described using CWL are portable across a variety of platforms that support the CWL standard.
+## Expected outputs
 
-### Example
-
-In our example, the command generates four CWL Document. 
+In our example, the command generates four CWL Document.
 Let's check the file `simpleModelAnnoted.cwl` and the important section for you.
-
 
 ```yaml
 arguments:
@@ -92,9 +90,6 @@ outputs:
 
 ```
 
-- DockerRequirement: Indicates that a model component should be run in a Docker container, 
-    and specifies how to fetch the image.
-- inputs: Defines the input parameters of the model component. The component is ready to run when 
-  all required input parameters are associated with concrete values. 
-- outputs: Defines the parameters representing the output of the process. 
-  May be used to generate and/or validate the output object.
+- DockerRequirement: Indicates that a model component should be run in a Docker container, and specifies how to fetch the image.
+- inputs: Defines the input parameters of the model component. The component is ready to run when all required input parameters are associated with concrete values.
+- outputs: Defines the parameters representing the output of the process. May be used to generate and/or validate the output object.
