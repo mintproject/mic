@@ -71,23 +71,14 @@ def get_api(profile="default"):
     except KeyError:
         click.secho(DEFAULT_CONFIGURATION_WARNING + " {}".format(profile), fg="yellow")
         exit(1)
-    configuration = _api_configuration(username, password, profile, server)
+    configuration = _api_configuration(username, password, server)
     return ApiClient(configuration=configuration), credentials["username"]
 
 
-def _api_configuration(username, password, profile, server=None):
+def _api_configuration(username, password, server=None):
     configuration = modelcatalog.Configuration()
-    if server is not None:
-        package_version = configuration.host.split('/')[-1].replace("v", '')
-        configuration_version = server.split('/')[-1].replace("v", '')
-        if package_version > configuration_version:
-            click.secho(
-                f"""WARNING: Your credentials are using Model Catalog version {configuration_version},
-                but the version {package_version} is available.
-                You should consider upgrading via the 'dame configure -p {profile}'""",
-                fg="yellow",
-            )
-            click.secho("DAME is going to use the newest version", fg="yellow")
+    if server:
+        configuration.host = server
     api_instance = modelcatalog.DefaultApi(ApiClient(configuration=configuration))
     user = User(username=username, password=password)
     try:
