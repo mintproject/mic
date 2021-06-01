@@ -267,7 +267,7 @@ def add_params_from_config(yaml_path: Path, config_path: Path):
     if added:
         click.secho("Default values will need to be added in {} for each parameter".format(CONFIG_YAML_NAME),fg="green")
 
-def get_inputs_parameters(config_yaml_path: Path) -> (dict, dict, dict):
+def get_inputs_parameters(config_yaml_path: Path):
     inputs = get_inputs(config_yaml_path)
     parameters = get_parameters(config_yaml_path)
     outputs = get_outputs_mic(config_yaml_path)

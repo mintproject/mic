@@ -14,6 +14,7 @@ RUN sed -i 's/\r//' set_umask.sh
 {% endif -%}
 {% endif -%}
 
+ADD https://data.mint.isi.edu/files/install.sh /bin/mic_install.sh
 
 RUN chmod +x /set_umask.sh
 ENTRYPOINT ["/set_umask.sh"]

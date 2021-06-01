@@ -22,7 +22,7 @@ def get_credentials(profile: str) -> dict:
     raise ValueError("Profile doesn't exists")
 
 
-def configure_credentials(server, username, password, git_username, git_token, name, email, dockerhub_username, profile):
+def configure_credentials(server, username, password, name, email, dockerhub_username, profile):
     credentials_file = pathlib.Path(
         os.getenv("MINT_CREDENTIALS_FILE", __DEFAULT_MINT_API_CREDENTIALS_FILE__)
     ).expanduser()
@@ -38,8 +38,6 @@ def configure_credentials(server, username, password, git_username, git_token, n
         "server": server,
         "username": username,
         "password": password,
-        "git_username": git_username,
-        "git_token": git_token,
         "name": name,
         "email": email,
         "dockerhub_username": dockerhub_username,
@@ -90,17 +88,7 @@ def print_list_credentials(profile, short):
         if not short:
             for field in prof:
                 # Dont print password or token
-                if field != "password" and field != "git_token":
+                if field != "password":
                     click.secho("   {}".format(field), nl=False, fg="green")
                     click.secho(": {}".format(prof[field]))
-                # Dont print full token for security reasons
-                elif field == "git_token":
-                    # Its safe to print if its obviously not a github token
-                    if len(prof[field]) < 6:
-                        click.secho("   {}".format(field), nl=False, fg="green")
-                        click.secho(": {}".format(prof[field]))
-
-                    else:
-                        click.secho("   {}".format(field), nl=False, fg="green")
-                        click.secho(": Ending in \"...{}\"".format((prof[field])[-5:]))
             click.echo("\n")

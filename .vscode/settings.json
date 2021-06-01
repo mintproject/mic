@@ -4,7 +4,7 @@
     "python.linting.pylintArgs": [
         "--enable=W0614"
     ],
-    "python.pythonPath": "/home/mosorio/.pyenv/versions/mic/bin/python",
+    "python.pythonPath": "/home/mosorio/.pyenv/versions/mic_delete_git/bin/python",
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true

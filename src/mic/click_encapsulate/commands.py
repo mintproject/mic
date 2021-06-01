@@ -8,10 +8,10 @@ from pathlib import Path
 import mic
 import semver
 from mic import _utils
-from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path, make_log_file, log_system_info, \
-    get_mic_logger, log_command
-from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, info_end_outputs, \
-    info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
+from mic._utils import find_dir, get_filepaths, obtain_id, check_mic_path, make_log_file,\
+    log_system_info, get_mic_logger, log_command
+from mic.cli_docs import info_start_inputs, info_start_outputs, info_start_wrapper, info_end_inputs, \
+    info_end_outputs, info_end_wrapper, info_start_run, info_end_run, info_end_run_failed, info_start_publish, info_end_publish, \
     info_end_publish_dt
 from mic.component.detect import detect_framework_main, detect_new_reprozip, extract_dependencies
 from mic.component.executor import copy_code_to_src, compress_directory, execute_local, copy_config_to_src
@@ -23,10 +23,9 @@ from mic.config_yaml import write_spec, write_to_yaml, get_spec, get_key_spec, c
     get_inputs, get_parameters, get_outputs_mic, get_code, add_params_from_config, get_framework
 from mic.constants import *
 from mic.publisher.docker import publish_docker, build_docker
-from mic.publisher.github import push
 from mic.publisher.model_catalog import create_model_catalog_resource, publish_model_configuration, \
     publish_data_transformation, create_data_transformation_resource
-
+from mic.publisher.s3 import push
 logging = get_mic_logger()
 
 
@@ -67,8 +66,7 @@ You should consider upgrading via 'pip install --upgrade mic' command.""",
               default=None)
 def start(user_execution_directory, name, image):
     """
-    This step generates a mic.yaml file and the directories (data/, src/, docker/). It also initializes a local
-    GitHub repository
+    This step generates a mic.yaml file and the directories (data/, src/, docker/). 
 
     The argument: `model_configuration_name` is the name of the model component you are defining in MIC
      """
@@ -114,7 +112,7 @@ def start(user_execution_directory, name, image):
     container_name = f"{name}_{str(uuid.uuid4())[:8]}"
     write_spec(mic_config_path, NAME_KEY, name)
     write_spec(mic_config_path, DOCKER_KEY, user_image)
-    write_spec(mic_config_path, FRAMEWORK_KEY, framework)
+    write_spec(mic_config_path, FRAMEWORK_KEY, framework.label)
     write_spec(mic_config_path, CONTAINER_NAME_KEY, container_name)
 
 
@@ -127,17 +125,9 @@ def start(user_execution_directory, name, image):
 
     if custom_image:
         click.secho(f"""
-    You are using a custom image
-    You must install mic and reprozip
-    $ pip3 install mic reprozip           
+You are using a custom image
+Installing MIC and some dependencies
         """, fg="green")
-    else:
-        click.secho(f"""
-        You are in a Linux environment Debian distribution.
-        You can use `apt` to install new packages
-        For example:
-        $ apt install r-base
-                """, fg="green")
 
     try:
         os.system(docker_cmd)
@@ -640,7 +630,7 @@ def run(mic_file):
 
 
 @cli.command(
-    short_help="Upload your code to GitHub, your image to DockerHub and your model component to the MINT Model Catalog.")
+    short_help="Upload your code, your image to DockerHub and your model component to the MINT Model Catalog.")
 @click.option(
     "-f",
     "--mic_file",
@@ -661,7 +651,7 @@ def run(mic_file):
               default=None)
 def upload(mic_file, profile, mc, dt):
     """
-  Upload your MIC wrapper (including all the contents of the /src folder) to GitHub, the Docker Image to DockerHub
+  Upload your MIC wrapper (including all the contents of the /src folder), the Docker Image to DockerHub
   and the model component to MINT Model Catalog.
 
   - You must pass the MIC_FILE (mic.yaml) as an argument using the (-f) option or run the

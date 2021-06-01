@@ -65,7 +65,7 @@ def info_end_run(execution_dir):
     click.secho("Success", fg="green")
     click.secho(f"You can see the result at {execution_dir}", fg="blue")
     click.secho("The next step is `mic pkg upload`")
-    click.secho("The step is going to upload the MIC Wrapper to GitHub, "
+    click.secho("The step is going to upload the MIC Wrapper, "
                 "the DockerImage on DockerHub and the Model Configuration on the MINT Model Catalog")
 
 

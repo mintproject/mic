@@ -7,7 +7,7 @@ mic credentials [-p | --profile] [--server] [--username] [--password] [--name]
 
 ## Description
 
-MIC uses several APIs (GitHub, DockerHub and MINT Model catalog) to upload model components. The MINT Model Catalog requires credentials for adding and modifying contents in the catalog. You can use the `credentials` command to configure a username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/), GitHub and DockerHub. For ease of use, this command can also be used with no parameters, it will prompt the user to enter any required field not given. 
+MIC uses several APIs (DockerHub and MINT Model catalog) to upload model components. The MINT Model Catalog requires credentials for adding and modifying contents in the catalog. You can use the `credentials` command to configure a username and password for the [Model Catalog API](https://model-catalog-python-api-client.readthedocs.io/en/latest/endpoints/) and DockerHub. For ease of use, this command can also be used with no parameters, it will prompt the user to enter any required field not given. 
 
 ## Options
 
@@ -31,38 +31,10 @@ Password for Model Catalog - [required]
 
 Full name of the author - [required]
 
-`--git_username <GitHub Username>`
-
-Author's Github username - [required]
-
-`--git_token <GitHub API Token>`
-
-Authors's GitHub API Token. More information can be found in the [setting up GitHub credentials](#GitHubCreds) section below - [required]
-
 `--dockerhub_username <Username>`
 
 Username for dockerhub
 
-
-## <a name="GitHubCreds">Setting up GitHub credentials</a>
-
-!!! info
-    If you are transforming IPython Notebook, you can skip this section
- 
-The `GitHub Username` field is the users GitHub username. If unknown the username can be found at [GitHub.com](https://github.com/). Once logged, in at the top right dropdown menu there will be a "signed in as **[username]**"
-
-The `GitHub Token` is the user's [personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line). To create a personal access token click [here](https://github.com/settings/tokens/new), or go to GitHub.com -> Settings -> Developer settings -> personal access token. Click **Generate new token** this will open the new personal access token page. The following options must be checked:
-  
-  - [x] repo: | Full control of private repositories
-  - [x] write:packages | Upload packages to github package registry
-  - [x] read:packages | Download packages from github package registry
- 
- Writing "mic access token" under notes is also recommended 
- 
- When done click **Generate token** at the bottom of the page. Once the token is generated be sure to copy and save it in a secure location. Enter this key in the `GitHub API token` field when prompted. 
-
-!!! warning
-    If this token is lost there is no way to recover it without generating a new one.
 
 ## Setting up DockerHub credentials
 
@@ -77,8 +49,6 @@ Username [mint@isi.edu]:
 Password:
 Name: 
 Email:
-GitHub Username:
-GitHub API token:
 Docker Username: 
 ```
 

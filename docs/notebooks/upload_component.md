@@ -1,6 +1,6 @@
 ## Configure your credentials
 
-To upload your model component, you should [configure your credentials for MIC](../commands/configure.md). You do not need to setup GitHub credentials.
+To upload your model component, you should [configure your credentials for MIC](../commands/configure.md). 
 
 ### Upload Docker Image
 

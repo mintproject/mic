@@ -1,10 +1,7 @@
 step: 1
 name: topoflow_dt
 docker_image: mintproject/dt_dame:latest
-framework: !!python/object/apply:mic.constants.Framework
-- !!python/tuple
-  - general
-  - mintproject/generic:latest
+framework: generic
 parameters:
   data_set_id:
     default_value: 5babae3f-c468-4e01-862e-8b201468e3b5

@@ -4,7 +4,7 @@ nav:
   - Installation: installation.md
   - MIC Overview: overview.md
   - 'Instructions':
-      - 'Setting up Docker and GitHub': 'model_configuration/01-DockerGitHub.md'
+      - 'Setting up Docker': 'model_configuration/01-DockerGitHub.md'
       - 'Preparing your executable': 'model_configuration/02-Preparing your executable.md'
       - 'Using the command line':
         - 'Option 1: Parameters values passed through command line':
