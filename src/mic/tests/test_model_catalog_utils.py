@@ -11,8 +11,6 @@ def test_configure():
     model_catalog_password = os.environ['MODEL_CATALOG_PASSWORD_TEST']
     result = runner.invoke(credentials, [
         "--username", model_catalog_username,
-        "--git_username", "mintbot",
-        "--git_token", "asdfsafs",
         "--password", model_catalog_password,
         "--dockerhub_username", "a",
         "--name", "pedro",
@@ -27,8 +25,6 @@ def test_get_api():
     model_catalog_password = os.environ['MODEL_CATALOG_PASSWORD_TEST']
     result = runner.invoke(credentials, [
         "--username", model_catalog_username,
-        "--git_username", "mintbot",
-        "--git_token", "asdfsafs",
         "--password", model_catalog_password,
         "--dockerhub_username", "a",
         "--name", "pedro",
