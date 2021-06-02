@@ -84,7 +84,7 @@ def _api_configuration(username, password, profile, server=None):
             click.secho(
                 f"""WARNING: Your credentials are using Model Catalog version {configuration_version},
                 but the version {package_version} is available.
-                You should consider upgrading via the 'dame configure -p {profile}'""",
+                You should consider upgrading via the 'dame credentials -p {profile}'""",
                 fg="yellow",
             )
             click.secho("DAME is going to use the newest version", fg="yellow")
