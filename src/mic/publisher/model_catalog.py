@@ -134,7 +134,7 @@ def publish_model_configuration(model_configuration, profile):
     model_cli = ModelCli(profile=profile)
     models = model_cli.get()
     labels = get_show_models(models, "models")
-    if click.confirm("Do you want to use an existing model?", default=True):
+    if labels and click.confirm("Do you want to use an existing model?", default=True):
         api_response, model_id, software_version_id = handle_existing_model(profile, api_response_mc, labels, model_cli)
     else:
         api_response = create_new_model(model_cli, api_response_mc)
@@ -167,7 +167,7 @@ def handle_existing_model(profile, api_response_mc, labels, model_cli):
 
 
 def handle_new_existing_software_version(labels, api_response_mc, selected_model, software_version_cli):
-    if click.confirm("Do you want to use an existing version?", default=True):
+    if labels and click.confirm("Do you want to use an existing version?", default=True):
         choice = click.prompt("Select enter the number of version to use",
                               default=1,
                               show_choices=False,
@@ -211,18 +211,23 @@ def create_new_model(model_cli, model_configuration):
 
 
 def get_show_models_version(resources, software_version_cli):
-    labels = get_label_from_response([software_version_cli.get_one(obtain_id(i.id)) for i in resources])
-    click.secho("Existing versions are:")
-    print_choices(labels)
-    return labels
+    if resources is not None:
+        labels = get_label_from_response([software_version_cli.get_one(obtain_id(i.id)) for i in resources])
+        click.secho("Existing versions are:")
+        print_choices(labels)
+        return labels
+    click.secho("No existing versions availables.")
+    return None
 
 
 def get_show_models(resources, resource_name):
-    labels = get_label_from_response(resources)
-    click.secho("Existing {} are:".format(resource_name))
-    print_choices(labels)
-    return labels
-
+    if resources is not None:
+        labels = get_label_from_response(resources)
+        click.secho("Existing {} are:".format(resource_name))
+        print_choices(labels)
+        return labels
+    click.secho("No existing models availables.")
+    return None
 
 def publish_data_transformation(data_transformation, profile):
     data_transformation_cli = DataTransformationCli(profile=profile)

@@ -81,30 +81,11 @@ def info_start_publish(mc = True):
 
 def info_end_publish_dt(model_id, model_version_id, model_configuration_id, profile):
     click.secho("Success", fg="green")
-    if model_id and model_version_id and model_configuration_id:
-        click.secho("You can edit the metadata using the MINT-UI")
-        url = f"{MODEL_CATALOG_URL}/{model_id}/{model_version_id}/{model_configuration_id}"
-        try:
-            if validators.url(url):
-                click.secho(url)
-        except ValidationFailure as e:
-            click.secho("Unable to generate the public url")
-            logging.debug(e, exc_info=True)
-            exit(1)
     click.echo("You can run the Model using DAME")
     click.echo(f"dame run {model_configuration_id} -p {profile}")
 
 
 def info_end_publish(model_id, model_version_id, model_configuration_id, profile):
     click.secho("Success", fg="green")
-    if model_id and model_version_id and model_configuration_id:
-        click.secho("You can edit the metadata using the MINT-UI")
-        url = f"{MODEL_CATALOG_URL}/{model_id}/{model_version_id}/{model_configuration_id}"
-        try:
-            if validators.url(url):
-                click.secho(url)
-        except ValidationFailure as e:
-            click.secho("Unable to generate the public url")
-            exit(1)
     click.echo("You can run the Model using DAME")
     click.echo(f"dame run {model_configuration_id} -p {profile}")
