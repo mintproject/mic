@@ -10,7 +10,7 @@ install_requires = [
     "tabulate>=0.8.1",
     "Jinja2>=2.11.2",
     "PyYAML>=5.3.1",
-    "modelcatalog-api==7.1.0",
+    "modelcatalog-api==8.0.0",
     "ipython2cwlmosorio==0.0.5",
     "validators",
     "mint_upload"
