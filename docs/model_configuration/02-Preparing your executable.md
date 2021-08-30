@@ -22,7 +22,7 @@ For MIC, `x` is considered an input file and `a` and `b` are considered paramete
 
 Use a Jupyter Notebook to expose the files and parameters. Make sure that it is Binder-executable and available through a public GitHub repository. This option can be preferred if the software was written in Python and already written in Notebook format or can easily be transferred to one. This might be the case, for instance, for data transformation software.
 
-If you would like to proceed with this option, the next step is to [prepare your notebook](/notebooks/).
+If you would like to proceed with this option, the next step is to [prepare your notebook](../notebooks/index.md).
 
 ## MIC Command line
 
