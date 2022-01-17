@@ -28,8 +28,8 @@ def push(model_directory: Path, mic_config_path: Path, name: str, profile):
     click.secho("Version: {}".format(_version))
 
 def upload_file(file_name: Path, profile, bucket_name):
-    mint_auth_server = "https://auth.mint.mosorio.dev/auth/realms/development/protocol/openid-connect/token" 
-    mint_s3_server   = "https://s3.mint.mosorio.dev"
+    mint_auth_server = "https://auth.mint.isi.edu/auth/realms/production/protocol/openid-connect/token" 
+    mint_s3_server   = "https://s3.mint.isi.edu"
     credentials = get_credentials(profile)
     username = credentials["username"]
     password = credentials["password"]
